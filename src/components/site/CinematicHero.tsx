@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle, Phone } from "lucide-react";
+import { Magnet } from "@/components/site/Magnet";
 import { BRAND, waLink } from "@/data/catalogue";
 import { clamp, prefersReducedMotion } from "@/lib/scroll";
 
@@ -101,42 +102,73 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
         }}
       >
         <div className="mx-auto w-full max-w-[1400px] px-5 pb-14 sm:px-8 sm:pb-20">
-          <p className="font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-[#DDBE5E]">
+          <p
+            className="rise-in font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-[#DDBE5E]"
+            style={{ animationDelay: "0.14s" }}
+          >
             Dubai · Kabul · Jeddah — since {BRAND.founded}
           </p>
 
-          <h1 className="mt-5 max-w-4xl font-display text-[3rem] leading-[0.98] text-white sm:text-7xl lg:text-[5.5rem]">
-            Travel,
-            <br />
-            <span className="italic text-[#DDBE5E]">curated for you.</span>
+          {/* Fluid to the viewport rather than stepped at breakpoints, so the
+              headline holds the same proportion of the frame on any screen.
+              Each line sits in its own overflow-hidden box and slides up from
+              below, which reads as type being set rather than fading in. */}
+          <h1 className="mt-5 max-w-5xl font-display leading-[0.94] text-white [font-size:clamp(3rem,9.5vw,8rem)]">
+            <span className="block overflow-hidden">
+              <span className="block rise-in" style={{ animationDelay: "0.26s", ["--rise" as string]: "100%" }}>
+                Travel,
+              </span>
+            </span>
+            <span className="block overflow-hidden">
+              <span
+                className="block italic rise-in text-[#DDBE5E]"
+                style={{ animationDelay: "0.38s", ["--rise" as string]: "100%" }}
+              >
+                curated for you.
+              </span>
+            </span>
           </h1>
 
-          <p className="mt-6 max-w-xl font-sans text-base leading-relaxed text-white/75 sm:text-lg">
+          <p
+            className="rise-in mt-6 max-w-xl font-sans text-base leading-relaxed text-white/75 sm:text-lg"
+            style={{ animationDelay: "0.62s" }}
+          >
             Worldwide holiday packages arranged end to end from our Deira office — flights, hotels,
             transfers and visas handled by one team.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">
-            <Link
-              to="/holidays"
-              className="group inline-flex items-center gap-2 rounded-sm bg-[#CAA42D] px-8 py-4 font-sans text-sm font-semibold text-[#04121f] transition-colors hover:bg-[#DDBE5E]"
-            >
-              <span>Explore holiday packages</span>
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-            <a
-              href={waLink("Hi Nawi Saadi, I'd like help planning a holiday package.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-sm border border-white/35 px-8 py-4 font-sans text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10"
-            >
-              <MessageCircle className="size-4" />
-              <span>Talk to a specialist</span>
-            </a>
+            <div className="pop-in" style={{ animationDelay: "0.78s" }}>
+              <Magnet padding={70} strength={4}>
+                <Link
+                  to="/holidays"
+                  className="group inline-flex items-center gap-2 rounded-sm bg-[#CAA42D] px-8 py-4 font-sans text-sm font-semibold text-[#04121f] transition-colors hover:bg-[#DDBE5E]"
+                >
+                  <span>Explore holiday packages</span>
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Magnet>
+            </div>
+            <div className="pop-in" style={{ animationDelay: "0.86s" }}>
+              <Magnet padding={70} strength={4}>
+                <a
+                  href={waLink("Hi Nawi Saadi, I'd like help planning a holiday package.")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="liquid-glass inline-flex items-center gap-2 rounded-sm px-8 py-4 font-sans text-sm font-semibold text-white transition-colors hover:bg-white/15"
+                >
+                  <MessageCircle className="size-4" />
+                  <span>Talk to a specialist</span>
+                </a>
+              </Magnet>
+            </div>
           </div>
 
           {/* Footer rail: credentials, clip indicator, phone. */}
-          <div className="mt-12 flex flex-wrap items-center justify-between gap-6 border-t border-white/15 pt-6">
+          <div
+            className="rise-in mt-12 flex flex-wrap items-center justify-between gap-6 border-t border-white/15 pt-6"
+            style={{ animationDelay: "1s" }}
+          >
             <ul className="flex flex-wrap items-center gap-x-8 gap-y-2 font-sans text-xs text-white/70">
               <li>IATA accredited agency</li>
               <li className="hidden sm:list-item">flydubai GSA — Afghanistan</li>

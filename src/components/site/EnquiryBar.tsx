@@ -70,7 +70,7 @@ export function EnquiryBar() {
     <div className="relative z-30 mx-auto -mt-16 max-w-[1400px] px-5 sm:-mt-20 sm:px-8">
       <form
         onSubmit={submit}
-        className="grid gap-px overflow-hidden rounded-2xl bg-[#E5E5E5] shadow-[0_24px_60px_-30px_rgba(0,54,95,0.45)] sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_auto]"
+        className="liquid-glass sheen grid gap-px overflow-hidden rounded-2xl shadow-[0_24px_60px_-30px_rgba(0,20,40,0.55)] sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_auto]"
       >
         <Field icon={MapPin} label="Destination">
           <input
@@ -79,7 +79,7 @@ export function EnquiryBar() {
             onChange={(e) => setDestination(e.target.value)}
             placeholder="Anywhere"
             aria-label="Destination"
-            className="w-full bg-transparent font-sans text-sm font-semibold text-[#00365F] outline-none placeholder:font-normal placeholder:text-[#9aa0a6]"
+            className="w-full bg-transparent font-sans text-sm font-semibold text-white outline-none placeholder:font-normal placeholder:text-white/55"
           />
           <datalist id="ns-destinations">
             {destinations.map((d) => (
@@ -93,7 +93,7 @@ export function EnquiryBar() {
             value={month}
             onChange={(e) => setMonth(e.target.value)}
             aria-label="Travel month"
-            className="w-full cursor-pointer bg-transparent font-sans text-sm font-semibold text-[#00365F] outline-none"
+            className="w-full cursor-pointer bg-transparent font-sans text-sm font-semibold text-white outline-none [&>option]:text-[#00365F]"
           >
             <option value="">Flexible</option>
             {upcomingMonths.map((m) => (
@@ -107,7 +107,7 @@ export function EnquiryBar() {
             value={travellers}
             onChange={(e) => setTravellers(e.target.value)}
             aria-label="Travellers"
-            className="w-full cursor-pointer bg-transparent font-sans text-sm font-semibold text-[#00365F] outline-none"
+            className="w-full cursor-pointer bg-transparent font-sans text-sm font-semibold text-white outline-none [&>option]:text-[#00365F]"
           >
             {["1 adult", "2 adults", "2 adults + children", "Family group", "6+ group"].map((t) => (
               <option key={t} value={t}>{t}</option>
@@ -117,7 +117,7 @@ export function EnquiryBar() {
 
         <button
           type="submit"
-          className="flex items-center justify-center gap-2 bg-[#00365F] px-8 py-5 font-sans text-sm font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F]"
+          className="flex items-center justify-center gap-2 bg-[#CAA42D] px-8 py-5 font-sans text-sm font-bold text-[#00365F] transition-colors hover:bg-[#DDBE5E]"
         >
           <Search className="size-4" />
           <span>Find my trip</span>
@@ -137,10 +137,10 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 bg-white px-5 py-4">
+    <label className="flex cursor-pointer items-center gap-3 px-5 py-4 transition-colors hover:bg-white/10">
       <Icon className="size-4 shrink-0 text-[#CAA42D]" />
       <span className="min-w-0 flex-1">
-        <span className="block font-sans text-[10px] font-bold uppercase tracking-[0.16em] text-[#666666]">
+        <span className="block font-sans text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">
           {label}
         </span>
         <span className="mt-0.5 block">{children}</span>

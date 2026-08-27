@@ -341,3 +341,179 @@
  * `#04121f` is intentionally excluded: it is the WebGL globe stage and the
  * video-hero scrim, which are meant to read as near-black, not as paper.
  * ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------ *
+ * Liquid glass.
+ *
+ * A translucent panel that reads as frosted glass over whatever sits
+ * behind it, rather than a flat white card at low opacity. Three parts
+ * do the work: a barely-there fill, a backdrop blur with a saturation
+ * lift, and a gradient hairline that is bright at the top and bottom
+ * edges and vanishes through the middle — that gradient border is what
+ * sells the curvature of a real glass edge.
+ *
+ * The border is drawn with a masked ::before rather than `border`,
+ * because a border cannot carry a gradient.
+ * ------------------------------------------------------------------ */
+
+@utility liquid-glass {
+  position: relative;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px) saturate(135%);
+  -webkit-backdrop-filter: blur(14px) saturate(135%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.16);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.16) 22%,
+      rgba(255, 255, 255, 0) 45%,
+      rgba(255, 255, 255, 0) 58%,
+      rgba(255, 255, 255, 0.16) 80%,
+      rgba(255, 255, 255, 0.5) 100%
+    );
+    /* Punch the fill out of the padding box so only the ring remains. */
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* Brighter state, for a selected or hovered glass surface. */
+@utility liquid-glass-strong {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.26);
+}
+
+/* One-shot specular sweep, run once as a panel settles. */
+@keyframes ns-sheen {
+  from {
+    transform: translate3d(-150%, 0, 0) skewX(-18deg);
+  }
+  to {
+    transform: translate3d(260%, 0, 0) skewX(-18deg);
+  }
+}
+
+@utility sheen {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    width: 38%;
+    background: linear-gradient(
+      100deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.17) 50%,
+      transparent 100%
+    );
+    animation: ns-sheen 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) 1.6s 1 both;
+    pointer-events: none;
+  }
+}
+
+/* Infinite marquee track. Pauses when the strip is hovered so a reader
+   can actually stop on an item. */
+@keyframes ns-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility marquee-track {
+  display: flex;
+  width: max-content;
+  animation: ns-marquee 32s linear infinite;
+}
+
+.marquee-host:hover .marquee-track,
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Staggered entry. Elements start hidden and are revealed on a beat by
+   an inline animation-delay, so a section can choreograph its own load. */
+@keyframes ns-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--rise, 16px));
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@utility rise-in {
+  opacity: 0;
+  animation: ns-rise-in 0.78s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ns-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility pop-in {
+  opacity: 0;
+  animation: ns-pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in,
+  .pop-in {
+    opacity: 1;
+    animation: none;
+  }
+  .marquee-track {
+    animation: none;
+  }
+  .sheen::after {
+    display: none;
+  }
+}
+
+/* Slow independent bob for the decorative marks in FloatingSquares. */
+@keyframes ns-bob {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="ns-bob"] {
+    animation: none !important;
+  }
+}

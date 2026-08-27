@@ -12,6 +12,10 @@ import { ScrollMarquee, type MarqueeItem } from "@/components/site/ScrollMarquee
 import { ScrollRevealText } from "@/components/site/ScrollRevealText";
 import { StackingItineraries, type StackCard } from "@/components/site/StackingItineraries";
 import { ScrollJourneyFilm } from "@/components/site/ScrollJourneyFilm";
+import { CredentialMarquee } from "@/components/site/CredentialMarquee";
+import { FloatingSquares } from "@/components/site/FloatingSquares";
+import { Magnet } from "@/components/site/Magnet";
+import { ArrowBadgeLink } from "@/components/site/ArrowBadgeLink";
 import { PixelRevealCard, type PixelCard } from "@/components/site/PixelRevealCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
@@ -63,6 +67,7 @@ function Home() {
     <div className="bg-[#FFFFFF] text-[#353844]">
       <Hero />
       <EnquiryBar />
+      <CredentialMarquee />
       <PhotoBand />
       <StatementBand />
       {/* The statement promises the whole trip is handled; the film shows it,
@@ -153,8 +158,9 @@ function PhotoBand() {
 
 function StatementBand() {
   return (
-    <section className="bg-[#FFFFFF] py-24 sm:py-32">
-      <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+    <section className="relative bg-[#FFFFFF] py-24 sm:py-32">
+      <FloatingSquares />
+      <div className="relative mx-auto max-w-[1400px] px-5 sm:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <Reveal>
             <span className="inline-block bg-[#00365F] px-4 py-1.5 font-sans text-[12px] font-semibold tracking-wide text-white">
@@ -262,13 +268,9 @@ function PackageGrid() {
               </h2>
             </div>
           </Reveal>
-          <Link
-            to="/holidays"
-            className="group inline-flex shrink-0 items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.14em] text-[#00365F] transition-colors hover:text-[#8F7420]"
-          >
-            <span>All {packages.length} packages</span>
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+          <ArrowBadgeLink to="/holidays" className="shrink-0">
+            All {packages.length} packages
+          </ArrowBadgeLink>
         </div>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -307,13 +309,9 @@ function UaeRail() {
               Dubai &amp; Abu Dhabi <span className="italic text-[#8F7420]">day experiences</span>
             </h2>
           </div>
-          <Link
-            to="/activities"
-            className="group inline-flex shrink-0 items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.14em] text-[#00365F] transition-colors hover:text-[#8F7420]"
-          >
-            <span>All tours &amp; passes</span>
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+          <ArrowBadgeLink to="/activities" className="shrink-0">
+            All tours &amp; passes
+          </ArrowBadgeLink>
         </div>
       </div>
 
@@ -440,22 +438,26 @@ function ContactClose() {
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
-              <a
-                href={waLink("Hi Nawi Saadi, I'd like help planning a holiday.")}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#CAA42D] px-7 py-4 font-sans text-sm font-bold text-[#00365F] transition-colors hover:bg-[#DDBE5E]"
-              >
-                <MessageCircle className="size-4" />
-                <span>Chat on WhatsApp</span>
-              </a>
-              <a
-                href={`tel:${BRAND.phone.replace(/\s/g, "")}`}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-7 py-4 font-sans text-sm font-semibold text-white transition-colors hover:bg-white/10"
-              >
-                <Phone className="size-4 text-[#CAA42D]" />
-                <span>{BRAND.phone}</span>
-              </a>
+              <Magnet padding={70} strength={4}>
+                <a
+                  href={waLink("Hi Nawi Saadi, I'd like help planning a holiday.")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#CAA42D] px-7 py-4 font-sans text-sm font-bold text-[#00365F] transition-colors hover:bg-[#DDBE5E]"
+                >
+                  <MessageCircle className="size-4" />
+                  <span>Chat on WhatsApp</span>
+                </a>
+              </Magnet>
+              <Magnet padding={70} strength={4}>
+                <a
+                  href={`tel:${BRAND.phone.replace(/\s/g, "")}`}
+                  className="liquid-glass inline-flex items-center gap-2 rounded-xl px-7 py-4 font-sans text-sm font-semibold text-white transition-colors hover:bg-white/15"
+                >
+                  <Phone className="size-4 text-[#CAA42D]" />
+                  <span>{BRAND.phone}</span>
+                </a>
+              </Magnet>
             </div>
           </div>
 
