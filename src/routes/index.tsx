@@ -7,7 +7,7 @@ import { inboundActivities } from "@/data/inbound";
 import { offices } from "@/data/catalogue-brand";
 import { CinematicHero, type HeroClip } from "@/components/site/CinematicHero";
 import { EnquiryBar } from "@/components/site/EnquiryBar";
-import { ParallaxImage } from "@/components/site/ParallaxImage";
+import { InlineScrollSequence } from "@/components/site/InlineScrollSequence";
 import { ScrollMarquee, type MarqueeItem } from "@/components/site/ScrollMarquee";
 import { ScrollRevealText } from "@/components/site/ScrollRevealText";
 import { StackingItineraries, type StackCard } from "@/components/site/StackingItineraries";
@@ -421,23 +421,34 @@ function Assurance() {
  * Close
  * ---------------------------------------------------------------- */
 
+/**
+ * Closing call to action.
+ *
+ * A two-panel band, not a card floating on a coloured field. The earlier
+ * version put a rounded image in a padded column beside short copy, which left
+ * a large dead area of navy under the text and made the panel look unfinished.
+ * Here the sequence fills its half edge to edge — full bleed to the top,
+ * bottom and outer edge of the section — so the band reads as one deliberate
+ * composition and there is no empty space left to explain.
+ */
 function ContactClose() {
   return (
-    <section className="relative overflow-hidden bg-[#00365F] py-20 text-white sm:py-28">
-      <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <div className="min-w-0">
+    <section className="relative bg-[#00365F] text-white">
+      <div className="grid items-stretch lg:grid-cols-2">
+        {/* Copy panel */}
+        <div className="flex items-center px-5 py-20 sm:px-8 sm:py-24 lg:justify-end lg:py-28">
+          <div className="w-full max-w-xl lg:pr-14">
             <Eyebrow onDark>Start planning</Eyebrow>
-            <h2 className="mt-4 font-display text-3xl leading-[1.1] text-white sm:text-5xl">
-              Tell us the country and the dates — we&apos;ll do{" "}
+            <h2 className="mt-4 font-display leading-[1.06] text-white [font-size:clamp(1.9rem,3.6vw,3.2rem)]">
+              Tell us the country and the dates &mdash; we&apos;ll do{" "}
               <span className="italic text-[#DDBE5E]">the rest</span>
             </h2>
-            <p className="mt-5 max-w-lg font-sans text-sm leading-relaxed text-white/70 sm:text-base">
-              A senior consultant will come back with a full itinerary and one all-in price.
-              No obligation, and no automated reply.
+            <p className="mt-5 max-w-md font-sans text-sm leading-relaxed text-white/70 sm:text-base">
+              A senior consultant comes back with a full itinerary and one all-in price. No
+              obligation, and no automated reply.
             </p>
 
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <Magnet padding={70} strength={4}>
                 <a
                   href={waLink("Hi Nawi Saadi, I'd like help planning a holiday.")}
@@ -459,20 +470,42 @@ function ContactClose() {
                 </a>
               </Magnet>
             </div>
-          </div>
 
-          <div className="min-w-0">
-            <ParallaxImage
-              src="/images/destinations/hero-switzerland.jpg"
-              alt="Alpine village on a Nawi Saadi Switzerland itinerary"
-              className="aspect-[4/3] rounded-3xl"
-            />
+            {/* Offices fill what was dead space, and are a real reason to trust
+                the number above. */}
+            <dl className="mt-12 grid gap-x-8 gap-y-5 border-t border-white/15 pt-8 sm:grid-cols-3">
+              {offices.map((o) => (
+                <div key={o.city} className="min-w-0">
+                  <dt className="font-sans text-[10px] font-bold uppercase tracking-[0.18em] text-[#DDBE5E]">
+                    {o.city}
+                  </dt>
+                  <dd className="mt-1.5 font-sans text-xs leading-relaxed text-white/60">
+                    {o.country}
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
+        </div>
+
+        {/* Full-bleed sequence panel. A minimum height keeps it from collapsing
+            on short viewports where the copy column is the taller of the two. */}
+        <div className="relative min-h-[420px] lg:min-h-[640px]">
+          <InlineScrollSequence
+            slug="suitcase"
+            alt="A holiday suitcase opening, its contents laid out"
+            className="absolute inset-0 size-full"
+            span={0.72}
+          />
+          {/* Feathers the inner edge into the navy so the join is not a hard
+              vertical line down the middle of the band. */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#00365F] to-transparent lg:w-32" />
         </div>
       </div>
     </section>
   );
 }
+
 
 /* ---------------------------------------------------------------- *
  * FAQ — three questions, not ten

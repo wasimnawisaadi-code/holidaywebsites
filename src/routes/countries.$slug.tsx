@@ -277,23 +277,66 @@ function CountryPage() {
         </section>
       )}
 
-      {/* More Regional Destinations */}
+      {/* More regional destinations.
+          Cards rather than a row of name pills: a bare country name gives a
+          reader nothing to choose on, so each one now carries its photograph,
+          typical trip length and entry price — the three things that actually
+          decide whether it is worth a click. */}
       <section className="mx-auto mt-20 max-w-[1400px] px-5 sm:px-8">
-        <h2 className="text-2xl font-bold text-[#00365F] sm:text-3xl">More {country.region} destinations</h2>
-        <div className="mt-6 flex flex-wrap gap-2.5">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h2 className="font-display text-2xl text-[#00365F] sm:text-3xl">
+            More {country.region} destinations
+          </h2>
+          <Link
+            to="/countries"
+            className="group inline-flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.14em] text-[#00365F] transition-colors hover:text-[#8F7420]"
+          >
+            <span>All destinations</span>
+            <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
+              &rarr;
+            </span>
+          </Link>
+        </div>
+
+        <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {countries
             .filter((c) => c.region === country.region && c.slug !== country.slug)
+            .slice(0, 8)
             .map((c) => (
-              <Link
-                key={c.slug}
-                to="/countries/$slug"
-                params={{ slug: c.slug }}
-                className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm transition-colors hover:border-[#00365F] hover:bg-[#00365F] hover:text-white"
-              >
-                {c.name}
-              </Link>
+              <li key={c.slug} className="min-w-0">
+                <Link
+                  to="/countries/$slug"
+                  params={{ slug: c.slug }}
+                  className="group flex h-full flex-col overflow-hidden rounded-3xl border border-[#E5E5E5] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#CAA42D] hover:shadow-xl"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-[#F8F8F8]">
+                    <img
+                      src={c.image}
+                      alt={c.name}
+                      loading="lazy"
+                      className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="flex flex-1 flex-col p-4">
+                    <p className="font-display text-lg leading-snug text-[#00365F] transition-colors group-hover:text-[#8F7420]">
+                      {c.name}
+                    </p>
+                    <p className="mt-1 line-clamp-2 font-sans text-xs leading-relaxed text-[#666666]">
+                      {c.tagline}
+                    </p>
+                    <div className="mt-auto flex items-end justify-between gap-3 pt-4">
+                      <span className="font-sans text-xs text-[#666666]">{c.nights}</span>
+                      <span className="font-display text-base font-bold text-[#00365F]">
+                        {typeof c.fromAed === "number"
+                          ? `AED ${c.fromAed.toLocaleString()}`
+                          : "On request"}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </li>
             ))}
-        </div>
+        </ul>
       </section>
     </div>
   );

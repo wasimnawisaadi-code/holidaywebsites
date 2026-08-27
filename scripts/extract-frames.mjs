@@ -13,7 +13,11 @@
  * Everything the player needs is written to manifest.json alongside them, so
  * the component never hardcodes a frame count.
  *
- *   node scripts/extract-journey-frames.mjs [frameCount]
+ * Usage:
+ *   node scripts/extract-journey-frames.mjs [frameCount] [slug] [video] [dw] [mw]
+ *
+ *   node scripts/extract-journey-frames.mjs 120
+ *   node scripts/extract-journey-frames.mjs 60 suitcase /videos/suitcase-exploded.mp4 560 400
  */
 import { chromium } from "playwright";
 import fs from "node:fs";
@@ -21,11 +25,12 @@ import path from "node:path";
 import sharp from "sharp";
 
 const BASE = process.env.BASE_URL || "http://localhost:5199";
-const VIDEO = "/videos/luxury-journey.mp4";
 const COUNT = Number(process.argv[2] || 120);
-const OUT = "public/frames/journey";
-const DESKTOP_W = 1280;
-const MOBILE_W = 720;
+const SLUG = process.argv[3] || "journey";
+const VIDEO = process.argv[4] || "/videos/luxury-journey.mp4";
+const DESKTOP_W = Number(process.argv[5] || 1280);
+const MOBILE_W = Number(process.argv[6] || 720);
+const OUT = `public/frames/${SLUG}`;
 
 fs.mkdirSync(path.join(OUT, "desktop"), { recursive: true });
 fs.mkdirSync(path.join(OUT, "mobile"), { recursive: true });
@@ -96,8 +101,8 @@ const manifest = {
   count: written,
   pattern: "f_{n}.webp",
   pad: 4,
-  desktop: { dir: "/frames/journey/desktop", width: DESKTOP_W },
-  mobile: { dir: "/frames/journey/mobile", width: MOBILE_W },
+  desktop: { dir: `/frames/${SLUG}/desktop`, width: DESKTOP_W },
+  mobile: { dir: `/frames/${SLUG}/mobile`, width: MOBILE_W },
   source: { duration: meta.duration, width: meta.width, height: meta.height },
   aspect: meta.width / meta.height,
 };
