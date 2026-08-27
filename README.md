@@ -1,18 +1,13 @@
-# Welcome to your Lovable project
+# Nawi Saadi Travel & Tourism
 
-This project was built with [Lovable](https://lovable.dev).
+Production website for Nawi Saadi Travel & Tourism — an IATA-accredited travel
+agency in Deira, Dubai, trading since 2009.
 
-## Build with Lovable
-
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+Built with TanStack Start (React 19, SSR), Tailwind CSS v4 and Nitro.
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+You need Node.js and npm.
 
 ```sh
 git clone <this-repository-url>
