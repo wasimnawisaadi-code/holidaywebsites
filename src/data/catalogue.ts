@@ -1789,7 +1789,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Adventure", "Luxury", "Family"],
     "priceStatus": "from",
     "priceFrom": 4999,
-    "image": "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/kenya-01.jpg",
     "intro": "Witness the world's most thrilling wildlife spectacle in the Masai Mara, followed by pristine white-sand relaxation on the Indian Ocean coast at Diani Beach.",
     "story": "Track lions, leopards, elephants and cheetahs in custom 4x4 pop-top safari cruisers with expert spotters, stay at luxury tented lodges along the Mara River, and unwind in tropical beach bliss.",
     "highlights": [
@@ -1913,7 +1913,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Beach", "Family", "Honeymoon"],
     "priceStatus": "from",
     "priceFrom": 2799,
-    "image": "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/thailand-islands-bangkok-01.jpg",
     "intro": "Turquoise lagoons, dramatic limestone sea karst cliffs, luxury island resorts, and the sparkling temples and street food of vibrant Bangkok.",
     "story": "Cruise the Andaman Sea by luxury speedboat to Maya Bay, kayak emerald sea caves in Phang Nga, relax in Krabi's tranquil bays, and shop the world-class megamalls of Bangkok.",
     "highlights": [
@@ -2044,7 +2044,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "City Escape", "Family"],
     "priceStatus": "from",
     "priceFrom": 5699,
-    "image": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/united-kingdom-01.jpg",
     "intro": "From the iconic landmarks of London and Buckingham Palace to the misty castles, ancient glens, and monster legends of the Scottish Highlands.",
     "story": "Explore the Tower of London and Big Ben, ride the high-speed LNER train to medieval Edinburgh, and drive through Glencoe's dramatic peaks to Loch Ness.",
     "highlights": [
@@ -2175,7 +2175,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "Cruises", "Adventure"],
     "priceStatus": "from",
     "priceFrom": 2999,
-    "image": "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/thailand-02.jpg",
     "intro": "Glide past thousands of limestone emerald karsts in Halong Bay aboard a 5-star boutique cruise, and immerse yourself in Hanoi's rich French-colonial culture.",
     "story": "Wake up to morning Tai Chi on Halong Bay's sundeck, kayak through luminous sea grottos, explore Ninh Binh's inland river caves, and savor authentic Vietnamese pho and egg coffee.",
     "highlights": [
@@ -2295,7 +2295,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "Honeymoon", "City Escape"],
     "priceStatus": "from",
     "priceFrom": 4899,
-    "image": "https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/austria-01.jpg",
     "intro": "Imperial Habsburg palaces, Mozart's classical melodies in Salzburg, and the postcard-perfect fairytale alpine village of Hallstatt.",
     "story": "Tour the grand imperial chambers of Schönbrunn Palace, stroll Vienna's historic Ringstrasse, ride scenic trains through the Alps to Salzburg, and gaze at Hallstatt's wooden chalets reflected in crystal waters.",
     "highlights": [
@@ -2401,7 +2401,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Weekend Escape", "Cultural", "City Escape"],
     "priceStatus": "from",
     "priceFrom": 2499,
-    "image": "https://images.unsplash.com/photo-1541849546-216549ae216d?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/czech-republic-01.jpg",
     "intro": "The City of a Hundred Spires: gothic towers, romantic cobblestone alleys over Charles Bridge, and UNESCO medieval fairytale castles.",
     "story": "Walk across the 14th-century Charles Bridge, watch the Astronomical Clock strike the hour, tour the colossal Prague Castle complex, and take a day trip to the enchanting medieval town of Český Krumlov.",
     "highlights": [
@@ -2495,7 +2495,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "Adventure", "Luxury"],
     "priceStatus": "from",
     "priceFrom": 3699,
-    "image": "https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/morocco-marrakech-sahara-01.jpg",
     "intro": "Exotic spice souks of Marrakech, dramatic snow-tipped Atlas mountain passes, ancient mudbrick kasbahs, and a magical night under the Sahara stars.",
     "story": "Wander through Marrakech's Jardin Majorelle, drive the Tizi n'Tichka pass to the Gladiator fortress of Ait Ben Haddou, and ride camels across golden Erg Chebbi dunes to a luxury glamping tent with private bath.",
     "highlights": [
@@ -2732,7 +2732,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["City Escape", "Family", "Shopping"],
     "priceStatus": "from",
     "priceFrom": 3499,
-    "image": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/singapore-01.jpg",
     "intro": "The Lion City meets the Malaysian capital: futuristic Supertrees, Sentosa cable cars, Petronas Twin Towers, and vibrant night food markets.",
     "story": "Experience two world-class Southeast Asian metropolises: gaze at the Avatar-like Gardens by the Bay, ride cable cars over Sentosa Island, cross the border via scenic express coach, and stand before the rainbow steps of Batu Caves.",
     "highlights": [
@@ -2850,7 +2850,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "City Escape", "Shopping"],
     "priceStatus": "from",
     "priceFrom": 4699,
-    "image": "https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/south-korea-01.jpg",
     "intro": "Royal Joseon Dynasty palaces, Hanbok traditional costume experiences, cutting-edge K-pop shopping in Myeongdong, and the volcanic UNESCO nature of Jeju Island.",
     "story": "Step back in time at Gyeongbokgung Palace, stroll beneath golden ginkgo trees on romantic Nami Island, fly to subtropical Jeju Island to explore volcanic craters and waterfalls, and indulge in sizzling Korean BBQ.",
     "highlights": [
@@ -2971,7 +2971,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "Adventure", "Luxury"],
     "priceStatus": "from",
     "priceFrom": 3299,
-    "image": "https://images.unsplash.com/photo-1548786811-dd6e453ccca7?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/morocco-04.jpg",
     "intro": "Walk through the mystical Siq canyon into the rose-red stone facades of Petra, sleep in a glass geodesic dome under the starry skies of Wadi Rum, and float effortlessly on the mineral-rich Dead Sea.",
     "story": "Jordan blends biblical antiquity, colossal Roman ruins, and Martian desert landscapes. Begin with the colonnaded avenues of ancient Jerash, behold the 2,000-year-old carved facade of Petra's Al-Khazneh Treasury by candlelight, race across red dunes in a 4x4 Bedouin jeep, and unwind at a 5-star Dead Sea luxury wellness resort.",
     "highlights": [
@@ -3495,7 +3495,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Beach", "Luxury", "Honeymoon"],
     "priceStatus": "from",
     "priceFrom": 5899,
-    "image": "https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/seychelles-04.jpg",
     "intro": "The Garden of Eden: sculpted prehistoric pink granite boulders, endemic giant tortoises, Coco de Mer double coconut palms, and crystal-clear turquoise lagoons.",
     "story": "Located just 4.5 hours direct flight from Dubai, the Seychelles archipelago represents the pinnacle of private island luxury. Stay in a 5-star beachfront suite on Mahé, take the Cat Cocos ferry to Praslin's UNESCO jungle, and cycle past giant tortoises to the world's most photographed beach on La Digue.",
     "highlights": [
@@ -3604,7 +3604,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["City Escape", "Cultural", "Romantic"],
     "priceStatus": "from",
     "priceFrom": 2799,
-    "image": "https://images.unsplash.com/photo-1549877452-9c387954fbc2?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/hungary-01.jpg",
     "intro": "The Queen of the Danube: Neo-Gothic parliament spires glowing on the river, fairytale fairytale turrets at Fisherman's Bastion, and steaming outdoor mineral thermal baths.",
     "story": "Split by the majestic Danube River into historic hilly Buda and vibrant Pest, Budapest is one of Central Europe's most enchanting and affordable royal capitals. Soak in the neo-baroque outdoor pools of Széchenyi, cruise past the illuminated Hungarian Parliament at night, and savor warm chimney cakes and goulash.",
     "highlights": [
@@ -3699,7 +3699,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["City Escape", "Beach", "Nature"],
     "priceStatus": "from",
     "priceFrom": 6899,
-    "image": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/australia-01.jpg",
     "intro": "The best of Down Under: sail past the Sydney Opera House, gaze at the eucalyptus-hazed Blue Mountains, and soak up sunshine on the golden surf beaches of Queensland.",
     "story": "From the world's most recognizable harbour to ancient rainforests and world-class theme parks, Australia offers an unforgettable luxury journey. Walk the dramatic cliffs of Bondi, meet koalas and kangaroos up close, and enjoy beachfront resort dining on the Gold Coast.",
     "highlights": [
@@ -3830,7 +3830,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Mountain", "Nature", "Adventure"],
     "priceStatus": "from",
     "priceFrom": 2299,
-    "image": "https://images.unsplash.com/photo-1527004013197-933c4bb611b3?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/kyrgyzstan-03.jpg",
     "intro": "The Switzerland of Central Asia: towering snow peaks, alpine pine forests, nomadic yurt traditions, and the world's second-largest high-altitude saline lake.",
     "story": "Just 4 hours flight from Dubai, Kyrgyzstan is an untouched paradise of soaring 7,000m peaks, glacier-fed alpine rivers, and ancient nomadic heritage. Hike beneath colossal glaciers in Ala Archa, sleep by the turquoise shores of Issyk-Kul Lake, and witness golden eagle hunting demonstrations.",
     "highlights": [
@@ -3925,7 +3925,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["City Escape", "Family", "Theme Park"],
     "priceStatus": "from",
     "priceFrom": 3899,
-    "image": "https://images.unsplash.com/photo-1536599018102-9f803c140fc1?auto=format&fit=crop&w=1200&q=80",
+    "image": "/images/destinations/singapore-02.jpg",
     "intro": "The dazzling Fragrant Harbour: futuristic neon skylines, historic double-decker trams, magical World of Frozen at Disneyland, and Portuguese heritage in Macau.",
     "story": "Ride the historic Peak Tram to the highest point on Hong Kong Island, sail aboard the vintage Star Ferry across Victoria Harbour, spend a day of pure magic at Hong Kong Disneyland, and take the high-speed turbojet ferry to Macau to see the UNESCO Ruins of St. Paul's and world-class resort casinos.",
     "highlights": [
