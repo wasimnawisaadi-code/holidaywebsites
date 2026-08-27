@@ -137,9 +137,14 @@ export function SiteFooter() {
 
         {/* Legal line */}
         <div className="flex flex-col items-start justify-between gap-3 border-t border-[#E5E5E5] py-7 font-sans text-xs text-[#666666] sm:flex-row sm:items-center">
-          <p>
-            © {new Date().getFullYear()} {BRAND.legal}
-          </p>
+          <div className="space-y-1">
+            <p>
+              © {new Date().getFullYear()} {BRAND.legal}
+            </p>
+            <p className="text-[10px] tracking-wide text-[#888888]">
+              Designed &amp; Developed by Mhd Wasim
+            </p>
+          </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link to="/privacy" className="transition-colors hover:text-[#8F7420]">
               Privacy policy

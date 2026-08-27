@@ -23,6 +23,7 @@ import {
   Zap,
 } from "lucide-react";
 import { BRAND, packages, priceLabel, waLink } from "@/data/catalogue";
+import { countries } from "@/data/countries";
 import { packageDetail } from "@/data/package-details";
 import { PackageCard } from "@/components/site/PackageCard";
 import { Reveal } from "@/components/site/Reveal";
@@ -209,7 +210,17 @@ function PackagePage() {
     return waLink(msg);
   }, [pkg, hotelTier, adults, children, estimatedTotal]);
 
-  const gallery = detail?.gallery?.length ? detail.gallery : [pkg.image];
+  const countryRecord = countries.find(
+    (c) =>
+      c.name.toLowerCase() === pkg.country.toLowerCase() ||
+      c.slug.toLowerCase() === pkg.country.toLowerCase() ||
+      (c.name === "United States of America" && pkg.country.includes("United States"))
+  );
+
+  const countryGallery = countryRecord?.gallery?.length ? countryRecord.gallery : [];
+  const rawGallery = detail?.gallery?.length ? detail.gallery : [];
+  const combined = [...new Set([pkg.image, ...rawGallery, ...countryGallery])];
+  const gallery = combined.length >= 4 ? combined.slice(0, 4) : (combined.length ? combined : [pkg.image]);
   const related = packages.filter((p) => p.slug !== pkg.slug && (p.region === pkg.region || p.styles.some(s => pkg.styles.includes(s)))).slice(0, 3);
 
   return (
@@ -267,7 +278,7 @@ function PackagePage() {
       {/* Four-image gallery */}
       <div className="mx-auto mt-8 max-w-[1400px] px-5 sm:px-8">
         <div className="grid gap-3 lg:grid-cols-[2.2fr_1fr]">
-          <div className="aspect-[16/10] overflow-hidden rounded-3xl bg-slate-100 shadow-md">
+          <div className="relative aspect-[16/10] overflow-hidden rounded-3xl bg-slate-100 shadow-md">
             <img
               src={gallery[shot] ?? pkg.image}
               alt={`${pkg.title} — view ${shot + 1}`}
@@ -275,6 +286,9 @@ function PackagePage() {
               height={1000}
               className="size-full object-cover transition-all duration-500"
             />
+            <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
+              Photo {shot + 1} of {gallery.length}
+            </div>
           </div>
           <div className="grid grid-cols-4 gap-3 lg:grid-cols-2">
             {gallery.slice(0, 4).map((g, i) => (
@@ -284,11 +298,21 @@ function PackagePage() {
                 onClick={() => setShot(i)}
                 aria-label={`Show image ${i + 1}`}
                 className={cn(
-                  "aspect-[4/3] overflow-hidden rounded-2xl ring-2 transition-all cursor-pointer bg-slate-100",
-                  shot === i ? "ring-[#00365F] shadow-md" : "ring-transparent hover:ring-[#00365F]/40 opacity-80 hover:opacity-100",
+                  "group relative aspect-[4/3] overflow-hidden rounded-2xl ring-2 transition-all cursor-pointer bg-slate-100",
+                  shot === i
+                    ? "ring-[#00365F] shadow-md scale-102"
+                    : "ring-transparent hover:ring-[#00365F]/40 opacity-80 hover:opacity-100",
                 )}
               >
-                <img src={g} alt="" loading="lazy" className="size-full object-cover" />
+                <img
+                  src={g}
+                  alt=""
+                  loading="lazy"
+                  className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <span className="absolute top-2 left-2 flex size-5 items-center justify-center rounded-full bg-black/50 text-[10px] font-bold text-white backdrop-blur-xs">
+                  {i + 1}
+                </span>
               </button>
             ))}
           </div>

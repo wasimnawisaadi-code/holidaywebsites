@@ -25,6 +25,17 @@ export type GlobeMarker = {
 
 /** Anchor city per destination, in degrees. */
 const COORDS: Record<string, [number, number]> = {
+  "bosnia-and-herzegovina": [43.3438, 17.8078], // Mostar
+  oman: [17.0151, 54.0924], // Salalah
+  "saudi-arabia": [21.3891, 39.8579], // Makkah
+  spain: [41.3874, 2.1686], // Barcelona
+  germany: [47.5576, 10.7498], // Neuschwanstein / Munich
+  netherlands: [52.3676, 4.9041], // Amsterdam
+  portugal: [38.7223, -9.1393], // Lisbon
+  mauritius: [-20.4500, 57.3167], // Le Morne
+  qatar: [25.2854, 51.5310], // Doha
+  bahrain: [26.2285, 50.5860], // Manama
+
   // Europe
   switzerland: [46.6863, 7.8632], // Interlaken
   france: [48.8566, 2.3522], // Paris

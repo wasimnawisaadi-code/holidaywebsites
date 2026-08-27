@@ -2175,7 +2175,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "Cruises", "Adventure"],
     "priceStatus": "from",
     "priceFrom": 2999,
-    "image": "/images/destinations/thailand-02.jpg",
+    "image": "/images/destinations/vietnam-halong-bay.jpg",
     "intro": "Glide past thousands of limestone emerald karsts in Halong Bay aboard a 5-star boutique cruise, and immerse yourself in Hanoi's rich French-colonial culture.",
     "story": "Wake up to morning Tai Chi on Halong Bay's sundeck, kayak through luminous sea grottos, explore Ninh Binh's inland river caves, and savor authentic Vietnamese pho and egg coffee.",
     "highlights": [
@@ -2850,7 +2850,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "City Escape", "Shopping"],
     "priceStatus": "from",
     "priceFrom": 4699,
-    "image": "/images/destinations/south-korea-01.jpg",
+    "image": "/images/destinations/south-korea-seoul.jpg",
     "intro": "Royal Joseon Dynasty palaces, Hanbok traditional costume experiences, cutting-edge K-pop shopping in Myeongdong, and the volcanic UNESCO nature of Jeju Island.",
     "story": "Step back in time at Gyeongbokgung Palace, stroll beneath golden ginkgo trees on romantic Nami Island, fly to subtropical Jeju Island to explore volcanic craters and waterfalls, and indulge in sizzling Korean BBQ.",
     "highlights": [
@@ -2971,7 +2971,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "Adventure", "Luxury"],
     "priceStatus": "from",
     "priceFrom": 3299,
-    "image": "/images/destinations/morocco-04.jpg",
+    "image": "/images/destinations/jordan-petra.jpg",
     "intro": "Walk through the mystical Siq canyon into the rose-red stone facades of Petra, sleep in a glass geodesic dome under the starry skies of Wadi Rum, and float effortlessly on the mineral-rich Dead Sea.",
     "story": "Jordan blends biblical antiquity, colossal Roman ruins, and Martian desert landscapes. Begin with the colonnaded avenues of ancient Jerash, behold the 2,000-year-old carved facade of Petra's Al-Khazneh Treasury by candlelight, race across red dunes in a 4x4 Bedouin jeep, and unwind at a 5-star Dead Sea luxury wellness resort.",
     "highlights": [
@@ -3925,7 +3925,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["City Escape", "Family", "Theme Park"],
     "priceStatus": "from",
     "priceFrom": 3899,
-    "image": "/images/destinations/singapore-02.jpg",
+    "image": "/images/destinations/hong-kong-skyline.jpg",
     "intro": "The dazzling Fragrant Harbour: futuristic neon skylines, historic double-decker trams, magical World of Frozen at Disneyland, and Portuguese heritage in Macau.",
     "story": "Ride the historic Peak Tram to the highest point on Hong Kong Island, sail aboard the vintage Star Ferry across Victoria Harbour, spend a day of pure magic at Hong Kong Disneyland, and take the high-speed turbojet ferry to Macau to see the UNESCO Ruins of St. Paul's and world-class resort casinos.",
     "highlights": [
@@ -4020,6 +4020,2052 @@ export const packages: HolidayPackage[] = [
       "Disney Premier Access fast passes (optional)",
       "Guide and chauffeur gratuities",
       "Travel insurance"
+    ]
+  },
+  {
+    "slug": "finland-lapland-aurora",
+    "title": "Finland Arctic Magic: Lapland Northern Lights, Glass Igloo & Santa Claus Village",
+    "destination": "Helsinki · Rovaniemi · Santa Claus Village · Arctic Circle Glass Igloos",
+    "country": "Finland",
+    "region": "International",
+    "days": 6,
+    "nights": 5,
+    "styles": [
+      "Northern Lights",
+      "Family",
+      "Luxury",
+      "Adventure"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 6890,
+    "image": "/images/destinations/finland-northern-lights.jpg",
+    "intro": "Experience the ultimate winter wonderland in Finnish Lapland: chase the dancing Aurora Borealis, sleep under the stars in a heated glass igloo, and meet Santa Claus at the Arctic Circle.",
+    "story": "From Helsinki's elegant design quarter to the snow-covered pine forests of Rovaniemi, embark on an unforgettable Arctic expedition featuring husky sledding, reindeer safaris, and nightly Northern Lights hunts.",
+    "highlights": [
+      "Overnight stay in a luxury heated glass-roof igloo under the Arctic sky",
+      "Nightly Northern Lights Aurora Borealis guided chase with pro photographer",
+      "VIP meet-and-greet at Santa Claus Village on the official Arctic Circle line",
+      "Thrilling husky dog sledding through snow-covered Lappish forests",
+      "Traditional reindeer sleigh safari and indigenous Sámi cultural experience",
+      "Snowmobile safari across frozen lakes and Arctic wilderness trails",
+      "Guided tour of Helsinki Cathedral, Senate Square & Design District"
+    ],
+    "route": [
+      "Helsinki",
+      "Rovaniemi",
+      "Santa Claus Village",
+      "Arctic Glass Resort",
+      "Helsinki"
+    ],
+    "featured": true,
+    "seasonal": "Winter Wonderland",
+    "isNew": true,
+    "inclusions": [
+      "5 nights luxury accommodation including 1 night in heated glass igloo",
+      "Daily Scandinavian buffet breakfast & 3 gourmet dinners",
+      "Domestic flight Helsinki - Rovaniemi round-trip with checked luggage",
+      "All thermal Arctic winter clothing, boots and gloves provided for activities",
+      "Husky safari (5km), Reindeer sleigh ride, and Snowmobile excursion",
+      "Guided Northern Lights chase with warm campfire drinks and snacks",
+      "All private airport and inter-activity transfers in heated Mercedes coaches",
+      "24/7 dedicated concierge assistance in English and Arabic"
+    ],
+    "exclusions": [
+      "International flights to/from Helsinki DXB/AUH",
+      "Schengen visa processing fees",
+      "Personal travel insurance",
+      "Optional premium excursions not mentioned in the itinerary"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Helsinki & Capital City Highlights",
+        "summary": "Arrive at Helsinki Airport, private transfer to luxury downtown hotel, orientation walk.",
+        "activities": [
+          "Arrive at Helsinki Airport (HEL) from Dubai. Meet your private driver and transfer to your luxury central hotel.",
+          "Enjoy a scenic walking tour of Senate Square, the iconic white Helsinki Cathedral, and Market Square by the harbour.",
+          "Welcome dinner featuring Nordic cuisine at a celebrated local restaurant."
+        ],
+        "meals": "Dinner included",
+        "transport": "Included private transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Flight to Lapland (Rovaniemi) & Santa Claus Village",
+        "summary": "Fly to Rovaniemi, cross the official Arctic Circle, and meet Santa Claus.",
+        "activities": [
+          "Morning flight from Helsinki to Rovaniemi, the official hometown of Santa Claus.",
+          "Check in to your Arctic lodge and receive your thermal suits, boots, and winter gear.",
+          "Visit Santa Claus Village: cross the Arctic Circle latitude line, visit Santa's Main Post Office, and meet Santa Claus in person.",
+          "Evening Northern Lights Aurora chase by heated minivan to optimal dark-sky spots with hot berry juice by a campfire."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Flight & private transport included"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Husky Dog Sledding & Snowmobile Arctic Safari",
+        "summary": "Mushing your own husky team across snow forests and snowmobiling on frozen lakes.",
+        "activities": [
+          "Visit an authentic Lappish husky kennel and meet enthusiastic Siberian huskies.",
+          "Take the reins to drive your own 2-person dog sled team on a thrilling 5km trail through pristine snowy pine forests.",
+          "After lunch, embark on an exhilarating 2-hour guided snowmobile adventure across frozen rivers and snowdrifts.",
+          "Relax in a traditional Finnish wood-fired sauna."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Reindeer Sleigh, Sámi Heritage & Glass Igloo Check-in",
+        "summary": "Reindeer farm visit, Sámi folklore storytelling, and sleeping in a 360° heated glass igloo.",
+        "activities": [
+          "Visit a heritage reindeer farm: learn lasso throwing and glide gracefully in a traditional wooden reindeer sleigh.",
+          "Warm up inside a Lappish kota tent listening to traditional joik songs and stories from local Sámi herders.",
+          "Transfer and check in to your luxury heated Glass Igloo resort.",
+          "Watch the Arctic night sky from your warm bed equipped with Aurora alarm notification systems."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Arctic Snowshoe Trek & Return Flight to Helsinki",
+        "summary": "Snowshoe nature walk, flight back to Helsinki for shopping and leisure.",
+        "activities": [
+          "Morning snowshoe trek through silent snow-draped taiga forests with panoramic fell viewpoints.",
+          "Transfer to Rovaniemi Airport for your return flight to Helsinki.",
+          "Evening at leisure exploring Helsinki's Esplanadi shopping district and Design Quarter."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Flight & private transport included"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — Departure from Helsinki to UAE",
+        "summary": "Free morning for souvenir shopping before VIP transfer to airport.",
+        "activities": [
+          "Leisurely breakfast and last-minute shopping for Finnish design, Fazer chocolates, and Arctic souvenirs.",
+          "Private Mercedes transfer to Helsinki Airport for your return flight to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "malaysia-kuala-lumpur-langkawi",
+    "title": "Malaysia Enchantment: Kuala Lumpur Twin Towers, Batu Caves & Langkawi Beach Resort",
+    "destination": "Kuala Lumpur · Petronas Towers · Batu Caves · Genting · Langkawi Island",
+    "country": "Malaysia",
+    "region": "International",
+    "days": 6,
+    "nights": 5,
+    "styles": [
+      "Family",
+      "Beach",
+      "Shopping",
+      "City Escape"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 2850,
+    "image": "/images/destinations/malaysia-g01.jpg",
+    "intro": "The best of dynamic Southeast Asia: sparkling Petronas Twin Towers, colorful Batu Caves rainbow steps, and tropical beach relaxation on the UNESCO island of Langkawi.",
+    "story": "Explore world-class shopping in Bukit Bintang, take the high-altitude cable car up Genting Highlands, and fly to Langkawi for white-sand beaches, mangrove eagle feeding, and luxury island resorts.",
+    "highlights": [
+      "Access tickets to Petronas Twin Towers Skybridge & 86th floor observation deck",
+      "Guided tour of Batu Caves featuring the giant golden Lord Murugan statue",
+      "Day excursion to Genting Highlands with Awana SkyWay glass-bottom gondola",
+      "3 nights luxury beachside 5-star resort stay in Andaman Sea Langkawi",
+      "Langkawi UNESCO Geopark Kilim Geoforest mangrove boat safari & eagle watching",
+      "Langkawi SkyCab & breathtaking curved SkyBridge mountain crossing",
+      "Duty-free shopping in Bukit Bintang, Pavilion Mall & Langkawi Cenang"
+    ],
+    "route": [
+      "Kuala Lumpur",
+      "Batu Caves",
+      "Genting Highlands",
+      "Langkawi",
+      "Kuala Lumpur"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "2 nights 5-star hotel in Kuala Lumpur & 3 nights 5-star beachfront resort in Langkawi",
+      "Daily international breakfast buffet",
+      "Domestic flights Kuala Lumpur - Langkawi round-trip with 20kg baggage",
+      "Petronas Twin Towers & Langkawi SkyBridge entry tickets",
+      "Kilim Geoforest private mangrove boat tour with lunch",
+      "All private airport, tour and hotel transfers in air-conditioned vehicles",
+      "English/Arabic speaking tour guide throughout"
+    ],
+    "exclusions": [
+      "International flights to/from Kuala Lumpur DXB/AUH",
+      "Malaysia tourism tax paid directly at hotel check-in",
+      "Personal expenses and water sports rentals",
+      "Travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Kuala Lumpur & Bukit Bintang Nightlife",
+        "summary": "Arrive at KLIA, private transfer to 5★ central hotel, evening food street tour.",
+        "activities": [
+          "Arrival at Kuala Lumpur International Airport (KLIA). VIP airport pickup and transfer to your 5-star hotel in central KLCC.",
+          "Freshen up and enjoy an evening stroll through Bukit Bintang and Jalan Alor street food market.",
+          "Admire the illuminated Petronas Twin Towers and Lake Symphony fountain show."
+        ],
+        "meals": "No meals (arrival day)",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Petronas Skybridge, Batu Caves & Genting Highlands",
+        "summary": "Petronas Towers, colorful Batu Caves, and Awana SkyWay to Genting.",
+        "activities": [
+          "Ascend the Petronas Twin Towers SkyBridge connecting the dual towers and the 86th floor viewing deck.",
+          "Visit the sacred Batu Caves with its 140-foot golden statue and 272 rainbow steps leading into cathedral caverns.",
+          "Ride the Awana SkyWay cable car up to Genting Highlands mountain resort for cool breezes and entertainment."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private vehicle with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Flight to Tropical Langkawi & Sunset Beach",
+        "summary": "Fly to Langkawi Island, check in to beachfront luxury resort, relax by Andaman Sea.",
+        "activities": [
+          "Transfer to airport for a short 50-minute scenic flight to Langkawi Island.",
+          "Check in to your 5-star beachfront resort at Pantai Cenang or Datai Bay.",
+          "Spend the afternoon swimming in turquoise waters or relaxing poolside with complimentary tropical mocktails.",
+          "Sunset dinner on the beach with fresh grilled seafood."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Domestic flight & private transfer included"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Kilim Geopark Mangrove Safari & Eagle Watching",
+        "summary": "Boat cruise through limestone karst mangroves, bat caves, and Brahminy kite feeding.",
+        "activities": [
+          "Private boat cruise through the UNESCO Kilim Karst Geoforest Park.",
+          "Witness Brahminy kites and white-bellied sea eagles swooping down during feeding sessions.",
+          "Explore the prehistoric Bat Cave (Gua Kelawar) and floating fish farm restaurant for lunch.",
+          "Stop at secluded Andaman beach coves for swimming."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Included private boat & road transfer"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Langkawi SkyCab, Curved SkyBridge & Oriental Village",
+        "summary": "Ride the steepest cable car in the world and walk across the curved mountain suspension bridge.",
+        "activities": [
+          "Ride the Langkawi SkyCab up Mount Machinchang for jaw-dropping 360° views stretching to Thailand.",
+          "Walk across the iconic 125-meter curved Langkawi SkyBridge suspended 660 meters above sea level.",
+          "Explore Oriental Village 3D Art in Paradise interactive gallery and duty-free boutique shopping."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — Langkawi Departure / Return Connection",
+        "summary": "Leisurely breakfast, checkout, and private transfer to airport for departure.",
+        "activities": [
+          "Enjoy a final morning swim in the Andaman Sea and a hearty tropical breakfast.",
+          "Private transfer to Langkawi Airport for flight connecting to Kuala Lumpur and homebound flight to UAE."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "nepal-himalayan-escapes",
+    "title": "Nepal Himalayan Odyssey: Kathmandu Ancient Temples & Pokhara Annapurna Sunrise",
+    "destination": "Kathmandu · Swayambhunath · Pokhara · Sarangkot · Phewa Lake · Nagarkot",
+    "country": "Nepal",
+    "region": "International",
+    "days": 6,
+    "nights": 5,
+    "styles": [
+      "Adventure",
+      "Cultural",
+      "Weekend Escape"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 2490,
+    "image": "/images/destinations/nepal-machapuchare.jpg",
+    "intro": "Stand in awe before the roof of the world: medieval UNESCO heritage squares in Kathmandu, tranquil boat rides on Pokhara's Phewa Lake, and golden Himalayan sunrise over the Annapurna range.",
+    "story": "Discover ancient Buddhist stupas spun with prayer wheels in Kathmandu, then travel to the lakeside haven of Pokhara where snow-capped Machapuchare (Fishtail) reflects on calm mountain waters.",
+    "highlights": [
+      "Kathmandu Durbar Square, Swayambhunath (Monkey Temple) & Boudhanath Stupa",
+      "Scenic mountain drive or short flight to Pokhara surrounded by Annapurna peaks",
+      "Dawn sunrise over Annapurna & Dhaulagiri peaks from Sarangkot viewpoint",
+      "Private wooden boat cruise on tranquil Phewa Lake with Tal Barahi Island Temple",
+      "Visit Davis Falls, Gupteshwor Mahadev sacred cave and Peace Pagoda",
+      "Sunrise panoramic Himalayan viewpoint stay in Nagarkot overlooking Mount Everest",
+      "Authentic Nepalese Thakali dinner with cultural folk dance performance"
+    ],
+    "route": [
+      "Kathmandu",
+      "Boudhanath",
+      "Pokhara",
+      "Sarangkot",
+      "Nagarkot",
+      "Kathmandu"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "5 nights 4-star boutique heritage and resort accommodations",
+      "Daily breakfast & welcome traditional Nepalese dinner",
+      "Scenic domestic flight / luxury private vehicle between Kathmandu & Pokhara",
+      "Private boat ride on Phewa Lake",
+      "All monument, national park, and UNESCO site entrance fees",
+      "Private English-speaking certified mountain and cultural tour guide",
+      "All airport and sightseeing transfers in private AC 4WD / luxury van"
+    ],
+    "exclusions": [
+      "International flights DXB-KTM round-trip",
+      "Nepal tourist visa (obtainable upon arrival)",
+      "Optional Everest Mountain Flight excursion",
+      "Personal trekking gear and gratuities"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Kathmandu Valley & Thamel Bazaar",
+        "summary": "Arrive at Tribhuvan Airport, private transfer to hotel, explore lively Thamel.",
+        "activities": [
+          "Arrive at Tribhuvan International Airport in Kathmandu (4h direct flight from UAE). Warm garland welcome and transfer to hotel.",
+          "Take an evening walking tour of Thamel's vibrant artisan alleys filled with pashminas, singing bowls, and tea shops.",
+          "Enjoy an authentic Nepalese welcome feast featuring momos, dal bhat, and live Himalayan flute music."
+        ],
+        "meals": "Dinner included",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Kathmandu UNESCO Wonders: Boudhanath & Swayambhunath",
+        "summary": "Visit the massive white dome of Boudhanath Stupa and hilltop Monkey Temple.",
+        "activities": [
+          "Visit Boudhanath Stupa, one of the world's largest spherical stupas, surrounded by Tibetan monasteries and prayer flags.",
+          "Explore the hilltop Swayambhunath (Monkey Temple) with sweeping 360° views across Kathmandu Valley.",
+          "Tour Patan Durbar Square, famed for intricate Newari stone and wood carvings and Krishna Mandir temple."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private vehicle with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Journey to Pokhara & Phewa Lake Sunset",
+        "summary": "Scenic journey to lakeside Pokhara, boat ride on Phewa Lake beneath Machapuchare.",
+        "activities": [
+          "Travel to Pokhara along scenic river valleys and lush terraced hillsides.",
+          "Check in to your lakefront resort with views of Machapuchare (Fishtail Mountain).",
+          "Board a private wooden boat on Phewa Lake, visiting the island shrine of Tal Barahi at sunset."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private scenic transport"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Sarangkot Annapurna Sunrise & Pokhara Sights",
+        "summary": "Golden dawn over Annapurna I & II, Davis Falls, and World Peace Pagoda.",
+        "activities": [
+          "Early morning drive to Sarangkot hilltop (1,600m) to witness the sunrise turning the Annapurna, Dhaulagiri, and Machapuchare peaks molten gold.",
+          "Return to resort for breakfast, followed by visits to subterranean Davis Falls and Gupteshwor Mahadev Cave.",
+          "Ascend to the hilltop World Peace Pagoda (Shanti Stupa) overlooking the entire Pokhara valley and mountain lake."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private vehicle"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Return to Kathmandu & Nagarkot Everest View",
+        "summary": "Travel to Nagarkot mountain ridge for panoramic sunset views across the Himalayas.",
+        "activities": [
+          "Return journey to Kathmandu Valley and continue up to the scenic ridge resort of Nagarkot (2,175m).",
+          "Watch the evening sunset paint over 8 Himalayan mountain ranges including glimpses of the Mount Everest horizon on clear days.",
+          "Special farewell dinner by a warm fireplace."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — Nagarkot Sunrise & Flight to UAE",
+        "summary": "Final mountain sunrise, Bhaktapur ancient city tour, transfer to airport.",
+        "activities": [
+          "Watch dawn break across the snow-capped Himalayan peaks directly from your hotel terrace.",
+          "En route to the airport, visit UNESCO Bhaktapur Durbar Square (the City of Devotees) with its 55-window palace and Nyatapola pagoda.",
+          "Transfer to Kathmandu Airport for your direct flight back to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "china-dynasties-shanghai",
+    "title": "China Grandeur: Beijing Great Wall, Forbidden City & Shanghai Bund Skyline",
+    "destination": "Beijing · Great Wall (Mutianyu) · Forbidden City · Summer Palace · Shanghai · The Bund",
+    "country": "China",
+    "region": "International",
+    "days": 7,
+    "nights": 6,
+    "styles": [
+      "Cultural",
+      "City Escape",
+      "Family"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 4950,
+    "image": "/images/destinations/china-01.jpg",
+    "intro": "Walk along the legendary Great Wall of China, discover imperial imperial dynasties in Beijing's Forbidden City, and witness futuristic neon skylines in Shanghai.",
+    "story": "Journey through 5,000 years of civilization: from the crimson gates of the Imperial Palace and imperial Summer Palace lakes in Beijing to a high-speed bullet train ride into the neon futuristic metropolis of Shanghai.",
+    "highlights": [
+      "Cable car ascent and toboggan descent on the Great Wall at Mutianyu",
+      "VIP guided tour through the 9,999-room UNESCO Forbidden City and Tiananmen Square",
+      "Boat cruise along the imperial Kunming Lake at the Summer Palace",
+      "300km/h high-speed Bullet Train experience from Beijing to Shanghai",
+      "Shanghai Bund historic colonial promenade & Pudong skyscraper observation deck",
+      "Evening cruise on the Huangpu River beneath illuminated Shanghai neon towers",
+      "Traditional Peking Roast Duck banquet dinner in Beijing"
+    ],
+    "route": [
+      "Beijing",
+      "Forbidden City",
+      "Mutianyu Great Wall",
+      "Bullet Train",
+      "Shanghai",
+      "The Bund"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "6 nights 5-star international hotel accommodation (3N Beijing, 3N Shanghai)",
+      "Daily breakfast buffet and authentic Peking Duck culinary experience",
+      "First-Class high-speed G-Train ticket Beijing to Shanghai",
+      "Great Wall cable car and entry tickets with private guide",
+      "Huangpu River evening cruise ticket in Shanghai",
+      "All VIP airport, rail station and touring transfers in private luxury van",
+      "English-speaking licensed private guide throughout"
+    ],
+    "exclusions": [
+      "International airfare DXB-PEK / SHA-DXB",
+      "China visa processing fees (visa-free 144-hour transit may apply for eligible passports)",
+      "Personal shopping and optional acrobatics show tickets",
+      "Travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Beijing Capital",
+        "summary": "Arrive in Beijing, private transfer to 5★ luxury hotel in Wangfujing.",
+        "activities": [
+          "Arrive at Beijing Capital (PEK) or Daxing (PKX) Airport. VIP greeting and transfer to your 5-star hotel in central Beijing.",
+          "Evening orientation walk along Wangfujing shopping street and pedestrian night market."
+        ],
+        "meals": "No meals (arrival day)",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Forbidden City, Tiananmen Square & Temple of Heaven",
+        "summary": "Step through imperial gates into the Forbidden City and Temple of Heaven.",
+        "activities": [
+          "Walk across Tiananmen Square and pass through the Meridian Gate into the Forbidden City (Palace Museum).",
+          "Explore the Hall of Supreme Harmony and imperial throne rooms with an expert historian guide.",
+          "Visit the Temple of Heaven where Ming and Qing emperors prayed for good harvests.",
+          "Indulge in a signature Peking Duck dinner at a historic banquet house."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Included private vehicle with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — The Great Wall of China (Mutianyu Section) & Summer Palace",
+        "summary": "Stand atop the Great Wall of China with cable car access and visit Summer Palace.",
+        "activities": [
+          "Drive to the picturesque Mutianyu section of the Great Wall surrounded by pine forests.",
+          "Take the cable car up to the watchtowers and walk along the ancient stone battlements.",
+          "Afternoon visit to the Summer Palace: stroll the Long Corridor and cruise Kunming Lake."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — High-Speed Bullet Train to Shanghai & The Bund",
+        "summary": "Ride the 350 km/h bullet train to Shanghai, evening walk along The Bund.",
+        "activities": [
+          "Board the high-speed Fuxing Bullet Train from Beijing to Shanghai in First Class comfort (approx. 4.5 hours).",
+          "Arrive in Shanghai and check in to your luxury hotel overlooking the Huangpu River.",
+          "Evening stroll along the historic 1920s architecture of The Bund admiring the futuristic Pudong skyline across the water."
+        ],
+        "meals": "Breakfast included",
+        "transport": "High-speed train & private transfer included"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Yu Garden, Shanghai Tower Observation Deck & River Cruise",
+        "summary": "Traditional Yu Garden, tallest skyscraper views, and Huangpu river cruise.",
+        "activities": [
+          "Visit the classical Ming-dynasty Yu Garden and bustling Old Town bazaar.",
+          "Ascend the Shanghai Tower to the world's highest indoor observation deck (Level 118) for sweeping views of the city.",
+          "Board an evening VIP luxury boat cruise along the Huangpu River as Shanghai's skyline comes alive with light."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — French Concession, Nanjing Road & Xintiandi",
+        "summary": "Tree-lined French Concession boutiques, Nanjing Road shopping, and fine dining.",
+        "activities": [
+          "Stroll through the tree-lined avenues of the historic French Concession and artsy Tianzifang alleys.",
+          "Shop world brands along pedestrianized East Nanjing Road.",
+          "Farewell dinner at trendy Xintiandi combining Shikumen stone architecture with fine international cuisine."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 7,
+        "title": "Day 7 — Shanghai Maglev Experience & Flight to UAE",
+        "summary": "Checkout, optional 431 km/h Maglev magnetic train ride to Pudong Airport, flight home.",
+        "activities": [
+          "Enjoy a leisurely breakfast and hotel checkout.",
+          "Private transfer or futuristic 431 km/h Maglev train experience to Shanghai Pudong Airport for return flight to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "south-africa-cape-safari",
+    "title": "South Africa Panorama: Cape Town Table Mountain, Cape Peninsula & Big-5 Game Safari",
+    "destination": "Cape Town · Table Mountain · Cape of Good Hope · Boulders Beach · Garden Route Safari",
+    "country": "South Africa",
+    "region": "International",
+    "days": 7,
+    "nights": 6,
+    "styles": [
+      "Adventure",
+      "Luxury",
+      "Family"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 5490,
+    "image": "/images/destinations/south-africa-02.jpg",
+    "intro": "Experience the ultimate African adventure: ascend Table Mountain, visit playful African penguins at Boulders Beach, and track the legendary Big-5 on luxury private game reserve safaris.",
+    "story": "From the dramatic Atlantic coastline of Cape Town and Cape Point to open-top 4x4 safari drives in malaria-free private game reserves, discover South Africa's jaw-dropping wildlife and natural wonders.",
+    "highlights": [
+      "Rotating cable car ticket to the summit of Table Mountain (New 7 Wonders of Nature)",
+      "Cape Peninsula drive via Chapman's Peak to the Cape of Good Hope & Cape Point lighthouse",
+      "Walk among wild African penguins on the wooden boardwalks of Boulders Beach",
+      "2 nights all-inclusive luxury safari lodge stay with morning and afternoon game drives",
+      "Track lions, leopards, elephants, rhinos, and buffalo (The Big 5) in open 4WD vehicles",
+      "Victoria & Alfred (V&A) Waterfront harbor cruise and gourmet dining",
+      "Kirstenbosch National Botanical Garden treetop canopy walkway"
+    ],
+    "route": [
+      "Cape Town",
+      "Table Mountain",
+      "Cape Point",
+      "Boulders Beach",
+      "Game Reserve",
+      "Cape Town"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "4 nights 5-star hotel in Cape Town (V&A Waterfront) & 2 nights 5-star luxury Safari Game Lodge",
+      "Daily breakfast in Cape Town & all meals (breakfast, lunch, dinner) included at safari lodge",
+      "Table Mountain cable car tickets & Cape Point funicular passes",
+      "4 guided 4x4 open-vehicle game drives with expert ranger and tracker",
+      "All conservation and national park conservation entry fees",
+      "All private airport, lodge, and sightseeing transfers in luxury AC vehicle",
+      "Dedicated 24/7 concierge support"
+    ],
+    "exclusions": [
+      "International flights to/from Cape Town (CPT)",
+      "South Africa visa fees (if applicable for passport)",
+      "Optional helicopter flights over Cape Town",
+      "Gratuities for safari rangers and trackers"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Cape Town & V&A Waterfront",
+        "summary": "Arrive at Cape Town International Airport, private transfer to V&A Waterfront hotel.",
+        "activities": [
+          "Arrive at Cape Town Airport (CPT). Meet your private chauffeur and transfer to your luxury hotel located on the V&A Waterfront.",
+          "Afternoon at leisure exploring the vibrant shops, craft sheds, and harbor seals at the Waterfront.",
+          "Sunset dinner overlooking the marina with views of Table Mountain."
+        ],
+        "meals": "No meals (arrival day)",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Table Mountain Cableway & Historic City Tour",
+        "summary": "Ascend Table Mountain summit, visit colorful Bo-Kaap and Company's Garden.",
+        "activities": [
+          "Take the rotating aerial cable car up Table Mountain for panoramic 360° views of the city, ocean, and Twelve Apostles peaks.",
+          "Descend to explore the brightly painted houses and spice heritage of Bo-Kaap (Cape Malay quarter).",
+          "Walk through the historic Company's Garden and visit Kirstenbosch Botanical Gardens with its famous Boomslang canopy walkway."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private vehicle with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Cape Peninsula, Chapman's Peak & Boulders Penguins",
+        "summary": "Drive world's most scenic coastal road to Cape Point and visit African penguins.",
+        "activities": [
+          "Drive along the dramatic cliffs of Chapman's Peak Drive overlooking Hout Bay.",
+          "Visit Cape Point and the Cape of Good Hope nature reserve, where the Atlantic and Indian oceans meet.",
+          "Walk along the wooden boardwalks of Boulders Beach to see thousands of wild African penguins waddling on white sand."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Transfer to Private Big-5 Safari Lodge & Afternoon Game Drive",
+        "summary": "Travel to luxury private game reserve, check in to safari lodge, afternoon game drive.",
+        "activities": [
+          "Private scenic transfer to a premier 5-star private game reserve lodge.",
+          "Arrive in time for a gourmet bush lunch on the deck overlooking an active watering hole.",
+          "Embark on your first open-top 4x4 afternoon game drive with an armed ranger and tracker to find elephants, lions, and giraffes.",
+          "Bush sundowners at sunset followed by a traditional boma dinner around a roaring campfire."
+        ],
+        "meals": "Breakfast, lunch & dinner included",
+        "transport": "Included private transport & 4x4 safari"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Dawn & Twilight Big-5 Game Drives",
+        "summary": "Sunrise safari drive, relaxing midday pool time, and afternoon predator tracking.",
+        "activities": [
+          "Early morning tea/coffee before departing on a sunrise game drive as nocturnal predators are active and plains game graze.",
+          "Return to the lodge for a lavish full breakfast buffet and leisurely afternoon at the pool/spa.",
+          "Late afternoon game drive tracking rhinos, cheetahs, and buffalo, stopping for scenic sunset drinks in the bush.",
+          "Gourmet 4-course dinner under the southern stars."
+        ],
+        "meals": "Breakfast, lunch & dinner included",
+        "transport": "Included 4x4 safari vehicle"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — Morning Bush Safari & Return to Cape Town",
+        "summary": "Final morning game drive, scenic transfer back to Cape Town for leisure evening.",
+        "activities": [
+          "Final dawn game drive for last-chance wildlife sightings and birdwatching.",
+          "Hearty breakfast, checkout, and private transfer back to Cape Town.",
+          "Evening at leisure for fine dining or shopping at Canal Walk and Waterfront."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transfer"
+      },
+      {
+        "day": 7,
+        "title": "Day 7 — Departure from Cape Town to UAE",
+        "summary": "Breakfast, checkout, and private transfer to Cape Town Airport for flight home.",
+        "activities": [
+          "Enjoy a relaxed morning breakfast overlooking Table Bay.",
+          "Private Mercedes transfer to Cape Town International Airport for your flight back to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "brazil-rio-iguazu-wonders",
+    "title": "Brazil Vibrance: Rio Christ the Redeemer, Copacabana & Iguazu Giant Falls",
+    "destination": "Rio de Janeiro · Corcovado · Sugarloaf Mountain · Copacabana · Iguazu Falls",
+    "country": "Brazil",
+    "region": "International",
+    "days": 7,
+    "nights": 6,
+    "styles": [
+      "Adventure",
+      "Beach",
+      "Cultural",
+      "Luxury"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 6990,
+    "image": "/images/destinations/brazil-christ-redeemer.jpg",
+    "intro": "Experience the vibrant samba rhythm of Rio de Janeiro, stand at the feet of Christ the Redeemer on Corcovado, and feel the thundering mist of Iguazu Falls.",
+    "story": "Soak in the sun on famous Copacabana and Ipanema beaches, ride cable cars up Sugarloaf Mountain, and fly to the tropical rainforest border to witness Iguazu Falls — the world's most immense waterfall system.",
+    "highlights": [
+      "Cogwheel train ride through Tijuca Forest to Christ the Redeemer atop Corcovado",
+      "Two-stage glass cable car ascent up Sugarloaf Mountain at sunset",
+      "Stroll along the world-famous mosaic promenades of Copacabana and Ipanema",
+      "Fly to Foz do Iguaçu to explore the Brazilian and Argentine sides of Iguazu Falls",
+      "Walk the boardwalk into the jaw-dropping Devil's Throat (Garganta del Diablo)",
+      "Optional Macuco Safari zodiac boat ride directly beneath thundering waterfall cascades",
+      "Traditional Brazilian Rodizio Churrascaria barbecue dinner experience"
+    ],
+    "route": [
+      "Rio de Janeiro",
+      "Corcovado",
+      "Sugarloaf",
+      "Copacabana",
+      "Iguazu Falls",
+      "Rio de Janeiro"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "4 nights 5-star oceanfront hotel in Rio (Copacabana) & 2 nights 5-star resort in Iguazu Falls",
+      "Daily Brazilian buffet breakfast & authentic Churrascaria dinner",
+      "Domestic flights Rio de Janeiro - Iguazu Falls round-trip with luggage",
+      "Corcovado cogwheel train & Sugarloaf cable car entry passes",
+      "Iguazu National Park entrance fees and guided waterfall walks",
+      "All private airport, hotel, and sightseeing transfers in luxury AC vehicles",
+      "Bilingual English/Portuguese certified tour guide"
+    ],
+    "exclusions": [
+      "International flights to/from Rio de Janeiro DXB/AUH",
+      "Brazil visa fees (if applicable for passport)",
+      "Optional helicopter flight over Iguazu Falls or Rio",
+      "Personal travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Marvelous Rio de Janeiro",
+        "summary": "Arrive at Galeão Airport, private transfer to Copacabana beachfront hotel.",
+        "activities": [
+          "Arrive at Rio de Janeiro International Airport (GIG). Warm greeting by your private guide and transfer to your 5-star beachfront hotel in Copacabana.",
+          "Check in, relax, and take a sunset stroll along the famous black-and-white wave patterned promenade.",
+          "Enjoy coconut water and Brazilian caipirinhas/mocktails by the beach."
+        ],
+        "meals": "No meals (arrival day)",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Christ the Redeemer on Corcovado & Tijuca National Park",
+        "summary": "Cogwheel train to Christ the Redeemer, Selarón Steps, and Santa Teresa.",
+        "activities": [
+          "Board the historic Corcovado Cogwheel Train climbing through the lush Tijuca Atlantic Rainforest to the peak of Corcovado Mountain (710m).",
+          "Stand before the iconic 38-meter statue of Christ the Redeemer with breathtaking views over Guanabara Bay.",
+          "Visit the bohemian neighborhood of Santa Teresa and walk down the colorful tiled Escadaria Selarón (Selarón Steps).",
+          "Evening feast at a top Brazilian Churrascaria steakhouse with endless cuts of grilled meat and gourmet salads."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Included private transport with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Sugarloaf Mountain Cable Car & Ipanema Beach",
+        "summary": "Cable car up Sugarloaf Mountain, Maracanã Stadium photo stop, Ipanema sunset.",
+        "activities": [
+          "Ride the two-stage glass-walled cable cars up to Morro da Urca and the summit of Sugarloaf Mountain (Pão de Açúcar).",
+          "Admire spectacular 360° panoramas of Rio's beaches, mountains, and harbor.",
+          "Afternoon at leisure on trendy Ipanema Beach or shopping for Brazilian gemstones in Leblon."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Flight to Iguazu Falls & Brazilian Panoramic Boardwalk",
+        "summary": "Fly to Foz do Iguaçu, walk the panoramic Brazilian falls walkway.",
+        "activities": [
+          "Private transfer to airport and flight to Foz do Iguaçu.",
+          "Check in to your luxury rainforest resort near the national park.",
+          "Walk the Brazilian side walkways offering sweeping panoramic vistas of 275 individual waterfalls crashing into the canyon.",
+          "Walk right out onto the catwalk above the spray of the Floriano and Devil's Throat falls."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Domestic flight & private transfer included"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Full Day Argentine Side of Iguazu & Devil's Throat",
+        "summary": "Cross to Argentine side, ride eco-train, and walk right above Devil's Throat.",
+        "activities": [
+          "Cross the border for an immersive full-day tour of the Argentine side of Iguazu National Park.",
+          "Ride the ecological jungle train to the Upper and Lower circuits, walking through subtropical rainforest filled with toucans and coatis.",
+          "Stand on the viewing balcony directly over the mighty Devil's Throat (Garganta del Diablo), feeling the thunderous roar of millions of liters of water per second."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Included private cross-border transport"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — Parque das Aves Bird Park & Return Flight to Rio",
+        "summary": "Walk-in tropical aviaries with toucans and macaws, fly back to Rio.",
+        "activities": [
+          "Visit the world-renowned Parque das Aves bird sanctuary to walk inside massive aviaries with scarlet macaws, flamingos, and toucans.",
+          "Afternoon flight back to Rio de Janeiro.",
+          "Enjoy a farewell dinner in Rio's upscale Leblon dining district."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Domestic flight & private transfer included"
+      },
+      {
+        "day": 7,
+        "title": "Day 7 — Departure from Rio de Janeiro to UAE",
+        "summary": "Last morning beach walk, hotel checkout, and VIP airport transfer.",
+        "activities": [
+          "Leisurely morning for beachside relaxation and tropical fruit breakfast.",
+          "Private transfer to Rio de Janeiro Airport for your return international flight to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "argentina-buenos-aires-patagonia",
+    "title": "Argentina Splendour: Buenos Aires Tango, Patagonia Glaciers & Iguazu Falls",
+    "destination": "Buenos Aires · La Boca · San Telmo · El Calafate · Perito Moreno Glacier · Iguazu",
+    "country": "Argentina",
+    "region": "International",
+    "days": 8,
+    "nights": 7,
+    "styles": [
+      "Cultural",
+      "Adventure",
+      "Luxury"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 7490,
+    "image": "/images/destinations/argentina-perito-moreno.jpg",
+    "intro": "The Paris of South America meets wild Patagonia: passionate tango in Buenos Aires, calving icebergs at Perito Moreno Glacier, and the majesty of Iguazu Waterfalls.",
+    "story": "Explore European boulevards and colorful La Boca in Buenos Aires, journey deep into the Patagonian wilderness to walk in front of massive blue ice walls, and experience the thundering spray of Iguazu.",
+    "highlights": [
+      "VIP Tango show and 3-course Argentine steak & Malbec wine dinner in historic San Telmo",
+      "Guided tour of colorful Caminito in La Boca, Plaza de Mayo & Recoleta Cemetery",
+      "Full-day excursion to UNESCO Perito Moreno Glacier with catwalks and boat safari",
+      "Listen to the thunderous cracking and calving of massive Patagonian ice walls",
+      "Fly to Puerto Iguazú for full-day guided tours of the world's widest waterfall network",
+      "Walk the catwalk above the mighty Devil's Throat gorge",
+      "Luxury 5-star boutique hotels throughout Buenos Aires, Patagonia, and Iguazu"
+    ],
+    "route": [
+      "Buenos Aires",
+      "La Boca",
+      "El Calafate",
+      "Perito Moreno Glacier",
+      "Iguazu Falls",
+      "Buenos Aires"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "3 nights 5-star hotel in Buenos Aires, 2 nights luxury boutique lodge in El Calafate, 2 nights resort in Iguazu",
+      "Daily breakfast buffet & VIP Tango dinner show",
+      "All internal domestic flights (Buenos Aires - El Calafate - Iguazu - Buenos Aires) with checked bags",
+      "Perito Moreno Glacier catwalk access & Safari Náutico boat tour",
+      "All national park conservation passes and entrance tickets",
+      "All private transfers and guided excursions in luxury AC Mercedes vehicles",
+      "Expert English-speaking private guides throughout"
+    ],
+    "exclusions": [
+      "International flights to/from Buenos Aires (EZE)",
+      "Argentina visa fees (if applicable)",
+      "Optional glacier mini-trekking ice crampon tour",
+      "Travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Buenos Aires 'Paris of the South'",
+        "summary": "Arrive at Ezeiza Airport, private transfer to luxury hotel in Recoleta.",
+        "activities": [
+          "Arrive at Ezeiza International Airport (EZE). Meet your private driver and transfer to your 5-star hotel in the refined Recoleta district.",
+          "Afternoon walking tour around Recoleta, visiting the famous cemetery (resting place of Eva Perón) and French-style boulevards.",
+          "Evening welcome dinner at a renowned Argentine Parrilla (steakhouse)."
+        ],
+        "meals": "Dinner included",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Buenos Aires City Discovery & Evening Tango Show",
+        "summary": "Plaza de Mayo, colorful La Boca, San Telmo, and VIP Tango dinner show.",
+        "activities": [
+          "Visit Plaza de Mayo, the Casa Rosada (Presidential Palace), and the Metropolitan Cathedral.",
+          "Explore the vibrant cobalt and yellow painted tin houses of Caminito in La Boca.",
+          "Browse artisan antique stalls in cobblestoned San Telmo.",
+          "Evening VIP Tango Show with live orchestra, world-champion dancers, and gourmet dinner."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Included private vehicle with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Flight to Patagonia (El Calafate) & Lake Argentino",
+        "summary": "Fly to El Calafate in southern Patagonia, check in to lakeview lodge.",
+        "activities": [
+          "Transfer to airport for flight south to El Calafate in Santa Cruz, Patagonia.",
+          "Check in to your luxury boutique hotel overlooking Lake Argentino.",
+          "Visit the Glaciarium Ice Museum to learn about Patagonian ice fields, with a drink in the subterranean Ice Bar."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Domestic flight & private transfer included"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Perito Moreno Glacier Catwalks & Boat Safari",
+        "summary": "Full day at UNESCO Perito Moreno Glacier, boat cruise along 60m ice walls.",
+        "activities": [
+          "Full-day excursion to Los Glaciares National Park to witness the colossal Perito Moreno Glacier.",
+          "Walk along multi-tiered wooden viewing walkways providing breathtaking close-up angles of the 60-meter-high ice face.",
+          "Board the Safari Náutico boat cruise to sail right along the southern wall of the glacier, watching massive blocks of ice crash into the lake."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Included private transport & boat tour"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Flight from Patagonia to Iguazu Tropical Rainforest",
+        "summary": "Fly to subtropical Puerto Iguazú, relax in rainforest eco-resort.",
+        "activities": [
+          "Morning transfer to El Calafate Airport for flight to Puerto Iguazú via Buenos Aires.",
+          "Arrive in the lush subtropical rainforest and check in to your 5-star eco-resort.",
+          "Evening at leisure listening to the sounds of the jungle around the pool."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Domestic flights & private transfer included"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — Full Day Argentine Iguazu Falls & Devil's Throat",
+        "summary": "Upper and Lower waterfall circuits, Ecological Jungle Train, and Devil's Throat.",
+        "activities": [
+          "Full-day guided exploration of the Argentine side of Iguazu National Park.",
+          "Ride the open-air Ecological Train through the rainforest to the Devil's Throat station.",
+          "Walk across the 1.1km footbridge over the river to the edge of Garganta del Diablo to watch the thunderous abyss of water.",
+          "Explore the Upper and Lower circuits with spectacular viewpoints of Bossetti, San Martin, and Two Sisters falls."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Included private transport with guide"
+      },
+      {
+        "day": 7,
+        "title": "Day 7 — Brazilian Side Panoramic Tour & Return to Buenos Aires",
+        "summary": "Panoramic Brazilian waterfall views, flight back to Buenos Aires.",
+        "activities": [
+          "Morning half-day tour of the Brazilian side of the falls for the ultimate wide-angle postcard panorama.",
+          "Afternoon flight back to Buenos Aires.",
+          "Farewell dinner in trendy Puerto Madero overlooking the illuminated docks and Puente de la Mujer."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Domestic flight & private transfer included"
+      },
+      {
+        "day": 8,
+        "title": "Day 8 — Departure from Buenos Aires to UAE",
+        "summary": "Free morning for leather goods and alfajores shopping, private airport transfer.",
+        "activities": [
+          "Leisurely morning for shopping in Palermo Soho or visiting Galerías Pacífico.",
+          "Private Mercedes transfer to Ezeiza International Airport for your return flight to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "usa-new-york-east-coast",
+    "title": "USA East Coast Icons: New York Manhattan Skyline, Central Park & Niagara Falls",
+    "destination": "New York City · Times Square · Empire State · Statue of Liberty · Central Park · Niagara Falls",
+    "country": "United States of America",
+    "region": "International",
+    "days": 7,
+    "nights": 6,
+    "styles": [
+      "City Escape",
+      "Shopping",
+      "Family"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 6450,
+    "image": "/images/destinations/united-states-01.jpg",
+    "intro": "The definitive American dream holiday: dazzling neon in Times Square, Empire State Building views, Statue of Liberty cruise, Central Park, and the roaring power of Niagara Falls.",
+    "story": "Experience the pulse of New York City from luxury Manhattan hotels, cruise past Lady Liberty, stroll Fifth Avenue, and take a quick flight or scenic express to the wonder of Niagara Falls with the Maid of the Mist boat tour.",
+    "highlights": [
+      "VIP skip-the-line tickets to the 86th & 102nd floor Empire State Building Observatory",
+      "Express ferry cruise to Liberty Island (Statue of Liberty) and Ellis Island",
+      "Guided walking tour of Central Park, Strawberry Fields & Bethesda Terrace",
+      "Times Square, Broadway theater district & Rockefeller Center Top of the Rock",
+      "Day excursion to Niagara Falls with the world-famous Maid of the Mist boat tour",
+      "Walk along Fifth Avenue luxury shopping and Soho boutique districts",
+      "High Line elevated park walk and Hudson Yards Vessel photo stop"
+    ],
+    "route": [
+      "New York City",
+      "Manhattan",
+      "Statue of Liberty",
+      "Niagara Falls",
+      "New York City"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "6 nights 4/5-star accommodation in central Manhattan (Midtown/Times Square)",
+      "Daily American breakfast buffet",
+      "Round-trip flight/express transport for Niagara Falls day excursion",
+      "Empire State Building 86th Floor Observatory ticket",
+      "Statue of Liberty & Ellis Island ferry ticket",
+      "Maid of the Mist boat tour ticket at Niagara Falls",
+      "All private airport and touring transfers in luxury AC SUVs/sprinters",
+      "English-speaking professional NYC guide"
+    ],
+    "exclusions": [
+      "International flights DXB-JFK / EWR round-trip",
+      "US ESTA / B1/B2 tourist visa application fees",
+      "Optional Broadway theater show tickets",
+      "Travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in New York City & Times Square",
+        "summary": "Arrive at JFK/Newark Airport, private limousine/SUV transfer to Manhattan hotel.",
+        "activities": [
+          "Arrive at JFK or Newark Airport from Dubai. Meet your private chauffeur for transfer into Midtown Manhattan.",
+          "Check into your hotel steps away from Times Square and Fifth Avenue.",
+          "Evening walk under the dazzling neon billboards of Times Square and Broadway."
+        ],
+        "meals": "No meals (arrival day)",
+        "transport": "Included private luxury airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Statue of Liberty, Wall Street & 9/11 Memorial",
+        "summary": "Ferry to Lady Liberty, Financial District, and World Trade Center.",
+        "activities": [
+          "Take the morning ferry from Battery Park to Liberty Island for up-close views of the Statue of Liberty.",
+          "Visit Ellis Island National Museum of Immigration.",
+          "Tour the Financial District: Wall Street, the Charging Bull statue, and the Trinity Church.",
+          "Visit the 9/11 Memorial reflection pools and the One World Trade Center Oculus."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport & ferry"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Central Park, Museum Mile & Empire State Building",
+        "summary": "Stroll Central Park, visit Fifth Avenue, and ascend Empire State Building at night.",
+        "activities": [
+          "Guided morning walking tour of Central Park: Bethesda Fountain, Bow Bridge, and Strawberry Fields.",
+          "Stroll down Fifth Avenue past St. Patrick's Cathedral and luxury boutiques.",
+          "Ascend to the 86th-floor open-air observatory of the Empire State Building for breathtaking nighttime views of the illuminated Manhattan grid."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Niagara Falls Day Excursion & Maid of the Mist",
+        "summary": "Day trip to Niagara Falls, Maid of the Mist boat ride right into Horseshoe Falls spray.",
+        "activities": [
+          "Early morning departure for your Niagara Falls adventure.",
+          "Board the legendary Maid of the Mist boat tour (poncho provided!) right into the heart of the roaring Horseshoe Falls.",
+          "Walk along the Cave of the Winds wooden boardwalks feeling the Hurricane Deck mist.",
+          "Return to New York City in the evening."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Round-trip excursion transport included"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — High Line, Chelsea Market, Soho & Brooklyn Bridge",
+        "summary": "Walk the elevated High Line park, food tasting in Chelsea, and sunset on Brooklyn Bridge.",
+        "activities": [
+          "Walk the High Line elevated railway park from Hudson Yards to the Meatpacking District.",
+          "Gourmet lunch stop inside vibrant Chelsea Market.",
+          "Afternoon browsing the cast-iron architecture and designer boutiques of Soho and Greenwich Village.",
+          "Sunset walk across the iconic wooden planks of the Brooklyn Bridge with skyline views."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private vehicle with guide"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — Rockefeller Center, Summit One Vanderbilt & Broadway",
+        "summary": "Summit One Vanderbilt immersive mirrors, shopping, and optional evening Broadway show.",
+        "activities": [
+          "Visit Summit One Vanderbilt for mind-bending mirrored multi-sensory views over Midtown.",
+          "Free afternoon for shopping at Macy's Herald Square or Bloomingdale's.",
+          "Farewell dinner at a classic New York steakhouse, followed by an optional Broadway musical show."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 7,
+        "title": "Day 7 — Departure from New York to UAE",
+        "summary": "Morning at leisure, hotel checkout, and private airport transfer.",
+        "activities": [
+          "Enjoy a classic New York bagel breakfast and morning coffee in Bryant Park.",
+          "Private luxury SUV transfer to JFK Airport for your direct flight back to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "serbia-belgrade-balkan-gem",
+    "title": "Serbia Balkan Heritage: Belgrade Fortress, Danube River & Novi Sad Petrovaradin",
+    "destination": "Belgrade · Kalemegdan Fortress · Knez Mihailova · Saint Sava · Novi Sad · Danube Cruise",
+    "country": "Serbia",
+    "region": "International",
+    "days": 5,
+    "nights": 4,
+    "styles": [
+      "Cultural",
+      "Weekend Escape",
+      "City Escape"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1990,
+    "image": "/images/destinations/serbia-02.jpg",
+    "intro": "Just 5 hours direct from Dubai: explore the majestic Kalemegdan Fortress overlooking the confluence of the Danube and Sava rivers, grand Orthodox temples, and vibrant café culture.",
+    "story": "Discover the crossroads of Central Europe and the Balkans in Belgrade: from the colossal Church of Saint Sava and bohemian Skadarlija cobblestone alleys to the Austro-Hungarian fortresses of Novi Sad.",
+    "highlights": [
+      "Guided tour of Belgrade Fortress (Kalemegdan) overlooking the Danube & Sava confluence",
+      "Visit the Church of Saint Sava, one of the world's largest Orthodox churches with gold mosaics",
+      "Stroll lively pedestrian Knez Mihailova Street and bohemian Skadarlija quarter",
+      "Full-day excursion to Novi Sad and the formidable Petrovaradin Fortress (Gibraltar on the Danube)",
+      "Traditional Serbian wine tasting and lunch in historic Sremski Karlovci",
+      "Scenic sunset river cruise on the Danube and Sava rivers",
+      "Easy online visa / visa-free access for many UAE resident passport categories"
+    ],
+    "route": [
+      "Belgrade",
+      "Kalemegdan",
+      "Saint Sava",
+      "Novi Sad",
+      "Petrovaradin",
+      "Belgrade"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "4 nights 4/5-star central hotel in Belgrade with daily breakfast buffet",
+      "Full-day guided excursion to Novi Sad & Sremski Karlovci with wine tasting",
+      "Belgrade Danube & Sava sunset river cruise",
+      "Traditional Serbian dinner with live Balkan tamburica music in Skadarlija",
+      "All monument entrance fees and museum passes",
+      "All private airport, hotel, and sightseeing transfers in AC Mercedes van",
+      "English-speaking professional licensed Serbian guide"
+    ],
+    "exclusions": [
+      "International airfare DXB-BEG round-trip",
+      "Serbia visa processing fees (if applicable)",
+      "Personal expenses and gratuities",
+      "Travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Direct Flight from Dubai to Belgrade & Knez Mihailova",
+        "summary": "Arrive at Nikola Tesla Airport, private transfer to 5★ hotel, orientation walk.",
+        "activities": [
+          "Direct 5-hour flight from Dubai DXB to Belgrade Nikola Tesla Airport (BEG). VIP meet-and-greet and private transfer to your central 5-star hotel.",
+          "Check in and take an orientation walk down pedestrian Knez Mihailova Street, lined with cafés, bookstores, and historic 19th-century facades.",
+          "Evening welcome dinner at a traditional tavern in the cobblestoned Skadarlija bohemian district with live folk music."
+        ],
+        "meals": "Dinner included",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Belgrade Fortress, Saint Sava & Rivers Confluence",
+        "summary": "Kalemegdan fortress panoramic views, Saint Sava golden crypt, and Danube cruise.",
+        "activities": [
+          "Explore the sprawling Kalemegdan Fortress perched on a 125-meter-high cliff where the Sava and Danube rivers meet.",
+          "Visit the monumental Church of Saint Sava, admiring its massive dome and 15,000 square meters of gold mosaics in the crypt.",
+          "Afternoon relaxing at Ada Ciganlija lake promenade.",
+          "Sunset boat cruise along the Danube and Sava rivers with views of Great War Island."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport & boat cruise"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Day Excursion to Novi Sad & Petrovaradin Fortress",
+        "summary": "Austro-Hungarian charm in Novi Sad, Gibraltar on the Danube, and Sremski Karlovci wine.",
+        "activities": [
+          "Scenic 1-hour drive north through the Vojvodina plains to the Baroque town of Sremski Karlovci for Bermet wine tasting.",
+          "Visit the imposing Petrovaradin Fortress overlooking the Danube, famed for its reversed-hand clock tower and underground tunnels.",
+          "Stroll through the colorful pedestrian streets and Liberty Square of Novi Sad, the European Capital of Culture."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Included private transport with guide"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Royal Palaces, Zemun & Danube Waterfront",
+        "summary": "Explore historic Zemun, Gardoš Tower views, and riverside dining.",
+        "activities": [
+          "Visit the picturesque old town of Zemun on the Danube with its narrow streets and Habsburg architecture.",
+          "Climb the Millennium Tower on Gardoš Hill for sweeping views across the red roofs and river.",
+          "Enjoy a leisurely afternoon at Galerija Shopping Mall (largest in Southeast Europe) on Belgrade Waterfront.",
+          "Farewell dinner on a floating splav restaurant on the Danube."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Departure from Belgrade to UAE",
+        "summary": "Morning souvenir shopping, hotel checkout, and private airport transfer.",
+        "activities": [
+          "Leisurely breakfast and time for last-minute shopping for Serbian honey, artisan ceramics, and delicacies.",
+          "Private Mercedes transfer to Nikola Tesla Airport for your flight back to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "spain-barcelona-madrid-andalusia",
+    "title": "Spain Splendours: Barcelona Sagrada Familia, Madrid Royal Palace & Seville Flamenco",
+    "destination": "Barcelona · Sagrada Família · Park Güell · Madrid · Royal Palace · Seville",
+    "country": "Spain",
+    "region": "International",
+    "days": 7,
+    "nights": 6,
+    "styles": [
+      "Cultural",
+      "City Escape",
+      "Family"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 4890,
+    "image": "/images/destinations/spain-sagrada-familia.jpg",
+    "intro": "Experience the passion of Spain: Antoni Gaudí's breathtaking Sagrada Família in Barcelona, the regal grandeur of Madrid's Royal Palace, and passionate flamenco in Seville.",
+    "story": "From the sunny Mediterranean beaches and Gothic Quarter of Barcelona to high-speed rail travel across the plains into imperial Madrid and historic Andalusia.",
+    "highlights": [
+      "Fast-track skip-the-line tickets to Basílica de la Sagrada Família",
+      "Guided stroll through Gaudí's whimsical Park Güell and Casa Batlló",
+      "VIP tour of Madrid's 3,000-room Royal Palace and Prado Museum masterpieces",
+      "High-speed AVE bullet train between Barcelona, Madrid and Seville",
+      "Authentic Andalusian Flamenco show in historic Seville with tapas dinner",
+      "Stroll the monumental Plaza de España and Real Alcázar in Seville",
+      "5-star central boutique hotel stays with daily Spanish buffet breakfast"
+    ],
+    "route": [
+      "Barcelona",
+      "Park Güell",
+      "Madrid",
+      "Prado",
+      "Seville",
+      "Barcelona"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "6 nights 4/5-star central hotel accommodation (3N Barcelona, 2N Madrid, 1N Seville)",
+      "Daily breakfast buffet & authentic Spanish Tapas welcome dinner",
+      "High-speed AVE train tickets Barcelona - Madrid - Seville",
+      "Sagrada Família and Park Güell entry tickets with audio guide",
+      "All private airport, train station and sightseeing transfers in luxury AC vehicles",
+      "Dedicated 24/7 concierge support"
+    ],
+    "exclusions": [
+      "International flights to/from Barcelona DXB/AUH",
+      "Schengen visa processing fees",
+      "City tourist taxes paid at hotels",
+      "Travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Vibrant Barcelona & Las Ramblas",
+        "summary": "Arrive at El Prat Airport, private transfer to 5★ central hotel, Gothic Quarter walk.",
+        "activities": [
+          "Arrive at Barcelona El Prat Airport (BCN). Meet your private driver and transfer to your luxury hotel near Plaça de Catalunya.",
+          "Stroll down famous Las Ramblas and browse fresh fruits and jamón at the vibrant Mercat de la Boqueria.",
+          "Evening welcome dinner in the medieval Gothic Quarter with traditional paella and tapas."
+        ],
+        "meals": "Dinner included",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Gaudí Masterpieces: Sagrada Família & Park Güell",
+        "summary": "Step inside Sagrada Família stone forest of light, and explore Park Güell mosaics.",
+        "activities": [
+          "Visit Antoni Gaudí's magnum opus, the Basílica de la Sagrada Família, admiring its soaring tree-like columns and stained-glass spectrum.",
+          "Explore the colorful mosaic lizards and curved benches of Park Güell overlooking Barcelona city and the Mediterranean Sea.",
+          "Pass by Casa Batlló and Casa Milà (La Pedrera) on elegant Passeig de Gràcia."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — High-Speed AVE Train to Royal Madrid & Gran Vía",
+        "summary": "Ride the 300km/h AVE bullet train to Madrid, check in, explore Gran Vía and Puerta del Sol.",
+        "activities": [
+          "Board the high-speed AVE train to Madrid Atocha Station in under 2.5 hours.",
+          "Check in to your luxury hotel near Gran Vía.",
+          "Stroll through bustling Puerta del Sol, Plaza Mayor, and visit the historic San Miguel gourmet market."
+        ],
+        "meals": "Breakfast included",
+        "transport": "High-speed train & private transfers included"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Madrid Royal Palace & World-Famous Prado Museum",
+        "summary": "Tour the opulent Royal Palace of Madrid and masterworks in the Prado Museum.",
+        "activities": [
+          "Guided tour of the Royal Palace of Madrid (Palacio Real), exploring the Throne Room, Royal Armoury, and Sabatini Gardens.",
+          "Visit the Prado Museum to see legendary masterpieces by Velázquez, Goya, and El Greco.",
+          "Afternoon relaxing boat ride or stroll in El Retiro Park's Crystal Palace."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — AVE Train to Seville & Authentic Flamenco Show",
+        "summary": "Travel to Andalusian Seville, visit Plaza de España, evening passionate flamenco.",
+        "activities": [
+          "Morning AVE train journey south into Andalusia to sun-drenched Seville.",
+          "Marvel at the grand semi-circular Plaza de España and Maria Luisa Park.",
+          "Walk through the whitewashed alleys of the historic Barrio Santa Cruz.",
+          "Evening VIP Flamenco performance at a historic tablao with dinner."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "High-speed train & private transfer included"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — Seville Royal Alcázar & Return to Barcelona",
+        "summary": "Moorish arches at Real Alcázar, Seville Cathedral, evening AVE train back.",
+        "activities": [
+          "Tour the UNESCO Real Alcázar palace with its intricate Moorish tiles and lush orange courtyards.",
+          "View the Gothic Seville Cathedral and climb the Giralda bell tower for sweeping city views.",
+          "Afternoon return AVE train back to Barcelona for your final evening."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Train & private transfers included"
+      },
+      {
+        "day": 7,
+        "title": "Day 7 — Departure from Barcelona to UAE",
+        "summary": "Breakfast, beach walk or shopping, private transfer to El Prat Airport.",
+        "activities": [
+          "Leisurely breakfast and time for last-minute shopping along Passeig de Gràcia.",
+          "Private Mercedes transfer to Barcelona Airport for your flight back to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "germany-bavaria-castles-berlin",
+    "title": "Germany Fairytale: Bavarian Alps, Neuschwanstein Castle & Berlin Heritage",
+    "destination": "Munich · Neuschwanstein Castle · Bavarian Alps · Berlin · Brandenburg Gate",
+    "country": "Germany",
+    "region": "International",
+    "days": 6,
+    "nights": 5,
+    "styles": [
+      "Cultural",
+      "Adventure",
+      "City Escape"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 4990,
+    "image": "/images/destinations/germany-neuschwanstein.jpg",
+    "intro": "Step into a real-life fairytale: King Ludwig's majestic Neuschwanstein Castle in the Bavarian Alps, Munich's historic Marienplatz, and the iconic landmarks of Berlin.",
+    "story": "Explore Bavaria's alpine lakes, tour world-famous BMW Welt in Munich, take an ICE high-speed train to Berlin, and walk through the historic Brandenburg Gate.",
+    "highlights": [
+      "Guided tour inside Neuschwanstein Fairytale Castle in the Bavarian Alps",
+      "Panoramic views from Marienbrücke suspension bridge over Pöllat Gorge",
+      "Munich Marienplatz Glockenspiel and historic Nymphenburg Palace",
+      "First-Class ICE high-speed train from Munich to Berlin",
+      "Berlin historic tour: Brandenburg Gate, Reichstag Dome & Checkpoint Charlie",
+      "Cruise on the Spree River past Museum Island",
+      "5-star hotel accommodations with daily German breakfast buffet"
+    ],
+    "route": [
+      "Munich",
+      "Neuschwanstein",
+      "Bavaria",
+      "ICE Train",
+      "Berlin"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "3 nights in Munich & 2 nights in Berlin at 4/5-star central hotels",
+      "Daily German buffet breakfast & Bavarian welcome dinner",
+      "First-Class ICE high-speed train ticket Munich - Berlin",
+      "Neuschwanstein Castle entry and shuttle bus tickets",
+      "All private airport, train station and excursion transfers in luxury Mercedes van",
+      "English-speaking licensed professional guide throughout"
+    ],
+    "exclusions": [
+      "International airfare DXB-MUC / BER-DXB",
+      "Schengen visa fees",
+      "Personal shopping and gratuities",
+      "Travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Munich & Marienplatz",
+        "summary": "Arrive at Munich Airport, private transfer to hotel, explore Old Town.",
+        "activities": [
+          "Arrive at Munich Franz Josef Strauss Airport (MUC). VIP pickup and transfer to your 5-star hotel in central Munich.",
+          "Walk through Karlsplatz (Stachus) to Marienplatz and watch the famous mechanical Glockenspiel clock dance.",
+          "Welcome dinner featuring Bavarian roast specialities."
+        ],
+        "meals": "Dinner included",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Day Excursion to Neuschwanstein Fairytale Castle",
+        "summary": "Full day tour to Bavarian Alps and fairytale Neuschwanstein Castle.",
+        "activities": [
+          "Scenic morning drive through the Bavarian Alps to the village of Hohenschwangau.",
+          "Ascend to Neuschwanstein Castle, King Ludwig II's 19th-century Romanesque masterpiece that inspired Disney's Cinderella castle.",
+          "Walk onto the Marienbrücke bridge suspended over the gorge for unforgettable photos.",
+          "Stop at the serene waters of Lake Alpsee before returning to Munich."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Included private vehicle with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Munich BMW Welt, Nymphenburg Palace & English Garden",
+        "summary": "BMW Welt showcase, Nymphenburg Baroque palace, and English Garden.",
+        "activities": [
+          "Visit BMW Welt and Museum exploring cutting-edge German automotive engineering.",
+          "Tour the opulent Baroque halls and sprawling canal gardens of Nymphenburg Palace.",
+          "Stroll through the English Garden and watch river surfers on the Eisbach wave."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — High-Speed ICE Train to Berlin & Brandenburg Gate",
+        "summary": "300km/h ICE train to Berlin, Brandenburg Gate sunset, Unter den Linden.",
+        "activities": [
+          "Board the sleek German ICE bullet train slicing north through Thuringia to Berlin Hauptbahnhof (approx. 4 hours).",
+          "Check in to your luxury hotel near Potsdamer Platz.",
+          "Walk through the neoclassical Brandenburg Gate and down grand Unter den Linden boulevard.",
+          "View the glass dome of the Reichstag building at sunset."
+        ],
+        "meals": "Breakfast included",
+        "transport": "ICE train & private transfers included"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Berlin Wall Memorial, Museum Island & Spree Cruise",
+        "summary": "East Side Gallery open-air wall art, Museum Island, and Spree river boat tour.",
+        "activities": [
+          "Visit the East Side Gallery, a preserved 1.3km section of the Berlin Wall painted with historic murals.",
+          "Explore Checkpoint Charlie museum and the poignant Holocaust Memorial.",
+          "Take a scenic boat cruise along the River Spree gliding past the UNESCO Museum Island and Berlin Cathedral."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Included private transport & boat tour"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — Departure from Berlin to UAE",
+        "summary": "Morning shopping at KaDeWe department store, private transfer to Berlin Airport.",
+        "activities": [
+          "Enjoy a leisurely breakfast and browse Europe's largest luxury department store, KaDeWe.",
+          "Private Mercedes transfer to Berlin Brandenburg Airport (BER) for your flight back to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "netherlands-amsterdam-tulips-windmills",
+    "title": "Netherlands Enchantment: Amsterdam Canals, Keukenhof Tulips & Windmills",
+    "destination": "Amsterdam · Canal Ring · Keukenhof · Zaanse Schans · Volendam",
+    "country": "Netherlands",
+    "region": "International",
+    "days": 5,
+    "nights": 4,
+    "styles": [
+      "Family",
+      "City Escape",
+      "Cultural"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 3890,
+    "image": "/images/destinations/netherlands-amsterdam.jpg",
+    "intro": "Cruise along UNESCO-listed Amsterdam canal rings, cycle past rainbow tulip fields, and taste artisan gouda cheese beside working 18th-century Dutch windmills.",
+    "story": "Explore iconic 17th-century gabled canal houses, experience world-famous art at the Rijksmuseum and Van Gogh Museum, and take scenic day trips to Keukenhof Gardens and seaside Volendam.",
+    "highlights": [
+      "Private luxury glass-topped boat cruise along Amsterdam's UNESCO Canal Ring",
+      "Day excursion to Keukenhof Gardens (spring) or Giethoorn 'Venice of the North'",
+      "Visit Zaanse Schans historic windmill village, clog maker, and cheese farm",
+      "Skip-the-line access to the Rijksmuseum to see Rembrandt's Night Watch",
+      "Stroll through the charming Jordaan boutique and café district",
+      "Traditional Dutch pancake and stroopwafel tasting workshop",
+      "4/5-star central boutique canal hotel stay"
+    ],
+    "route": [
+      "Amsterdam",
+      "Canal Ring",
+      "Keukenhof",
+      "Zaanse Schans",
+      "Volendam",
+      "Amsterdam"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "4 nights 4/5-star central hotel accommodation in Amsterdam with canal views",
+      "Daily Dutch breakfast buffet",
+      "Private 1-hour luxury canal boat cruise with refreshments",
+      "Keukenhof Gardens entry tickets and private transportation",
+      "Zaanse Schans windmill and cheese farm guided tour",
+      "All private airport and sightseeing transfers in luxury AC vehicle",
+      "English-speaking private guide"
+    ],
+    "exclusions": [
+      "International flights to/from Amsterdam (AMS)",
+      "Schengen visa fees",
+      "City tourist taxes",
+      "Travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Amsterdam & Canal Cruise",
+        "summary": "Arrive at Schiphol Airport, private transfer to hotel, evening private canal cruise.",
+        "activities": [
+          "Arrive at Amsterdam Schiphol Airport (AMS). Meet your private chauffeur and transfer to your hotel.",
+          "Check in and board an exclusive private glass-roof canal boat to glide through the Herengracht and Prinsengracht canals.",
+          "Evening welcome dinner at a historic canal-side restaurant."
+        ],
+        "meals": "Dinner included",
+        "transport": "Included private airport transfer & canal cruise"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Keukenhof Tulip Gardens & Flower Strip",
+        "summary": "Witness 7 million blooming tulips, daffodils, and hyacinths at Keukenhof.",
+        "activities": [
+          "Morning drive through the Bollenstreek (flower bulb region) surrounded by endless strips of vibrant blooms.",
+          "Explore the 32-hectare Keukenhof Gardens admiring over 800 varieties of blooming tulips, sculpture gardens, and floral pavilions.",
+          "Afternoon bicycle or walking tour through neighboring flower fields."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private vehicle with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Zaanse Schans Windmills, Clog Workshop & Volendam",
+        "summary": "Historic wooden windmills, artisan cheese tasting, and seaside fishing village.",
+        "activities": [
+          "Visit Zaanse Schans open-air museum: see functioning 18th-century oil, saw, and dye windmills.",
+          "Watch a traditional wooden shoe (clog) making demonstration and sample artisan Dutch gouda cheese.",
+          "Continue to the historic fishing harbor of Volendam for fresh seafood and waterfront strolls."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Rijksmuseum, Van Gogh & Jordaan District",
+        "summary": "Masterpieces of Dutch Golden Age, Van Gogh Museum, and boutique shopping.",
+        "activities": [
+          "Guided tour of the Rijksmuseum admiring Rembrandt, Vermeer's 'Milkmaid', and Golden Age treasures.",
+          "Visit the neighboring Van Gogh Museum holding the world's largest collection of Vincent's paintings.",
+          "Spend the afternoon exploring the art galleries, flower shops, and cozy cafés of the Jordaan district."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Departure from Amsterdam to UAE",
+        "summary": "Last-minute souvenir shopping for Dutch chocolates and cheeses, airport transfer.",
+        "activities": [
+          "Enjoy a classic Dutch breakfast with fresh stroopwafels.",
+          "Private transfer to Amsterdam Schiphol Airport for your flight back to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "portugal-lisbon-sintra-porto",
+    "title": "Portugal Coastal Charms: Lisbon Tram 28, Sintra Pena Palace & Porto Douro River",
+    "destination": "Lisbon · Alfama · Belém · Sintra · Pena Palace · Porto · Douro River",
+    "country": "Portugal",
+    "region": "Europe",
+    "days": 6,
+    "nights": 5,
+    "styles": [
+      "Cultural",
+      "City Escape",
+      "Beach"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 4190,
+    "image": "/images/destinations/portugal-belem-tower.jpg",
+    "intro": "Sun-drenched Atlantic charm: vintage yellow trams clattering up Lisbon's hills, the pastel-colored fantasy of Sintra's Pena Palace, and riverside wine cellars in Porto.",
+    "story": "Explore ancient Moorish quarters in Lisbon, taste authentic warm Pastéis de Belém custard tarts, take the Alfa Pendular express train to Porto, and cruise beneath the double-deck iron bridges of the Douro River.",
+    "highlights": [
+      "Historic Tram 28 ride through the narrow cobblestone alleys of Alfama",
+      "Guided tour of Belém Tower, Jerónimos Monastery, and Pastéis de Belém tasting",
+      "Excursion to Sintra UNESCO fairy-tale Pena National Palace and Cabo da Roca (Europe's westernmost point)",
+      "High-speed Alfa Pendular train from Lisbon to Porto",
+      "Six Bridges river cruise along the Douro River in Porto",
+      "Stroll the vibrant Ribeira waterfront and visit Livraria Lello bookstore",
+      "5-star boutique hotels with daily Portuguese breakfast"
+    ],
+    "route": [
+      "Lisbon",
+      "Belém",
+      "Sintra",
+      "Porto",
+      "Douro River",
+      "Lisbon"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "3 nights in Lisbon & 2 nights in Porto at 4/5-star central heritage hotels",
+      "Daily breakfast buffet & traditional Portuguese Fado dinner show",
+      "First-Class Alfa Pendular train tickets Lisbon - Porto - Lisbon",
+      "Pena Palace and Park skip-the-line entrance tickets",
+      "Douro River 6 Bridges boat cruise ticket in Porto",
+      "All private airport, station and excursion transfers in luxury AC vehicle",
+      "English-speaking private licensed guide"
+    ],
+    "exclusions": [
+      "International flights to/from Lisbon (LIS)",
+      "Schengen visa fees",
+      "City tourist taxes",
+      "Travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Sunny Lisbon & Baixa District",
+        "summary": "Arrive at Humberto Delgado Airport, private transfer to hotel, orientation walk.",
+        "activities": [
+          "Arrive at Lisbon Airport (LIS). Private Mercedes pickup and transfer to your luxury hotel in Chiado or Avenida da Liberdade.",
+          "Take an orientation stroll through grand Praça do Comércio overlooking the Tagus River.",
+          "Enjoy a welcome dinner in the Bairro Alto with fresh Atlantic seafood."
+        ],
+        "meals": "Dinner included",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Historic Alfama, Tram 28 & Belém Discoveries",
+        "summary": "Ride Tram 28, visit São Jorge Castle, Belém Tower, and Jerónimos Monastery.",
+        "activities": [
+          "Ride the famous yellow Tram 28 up the winding cobbled hills of Alfama.",
+          "Admire panoramic views from the Miradouro de Santa Luzia viewpoint.",
+          "Drive to Belém: visit the 16th-century fortress Belém Tower and UNESCO Jerónimos Monastery.",
+          "Taste the original warm custard tarts at Fábrica de Pastéis de Belém."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Day Excursion to Sintra Fairytale Palaces & Cascais",
+        "summary": "Pena Palace vibrant colors, Quinta da Regaleira mystery wells, and Cabo da Roca cliffs.",
+        "activities": [
+          "Drive to the forested hills of romantic Sintra to tour the eccentric, colorful Pena National Palace perched high on the mountain.",
+          "Explore the mystical initiation wells and secret tunnels of Quinta da Regaleira.",
+          "Stand at Cabo da Roca, the westernmost point of continental Europe ('where the land ends and the sea begins').",
+          "Scenic seaside drive back via the glamorous beach resort town of Cascais."
+        ],
+        "meals": "Breakfast & lunch included",
+        "transport": "Included private vehicle"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Express Train to Porto & Historic Ribeira",
+        "summary": "Fast train to Porto, check in, walk the Ribeira waterfront and Dom Luís I Bridge.",
+        "activities": [
+          "Board the comfortable Alfa Pendular express train to Porto São Bento station (famed for its 20,000 blue azulejo tiles).",
+          "Check in to your hotel overlooking the Douro River.",
+          "Walk across the top deck of the double-decker iron Dom Luís I Bridge engineered by Gustave Eiffel's disciple.",
+          "Explore the vibrant UNESCO Ribeira waterfront district."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Express train & private transfers included"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Douro Six Bridges Cruise & Livraria Lello",
+        "summary": "Traditional Rabelo boat cruise on Douro, visit iconic bookstore, return to Lisbon.",
+        "activities": [
+          "Board a traditional wooden Rabelo boat for a scenic 50-minute Six Bridges Cruise along the Douro River.",
+          "Visit the neo-Gothic Livraria Lello, one of the world's most beautiful bookstores that inspired J.K. Rowling.",
+          "Afternoon express train back to Lisbon for your farewell evening."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Boat cruise & express train included"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — Departure from Lisbon to UAE",
+        "summary": "Morning coffee and shopping, private transfer to Lisbon Airport.",
+        "activities": [
+          "Enjoy a leisurely breakfast and last-minute shopping for Portuguese cork crafts and ceramics.",
+          "Private transfer to Lisbon Airport for your flight back to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "mauritius-tropical-lagoon-resort",
+    "title": "Mauritius Island Bliss: Le Morne Coral Lagoon, Chamarel Seven Earths & Luxury Beach",
+    "destination": "Le Morne · Chamarel · Île aux Cerfs · Port Louis · Grand Baie",
+    "country": "Mauritius",
+    "region": "Africa",
+    "days": 6,
+    "nights": 5,
+    "styles": [
+      "Beach",
+      "Honeymoon",
+      "Luxury",
+      "Family"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 4790,
+    "image": "/images/destinations/mauritius-le-morne.jpg",
+    "intro": "Crystal turquoise lagoons, powder-white beaches framed by emerald volcanic peaks, and world-renowned 5-star tropical resort hospitality.",
+    "story": "Relax in luxury beachfront resorts nestled beneath UNESCO Le Morne Brabant mountain, catamaran across sparkling reefs to Île aux Cerfs, and discover the rainbow sands of Chamarel Seven Coloured Earths.",
+    "highlights": [
+      "5 nights in a luxury 5-star oceanfront resort with private beach and spa facilities",
+      "Full-day luxury catamaran cruise to Île aux Cerfs with snorkeling and barbecue lunch",
+      "Excursion to Chamarel: Seven Coloured Earths geological wonder and 100m waterfall",
+      "Visit Grand Bassin (Ganga Talao) sacred crater lake and giant Shiva statue",
+      "Stroll the giant Victoria Amazonica water lily ponds at SSR Botanical Garden",
+      "Glass-bottom boat reef coral and tropical fish viewing",
+      "Romantic sunset beachfront candlelight dinner"
+    ],
+    "route": [
+      "Le Morne",
+      "Chamarel",
+      "Île aux Cerfs",
+      "Grand Bassin",
+      "Port Louis"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "5 nights 5-star beachfront resort accommodation (Half Board: daily breakfast & gourmet dinner)",
+      "Full-day catamaran cruise with open bar, barbecue lunch & snorkeling equipment",
+      "Full-day southwest island tour (Chamarel, Waterfalls, Grand Bassin) with guide",
+      "All private airport and excursion transfers in luxury AC vehicle",
+      "Welcome fruit basket and complimentary non-motorized water sports",
+      "24/7 dedicated local representative"
+    ],
+    "exclusions": [
+      "International flights to/from Sir Seewoosagur Ramgoolam Airport (MRU)",
+      "Personal spa treatments and premium water sports",
+      "Gratuities and travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Arrival in Tropical Paradise Mauritius",
+        "summary": "Arrive at MRU Airport, private transfer to 5★ beachfront resort, sunset cocktail.",
+        "activities": [
+          "Arrive at Sir Seewoosagur Ramgoolam International Airport (MRU). Warm floral garland welcome and private transfer to your 5-star beachfront resort.",
+          "Check into your ocean-view suite, unwind on the soft white sands, and watch a golden Indian Ocean sunset.",
+          "Lavish welcome dinner buffet featuring French, Creole, and Indian fusion cuisine."
+        ],
+        "meals": "Dinner included",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Southwest Scenic Wonders: Chamarel & Sacred Crater Lake",
+        "summary": "Seven Coloured Earths, Chamarel Waterfalls, and sacred Grand Bassin.",
+        "activities": [
+          "Drive into the lush Chamarel mountains to witness the Seven Coloured Earths — dunes of red, brown, violet, and green volcanic sands.",
+          "View the dramatic Chamarel Waterfall plunging 100 meters into a lush tropical amphitheater.",
+          "Visit the sacred crater lake of Grand Bassin (Ganga Talao) guarded by monumental 108-foot statues of Lord Shiva and Durga.",
+          "Enjoy panoramic views over the Black River Gorges nature reserve."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Included private vehicle with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Luxury Catamaran Cruise to Île aux Cerfs",
+        "summary": "Sail crystal lagoons, snorkel colorful coral reefs, and beach BBQ on Île aux Cerfs.",
+        "activities": [
+          "Board a luxury sailing catamaran for a full-day cruise across the turquoise east coast lagoon.",
+          "Snorkel over vibrant coral gardens teeming with tropical reef fish (equipment provided).",
+          "Enjoy a freshly grilled seafood and chicken BBQ lunch onboard with refreshing drinks.",
+          "Drop anchor at paradise island Île aux Cerfs for swimming, sunbathing, and parasailing."
+        ],
+        "meals": "Breakfast, lunch & dinner included",
+        "transport": "Included private transfers & catamaran"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — North Island Discovery: Port Louis & Botanical Gardens",
+        "summary": "Port Louis Caudan Waterfront, Central Market, and giant water lilies.",
+        "activities": [
+          "Visit the historic capital of Port Louis: stroll the colorful umbrella alley at Le Caudan Waterfront and explore the vibrant Central Market.",
+          "Explore the historic Sir Seewoosagur Ramgoolam Botanical Garden in Pamplemousses, famous for giant Amazonian water lilies and 85 varieties of palms.",
+          "Stop in lively Grand Baie for boutique shopping and coastal views."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 5,
+        "title": "Day 5 — Beach Relaxation, Water Sports & Spa Luxury",
+        "summary": "Free day for paddleboarding, kayaking, luxury spa, and candlelight beach dinner.",
+        "activities": [
+          "Spend a relaxing day indulging in complimentary resort water sports: stand-up paddleboarding, kayaking, and glass-bottom boat coral tours.",
+          "Optional rejuvenating tropical couples spa treatment.",
+          "Romantic 4-course farewell candlelight dinner on the beach under the southern stars."
+        ],
+        "meals": "Breakfast & dinner included",
+        "transport": "Resort stay"
+      },
+      {
+        "day": 6,
+        "title": "Day 6 — Departure from Mauritius to UAE",
+        "summary": "Final morning beach swim, resort checkout, and private airport transfer.",
+        "activities": [
+          "Enjoy a relaxed tropical breakfast overlooking the turquoise lagoon.",
+          "Private luxury transfer to Mauritius Airport for your flight back to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "qatar-doha-luxury-stopover",
+    "title": "Qatar Cultural Splendour: Doha Corniche Skyline, Souq Waqif & Katara Village",
+    "destination": "Doha · West Bay · Corniche · Souq Waqif · Museum of Islamic Art · Katara",
+    "country": "Qatar",
+    "region": "International",
+    "days": 4,
+    "nights": 3,
+    "styles": [
+      "Weekend Escape",
+      "Luxury",
+      "Shopping",
+      "Cultural"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1690,
+    "image": "/images/destinations/qatar-doha-skyline.jpg",
+    "intro": "Just 1 hour flight from Dubai: dazzling futuristic architecture along West Bay, fragrant spice alleys in Souq Waqif, and world-class cultural museums by the Arabian Gulf.",
+    "story": "Experience the ultimate luxury Arabian city break: take a sunset wooden dhow cruise along the Corniche, explore the I.M. Pei-designed Museum of Islamic Art, and dine at the Pearl-Qatar marina.",
+    "highlights": [
+      "Traditional illuminated wooden Dhow cruise along Doha Corniche with skyline views",
+      "Guided tour of Souq Waqif: Falcon Souq, spice alleys, and artisan craft shops",
+      "Visit the iconic Museum of Islamic Art and National Museum of Qatar (Desert Rose)",
+      "Explore Katara Cultural Village amphitheater and Blue Mosque",
+      "Stroll the luxury yachts and Mediterranean plazas of The Pearl-Qatar",
+      "5-star hotel in central West Bay / Doha with daily breakfast buffet",
+      "Fast 1-hour direct flights from Dubai DXB / Abu Dhabi AUH"
+    ],
+    "route": [
+      "Doha",
+      "Corniche",
+      "Souq Waqif",
+      "Katara",
+      "The Pearl"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "3 nights 5-star hotel accommodation in central Doha",
+      "Daily international breakfast buffet",
+      "Private Doha Corniche sunset dhow cruise",
+      "Half-day guided city highlights tour with museum admissions",
+      "All private airport and sightseeing transfers in luxury AC vehicle",
+      "Dedicated 24/7 concierge assistance"
+    ],
+    "exclusions": [
+      "International flights to/from Doha (DOH)",
+      "Optional desert dune bashing safari",
+      "Personal expenses and travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — 1-Hour Flight from Dubai to Doha & Souq Waqif",
+        "summary": "Arrive at Hamad Airport, private transfer to 5★ hotel, evening Souq Waqif walk.",
+        "activities": [
+          "Short 1-hour direct flight from Dubai DXB to Hamad International Airport in Doha. VIP meet-and-greet and private transfer to your 5-star hotel.",
+          "Check in and head to the lively alleys of Souq Waqif to see the Falcon Souq, camel pens, and spice merchants.",
+          "Traditional Arabian dinner featuring authentic Qatari machboos and karak tea."
+        ],
+        "meals": "Dinner included",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Cultural Marvels: Museum of Islamic Art & Katara Village",
+        "summary": "I.M. Pei Museum of Islamic Art, National Museum, and Katara amphitheater.",
+        "activities": [
+          "Visit the architectural masterpiece Museum of Islamic Art (MIA) standing gracefully on its own island.",
+          "Tour the National Museum of Qatar designed by Jean Nouvel inspired by the natural desert rose crystal.",
+          "Explore Katara Cultural Village: visit the gilded amphitheater, art galleries, and waterfront promenade."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private vehicle with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — The Pearl-Qatar & Sunset Corniche Dhow Cruise",
+        "summary": "The Pearl-Qatar luxury marina, Lusail boulevard, and evening dhow cruise.",
+        "activities": [
+          "Visit The Pearl-Qatar, a man-made island featuring Mediterranean-style marinas, luxury boutiques, and Venetian canals at Qanat Quartier.",
+          "View the futuristic architecture of Lusail and the iconic Katara Towers.",
+          "Board a traditional wooden Dhow for a private sunset cruise along Doha Bay with panoramic views of the illuminated West Bay skyline."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport & boat cruise"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Departure from Doha to UAE",
+        "summary": "Morning shopping at Place Vendôme Mall, transfer to Hamad Airport.",
+        "activities": [
+          "Enjoy a leisurely breakfast and shop at the Parisian-inspired Place Vendôme luxury mall in Lusail.",
+          "Private transfer to Hamad International Airport for your flight back to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
+    ]
+  },
+  {
+    "slug": "bahrain-pearl-heritage-escape",
+    "title": "Bahrain Pearl Island: Manama Bay, UNESCO Qal'at Fort & Heritage Souqs",
+    "destination": "Manama · Qal'at al-Bahrain · Bab Al Bahrain · Al Fateh Mosque · Muharraq",
+    "country": "Bahrain",
+    "region": "International",
+    "days": 4,
+    "nights": 3,
+    "styles": [
+      "Weekend Escape",
+      "Cultural",
+      "City Escape"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1490,
+    "image": "/images/destinations/bahrain-manama-skyline.jpg",
+    "intro": "Just 1 hour flight from UAE: explore ancient Dilmun civilizations, UNESCO Portuguese forts overlooking turquoise seas, and vibrant pearl souqs in the Kingdom of Bahrain.",
+    "story": "Discover the island of two seas: tour the grand Al Fateh Mosque, walk along the battlements of Qal'at al-Bahrain fort at sunset, and taste authentic warm Bahraini halwa in historic Muharraq.",
+    "highlights": [
+      "Guided tour of UNESCO World Heritage Qal'at al-Bahrain (Bahrain Fort)",
+      "Visit the magnificent Al Fateh Grand Mosque with its giant fiberglass dome",
+      "Stroll through Bab Al Bahrain gateway into the bustling spice and gold souq",
+      "Walk the UNESCO Pearling Path in historic Muharraq and traditional windtower houses",
+      "View the twin towers of Bahrain World Trade Center with wind turbines",
+      "5-star hotel stay in central Manama / Bahrain Bay with daily breakfast buffet",
+      "Short 1-hour flight from Dubai DXB / Abu Dhabi AUH"
+    ],
+    "route": [
+      "Manama",
+      "Bahrain Fort",
+      "Bab Al Bahrain",
+      "Muharraq",
+      "Manama Bay"
+    ],
+    "featured": true,
+    "isNew": true,
+    "inclusions": [
+      "3 nights 5-star hotel accommodation in central Manama / Seef district",
+      "Daily international buffet breakfast",
+      "Full-day guided historical island tour with museum admissions",
+      "Bahraini halwa and Arabic coffee tasting in Muharraq",
+      "All private airport, hotel, and sightseeing transfers in luxury AC vehicle",
+      "English-speaking professional local tour guide"
+    ],
+    "exclusions": [
+      "International flights to/from Bahrain (BAH)",
+      "Personal expenses and optional water sports",
+      "Travel insurance"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Day 1 — Flight from Dubai to Manama & Bab Al Bahrain",
+        "summary": "Arrive at Bahrain Airport, private transfer to 5★ hotel, explore Manama Souq.",
+        "activities": [
+          "Direct 1-hour flight from Dubai DXB to Bahrain International Airport (BAH). VIP meet-and-greet and private transfer to your 5-star hotel.",
+          "Check in and walk through the historic Bab Al Bahrain archway into the vibrant alleys of Manama Souq.",
+          "Evening welcome dinner featuring authentic Bahraini machboos and fresh Gulf grilled fish."
+        ],
+        "meals": "Dinner included",
+        "transport": "Included private airport transfer"
+      },
+      {
+        "day": 2,
+        "title": "Day 2 — Ancient Qal'at al-Bahrain Fort & Al Fateh Grand Mosque",
+        "summary": "Dilmun ancient capital, UNESCO fort on the sea, and Al Fateh Mosque.",
+        "activities": [
+          "Visit the monumental Al Fateh Grand Mosque, admiring its marble floors and world's largest fiberglass dome.",
+          "Tour the Bahrain National Museum showcasing 5,000 years of ancient Dilmun civilization artifacts.",
+          "Explore the UNESCO World Heritage site Qal'at al-Bahrain (Bahrain Fort) perched right on the seashore at sunset."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private vehicle with guide"
+      },
+      {
+        "day": 3,
+        "title": "Day 3 — Muharraq Pearling Path, Windtowers & Bahrain Bay",
+        "summary": "UNESCO Pearling Path heritage houses, traditional halwa factory, and Bahrain Bay skyline.",
+        "activities": [
+          "Walk through the historic alleyways of Muharraq, exploring preserved 19th-century pearl merchant houses like Beit Sheikh Isa bin Ali.",
+          "Visit a traditional Bahraini Halwa factory to watch master sweetmakers and sample warm halwa with cardamom coffee.",
+          "Evening at leisure admiring the illuminated Bahrain World Trade Center and The Avenues waterfront promenade."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private transport"
+      },
+      {
+        "day": 4,
+        "title": "Day 4 — Departure from Bahrain to UAE",
+        "summary": "Leisurely breakfast, checkout, and private transfer to airport for flight home.",
+        "activities": [
+          "Enjoy a relaxed morning breakfast overlooking Manama Bay.",
+          "Private luxury transfer to Bahrain International Airport for your flight back to Dubai DXB."
+        ],
+        "meals": "Breakfast included",
+        "transport": "Included private airport transfer"
+      }
     ]
   }
 ];

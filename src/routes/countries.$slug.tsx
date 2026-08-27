@@ -159,6 +159,9 @@ function CountryPage() {
               height={1000}
               className="size-full object-cover transition-all duration-500"
             />
+            <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
+              Photo {shot + 1} of {gallery.length}
+            </div>
           </div>
           <div className="grid grid-cols-4 gap-3 lg:grid-cols-2">
             {gallery.slice(0, 4).map((g, i) => (
@@ -168,11 +171,21 @@ function CountryPage() {
                 onClick={() => setShot(i)}
                 aria-label={`Show ${country.name} photo ${i + 1}`}
                 className={cn(
-                  "relative aspect-[4/3] overflow-hidden rounded-2xl ring-2 transition-all cursor-pointer bg-slate-100",
-                  shot === i ? "ring-[#00365F] shadow-md" : "ring-transparent hover:ring-[#00365F]/40 opacity-80 hover:opacity-100",
+                  "group relative aspect-[4/3] overflow-hidden rounded-2xl ring-2 transition-all cursor-pointer bg-slate-100",
+                  shot === i
+                    ? "ring-[#00365F] shadow-md scale-102"
+                    : "ring-transparent hover:ring-[#00365F]/40 opacity-80 hover:opacity-100",
                 )}
               >
-                <img src={g} alt="" className="size-full object-cover" loading="lazy" />
+                <img
+                  src={g}
+                  alt=""
+                  className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <span className="absolute top-2 left-2 flex size-5 items-center justify-center rounded-full bg-black/50 text-[10px] font-bold text-white backdrop-blur-xs">
+                  {i + 1}
+                </span>
               </button>
             ))}
           </div>

@@ -14,7 +14,10 @@ import { ScrollJourneyFilm } from "@/components/site/ScrollJourneyFilm";
 import { PaperBackdrop } from "@/components/site/PaperBackdrop";
 import { Magnet } from "@/components/site/Magnet";
 import { ArrowBadgeLink } from "@/components/site/ArrowBadgeLink";
-import { PixelRevealCard, type PixelCard } from "@/components/site/PixelRevealCard";
+import { TrustMetricsBar } from "@/components/site/TrustMetricsBar";
+import { InteractivePackageExplorer } from "@/components/site/InteractivePackageExplorer";
+import { RegionalExplorer } from "@/components/site/RegionalExplorer";
+import { QuickTripBuilder } from "@/components/site/QuickTripBuilder";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
 import { absoluteUrl } from "@/lib/site";
@@ -98,6 +101,7 @@ function Home() {
     <div className="bg-[#FFFFFF] text-[#353844]">
       <Hero />
       <EnquiryBar />
+      <TrustMetricsBar />
       <PhotoBand />
       <StatementBand />
       {/* The statement promises the whole trip is handled; the film shows it,
@@ -105,7 +109,9 @@ function Home() {
       <ScrollJourneyFilm />
       <SignatureItineraries />
       <PackageGrid />
+      <RegionalExplorer />
       <UaeRail />
+      <QuickTripBuilder />
       <Assurance />
       <ContactClose />
       <Faq />
@@ -266,35 +272,15 @@ function SignatureItineraries() {
  * ---------------------------------------------------------------- */
 
 function PackageGrid() {
-  const grid = useMemo<PixelCard[]>(() => {
-    // Skip anything already given a full stacking card above.
-    const shown = new Set<string>(FEATURES.map((f) => f.slug));
-    return packages
-      .filter((p) => !shown.has(p.slug))
-      .slice(0, 6)
-      .map((p) => {
-        const price = priceParts(p);
-        return {
-          slug: p.slug,
-          title: p.title,
-          country: p.country,
-          meta: `${p.days} days · ${p.nights} nights`,
-          price: price.amount,
-          priceLabel: price.eyebrow,
-          image: p.image,
-        };
-      });
-  }, []);
-
   return (
     <section className="border-y border-[#E5E5E5] bg-[#F8F8F8] py-20 sm:py-28">
       <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <Reveal>
             <div className="min-w-0">
-              <Eyebrow>Popular right now</Eyebrow>
+              <Eyebrow>Curated Holiday Packages</Eyebrow>
               <h2 className="mt-3 font-display text-[clamp(1.9rem,4.4vw,3.4rem)] leading-[1.08] tracking-tight text-[#00365F]">
-                More ways to <span className="italic text-[#8F7420]">get away</span>
+                Discover Your Next <span className="italic text-[#8F7420]">Getaway</span>
               </h2>
             </div>
           </Reveal>
@@ -303,13 +289,7 @@ function PackageGrid() {
           </ArrowBadgeLink>
         </div>
 
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {grid.map((c, i) => (
-            <Reveal key={c.slug} delay={i * 60}>
-              <PixelRevealCard card={c} index={i} />
-            </Reveal>
-          ))}
-        </div>
+        <InteractivePackageExplorer />
       </div>
     </section>
   );

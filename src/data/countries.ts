@@ -23,10 +23,10 @@ export const countries: Country[] = [
   c({
     slug: "switzerland",
     gallery: [
-          "/images/destinations/switzerland-01.jpg",
-          "/images/destinations/switzerland-02.jpg",
-          "/images/destinations/switzerland-03.jpg",
-          "/images/destinations/switzerland-04.jpg"
+      "/images/destinations/switzerland-01.jpg",
+      "/images/destinations/switzerland-02.jpg",
+      "/images/destinations/switzerland-03.jpg",
+      "/images/destinations/switzerland-04.jpg",
     ],
     name: "Switzerland",
     region: "Europe",
@@ -49,10 +49,10 @@ export const countries: Country[] = [
   c({
     slug: "france",
     gallery: [
-          "/images/destinations/france-01.jpg",
-          "/images/destinations/france-02.jpg",
-          "/images/destinations/france-03.jpg",
-          "/images/destinations/france-04.jpg"
+      "/images/destinations/france-01.jpg",
+      "/images/destinations/france-02.jpg",
+      "/images/destinations/france-03.jpg",
+      "/images/destinations/france-04.jpg",
     ],
     name: "France",
     region: "Europe",
@@ -75,9 +75,10 @@ export const countries: Country[] = [
   c({
     slug: "italy",
     gallery: [
-          "/images/destinations/italy-01.jpg",
-          "/images/destinations/italy-02.jpg",
-          "/images/destinations/italy-03.jpg"
+      "/images/destinations/italy-01.jpg",
+      "/images/destinations/italy-02.jpg",
+      "/images/destinations/italy-03.jpg",
+      "/images/destinations/italy-g04.jpg",
     ],
     name: "Italy",
     region: "Europe",
@@ -100,10 +101,10 @@ export const countries: Country[] = [
   c({
     slug: "united-kingdom",
     gallery: [
-          "/images/destinations/united-kingdom-01.jpg",
-          "/images/destinations/united-kingdom-02.jpg",
-          "/images/destinations/united-kingdom-03.jpg",
-          "/images/destinations/united-kingdom-04.jpg"
+      "/images/destinations/united-kingdom-01.jpg",
+      "/images/destinations/united-kingdom-02.jpg",
+      "/images/destinations/united-kingdom-03.jpg",
+      "/images/destinations/united-kingdom-04.jpg",
     ],
     name: "United Kingdom",
     region: "Europe",
@@ -125,15 +126,15 @@ export const countries: Country[] = [
   c({
     slug: "finland",
     gallery: [
-          "/images/destinations/finland-01.jpg",
-          "/images/destinations/finland-02.jpg",
-          "/images/destinations/finland-03.jpg",
-          "/images/destinations/finland-04.jpg"
+      "/images/destinations/finland-northern-lights.jpg",
+      "/images/destinations/finland-02.jpg",
+      "/images/destinations/finland-03.jpg",
+      "/images/destinations/finland-04.jpg",
     ],
     name: "Finland",
     region: "Europe",
     image:
-      "/images/destinations/finland-01.jpg",
+      "/images/destinations/finland-northern-lights.jpg",
     tagline: "Northern lights and glass igloos",
     blurb: "Lapland in winter: aurora hunting, husky sledding and Santa's own village.",
     nights: "4–6 nights",
@@ -151,10 +152,10 @@ export const countries: Country[] = [
   c({
     slug: "czech-republic",
     gallery: [
-          "/images/destinations/czech-republic-01.jpg",
-          "/images/destinations/czech-republic-02.jpg",
-          "/images/destinations/czech-republic-03.jpg",
-          "/images/destinations/czech-republic-04.jpg"
+      "/images/destinations/czech-republic-01.jpg",
+      "/images/destinations/czech-republic-02.jpg",
+      "/images/destinations/czech-republic-03.jpg",
+      "/images/destinations/czech-republic-04.jpg",
     ],
     name: "Czech Republic",
     region: "Europe",
@@ -171,15 +172,15 @@ export const countries: Country[] = [
   c({
     slug: "austria",
     gallery: [
-          "/images/destinations/austria-01.jpg",
-          "/images/destinations/austria-02.jpg",
-          "/images/destinations/switzerland-02.jpg",
-          "/images/destinations/switzerland-03.jpg"
+      "/images/destinations/austria-01.jpg",
+      "/images/destinations/austria-02.jpg",
+      "/images/destinations/austria-g03.jpg",
+      "/images/destinations/austria-g05.jpg",
     ],
     name: "Austria",
     region: "Europe",
     image:
-      "/images/destinations/italy-02.jpg",
+      "/images/destinations/austria-01.jpg",
     tagline: "Vienna palaces and alpine lakes",
     blurb: "Imperial Vienna paired with Hallstatt and Salzburg's mountain scenery.",
     nights: "5–7 nights",
@@ -196,10 +197,10 @@ export const countries: Country[] = [
   c({
     slug: "hungary",
     gallery: [
-          "/images/destinations/hungary-01.jpg",
-          "/images/destinations/czech-republic-02.jpg",
-          "/images/destinations/czech-republic-01.jpg",
-          "/images/destinations/czech-republic-04.jpg"
+      "/images/destinations/hungary-01.jpg",
+      "/images/destinations/hungary-g02.jpg",
+      "/images/destinations/hungary-g04.jpg",
+      "/images/destinations/hungary-g06.jpg",
     ],
     name: "Hungary",
     region: "Europe",
@@ -221,9 +222,10 @@ export const countries: Country[] = [
   c({
     slug: "greece",
     gallery: [
-          "/images/destinations/greece-01.jpg",
-          "/images/destinations/greece-02.jpg",
-          "/images/destinations/italy-02.jpg"
+      "/images/destinations/greece-01.jpg",
+      "/images/destinations/greece-02.jpg",
+      "/images/destinations/greece-g03.jpg",
+      "/images/destinations/greece-g05.jpg",
     ],
     name: "Greece",
     region: "Europe",
@@ -245,13 +247,15 @@ export const countries: Country[] = [
   c({
     slug: "serbia",
     gallery: [
-          "/images/destinations/greece-02.jpg",
-          "/images/destinations/serbia-02.jpg"
+      "/images/destinations/serbia-02.jpg",
+      "/images/destinations/serbia-g02.jpg",
+      "/images/destinations/serbia-g04.jpg",
+      "/images/destinations/serbia-g06.jpg",
     ],
     name: "Serbia",
     region: "Europe",
     image:
-      "/images/destinations/greece-02.jpg",
+      "/images/destinations/serbia-02.jpg",
     tagline: "Belgrade nightlife, fortresses and Danube dining",
     blurb: "Bohemian cobblestone quarters, historic fortresses, and scenic riverside dining in Southeast Europe.",
     nights: "4–6 nights",
@@ -271,10 +275,10 @@ export const countries: Country[] = [
   c({
     slug: "japan",
     gallery: [
-          "/images/destinations/japan-01.jpg",
-          "/images/destinations/japan-02.jpg",
-          "/images/destinations/japan-03.jpg",
-          "/images/destinations/japan-04.jpg"
+      "/images/destinations/japan-01.jpg",
+      "/images/destinations/japan-02.jpg",
+      "/images/destinations/japan-03.jpg",
+      "/images/destinations/japan-04.jpg",
     ],
     name: "Japan",
     region: "Asia",
@@ -297,15 +301,15 @@ export const countries: Country[] = [
   c({
     slug: "indonesia",
     gallery: [
-          "/images/destinations/indonesia-01.jpg",
-          "/images/destinations/indonesia-02.jpg",
-          "/images/destinations/indonesia-03.jpg",
-          "/images/destinations/indonesia-04.jpg"
+      "/images/destinations/hero-bali.jpg",
+      "/images/destinations/indonesia-02.jpg",
+      "/images/destinations/indonesia-03.jpg",
+      "/images/destinations/indonesia-04.jpg",
     ],
     name: "Indonesia",
     region: "Asia",
     image:
-      "/images/destinations/indonesia-01.jpg",
+      "/images/destinations/hero-bali.jpg",
     tagline: "Bali rice terraces and island escapes",
     blurb: "Villas over the jungle, temple mornings and boat days to Nusa Penida.",
     nights: "5–8 nights",
@@ -322,9 +326,10 @@ export const countries: Country[] = [
   c({
     slug: "singapore",
     gallery: [
-          "/images/destinations/singapore-01.jpg",
-          "/images/destinations/singapore-02.jpg",
-          "/images/destinations/singapore-03.jpg"
+      "/images/destinations/singapore-01.jpg",
+      "/images/destinations/singapore-02.jpg",
+      "/images/destinations/singapore-03.jpg",
+      "/images/destinations/singapore-g04.jpg",
     ],
     name: "Singapore",
     region: "Asia",
@@ -346,14 +351,15 @@ export const countries: Country[] = [
   c({
     slug: "malaysia",
     gallery: [
-          "/images/destinations/singapore-03.jpg",
-          "/images/destinations/singapore-01.jpg",
-          "/images/destinations/indonesia-02.jpg"
+      "/images/destinations/malaysia-g01.jpg",
+      "/images/destinations/malaysia-g03.jpg",
+      "/images/destinations/malaysia-g05.jpg",
+      "/images/destinations/malaysia-p04.jpg",
     ],
     name: "Malaysia",
     region: "Asia",
     image:
-      "/images/destinations/singapore-03.jpg",
+      "/images/destinations/malaysia-g01.jpg",
     tagline: "Kuala Lumpur and Langkawi",
     blurb: "City towers, rainforest cable cars and cheap island time.",
     nights: "5–7 nights",
@@ -365,9 +371,10 @@ export const countries: Country[] = [
   c({
     slug: "thailand",
     gallery: [
-          "/images/destinations/thailand-01.jpg",
-          "/images/destinations/thailand-02.jpg",
-          "/images/destinations/indonesia-02.jpg"
+      "/images/destinations/thailand-01.jpg",
+      "/images/destinations/thailand-02.jpg",
+      "/images/destinations/thailand-g03.jpg",
+      "/images/destinations/thailand-g05.jpg",
     ],
     name: "Thailand",
     region: "Asia",
@@ -389,14 +396,15 @@ export const countries: Country[] = [
   c({
     slug: "maldives",
     gallery: [
-          "/images/destinations/maldives-01.jpg",
-          "/images/destinations/switzerland-04.jpg",
-          "/images/destinations/maldives-03.jpg"
+      "/images/destinations/hero-maldives.jpg",
+      "/images/destinations/maldives-03.jpg",
+      "/images/destinations/maldives-p03.jpg",
+      "/images/destinations/maldives-p04.jpg",
     ],
     name: "Maldives",
     region: "Asia",
     image:
-      "/images/destinations/maldives-01.jpg",
+      "/images/destinations/hero-maldives.jpg",
     tagline: "Overwater villas, four hours away",
     blurb: "The honeymoon standard: lagoon villas, house reefs and seaplane transfers.",
     nights: "4–6 nights",
@@ -414,9 +422,10 @@ export const countries: Country[] = [
   c({
     slug: "sri-lanka",
     gallery: [
-          "/images/destinations/sri-lanka-01.jpg",
-          "/images/destinations/sri-lanka-02.jpg",
-          "/images/destinations/indonesia-01.jpg"
+      "/images/destinations/sri-lanka-nine-arch.jpg",
+      "/images/destinations/sri-lanka-01.jpg",
+      "/images/destinations/sri-lanka-02.jpg",
+      "/images/destinations/sri-lanka-g04.jpg",
     ],
     name: "Sri Lanka",
     region: "Asia",
@@ -433,15 +442,15 @@ export const countries: Country[] = [
   c({
     slug: "vietnam",
     gallery: [
-          "/images/destinations/thailand-02.jpg",
-          "/images/destinations/thailand-01.jpg",
-          "/images/destinations/indonesia-01.jpg",
-          "/images/destinations/singapore-02.jpg"
+      "/images/destinations/vietnam-halong-bay.jpg",
+      "/images/destinations/vietnam-g03.jpg",
+      "/images/destinations/vietnam-g05.jpg",
+      "/images/destinations/vietnam-p04.jpg",
     ],
     name: "Vietnam",
     region: "Asia",
     image:
-      "/images/destinations/thailand-02.jpg",
+      "/images/destinations/vietnam-halong-bay.jpg",
     tagline: "Ha Long Bay and lantern towns",
     blurb: "Limestone bays, Hoi An lanterns and some of Asia's best food.",
     nights: "6–9 nights",
@@ -453,15 +462,15 @@ export const countries: Country[] = [
   c({
     slug: "nepal",
     gallery: [
-          "/images/destinations/sri-lanka-02.jpg",
-          "/images/destinations/switzerland-02.jpg",
-          "/images/destinations/indonesia-02.jpg",
-          "/images/destinations/switzerland-01.jpg"
+      "/images/destinations/nepal-machapuchare.jpg",
+      "/images/destinations/nepal-p02.jpg",
+      "/images/destinations/nepal-p03.jpg",
+      "/images/destinations/nepal-p04.jpg",
     ],
     name: "Nepal",
     region: "Asia",
     image:
-      "/images/destinations/sri-lanka-02.jpg",
+      "/images/destinations/nepal-machapuchare.jpg",
     tagline: "Himalayas, temples & Annapurna peaks",
     blurb: "Snow-capped Himalayan peaks, ancient pagoda squares in Kathmandu, and serene Pokhara lakeside walks.",
     nights: "5–8 nights",
@@ -473,10 +482,10 @@ export const countries: Country[] = [
   c({
     slug: "china",
     gallery: [
-          "/images/destinations/china-01.jpg",
-          "/images/destinations/singapore-02.jpg",
-          "/images/destinations/thailand-02.jpg",
-          "/images/destinations/thailand-01.jpg"
+      "/images/destinations/china-01.jpg",
+      "/images/destinations/china-g02.jpg",
+      "/images/destinations/china-p03.jpg",
+      "/images/destinations/china-p04.jpg",
     ],
     name: "China",
     region: "Asia",
@@ -493,15 +502,15 @@ export const countries: Country[] = [
   c({
     slug: "south-korea",
     gallery: [
-          "/images/destinations/south-korea-01.jpg",
-          "/images/destinations/japan-02.jpg",
-          "/images/destinations/japan-03.jpg",
-          "/images/destinations/singapore-02.jpg"
+      "/images/destinations/south-korea-seoul.jpg",
+      "/images/destinations/south-korea-p02.jpg",
+      "/images/destinations/south-korea-p03.jpg",
+      "/images/destinations/south-korea-p04.jpg",
     ],
     name: "South Korea",
     region: "Asia",
     image:
-      "/images/destinations/south-korea-01.jpg",
+      "/images/destinations/south-korea-seoul.jpg",
     tagline: "Seoul palaces, K-Culture & Jeju Island",
     blurb: "Centuries-old royal palaces standing beside futuristic K-Pop streets, gourmet street food markets, and scenic Jeju Island.",
     nights: "6–9 nights",
@@ -513,8 +522,10 @@ export const countries: Country[] = [
   c({
     slug: "kyrgyzstan",
     gallery: [
-          "/images/destinations/switzerland-02.jpg",
-          "/images/destinations/switzerland-01.jpg"
+      "/images/destinations/kyrgyzstan-03.jpg",
+      "/images/destinations/kyrgyzstan-p02.jpg",
+      "/images/destinations/kyrgyzstan-p03.jpg",
+      "/images/destinations/kyrgyzstan-p04.jpg",
     ],
     name: "Kyrgyzstan",
     region: "Asia",
@@ -531,15 +542,15 @@ export const countries: Country[] = [
   c({
     slug: "hong-kong",
     gallery: [
-          "/images/destinations/singapore-02.jpg",
-          "/images/destinations/japan-02.jpg",
-          "/images/destinations/singapore-01.jpg",
-          "/images/destinations/china-01.jpg"
+      "/images/destinations/hong-kong-skyline.jpg",
+      "/images/destinations/hong-kong-p02.jpg",
+      "/images/destinations/hong-kong-p03.jpg",
+      "/images/destinations/hong-kong-p04.jpg",
     ],
     name: "Hong Kong",
     region: "Asia",
     image:
-      "/images/destinations/singapore-02.jpg",
+      "/images/destinations/hong-kong-skyline.jpg",
     tagline: "Victoria Harbour, skyline & Disneyland",
     blurb: "Dramatic Victoria Peak vistas, world-class Dim Sum dining, and iconic Star Ferry rides across Victoria Harbour.",
     nights: "4–6 nights",
@@ -553,10 +564,10 @@ export const countries: Country[] = [
   c({
     slug: "morocco",
     gallery: [
-          "/images/destinations/morocco-01.jpg",
-          "/images/destinations/morocco-02.jpg",
-          "/images/destinations/morocco-03.jpg",
-          "/images/destinations/morocco-04.jpg"
+      "/images/destinations/morocco-01.jpg",
+      "/images/destinations/morocco-02.jpg",
+      "/images/destinations/morocco-03.jpg",
+      "/images/destinations/morocco-04.jpg",
     ],
     name: "Morocco",
     region: "Africa",
@@ -578,9 +589,10 @@ export const countries: Country[] = [
   c({
     slug: "kenya",
     gallery: [
-          "/images/destinations/kenya-01.jpg",
-          "/images/destinations/kenya-02.jpg",
-          "/images/destinations/indonesia-02.jpg"
+      "/images/destinations/kenya-01.jpg",
+      "/images/destinations/kenya-02.jpg",
+      "/images/destinations/kenya-p03.jpg",
+      "/images/destinations/kenya-p04.jpg",
     ],
     name: "Kenya",
     region: "Africa",
@@ -602,10 +614,10 @@ export const countries: Country[] = [
   c({
     slug: "egypt",
     gallery: [
-          "/images/destinations/egypt-01.jpg",
-          "/images/destinations/morocco-02.jpg",
-          "/images/destinations/morocco-03.jpg",
-          "/images/destinations/morocco-04.jpg"
+      "/images/destinations/egypt-01.jpg",
+      "/images/destinations/egypt-p02.jpg",
+      "/images/destinations/egypt-p03.jpg",
+      "/images/destinations/egypt-p04.jpg",
     ],
     name: "Egypt",
     region: "Africa",
@@ -627,9 +639,10 @@ export const countries: Country[] = [
   c({
     slug: "tanzania",
     gallery: [
-          "/images/destinations/kenya-01.jpg",
-          "/images/destinations/switzerland-02.jpg",
-          "/images/destinations/maldives-01.jpg"
+      "/images/destinations/tanzania-serengeti.jpg",
+      "/images/destinations/tanzania-p02.jpg",
+      "/images/destinations/tanzania-p03.jpg",
+      "/images/destinations/tanzania-p04.jpg",
     ],
     name: "Tanzania",
     region: "Africa",
@@ -646,7 +659,10 @@ export const countries: Country[] = [
   c({
     slug: "south-africa",
     gallery: [
-          "/images/destinations/kenya-01.jpg"
+      "/images/destinations/south-africa-02.jpg",
+      "/images/destinations/south-africa-p02.jpg",
+      "/images/destinations/south-africa-p03.jpg",
+      "/images/destinations/south-africa-p04.jpg",
     ],
     name: "South Africa",
     region: "Africa",
@@ -663,9 +679,10 @@ export const countries: Country[] = [
   c({
     slug: "seychelles",
     gallery: [
-          "/images/destinations/maldives-01.jpg",
-          "/images/destinations/switzerland-04.jpg",
-          "/images/destinations/maldives-03.jpg"
+      "/images/destinations/seychelles-04.jpg",
+      "/images/destinations/seychelles-p02.jpg",
+      "/images/destinations/seychelles-p03.jpg",
+      "/images/destinations/seychelles-p04.jpg",
     ],
     name: "Seychelles",
     region: "Africa",
@@ -685,10 +702,10 @@ export const countries: Country[] = [
   c({
     slug: "turkey",
     gallery: [
-          "/images/destinations/turkey-01.jpg",
-          "/images/destinations/turkey-02.jpg",
-          "/images/destinations/czech-republic-04.jpg",
-          "/images/destinations/turkey-04.jpg"
+      "/images/destinations/turkey-01.jpg",
+      "/images/destinations/turkey-02.jpg",
+      "/images/destinations/turkey-04.jpg",
+      "/images/destinations/turkey-p04.jpg",
     ],
     name: "Turkey",
     region: "Eurasia",
@@ -710,9 +727,10 @@ export const countries: Country[] = [
   c({
     slug: "georgia",
     gallery: [
-          "/images/destinations/georgia-tbilisi.jpg",
-          "/images/destinations/georgia-01.jpg",
-          "/images/destinations/serbia-02.jpg"
+      "/images/destinations/georgia-tbilisi.jpg",
+      "/images/destinations/georgia-01.jpg",
+      "/images/destinations/georgia-p03.jpg",
+      "/images/destinations/georgia-p04.jpg",
     ],
     name: "Georgia",
     region: "Eurasia",
@@ -734,9 +752,10 @@ export const countries: Country[] = [
   c({
     slug: "azerbaijan",
     gallery: [
-          "/images/destinations/azerbaijan-baku.jpg",
-          "/images/destinations/azerbaijan-01.jpg",
-          "/images/destinations/serbia-02.jpg"
+      "/images/destinations/azerbaijan-baku.jpg",
+      "/images/destinations/azerbaijan-01.jpg",
+      "/images/destinations/azerbaijan-p03.jpg",
+      "/images/destinations/azerbaijan-p04.jpg",
     ],
     name: "Azerbaijan",
     region: "Eurasia",
@@ -758,8 +777,10 @@ export const countries: Country[] = [
   c({
     slug: "armenia",
     gallery: [
-          "/images/destinations/serbia-02.jpg",
-          "/images/destinations/azerbaijan-01.jpg"
+      "/images/destinations/armenia-yerevan-ararat.jpg",
+      "/images/destinations/armenia-p02.jpg",
+      "/images/destinations/armenia-p03.jpg",
+      "/images/destinations/armenia-p04.jpg",
     ],
     name: "Armenia",
     region: "Eurasia",
@@ -776,8 +797,10 @@ export const countries: Country[] = [
   c({
     slug: "kazakhstan",
     gallery: [
-          "/images/destinations/switzerland-02.jpg",
-          "/images/destinations/singapore-02.jpg"
+      "/images/destinations/kazakhstan-charyn.jpg",
+      "/images/destinations/kazakhstan-p02.jpg",
+      "/images/destinations/kazakhstan-p03.jpg",
+      "/images/destinations/kazakhstan-p04.jpg",
     ],
     name: "Kazakhstan",
     region: "Eurasia",
@@ -794,15 +817,15 @@ export const countries: Country[] = [
   c({
     slug: "jordan",
     gallery: [
-          "/images/destinations/morocco-04.jpg",
-          "/images/destinations/morocco-02.jpg",
-          "/images/destinations/morocco-03.jpg",
-          "/images/destinations/egypt-01.jpg"
+      "/images/destinations/jordan-petra.jpg",
+      "/images/destinations/jordan-p02.jpg",
+      "/images/destinations/jordan-p03.jpg",
+      "/images/destinations/jordan-p04.jpg",
     ],
     name: "Jordan",
     region: "Eurasia",
     image:
-      "/images/destinations/morocco-04.jpg",
+      "/images/destinations/jordan-petra.jpg",
     tagline: "Petra Rose City, Wadi Rum & Dead Sea",
     blurb: "Walk through the Siq into the rose-red Treasury of Petra, glamp under Martian stars in Wadi Rum, and float in the Dead Sea.",
     nights: "4–6 nights",
@@ -814,9 +837,10 @@ export const countries: Country[] = [
   c({
     slug: "uzbekistan",
     gallery: [
-          "/images/destinations/uzbekistan-01.jpg",
-          "/images/destinations/turkey-01.jpg",
-          "/images/destinations/azerbaijan-01.jpg"
+      "/images/destinations/uzbekistan-registan.jpg",
+      "/images/destinations/uzbekistan-01.jpg",
+      "/images/destinations/uzbekistan-p03.jpg",
+      "/images/destinations/uzbekistan-p04.jpg",
     ],
     name: "Uzbekistan",
     region: "Eurasia",
@@ -835,9 +859,10 @@ export const countries: Country[] = [
   c({
     slug: "australia",
     gallery: [
-          "/images/destinations/australia-01.jpg",
-          "/images/destinations/indonesia-02.jpg",
-          "/images/destinations/australia-03.jpg"
+      "/images/destinations/australia-01.jpg",
+      "/images/destinations/australia-03.jpg",
+      "/images/destinations/australia-g03.jpg",
+      "/images/destinations/australia-p04.jpg",
     ],
     name: "Australia",
     region: "Australia",
@@ -856,9 +881,10 @@ export const countries: Country[] = [
   c({
     slug: "united-states",
     gallery: [
-          "/images/destinations/united-states-01.jpg",
-          "/images/destinations/kenya-02.jpg",
-          "/images/destinations/australia-03.jpg"
+      "/images/destinations/united-states-01.jpg",
+      "/images/destinations/united-states-g02.jpg",
+      "/images/destinations/united-states-g04.jpg",
+      "/images/destinations/united-states-g06.jpg",
     ],
     name: "United States of America",
     region: "America",
@@ -875,15 +901,15 @@ export const countries: Country[] = [
   c({
     slug: "argentina",
     gallery: [
-          "/images/destinations/argentina-01.jpg",
-          "/images/destinations/argentina-02.jpg",
-          "/images/destinations/switzerland-02.jpg",
-          "/images/destinations/switzerland-01.jpg"
+      "/images/destinations/argentina-perito-moreno.jpg",
+      "/images/destinations/argentina-02.jpg",
+      "/images/destinations/argentina-g03.jpg",
+      "/images/destinations/argentina-g05.jpg",
     ],
     name: "Argentina",
     region: "America",
     image:
-      "/images/destinations/argentina-01.jpg",
+      "/images/destinations/argentina-perito-moreno.jpg",
     tagline: "Buenos Aires tango, Iguazú Falls & Patagonia",
     blurb: "Passionate tango shows in Buenos Aires, thunderous Iguazú Falls, and glacier trekking in Patagonia.",
     nights: "8–12 nights",
@@ -895,14 +921,15 @@ export const countries: Country[] = [
   c({
     slug: "brazil",
     gallery: [
-          "/images/destinations/argentina-02.jpg",
-          "/images/destinations/argentina-01.jpg",
-          "/images/destinations/indonesia-01.jpg"
+      "/images/destinations/brazil-christ-redeemer.jpg",
+      "/images/destinations/brazil-g03.jpg",
+      "/images/destinations/brazil-g05.jpg",
+      "/images/destinations/brazil-p04.jpg",
     ],
     name: "Brazil",
     region: "America",
     image:
-      "/images/destinations/argentina-02.jpg",
+      "/images/destinations/brazil-christ-redeemer.jpg",
     tagline: "Rio Christ Redeemer, Copacabana & Amazon",
     blurb: "Christ the Redeemer overlooking Guanabara Bay, golden sands of Copacabana, and rainforest adventures.",
     nights: "8–12 nights",
@@ -970,6 +997,7 @@ export const countries: Country[] = [
       "/images/destinations/umrah-clock-tower.jpg",
       "/images/destinations/umrah-haram.jpg",
       "/images/destinations/umrah-quba.jpg",
+      "/images/destinations/saudi-arabia-p04.jpg",
     ],
     name: "Saudi Arabia",
     region: "Asia",
@@ -987,7 +1015,183 @@ export const countries: Country[] = [
     ],
     bestTime: "Year round; cooler and busier outside Ramadan",
     visa: "Umrah visa prepared and submitted by our specialists",
-  })
+  }),
+  c({
+    slug: "spain",
+    gallery: [
+      "/images/destinations/spain-sagrada-familia.jpg",
+      "/images/destinations/spain-g02.jpg",
+      "/images/destinations/spain-g03.jpg",
+      "/images/destinations/spain-g04.jpg",
+    ],
+    name: "Spain",
+    region: "Europe",
+    image: "/images/destinations/spain-sagrada-familia.jpg",
+    tagline: "Gaudi architecture, tapas and Mediterranean passion",
+    blurb: "Marvel at Gaudí's soaring Sagrada Família in Barcelona, explore the majestic Royal Palace of Madrid, and experience fiery Flamenco in Seville.",
+    nights: "5–8 nights",
+    fromAed: 4499,
+    highlights: [
+      "Sagrada Família & Park Güell",
+      "Madrid Royal Palace & Prado Museum",
+      "Seville Plaza de España & Flamenco",
+      "Barcelona Gothic Quarter & Las Ramblas"
+    ],
+    bestTime: "April – October",
+    visa: "Schengen visa — full documentation assistance",
+    isNew: true,
+  }),
+  c({
+    slug: "germany",
+    gallery: [
+      "/images/destinations/germany-neuschwanstein.jpg",
+      "/images/destinations/germany-g02.jpg",
+      "/images/destinations/germany-g03.jpg",
+      "/images/destinations/germany-g04.jpg",
+    ],
+    name: "Germany",
+    region: "Europe",
+    image: "/images/destinations/germany-neuschwanstein.jpg",
+    tagline: "Fairytale castles, Bavarian Alps and historic capitals",
+    blurb: "Step inside the fairytale Neuschwanstein Castle nestled in the Bavarian Alps, explore Munich's Marienplatz, and discover Berlin's iconic Brandenburg Gate.",
+    nights: "5–7 nights",
+    fromAed: 4699,
+    highlights: [
+      "Neuschwanstein Fairytale Castle",
+      "Munich Marienplatz & BMW Welt",
+      "Berlin Brandenburg Gate & Wall Memorial",
+      "Cologne Twin-Spire Gothic Cathedral"
+    ],
+    bestTime: "May – October & December (Christmas Markets)",
+    visa: "Schengen visa assistance",
+    isNew: true,
+  }),
+  c({
+    slug: "netherlands",
+    gallery: [
+      "/images/destinations/netherlands-amsterdam.jpg",
+      "/images/destinations/netherlands-g02.jpg",
+      "/images/destinations/netherlands-g03.jpg",
+      "/images/destinations/netherlands-g04.jpg",
+    ],
+    name: "Netherlands",
+    region: "Europe",
+    image: "/images/destinations/netherlands-amsterdam.jpg",
+    tagline: "Canal rings, tulip gardens and historic windmills",
+    blurb: "Cruise along Amsterdam's UNESCO canal rings, witness millions of blooming tulips at Keukenhof, and visit historic wooden windmills at Zaanse Schans.",
+    nights: "4–6 nights",
+    fromAed: 3999,
+    highlights: [
+      "Amsterdam Canal Ring boat cruise",
+      "Keukenhof Gardens tulip paradise",
+      "Zaanse Schans working windmills & cheese farm",
+      "Rijksmuseum & Van Gogh Museum"
+    ],
+    bestTime: "March – September",
+    visa: "Schengen visa assistance",
+    isNew: true,
+  }),
+  c({
+    slug: "portugal",
+    gallery: [
+      "/images/destinations/portugal-belem-tower.jpg",
+      "/images/destinations/portugal-g02.jpg",
+      "/images/destinations/portugal-g03.jpg",
+      "/images/destinations/portugal-g04.jpg",
+    ],
+    name: "Portugal",
+    region: "Europe",
+    image: "/images/destinations/portugal-belem-tower.jpg",
+    tagline: "Sunlit Atlantic coast, yellow trams and fairytale palaces",
+    blurb: "Ride vintage yellow Tram 28 through Lisbon's Alfama, explore the colorful Pena Palace in romantic Sintra, and cruise the Douro River in Porto.",
+    nights: "5–7 nights",
+    fromAed: 4299,
+    highlights: [
+      "Lisbon Belém Tower & Jerónimos Monastery",
+      "Sintra colorful Pena Palace & Quinta da Regaleira",
+      "Porto historic Ribeira & Douro River bridges",
+      "Pastéis de Belém custard tart tasting"
+    ],
+    bestTime: "April – October",
+    visa: "Schengen visa assistance",
+    isNew: true,
+  }),
+  c({
+    slug: "mauritius",
+    gallery: [
+      "/images/destinations/mauritius-le-morne.jpg",
+      "/images/destinations/mauritius-g02.jpg",
+      "/images/destinations/mauritius-g03.jpg",
+      "/images/destinations/mauritius-g04.jpg",
+    ],
+    name: "Mauritius",
+    region: "Africa",
+    image: "/images/destinations/mauritius-le-morne.jpg",
+    tagline: "Turquoise lagoons, coral reefs and volcanic wonders",
+    blurb: "Indulge in 5-star beachfront luxury beneath Le Morne mountain, discover the rainbow sands of Chamarel Seven Coloured Earths, and catamaran through crystal lagoons.",
+    nights: "5–7 nights",
+    fromAed: 4899,
+    highlights: [
+      "Le Morne Brabant turquoise lagoon beaches",
+      "Chamarel Seven Coloured Earths & Waterfall",
+      "Île aux Cerfs private catamaran cruise",
+      "Pamplemousses Botanical Garden giant water lilies"
+    ],
+    bestTime: "Year-round paradise",
+    visa: "Visa on arrival for most nationalities / UAE residents",
+    isNew: true,
+  }),
+  c({
+    slug: "qatar",
+    gallery: [
+      "/images/destinations/qatar-doha-skyline.jpg",
+      "/images/destinations/qatar-g02.jpg",
+      "/images/destinations/qatar-g03.jpg",
+      "/images/destinations/qatar-g04.jpg",
+    ],
+    name: "Qatar",
+    region: "Eurasia",
+    image: "/images/destinations/qatar-doha-skyline.jpg",
+    tagline: "Futuristic skylines, falcon souqs and cultural gems",
+    blurb: "Stroll the illuminated Doha Corniche, wander through the bustling spices and falcon markets of Souq Waqif, and explore world-class museums on the Arabian Gulf.",
+    nights: "3–4 nights",
+    fromAed: 1699,
+    highlights: [
+      "Doha West Bay skyline & Corniche dhow cruise",
+      "Souq Waqif traditional market & Falcon Souq",
+      "Museum of Islamic Art architectural icon",
+      "Katara Cultural Village & Pearl-Qatar luxury marina"
+    ],
+    bestTime: "October – April",
+    visa: "GCC Resident eVisa / Visa-free access",
+    isNew: true,
+  }),
+  c({
+    slug: "bahrain",
+    gallery: [
+      "/images/destinations/bahrain-manama-skyline.jpg",
+      "/images/destinations/bahrain-g02.jpg",
+      "/images/destinations/bahrain-g03.jpg",
+      "/images/destinations/bahrain-g04.jpg",
+    ],
+    name: "Bahrain",
+    region: "Eurasia",
+    image: "/images/destinations/bahrain-manama-skyline.jpg",
+    tagline: "Island of pearls, ancient forts and modern charm",
+    blurb: "Discover the Kingdom of Bahrain: ancient UNESCO Portuguese forts overlooking the sea, Bahrain World Trade Center, and traditional sweet-scented souqs.",
+    nights: "3–4 nights",
+    fromAed: 1499,
+    highlights: [
+      "Manama Bay & Bahrain World Trade Center",
+      "UNESCO Qal'at al-Bahrain (Bahrain Fort)",
+      "Al Fateh Grand Mosque tour",
+      "Bab Al Bahrain & historic Manama Souq"
+    ],
+    bestTime: "October – April",
+    visa: "GCC Resident eVisa / Visa-free access",
+    isNew: true,
+  }),
+
 ];
 
 export const countryRegions: CountryRegion[] = [
