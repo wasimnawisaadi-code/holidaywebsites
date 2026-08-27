@@ -1,0 +1,19 @@
+{
+  "count": 120,
+  "pattern": "f_{n}.webp",
+  "pad": 4,
+  "desktop": {
+    "dir": "/frames/journey/desktop",
+    "width": 1280
+  },
+  "mobile": {
+    "dir": "/frames/journey/mobile",
+    "width": 720
+  },
+  "source": {
+    "duration": 10.005,
+    "width": 1280,
+    "height": 720
+  },
+  "aspect": 1.7777777777777777
+}

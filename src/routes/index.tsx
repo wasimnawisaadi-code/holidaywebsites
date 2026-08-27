@@ -11,6 +11,7 @@ import { ParallaxImage } from "@/components/site/ParallaxImage";
 import { ScrollMarquee, type MarqueeItem } from "@/components/site/ScrollMarquee";
 import { ScrollRevealText } from "@/components/site/ScrollRevealText";
 import { StackingItineraries, type StackCard } from "@/components/site/StackingItineraries";
+import { ScrollJourneyFilm } from "@/components/site/ScrollJourneyFilm";
 import { PixelRevealCard, type PixelCard } from "@/components/site/PixelRevealCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
@@ -64,6 +65,9 @@ function Home() {
       <EnquiryBar />
       <PhotoBand />
       <StatementBand />
+      {/* The statement promises the whole trip is handled; the film shows it,
+          then the itineraries below are the thing being sold. */}
+      <ScrollJourneyFilm />
       <SignatureItineraries />
       <PackageGrid />
       <UaeRail />
