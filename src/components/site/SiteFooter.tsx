@@ -140,7 +140,15 @@ export function SiteFooter() {
           <p>
             © {new Date().getFullYear()} {BRAND.legal}
           </p>
-          <p>IATA accredited · flydubai GSA · DTCM approved</p>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link to="/privacy" className="transition-colors hover:text-[#8F7420]">
+              Privacy policy
+            </Link>
+            <Link to="/terms" className="transition-colors hover:text-[#8F7420]">
+              Terms &amp; booking
+            </Link>
+            <span>IATA accredited · flydubai GSA · DTCM approved</span>
+          </div>
         </div>
       </div>
     </footer>

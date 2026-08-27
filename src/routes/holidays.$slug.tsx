@@ -27,7 +27,7 @@ import { packageDetail } from "@/data/package-details";
 import { PackageCard } from "@/components/site/PackageCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
-import { absoluteUrl } from "@/lib/site";
+import { absoluteUrl, siteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/holidays/$slug")({
   loader: ({ params }) => {
@@ -54,8 +54,10 @@ export const Route = createFileRoute("/holidays/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "product" },
-        { property: "og:url", content: `/holidays/${params.slug}` },
+        { property: "og:url", content: absoluteUrl(`/holidays/${params.slug}`) },
+        { property: "og:image", content: absoluteUrl(pkg.image) },
         { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: absoluteUrl(pkg.image) },
       ],
       links: [{ rel: "canonical", href: absoluteUrl(`/holidays/${params.slug}`) }],
       scripts: [
@@ -74,7 +76,54 @@ export const Route = createFileRoute("/holidays/$slug")({
                 name: d.title,
               })),
             },
-            provider: { "@type": "TravelAgency", name: BRAND.name },
+            provider: { "@type": "TravelAgency", name: BRAND.name, url: siteUrl() },
+            image: absoluteUrl(pkg.image),
+            url: absoluteUrl(`/holidays/${params.slug}`),
+            touristType: pkg.styles,
+            // Only emit an Offer when there is a real published figure. A
+            // schema price that does not match the page is a manual action, and
+            // "price on request" has no numeric equivalent.
+            ...(pkg.priceStatus === "from" && pkg.priceFrom
+              ? {
+                  offers: {
+                    "@type": "Offer",
+                    price: pkg.priceFrom,
+                    priceCurrency: "AED",
+                    availability: "https://schema.org/InStock",
+                    url: absoluteUrl(`/holidays/${params.slug}`),
+                    // The page shows a per-person "from" price, so the offer
+                    // has to say so rather than implying a fixed total.
+                    priceSpecification: {
+                      "@type": "UnitPriceSpecification",
+                      price: pkg.priceFrom,
+                      priceCurrency: "AED",
+                      valueAddedTaxIncluded: true,
+                      referenceQuantity: {
+                        "@type": "QuantitativeValue",
+                        value: 1,
+                        unitText: "person",
+                      },
+                    },
+                  },
+                }
+              : {}),
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Holiday packages",
+                item: absoluteUrl("/holidays"),
+              },
+              { "@type": "ListItem", position: 3, name: pkg.title },
+            ],
           }),
         },
         ...(detail?.faqs?.length

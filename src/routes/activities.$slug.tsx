@@ -44,11 +44,30 @@ export const Route = createFileRoute("/activities/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "product" },
-        { property: "og:url", content: `/activities/${params.slug}` },
+        { property: "og:url", content: absoluteUrl(`/activities/${params.slug}`) },
+        { property: "og:image", content: absoluteUrl(a.image) },
+        { name: "twitter:image", content: absoluteUrl(a.image) },
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: absoluteUrl(`/activities/${params.slug}`) }],
       scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Dubai & UAE",
+                item: absoluteUrl("/activities"),
+              },
+              { "@type": "ListItem", position: 3, name: a.title },
+            ],
+          }),
+        },
         {
           type: "application/ld+json",
           children: JSON.stringify({

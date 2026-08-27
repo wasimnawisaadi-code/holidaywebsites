@@ -37,3 +37,39 @@ export function absoluteUrl(path: string): string {
 
 /** The image crawlers use for link previews. 1200x630, generated into public/. */
 export const OG_IMAGE_PATH = "/og-image.jpg";
+
+/**
+ * Search-console ownership verification.
+ *
+ * Google and Bing both accept a meta tag as proof of ownership. The token is
+ * read from the environment rather than committed, so the same build works for
+ * a preview deployment and for production, and rotating a token does not need a
+ * code change.
+ *
+ * Returns only the tags that actually have a value — an empty `content`
+ * attribute fails verification and looks like a mistake in the head.
+ */
+export function verificationMeta(): { name: string; content: string }[] {
+  const env = typeof process !== "undefined" ? process.env : undefined;
+  const pairs: [string, string | undefined][] = [
+    ["google-site-verification", env?.["GOOGLE_SITE_VERIFICATION"]],
+    ["msvalidate.01", env?.["BING_SITE_VERIFICATION"]],
+  ];
+  return pairs
+    .filter((pair): pair is [string, string] => Boolean(pair[1]))
+    .map(([name, content]) => ({ name, content }));
+}
+
+/**
+ * Optional privacy-respecting analytics.
+ *
+ * Nothing is loaded unless PLAUSIBLE_DOMAIN is set, so the site ships with no
+ * third-party requests by default. Plausible is cookieless and does not build
+ * per-visitor profiles, which is what the privacy policy on this site claims.
+ */
+export function analyticsScript(): { src: string; defer: true; "data-domain": string }[] {
+  const env = typeof process !== "undefined" ? process.env : undefined;
+  const domain = env?.["PLAUSIBLE_DOMAIN"];
+  if (!domain) return [];
+  return [{ src: "https://plausible.io/js/script.js", defer: true, "data-domain": domain }];
+}

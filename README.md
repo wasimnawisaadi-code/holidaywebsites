@@ -45,6 +45,17 @@ be chosen (`"framework": null`).
 | Variable   | Purpose |
 | ---------- | ------- |
 | `SITE_URL` | Canonical origin used for `rel=canonical`, `og:` tags and every `sitemap.xml` entry. Set this to the custom domain once it is attached. Without it the site falls back to Vercel's deployment hostname, then to `https://www.nawisaadi.com`. |
+| `GOOGLE_SITE_VERIFICATION` | Token from Google Search Console → *HTML tag* verification. Emits `<meta name="google-site-verification">`. Omit and no tag is rendered. |
+| `BING_SITE_VERIFICATION` | Token from Bing Webmaster Tools. Emits `<meta name="msvalidate.01">`. |
+| `PLAUSIBLE_DOMAIN` | Enables cookieless Plausible analytics for that domain. Omit and the site loads no third-party scripts at all. |
+
+### After the first deploy
+
+1. Add the property in [Google Search Console](https://search.google.com/search-console)
+   and [Bing Webmaster Tools](https://www.bing.com/webmasters), verify with the
+   env vars above, then submit `https://<domain>/sitemap.xml` in both.
+2. Confirm the sitemap resolves to the live domain — it is generated from
+   `SITE_URL`, so an unset variable produces the fallback domain instead.
 
 Static assets under `/images`, `/frames` and `/videos` are content-hashed by
 filename and served immutable for a year.

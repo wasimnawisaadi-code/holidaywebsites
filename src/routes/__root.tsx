@@ -14,27 +14,73 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { WhatsAppFab } from "@/components/site/WhatsAppFab";
-import { absoluteUrl, siteUrl, OG_IMAGE_PATH } from "@/lib/site";
+import {
+  absoluteUrl,
+  siteUrl,
+  OG_IMAGE_PATH,
+  verificationMeta,
+  analyticsScript,
+} from "@/lib/site";
 
+/**
+ * 404 page.
+ *
+ * Overrides the inherited title and robots directive. The root head marks the
+ * site `index, follow`, which a missing page must not inherit — a soft-404 that
+ * invites indexing is worse than the 404 itself. The status code is already 404;
+ * this makes the head agree with it.
+ *
+ * Offers real routes out rather than only "go home", since a 404 is usually a
+ * stale link to something that still exists under a different slug.
+ */
 function NotFoundComponent() {
+  const ways = [
+    { to: "/holidays", label: "Holiday packages" },
+    { to: "/countries", label: "Destinations" },
+    { to: "/activities", label: "Dubai & UAE tours" },
+    { to: "/contact", label: "Contact us" },
+  ] as const;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
+    <>
+      <title>Page not found | Nawi Saadi Travel &amp; Tourism</title>
+      <meta name="robots" content="noindex, follow" />
+
+      <main className="flex min-h-screen items-center justify-center bg-[#FFFFFF] px-5 py-32">
+        <div className="max-w-lg text-center">
+          <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[#8F7420]">
+            404
+          </p>
+          <h1 className="mt-4 font-display text-3xl leading-tight text-[#00365F] sm:text-4xl">
+            We can&apos;t find that page
+          </h1>
+          <p className="mt-4 font-sans text-sm leading-relaxed text-[#666666]">
+            The link may be out of date, or the page may have moved. Here is where most people are
+            heading.
+          </p>
+
+          <ul className="mt-8 flex flex-wrap justify-center gap-3">
+            {ways.map((w) => (
+              <li key={w.to}>
+                <Link
+                  to={w.to}
+                  className="inline-flex items-center rounded-xl border border-[#E5E5E5] px-5 py-2.5 font-sans text-sm font-semibold text-[#00365F] transition-colors hover:border-[#CAA42D] hover:bg-[#CAA42D]/10"
+                >
+                  {w.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="mt-8 inline-flex items-center rounded-xl bg-[#00365F] px-6 py-3 font-sans text-sm font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F]"
           >
-            Go home
+            Back to the homepage
           </Link>
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }
 
@@ -100,6 +146,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:url", content: siteUrl() },
       { property: "og:locale", content: "en_AE" },
       { name: "robots", content: "index, follow, max-image-preview:large" },
+      { name: "theme-color", content: "#00365F" },
+      // Present only when the corresponding token is configured.
+      ...verificationMeta(),
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -112,6 +161,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
     scripts: [
+      ...analyticsScript(),
       {
         type: "application/ld+json",
         children: JSON.stringify({
