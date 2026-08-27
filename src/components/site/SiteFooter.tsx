@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Phone, Mail, MapPin, MessageCircle, ArrowRight } from "lucide-react";
 import logoImg from "@/assets/logo-ink.png";
+import { HorizonSilhouette } from "@/components/site/HorizonSilhouette";
 import { BRAND, waLink } from "@/data/catalogue";
 import { offices } from "@/data/catalogue-brand";
 
@@ -46,7 +47,11 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-[#E5E5E5] bg-[#F8F8F8]">
+    <footer className="bg-[#F8F8F8]">
+      {/* Horizon band. Sits on the page background above the footer and reads as
+          the ground the footer stands on, so the two do not need a rule between
+          them. */}
+      <HorizonSilhouette className="-mb-px bg-[#FFFFFF] pt-10" />
       <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
         {/* CTA band */}
         <div className="flex flex-col items-start justify-between gap-6 border-b border-[#E5E5E5] py-12 md:flex-row md:items-center">

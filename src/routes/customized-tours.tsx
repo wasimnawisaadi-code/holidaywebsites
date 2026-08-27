@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { BRAND, waLink } from "@/data/catalogue";
 import { Reveal } from "@/components/site/Reveal";
+import { PageHero } from "@/components/site/PageHero";
 import { cn } from "@/lib/utils";
 
 const title = `Customized Tours & Tailor-Made Holidays | ${BRAND.short}`;
@@ -152,26 +153,18 @@ function CustomizedToursPage() {
   }, [type, dest, dates, pax, style, budget, incl, notes]);
 
   return (
-    <div className="bg-[#FFFFFF] pt-28 pb-24 text-[#353844]">
-      <header className="border-b border-[#e3ded4] bg-[#FFFFFF] py-16 sm:py-20">
-        <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-          <p className="font-sans text-[11px] font-medium tracking-[0.24em] text-[#8F7420] uppercase">
-            Tailor-made
-          </p>
-
-          <h1 className="mt-4 font-display text-4xl leading-[1.04] font-medium tracking-tight sm:text-6xl">
-            Tell us the trip.
-            <br />
-            <span className="italic text-[#8F7420]">We build it.</span>
-          </h1>
-
-          <p className="mt-5 max-w-2xl font-sans text-[15px] leading-relaxed text-[#4c4741]">
-            No fixed departures. Give us your destinations, dates and how you
-            like to travel, and a travel manager in Deira builds the itinerary
-            around you.
-          </p>
-        </div>
-      </header>
+    <div className="bg-[#FFFFFF] pb-24 text-[#353844]">
+      <PageHero
+        eyebrow="Tailor-made"
+        title={
+          <>
+            Tell us the trip. <span className="italic text-[#DDBE5E]">We build it.</span>
+          </>
+        }
+        intro="No fixed departures. Give us your destinations, dates and how you like to travel, and a travel manager in Deira builds the itinerary around you."
+        image="/images/destinations/maldives-villas.jpg"
+        imageAlt="Overwater villas on a tailor-made Maldives itinerary"
+      />
 
       {/* How it works — numbered rows, not four shadowed tiles */}
       <section className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8">

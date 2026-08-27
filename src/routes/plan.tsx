@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { packages, experiences, travelStyles, type TravelStyle } from "@/data/catalogue";
+import { PageHero } from "@/components/site/PageHero";
 import { PackageCard } from "@/components/site/PackageCard";
 import { cn } from "@/lib/utils";
 
@@ -56,18 +57,18 @@ function PlanPage() {
   );
 
   return (
-    <div className="bg-[#FFFFFF] pt-28 pb-24 text-[#353844]">
-      <section className="mx-auto max-w-[1400px] px-5 sm:px-8">
-        <p className="font-sans text-[11px] font-medium tracking-[0.24em] text-[#8F7420] uppercase">Trip planner</p>
-        <h1 className="mt-4 max-w-3xl font-display text-4xl leading-[1.04] font-medium tracking-tight sm:text-6xl">
-          Build the trip around you.
-        </h1>
-        <p className="mt-5 max-w-xl font-sans text-[15px] leading-relaxed text-[#4c4741]">
-          Four quick choices and we'll shortlist journeys and experiences. Suggestions are
-          indicative — availability and final pricing are always confirmed by our team before
-          booking.
-        </p>
-      </section>
+    <div className="bg-[#FFFFFF] pb-24 text-[#353844]">
+      <PageHero
+        eyebrow="Trip planner"
+        title={
+          <>
+            Build the trip <span className="italic text-[#DDBE5E]">around you</span>
+          </>
+        }
+        intro="Four quick choices and we'll shortlist journeys and experiences. Suggestions are indicative — availability and final pricing are always confirmed by our team before booking."
+        image="/images/destinations/georgia-gergeti.jpg"
+        imageAlt="Mountain church on a Georgia itinerary"
+      />
 
       <section className="mx-auto mt-12 grid max-w-[1400px] gap-8 px-5 sm:px-8 lg:grid-cols-[420px_1fr]">
         <div className="h-fit border border-[#ded7c9] bg-[#FFFFFF] p-7 lg:sticky lg:top-28">

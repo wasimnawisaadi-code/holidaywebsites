@@ -4,6 +4,7 @@ import { BadgeCheck, Check, Clock, Mail, MapPin, MessageCircle, Phone, Send } fr
 import heroDubai from "@/assets/hero-dubai.jpg";
 import { BRAND, offices, packages, waLink } from "@/data/catalogue";
 import { Reveal } from "@/components/site/Reveal";
+import { PageHero } from "@/components/site/PageHero";
 import { cn } from "@/lib/utils";
 
 type Search = { pkg?: string | undefined };
@@ -125,27 +126,17 @@ function ContactPage() {
 
   return (
     <div className="pb-24">
-      <header className="on-dark relative h-[46vh] min-h-[320px] overflow-hidden">
-        <img
-          src={heroDubai}
-          alt="Dubai skyline at dusk"
-          width={1920}
-          height={1088}
-          fetchPriority="high"
-          className="absolute inset-0 size-full object-cover"
-        />
-        <div className="night-fade absolute inset-0" />
-        <div className="absolute inset-x-0 bottom-0 mx-auto max-w-[1400px] px-5 pb-12 sm:px-8">
-          <p className="eyebrow">Contact</p>
-          <h1 className="text-display mt-3 max-w-3xl text-5xl sm:text-7xl">
-            Tell us about the trip.
-          </h1>
-          <p className="mt-4 max-w-xl text-foreground/85">
-            Five short steps, no payment and no obligation — just a real consultant in Dubai
-            building your options.
-          </p>
-        </div>
-      </header>
+      <PageHero
+        eyebrow="Contact"
+        title={
+          <>
+            Tell us about <span className="italic text-[#DDBE5E]">the trip</span>
+          </>
+        }
+        intro="Five short steps, no payment and no obligation — just a real consultant in Dubai building your options."
+        image={heroDubai}
+        imageAlt="Dubai skyline at dusk"
+      />
 
       {/* Quick channels */}
       <section className="mx-auto -mt-10 max-w-[1400px] px-5 sm:px-8">

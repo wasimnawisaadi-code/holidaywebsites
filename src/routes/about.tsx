@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Mail, MapPin, MessageCircle, Phone, Quote } from "lucide-react";
 import marina from "@/assets/dubai-marina.jpg";
 import { Reveal } from "@/components/site/Reveal";
+import { PageHero } from "@/components/site/PageHero";
 import { CredentialGrid } from "@/components/site/Credentials";
 import { BRAND, offices, serviceLines, waLink } from "@/data/catalogue";
 
@@ -68,21 +69,23 @@ const principles = [
 
 function AboutPage() {
   return (
-    <div className="pt-28 pb-24">
-      <section className="mx-auto max-w-[1400px] px-5 sm:px-8">
-        <p className="eyebrow">About us</p>
-        <h1 className="text-display mt-3 max-w-4xl text-5xl sm:text-7xl">
-          Travel, tourism, aviation and cargo —{" "}
-          <span className="gold-text">trusted since 2009.</span>
-        </h1>
-        <p className="mt-6 max-w-3xl text-lg text-muted-foreground">
-          Nawi Saadi Travel & Tourism is a leading travel management company connecting Afghanistan,
-          the United Arab Emirates and Saudi Arabia with destinations worldwide. Established in
-          Kabul in 2009 and part of the Saadi Group of Companies, we handle flight booking, visa
-          assistance, hotels, holiday packages, Hajj & Umrah, corporate travel, aviation support and
-          cargo — end to end.
-        </p>
-      </section>
+    <div className="pb-24">
+      <PageHero
+        eyebrow="About us"
+        title={
+          <>
+            Travel, tourism, aviation and cargo &mdash;{" "}
+            <span className="italic text-[#DDBE5E]">trusted since 2009</span>
+          </>
+        }
+        intro="A travel management company connecting the United Arab Emirates, Afghanistan and Saudi Arabia with destinations worldwide. Part of the Saadi Group of Companies, handling flights, visas, hotels, holidays, Hajj & Umrah, corporate travel, aviation support and cargo end to end."
+        image="/images/dst/view-at-the-top-burj-khalifa-burjkhalifa-9c1aa166-bef6-4229-9f0c-ac043044e605.webp"
+        imageAlt="Dubai skyline at dusk"
+        stats={[
+          { value: "2009", label: "Established" },
+          { value: "IATA", label: "Accredited" },
+        ]}
+      />
 
       <section className="mx-auto mt-14 max-w-[1400px] px-5 sm:px-8">
         <div className="relative aspect-[21/9] overflow-hidden rounded-3xl">

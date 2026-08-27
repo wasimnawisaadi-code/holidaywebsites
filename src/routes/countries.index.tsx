@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { countriesByRegion, countryRegions } from "@/data/countries";
+import { countries, countriesByRegion, countryRegions } from "@/data/countries";
 import { Reveal } from "@/components/site/Reveal";
+import { PageHero } from "@/components/site/PageHero";
 import { TiltCard } from "@/components/site/Parallax";
 import hero from "@/assets/dest-europe.jpg";
 
@@ -30,24 +31,18 @@ export const Route = createFileRoute("/countries/")({
 function CountriesIndex() {
   return (
     <main>
-      <section className="on-dark relative flex min-h-[52vh] items-end overflow-hidden">
-        <img
-          src={hero}
-          alt="Paris rooftops at sunset"
-          width={1280}
-          height={853}
-          className="absolute inset-0 size-full object-cover"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,oklch(0.16_0.05_258/0.55),oklch(0.16_0.05_258/0.9))]" />
-        <div className="relative mx-auto w-full max-w-[1400px] px-5 pb-14 pt-32 sm:px-8">
-          <p className="eyebrow">Destinations · Outbound</p>
-          <h1 className="text-display mt-3 text-4xl sm:text-6xl">Where do you want to go?</h1>
-          <p className="mt-4 max-w-xl text-base opacity-80">
-            Forty-plus countries, all planned from Dubai — flights, hotels, visas and transfers in
-            one package.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Destinations"
+        title={
+          <>
+            Where do you <span className="italic text-[#DDBE5E]">want to go?</span>
+          </>
+        }
+        intro="Forty-plus countries, all planned from Dubai — flights, hotels, visas and transfers arranged in one package."
+        image={hero}
+        imageAlt="Paris rooftops at sunset"
+        stats={[{ value: `${countries.length}+`, label: "Countries" }]}
+      />
 
       <section className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8">
         {countryRegions.map((region) => (

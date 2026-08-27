@@ -97,16 +97,18 @@ function DealsPage() {
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8 relative z-10">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="max-w-2xl text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 rounded-full bg-red-600/90 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-white shadow-md">
-                <Flame className="size-4 text-amber-300" />
-                <span>Limited-Time Contracted Fares</span>
+              {/* Was a red "limited time" pill and a gradient-clipped headline.
+                  Both are house-rejected treatments: the red sits outside the
+                  brand palette and reads as a discount-site urgency badge, and
+                  clipped gradient text is the single clearest "template" tell.
+                  Same message, brand gold, flat fill. */}
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#CAA42D]/40 bg-[#CAA42D]/15 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#DDBE5E]">
+                <Flame className="size-4 text-[#CAA42D]" />
+                <span>Contracted fares</span>
               </div>
 
-              <h1 className="mt-4 font-display text-4xl sm:text-6xl font-bold text-white leading-tight">
-                Exclusive Dubai Deals &amp;{" "}
-                <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-500">
-                  Combo Passes
-                </span>
+              <h1 className="mt-4 font-display leading-[1.06] text-white [font-size:clamp(2rem,4.6vw,3.6rem)]">
+                Dubai deals &amp; <span className="italic text-[#DDBE5E]">combo passes</span>
               </h1>
 
               <p className="mt-4 text-base text-slate-200 max-w-xl leading-relaxed">

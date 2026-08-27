@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { packages, travelStyles, type TravelStyle, BRAND, waLink } from "@/data/catalogue";
 import { PackageCard } from "@/components/site/PackageCard";
+import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { RegionalDestinationsGrid } from "@/components/site/RegionalDestinationsGrid";
 import { cn } from "@/lib/utils";
@@ -67,27 +68,25 @@ function HolidaysPage() {
   }, [style, duration, query]);
 
   return (
-    <div className="pt-28 bg-[#F8F8F8] text-[#00365F]">
-      {/* Luxury Hero Banner */}
-      <section className="relative overflow-hidden border-b border-slate-200 bg-[#FFFFFF] py-20 text-[#00365F]">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          
-          
-        </div>
+    <div className="bg-[#F8F8F8] text-[#00365F]">
+      <PageHero
+        eyebrow="Worldwide holiday packages"
+        title={
+          <>
+            Handcrafted <span className="italic text-[#DDBE5E]">holiday packages</span>
+          </>
+        }
+        intro="Every itinerary is built by our own consultants and backed by IATA ticketing, verified 4★ and 5★ central hotels, private transfers and full visa assistance from Deira."
+        image="/images/destinations/swiss-lauterbrunnen.jpg"
+        imageAlt="Alpine valley on a Nawi Saadi Switzerland itinerary"
+        stats={[
+          { value: String(packages.length), label: "Packages" },
+          { value: "IATA", label: "Accredited" },
+        ]}
+      />
 
+      <section className="relative border-b border-[#E5E5E5] bg-[#FFFFFF] py-14">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#CAA42D]/40 bg-[#CAA42D]/10 px-4 py-1.5 text-xs font-black tracking-widest text-[#CAA42D] uppercase backdrop-blur-md">
-            <Plane className="size-3.5 text-[#CAA42D]" />
-            <span>Worldwide Grand Tours · Flights Arranged</span>
-          </div>
-
-          <h1 className="mt-4 font-serif font-display text-4xl font-medium sm:text-6xl text-[#00365F] tracking-tight">
-            Handcrafted <span className="text-[#8F7420]">Holiday Packages</span>
-          </h1>
-
-          <p className="mt-4 max-w-2xl font-sans text-base text-slate-600 sm:text-lg leading-relaxed">
-            Every itinerary is personally curated and backed by official IATA ticketing (#2009), verified 4★ &amp; 5★ central hotels, private transfers, and full visa assistance from our Dubai headquarters.
-          </p>
 
           {/* Luxury Filter Controls */}
           <div className="mt-10 rounded-3xl border border-white/15 bg-white/10 p-5 shadow-2xl backdrop-blur-xl">

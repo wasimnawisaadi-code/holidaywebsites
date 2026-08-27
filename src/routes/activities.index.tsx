@@ -5,6 +5,7 @@ import { BRAND, waLink } from "@/data/catalogue";
 import { inboundActivities, inboundCategories, type InboundCategory } from "@/data/inbound";
 import { ActivityCard } from "@/components/site/ActivityCard";
 import { Reveal } from "@/components/site/Reveal";
+import { PageHero } from "@/components/site/PageHero";
 import { cn } from "@/lib/utils";
 
 const title = `Dubai & UAE Tours, Tickets and Activities | ${BRAND.name}`;
@@ -63,23 +64,19 @@ function ActivitiesPage() {
   };
 
   return (
-    <div className="bg-[#FFFFFF] pt-28 text-[#353844]">
-      {/* Masthead */}
-      <section className="mx-auto max-w-[1400px] px-5 pt-10 sm:px-8">
-        <div className="flex items-center gap-3">
-          <span className="h-px w-10 bg-[#CAA42D]" />
-          <p className="font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-[#8F7420]">
-            Dubai &amp; the Emirates
-          </p>
-        </div>
-        <h1 className="mt-4 max-w-3xl font-display text-4xl leading-[1.05] text-[#00365F] sm:text-6xl">
-          Tours, tickets &amp; <span className="italic text-[#8F7420]">attractions</span>
-        </h1>
-        <p className="mt-5 max-w-2xl font-sans text-base leading-relaxed text-slate-600">
-          Desert safaris, cruises, observation decks and theme parks across the UAE — booked and
-          ticketed through our Deira office as a DTCM-approved tour operator.
-        </p>
-      </section>
+    <div className="bg-[#FFFFFF] text-[#353844]">
+      <PageHero
+        eyebrow="Dubai & the Emirates"
+        title={
+          <>
+            Tours, tickets &amp; <span className="italic text-[#DDBE5E]">attractions</span>
+          </>
+        }
+        intro="Desert safaris, cruises, observation decks and theme parks across the UAE — booked and ticketed through our Deira office as a DTCM-approved tour operator."
+        image="/images/dst/view-at-the-top-burj-khalifa-burj-foot-shot-original-print2-1-2000x1335.jpg"
+        imageAlt="Burj Khalifa rising over Downtown Dubai"
+        stats={[{ value: "DTCM", label: "Approved operator" }]}
+      />
 
       {/* Filters */}
       <section className="mx-auto mt-10 max-w-[1400px] px-5 sm:px-8">
