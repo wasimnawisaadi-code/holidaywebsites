@@ -33,11 +33,18 @@ export function InlineScrollSequence({
   className,
   /** Fraction of the element's viewport travel used for the scrub. */
   span = 0.75,
+  /**
+   * Vertical focal point of the cover crop: 0 keeps the top of the frame, 1
+   * keeps the bottom, 0.5 centres it. A portrait clip in a landscape slot loses
+   * a lot of height, and centring is rarely where the subject is.
+   */
+  focusY = 0.5,
 }: {
   slug: string;
   alt: string;
   className?: string;
   span?: number;
+  focusY?: number;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -173,7 +180,9 @@ export function InlineScrollSequence({
       const s = Math.max(cw / img.width, ch / img.height);
       const dw = img.width * s;
       const dh = img.height * s;
-      ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+      // (ch - dh) is negative overflow; distributing it by focusY is the
+      // canvas equivalent of object-position on an <img>.
+      ctx.drawImage(img, (cw - dw) / 2, (ch - dh) * focusY, dw, dh);
     };
     raf = requestAnimationFrame(tick);
 
@@ -190,7 +199,7 @@ export function InlineScrollSequence({
       ro.disconnect();
       io.disconnect();
     };
-  }, [ready]);
+  }, [ready, focusY]);
 
   return (
     <div ref={hostRef} className={cn("relative overflow-hidden", className)}>
@@ -200,6 +209,7 @@ export function InlineScrollSequence({
         <img
           src={poster}
           alt={alt}
+          style={{ objectPosition: `50% ${focusY * 100}%` }}
           className={cn(
             "absolute inset-0 size-full object-cover transition-opacity duration-500",
             ready && !reduced ? "opacity-0" : "opacity-100",

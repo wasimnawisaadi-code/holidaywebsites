@@ -436,7 +436,7 @@ function ContactClose() {
     <section className="relative bg-[#00365F] text-white">
       <div className="grid items-stretch lg:grid-cols-2">
         {/* Copy panel */}
-        <div className="flex items-center px-5 py-20 sm:px-8 sm:py-24 lg:justify-end lg:py-28">
+        <div className="flex items-center px-5 py-20 sm:px-8 sm:py-24 lg:justify-end lg:py-24">
           <div className="w-full max-w-xl lg:pr-14">
             <Eyebrow onDark>Start planning</Eyebrow>
             <h2 className="mt-4 font-display leading-[1.06] text-white [font-size:clamp(1.9rem,3.6vw,3.2rem)]">
@@ -488,18 +488,36 @@ function ContactClose() {
           </div>
         </div>
 
-        {/* Full-bleed sequence panel. A minimum height keeps it from collapsing
-            on short viewports where the copy column is the taller of the two. */}
-        <div className="relative min-h-[420px] lg:min-h-[640px]">
+        {/* Full-bleed sequence panel.
+            Three things are doing work here beyond showing the clip:
+            focusY biases the crop downward, because the clip is portrait in a
+            landscape slot and the case itself sits low in frame; a navy wash
+            pulls the daylight footage into the band's colour so it reads as
+            part of the section rather than a photo pasted onto it; and all
+            four inner edges are feathered so the panel dissolves into the navy
+            instead of ending on a hard rectangle. */}
+        <div className="relative min-h-[380px] lg:min-h-0">
           <InlineScrollSequence
             slug="suitcase"
             alt="A holiday suitcase opening, its contents laid out"
             className="absolute inset-0 size-full"
             span={0.72}
+            focusY={0.66}
           />
-          {/* Feathers the inner edge into the navy so the join is not a hard
-              vertical line down the middle of the band. */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#00365F] to-transparent lg:w-32" />
+
+          {/* Colour wash. Multiply keeps the highlights and pulls the midtones
+              toward the brand navy; a flat overlay would just grey it out. */}
+          <div
+            className="pointer-events-none absolute inset-0 bg-[#00365F] opacity-[0.28]"
+            style={{ mixBlendMode: "multiply" }}
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#00365F]/45 via-transparent to-transparent" />
+
+          {/* Edge feathering */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#00365F] via-[#00365F]/60 to-transparent lg:w-44" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#00365F] to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#00365F] to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#00365F]/70 to-transparent" />
         </div>
       </div>
     </section>
