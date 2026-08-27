@@ -7,7 +7,6 @@ import { inboundActivities } from "@/data/inbound";
 import { offices } from "@/data/catalogue-brand";
 import { CinematicHero, type HeroClip } from "@/components/site/CinematicHero";
 import { EnquiryBar } from "@/components/site/EnquiryBar";
-import { InlineScrollSequence } from "@/components/site/InlineScrollSequence";
 import { ScrollMarquee, type MarqueeItem } from "@/components/site/ScrollMarquee";
 import { ScrollRevealText } from "@/components/site/ScrollRevealText";
 import { StackingItineraries, type StackCard } from "@/components/site/StackingItineraries";
@@ -424,100 +423,59 @@ function Assurance() {
 /**
  * Closing call to action.
  *
- * A two-panel band, not a card floating on a coloured field. The earlier
- * version put a rounded image in a padded column beside short copy, which left
- * a large dead area of navy under the text and made the panel look unfinished.
- * Here the sequence fills its half edge to edge — full bleed to the top,
- * bottom and outer edge of the section — so the band reads as one deliberate
- * composition and there is no empty space left to explain.
+ * Deliberately quiet and typographic. Two earlier versions put the suitcase
+ * sequence in here — first as a floating card, then as a full-bleed half — and
+ * both fought the page rather than closing it. By this point the reader has
+ * already been through the marquee, the scroll film, the stacking cards, the
+ * package grid and the UAE rail; another moving image is noise, and the one
+ * thing this band has to do is make the next step obvious.
+ *
+ * So: the ask and the two ways to make it. Nothing else — the office list that
+ * used to sit under the buttons was the page's third mention of the same three
+ * cities, and it belongs in the footer.
  */
 function ContactClose() {
   return (
-    <section className="relative bg-[#00365F] text-white">
-      <div className="grid items-stretch lg:grid-cols-2">
-        {/* Copy panel */}
-        <div className="flex items-center px-5 py-20 sm:px-8 sm:py-24 lg:justify-end lg:py-24">
-          <div className="w-full max-w-xl lg:pr-14">
+    <section className="bg-[#00365F] py-24 text-white sm:py-32">
+      <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="flex justify-center">
             <Eyebrow onDark>Start planning</Eyebrow>
-            <h2 className="mt-4 font-display leading-[1.06] text-white [font-size:clamp(1.9rem,3.6vw,3.2rem)]">
-              Tell us the country and the dates &mdash; we&apos;ll do{" "}
-              <span className="italic text-[#DDBE5E]">the rest</span>
-            </h2>
-            <p className="mt-5 max-w-md font-sans text-sm leading-relaxed text-white/70 sm:text-base">
-              A senior consultant comes back with a full itinerary and one all-in price. No
-              obligation, and no automated reply.
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Magnet padding={70} strength={4}>
-                <a
-                  href={waLink("Hi Nawi Saadi, I'd like help planning a holiday.")}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#CAA42D] px-7 py-4 font-sans text-sm font-bold text-[#00365F] transition-colors hover:bg-[#DDBE5E]"
-                >
-                  <MessageCircle className="size-4" />
-                  <span>Chat on WhatsApp</span>
-                </a>
-              </Magnet>
-              <Magnet padding={70} strength={4}>
-                <a
-                  href={`tel:${BRAND.phone.replace(/\s/g, "")}`}
-                  className="liquid-glass inline-flex items-center gap-2 rounded-xl px-7 py-4 font-sans text-sm font-semibold text-white transition-colors hover:bg-white/15"
-                >
-                  <Phone className="size-4 text-[#CAA42D]" />
-                  <span>{BRAND.phone}</span>
-                </a>
-              </Magnet>
-            </div>
-
-            {/* Offices fill what was dead space, and are a real reason to trust
-                the number above. */}
-            <dl className="mt-12 grid gap-x-8 gap-y-5 border-t border-white/15 pt-8 sm:grid-cols-3">
-              {offices.map((o) => (
-                <div key={o.city} className="min-w-0">
-                  <dt className="font-sans text-[10px] font-bold uppercase tracking-[0.18em] text-[#DDBE5E]">
-                    {o.city}
-                  </dt>
-                  <dd className="mt-1.5 font-sans text-xs leading-relaxed text-white/60">
-                    {o.country}
-                  </dd>
-                </div>
-              ))}
-            </dl>
           </div>
-        </div>
 
-        {/* Full-bleed sequence panel.
-            Three things are doing work here beyond showing the clip:
-            focusY biases the crop downward, because the clip is portrait in a
-            landscape slot and the case itself sits low in frame; a navy wash
-            pulls the daylight footage into the band's colour so it reads as
-            part of the section rather than a photo pasted onto it; and all
-            four inner edges are feathered so the panel dissolves into the navy
-            instead of ending on a hard rectangle. */}
-        <div className="relative min-h-[380px] lg:min-h-0">
-          <InlineScrollSequence
-            slug="suitcase"
-            alt="A holiday suitcase opening, its contents laid out"
-            className="absolute inset-0 size-full"
-            span={0.72}
-            focusY={0.66}
-          />
+          <h2 className="mt-6 font-display leading-[1.06] text-white [font-size:clamp(2rem,4.6vw,3.6rem)]">
+            Tell us the country and the dates &mdash; we&apos;ll do{" "}
+            <span className="italic text-[#DDBE5E]">the rest</span>
+          </h2>
 
-          {/* Colour wash. Multiply keeps the highlights and pulls the midtones
-              toward the brand navy; a flat overlay would just grey it out. */}
-          <div
-            className="pointer-events-none absolute inset-0 bg-[#00365F] opacity-[0.28]"
-            style={{ mixBlendMode: "multiply" }}
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#00365F]/45 via-transparent to-transparent" />
+          <p className="mx-auto mt-6 max-w-xl font-sans text-sm leading-relaxed text-white/70 sm:text-base">
+            A senior consultant comes back with a full itinerary and one all-in price. No
+            obligation, and no automated reply.
+          </p>
 
-          {/* Edge feathering */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#00365F] via-[#00365F]/60 to-transparent lg:w-44" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#00365F] to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#00365F] to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#00365F]/70 to-transparent" />
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <Magnet padding={70} strength={4}>
+              <a
+                href={waLink("Hi Nawi Saadi, I'd like help planning a holiday.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#CAA42D] px-8 py-4 font-sans text-sm font-bold text-[#00365F] transition-colors hover:bg-[#DDBE5E]"
+              >
+                <MessageCircle className="size-4" />
+                <span>Chat on WhatsApp</span>
+              </a>
+            </Magnet>
+            <Magnet padding={70} strength={4}>
+              <a
+                href={`tel:${BRAND.phone.replace(/\s/g, "")}`}
+                className="liquid-glass inline-flex items-center gap-2 rounded-xl px-8 py-4 font-sans text-sm font-semibold text-white transition-colors hover:bg-white/15"
+              >
+                <Phone className="size-4 text-[#CAA42D]" />
+                <span>{BRAND.phone}</span>
+              </a>
+            </Magnet>
+          </div>
+
         </div>
       </div>
     </section>

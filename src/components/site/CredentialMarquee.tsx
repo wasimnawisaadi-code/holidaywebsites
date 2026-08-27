@@ -6,21 +6,24 @@
  * the loop is seamless. Hovering pauses it, so anyone who wants to read an item
  * can stop on it.
  *
- * Every line is a verifiable fact about the agency — accreditations and real
- * office cities — not invented logos or partner badges.
+ * Every line is a verifiable fact about the agency, not invented logos or
+ * partner badges.
+ *
+ * Kept short on purpose. It previously listed all three office cities, which
+ * the hero rail and the closing band were also naming — three mentions of the
+ * same fact on one page. This is a Dubai business selling worldwide holidays,
+ * so Deira is the one location worth repeating here; Kabul and Jeddah are
+ * stated once, in the footer.
  */
 
 type Mark = { label: string; icon: "ring" | "wings" | "shield" | "pin" | "clock" | "globe" };
 
 const MARKS: Mark[] = [
   { label: "IATA accredited agency", icon: "ring" },
-  { label: "flydubai GSA — Afghanistan", icon: "wings" },
   { label: "DTCM approved operator", icon: "shield" },
   { label: "Deira, Dubai", icon: "pin" },
-  { label: "Kabul, Afghanistan", icon: "pin" },
-  { label: "Jeddah, Saudi Arabia", icon: "pin" },
   { label: "Trading since 2009", icon: "clock" },
-  { label: "40+ destinations", icon: "globe" },
+  { label: "40+ destinations worldwide", icon: "globe" },
 ];
 
 function Icon({ kind }: { kind: Mark["icon"] }) {

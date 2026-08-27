@@ -106,7 +106,7 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
             className="rise-in font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-[#DDBE5E]"
             style={{ animationDelay: "0.14s" }}
           >
-            Dubai · Kabul · Jeddah — since {BRAND.founded}
+            Dubai — worldwide holidays since {BRAND.founded}
           </p>
 
           {/* Fluid to the viewport rather than stepped at breakpoints, so the
@@ -170,10 +170,12 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
             style={{ animationDelay: "1s" }}
           >
             <ul className="flex flex-wrap items-center gap-x-8 gap-y-2 font-sans text-xs text-white/70">
-              <li>IATA accredited agency</li>
-              <li className="hidden sm:list-item">flydubai GSA — Afghanistan</li>
+              {/* Two accreditations and the city. The office count and the
+                  Afghanistan GSA line were repeated again in the strip below
+                  and in the closing band; they are stated once, in the footer. */}
+              <li>IATA accredited</li>
               <li>DTCM approved</li>
-              <li className="hidden lg:list-item">Offices in three countries</li>
+              <li className="hidden sm:list-item">Deira, Dubai</li>
             </ul>
 
             <div className="flex items-center gap-6">
