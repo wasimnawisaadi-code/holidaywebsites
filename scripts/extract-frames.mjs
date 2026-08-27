@@ -13,11 +13,17 @@
  * Everything the player needs is written to manifest.json alongside them, so
  * the component never hardcodes a frame count.
  *
- * Usage:
- *   node scripts/extract-journey-frames.mjs [frameCount] [slug] [video] [dw] [mw]
+ * Source clips live in source-media/ rather than public/. They are only inputs
+ * to this script and are never requested by a visitor, so shipping them would
+ * add megabytes to every deploy for nothing. The browser still needs an HTTP
+ * URL to decode from, so the clip is copied into public/ for the duration of
+ * the run and removed afterwards.
  *
- *   node scripts/extract-journey-frames.mjs 120
- *   node scripts/extract-journey-frames.mjs 60 suitcase /videos/suitcase-exploded.mp4 560 400
+ * Usage (dev server must be running):
+ *   node scripts/extract-frames.mjs [frameCount] [slug] [clipFilename] [dw] [mw]
+ *
+ *   node scripts/extract-frames.mjs 120 journey luxury-journey.mp4
+ *   node scripts/extract-frames.mjs 60 suitcase suitcase-exploded.mp4 560 400
  */
 import { chromium } from "playwright";
 import fs from "node:fs";
@@ -27,10 +33,42 @@ import sharp from "sharp";
 const BASE = process.env.BASE_URL || "http://localhost:5199";
 const COUNT = Number(process.argv[2] || 120);
 const SLUG = process.argv[3] || "journey";
-const VIDEO = process.argv[4] || "/videos/luxury-journey.mp4";
+const CLIP = process.argv[4] || "luxury-journey.mp4";
 const DESKTOP_W = Number(process.argv[5] || 1280);
 const MOBILE_W = Number(process.argv[6] || 720);
 const OUT = `public/frames/${SLUG}`;
+
+// Stage the clip and the bare capture page under public/ so the browser can
+// reach them same-origin, then clean both up however the run ends.
+const SOURCE = path.join("source-media", CLIP);
+if (!fs.existsSync(SOURCE)) {
+  console.error(`Source clip not found: ${SOURCE}`);
+  process.exit(1);
+}
+const TMP_VIDEO = path.join("public", `__extract-${CLIP}`);
+const TMP_PAGE = "public/__extract.html";
+fs.copyFileSync(SOURCE, TMP_VIDEO);
+fs.writeFileSync(
+  TMP_PAGE,
+  '<!doctype html><meta charset="utf-8"><body style="margin:0;background:#000">' +
+    '<video id="v" muted playsinline preload="auto"></video><canvas id="c"></canvas>',
+);
+const cleanup = () => {
+  for (const f of [TMP_VIDEO, TMP_PAGE]) {
+    try {
+      fs.rmSync(f, { force: true });
+    } catch {
+      /* best effort */
+    }
+  }
+};
+process.on("exit", cleanup);
+process.on("SIGINT", () => {
+  cleanup();
+  process.exit(130);
+});
+
+const VIDEO = `/__extract-${CLIP}`;
 
 fs.mkdirSync(path.join(OUT, "desktop"), { recursive: true });
 fs.mkdirSync(path.join(OUT, "mobile"), { recursive: true });
@@ -39,7 +77,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 // A bare same-origin page: navigating to the app itself meant React hydrated
 // and replaced document.body, destroying the <video> between frames.
-await page.goto(BASE + "/__grab.html", { waitUntil: "domcontentloaded" });
+await page.goto(BASE + "/__extract.html", { waitUntil: "domcontentloaded" });
 
 // Build the capture rig once and keep the same page context for every frame —
 // re-navigating between frames tears down the <video> and loses the decode.
