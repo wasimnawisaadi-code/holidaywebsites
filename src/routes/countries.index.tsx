@@ -4,6 +4,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { TiltCard } from "@/components/site/Parallax";
 import hero from "@/assets/dest-europe.jpg";
+import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/countries/")({
   head: () => ({
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/countries/")({
       { property: "og:url", content: "/countries" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/countries" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/countries") }],
   }),
   component: CountriesIndex,
 });
@@ -32,6 +33,7 @@ function CountriesIndex() {
   return (
     <main>
       <PageHero
+        crumbs={[{ label: "Home", to: "/" }, { label: "Destinations" }]}
         eyebrow="Destinations"
         title={
           <>

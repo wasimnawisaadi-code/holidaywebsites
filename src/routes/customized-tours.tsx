@@ -15,6 +15,7 @@ import { BRAND, waLink } from "@/data/catalogue";
 import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { cn } from "@/lib/utils";
+import { absoluteUrl } from "@/lib/site";
 
 const title = `Customized Tours & Tailor-Made Holidays | ${BRAND.short}`;
 const description =
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/customized-tours")({
       { property: "og:url", content: "/customized-tours" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/customized-tours" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/customized-tours") }],
     scripts: [
       {
         type: "application/ld+json",
@@ -155,6 +156,7 @@ function CustomizedToursPage() {
   return (
     <div className="bg-[#FFFFFF] pb-24 text-[#353844]">
       <PageHero
+        crumbs={[{ label: "Home", to: "/" }, { label: "Tailor-made" }]}
         eyebrow="Tailor-made"
         title={
           <>

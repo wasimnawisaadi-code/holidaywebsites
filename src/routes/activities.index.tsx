@@ -7,6 +7,7 @@ import { ActivityCard } from "@/components/site/ActivityCard";
 import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { cn } from "@/lib/utils";
+import { absoluteUrl } from "@/lib/site";
 
 const title = `Dubai & UAE Tours, Tickets and Activities | ${BRAND.name}`;
 const description =
@@ -25,7 +26,7 @@ export const Route = createFileRoute("/activities/")({
       { property: "og:url", content: "/activities" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/activities" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/activities") }],
   }),
   component: ActivitiesPage,
 });
@@ -66,6 +67,7 @@ function ActivitiesPage() {
   return (
     <div className="bg-[#FFFFFF] text-[#353844]">
       <PageHero
+        crumbs={[{ label: "Home", to: "/" }, { label: "Dubai & UAE" }]}
         eyebrow="Dubai & the Emirates"
         title={
           <>

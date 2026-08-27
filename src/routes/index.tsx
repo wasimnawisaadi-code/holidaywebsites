@@ -17,6 +17,22 @@ import { ArrowBadgeLink } from "@/components/site/ArrowBadgeLink";
 import { PixelRevealCard, type PixelCard } from "@/components/site/PixelRevealCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
+import { absoluteUrl } from "@/lib/site";
+
+const FAQS = [
+  {
+    q: "What is included in a package price?",
+    a: "Return flights, hotels with daily breakfast, private airport transfers, the excursions listed on the itinerary, entrance passes and visa processing. Anything not included is written on the quote, so there is nothing to discover later.",
+  },
+  {
+    q: "Can I change the itinerary?",
+    a: "Yes — published itineraries are starting points. Add nights, upgrade the room, drop an excursion or move the dates, and we re-quote until it is the trip you actually want.",
+  },
+  {
+    q: "Where do the flights depart from?",
+    a: `Most travellers fly from Dubai International (DXB), but as an IATA agency and flydubai GSA we also ticket from Kabul, Jeddah and across the GCC with connecting flights.`,
+  },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,7 +48,24 @@ export const Route = createFileRoute("/")({
         content: "Nawi Saadi Travel & Tourism — Luxury Worldwide Holidays from Dubai",
       },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/") }],
+    scripts: [
+      {
+        // The same three questions the page renders. Answer engines quote
+        // FAQPage entries directly, so the text here must match what a visitor
+        // actually sees — duplicating or embellishing it is a manual action.
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQS.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
+      },
+    ],
   }),
   component: Home,
 });
@@ -485,20 +518,6 @@ function ContactClose() {
  * FAQ — three questions, not ten
  * ---------------------------------------------------------------- */
 
-const FAQS = [
-  {
-    q: "What is included in a package price?",
-    a: "Return flights, hotels with daily breakfast, private airport transfers, the excursions listed on the itinerary, entrance passes and visa processing. Anything not included is written on the quote, so there is nothing to discover later.",
-  },
-  {
-    q: "Can I change the itinerary?",
-    a: "Yes — published itineraries are starting points. Add nights, upgrade the room, drop an excursion or move the dates, and we re-quote until it is the trip you actually want.",
-  },
-  {
-    q: "Where do the flights depart from?",
-    a: `Most travellers fly from Dubai International (DXB), but as an IATA agency and flydubai GSA we also ticket from Kabul, Jeddah and across the GCC with connecting flights.`,
-  },
-];
 
 function Faq() {
   const [open, setOpen] = useState<number | null>(0);

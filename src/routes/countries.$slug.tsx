@@ -19,6 +19,7 @@ import { BRAND, packages, priceLabel, waLink } from "@/data/catalogue";
 import { PackageCard } from "@/components/site/PackageCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
+import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/countries/$slug")({
   loader: ({ params }) => {
@@ -43,7 +44,7 @@ export const Route = createFileRoute("/countries/$slug")({
         { property: "og:url", content: `/countries/${params.slug}` },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: `/countries/${params.slug}` }],
+      links: [{ rel: "canonical", href: absoluteUrl(`/countries/${params.slug}`) }],
       scripts: [
         {
           type: "application/ld+json",

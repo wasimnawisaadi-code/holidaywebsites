@@ -27,3 +27,24 @@ npm run dev
 - TypeScript
 - React
 - Tailwind CSS
+
+## Deploying to Vercel
+
+The Nitro build defaults to a Cloudflare target, so the Vercel preset has to be
+selected explicitly. `vercel.json` does this via the build command:
+
+```
+NITRO_PRESET=vercel npm run build   →  .vercel/output
+```
+
+Import the repo in Vercel and it will pick that up; no framework preset needs to
+be chosen (`"framework": null`).
+
+### Environment
+
+| Variable   | Purpose |
+| ---------- | ------- |
+| `SITE_URL` | Canonical origin used for `rel=canonical`, `og:` tags and every `sitemap.xml` entry. Set this to the custom domain once it is attached. Without it the site falls back to Vercel's deployment hostname, then to `https://www.nawisaadi.com`. |
+
+Static assets under `/images`, `/frames` and `/videos` are content-hashed by
+filename and served immutable for a year.

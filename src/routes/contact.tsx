@@ -6,6 +6,7 @@ import { BRAND, offices, packages, waLink } from "@/data/catalogue";
 import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { cn } from "@/lib/utils";
+import { absoluteUrl } from "@/lib/site";
 
 type Search = { pkg?: string | undefined };
 
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/contact")({
       { property: "og:url", content: "/contact" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/contact" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/contact") }],
     scripts: [
       {
         type: "application/ld+json",
@@ -127,6 +128,7 @@ function ContactPage() {
   return (
     <div className="pb-24">
       <PageHero
+        crumbs={[{ label: "Home", to: "/" }, { label: "Contact" }]}
         eyebrow="Contact"
         title={
           <>

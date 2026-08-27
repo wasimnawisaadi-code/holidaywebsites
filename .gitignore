@@ -37,3 +37,6 @@ DST Website Pictures/
 
 # Scratch output from the scripts/ verification tools
 scripts/__*
+
+# Vercel build output
+.vercel

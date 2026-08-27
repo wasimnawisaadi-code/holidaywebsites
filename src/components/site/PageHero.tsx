@@ -1,4 +1,5 @@
 import { ParallaxImage } from "@/components/site/ParallaxImage";
+import { Breadcrumbs, type Crumb } from "@/components/site/Breadcrumbs";
 import { cn } from "@/lib/utils";
 
 /**
@@ -23,6 +24,7 @@ export function PageHero({
   image,
   imageAlt,
   stats,
+  crumbs,
   align = "left",
   className,
 }: {
@@ -32,6 +34,8 @@ export function PageHero({
   image: string;
   imageAlt: string;
   stats?: { value: string; label: string }[];
+  /** Breadcrumb trail. Emits matching BreadcrumbList JSON-LD. */
+  crumbs?: Crumb[];
   align?: "left" | "center";
   className?: string;
 }) {
@@ -58,6 +62,14 @@ export function PageHero({
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#00365F]/70 via-transparent to-transparent" />
 
       <div className="relative mx-auto w-full max-w-[1400px] px-5 pb-14 sm:px-8 sm:pb-20">
+        {crumbs?.length ? (
+          <Breadcrumbs
+            items={crumbs}
+            onDark
+            className={cn("mb-6", centered && "flex justify-center")}
+          />
+        ) : null}
+
         <div
           className={cn(
             "flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between lg:gap-16",

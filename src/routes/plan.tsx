@@ -5,6 +5,7 @@ import { packages, experiences, travelStyles, type TravelStyle } from "@/data/ca
 import { PageHero } from "@/components/site/PageHero";
 import { PackageCard } from "@/components/site/PackageCard";
 import { cn } from "@/lib/utils";
+import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/plan")({
   head: () => ({
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/plan")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: absoluteUrl("/plan") }],
   }),
   component: PlanPage,
 });
@@ -59,6 +61,7 @@ function PlanPage() {
   return (
     <div className="bg-[#FFFFFF] pb-24 text-[#353844]">
       <PageHero
+        crumbs={[{ label: "Home", to: "/" }, { label: "Trip planner" }]}
         eyebrow="Trip planner"
         title={
           <>

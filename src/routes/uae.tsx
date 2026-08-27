@@ -9,6 +9,7 @@ import { Depth } from "@/components/site/Parallax";
 import { GoldParticleField } from "@/components/3d/GoldParticleField";
 import { ThreeDCard } from "@/components/3d/ThreeDCard";
 import { cn } from "@/lib/utils";
+import { absoluteUrl } from "@/lib/site";
 
 const beyond = emirates.filter((e) => e.name !== "Dubai" && e.name !== "Hatta");
 const pool = inboundActivities.filter((e) => e.emirate !== "Dubai" && e.emirate !== "Hatta");
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/uae")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: absoluteUrl("/uae") }],
   }),
   component: UaePage,
 });

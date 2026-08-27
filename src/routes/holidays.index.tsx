@@ -20,6 +20,7 @@ import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { RegionalDestinationsGrid } from "@/components/site/RegionalDestinationsGrid";
 import { cn } from "@/lib/utils";
+import { absoluteUrl } from "@/lib/site";
 
 type Search = { style?: string | undefined; q?: string | undefined };
 
@@ -40,6 +41,7 @@ export const Route = createFileRoute("/holidays/")({
       },
       { property: "og:title", content: "Curated Luxury Holiday Packages | Nawi Saadi Travel" },
     ],
+    links: [{ rel: "canonical", href: absoluteUrl("/holidays") }],
   }),
   component: HolidaysPage,
 });
@@ -70,6 +72,7 @@ function HolidaysPage() {
   return (
     <div className="bg-[#F8F8F8] text-[#00365F]">
       <PageHero
+        crumbs={[{ label: "Home", to: "/" }, { label: "Holiday packages" }]}
         eyebrow="Worldwide holiday packages"
         title={
           <>

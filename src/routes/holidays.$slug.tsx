@@ -27,6 +27,7 @@ import { packageDetail } from "@/data/package-details";
 import { PackageCard } from "@/components/site/PackageCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
+import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/holidays/$slug")({
   loader: ({ params }) => {
@@ -56,7 +57,7 @@ export const Route = createFileRoute("/holidays/$slug")({
         { property: "og:url", content: `/holidays/${params.slug}` },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: `/holidays/${params.slug}` }],
+      links: [{ rel: "canonical", href: absoluteUrl(`/holidays/${params.slug}`) }],
       scripts: [
         {
           type: "application/ld+json",

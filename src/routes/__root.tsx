@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { WhatsAppFab } from "@/components/site/WhatsAppFab";
+import { absoluteUrl, siteUrl, OG_IMAGE_PATH } from "@/lib/site";
 
 function NotFoundComponent() {
   return (
@@ -90,6 +91,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Nawi Saadi Travel & Tourism" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      // Absolute, because crawlers do not resolve relative image URLs.
+      { property: "og:image", content: absoluteUrl(OG_IMAGE_PATH) },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Nawi Saadi Travel & Tourism" },
+      { name: "twitter:image", content: absoluteUrl(OG_IMAGE_PATH) },
+      { property: "og:url", content: siteUrl() },
+      { property: "og:locale", content: "en_AE" },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -124,6 +134,72 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             "flydubai General Sales Agent — Afghanistan",
             "Dubai Department of Tourism and Commerce Marketing (DTCM) approved",
           ],
+          url: siteUrl(),
+          logo: absoluteUrl("/og-image.jpg"),
+          image: absoluteUrl(OG_IMAGE_PATH),
+          priceRange: "$$-$$$",
+          // Only offices we actually operate, so the entity resolves against
+          // real listings rather than inventing branches.
+          location: [
+            {
+              "@type": "TravelAgency",
+              name: "Nawi Saadi Travel & Tourism — Deira",
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "Millenium Building, Naif Road, Deira",
+                addressLocality: "Dubai",
+                addressCountry: "AE",
+              },
+            },
+            {
+              "@type": "TravelAgency",
+              name: "Nawi Saadi Travel & Tourism — Kabul",
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "Khost Tower, Jade Maiwand Road",
+                addressLocality: "Kabul",
+                addressCountry: "AF",
+              },
+            },
+            {
+              "@type": "TravelAgency",
+              name: "Nawi Saadi Travel & Tourism — Jeddah",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Jeddah",
+                addressCountry: "SA",
+              },
+            },
+          ],
+          makesOffer: [
+            "Worldwide holiday packages",
+            "Air ticketing",
+            "UAE and international visa processing",
+            "Hajj and Umrah packages",
+            "Dubai and UAE tours and attraction tickets",
+            "Corporate and group travel",
+          ].map((name) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name } })),
+        }),
+      },
+      {
+        // Declares the site as an entity and tells search engines how to run a
+        // site search, which is what produces a sitelinks search box.
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Nawi Saadi Travel & Tourism",
+          url: siteUrl(),
+          inLanguage: "en",
+          publisher: { "@type": "Organization", name: "Nawi Saadi Travel & Tourism" },
+          potentialAction: {
+            "@type": "SearchAction",
+            target: {
+              "@type": "EntryPoint",
+              urlTemplate: `${siteUrl()}/holidays?q={search_term_string}`,
+            },
+            "query-input": "required name=search_term_string",
+          },
         }),
       },
     ],

@@ -12,3 +12,27 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Crawlers find the sitemap here. Without this line it is only discoverable if
+# it happens to be linked from a page.
+Sitemap: https://www.nawisaadi.com/sitemap.xml
+
+# Answer engines and LLM crawlers are allowed, and /llms.txt summarises the
+# business in a form they can cite accurately.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /

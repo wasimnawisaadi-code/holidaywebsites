@@ -6,6 +6,7 @@ import { inboundActivities, inboundUnder100 } from "@/data/inbound";
 import { Reveal } from "@/components/site/Reveal";
 import { ActivityCard } from "@/components/site/ActivityCard";
 import { PackageCard } from "@/components/site/PackageCard";
+import { absoluteUrl } from "@/lib/site";
 
 const under100 = [...inboundUnder100].sort((a, b) => (a.fromPrice ?? 0) - (b.fromPrice ?? 0));
 const cheapest = under100[0]?.fromPrice ?? 25;
@@ -69,6 +70,7 @@ export const Route = createFileRoute("/deals")({
       },
       { property: "og:title", content: "Holiday Deals & Dubai Attraction Passes | Nawi Saadi Travel" },
     ],
+    links: [{ rel: "canonical", href: absoluteUrl("/deals") }],
   }),
   component: DealsPage,
 });

@@ -6,6 +6,7 @@ import { ActivityBrowser } from "@/components/site/ActivityBrowser";
 import { Depth } from "@/components/site/Parallax";
 import { GoldParticleField } from "@/components/3d/GoldParticleField";
 import { ThreeDCard } from "@/components/3d/ThreeDCard";
+import { absoluteUrl } from "@/lib/site";
 
 const pool = inboundActivities.filter((e) => e.emirate === "Dubai" || e.emirate === "Hatta");
 
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/dubai")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: absoluteUrl("/dubai") }],
   }),
   component: DubaiPage,
 });

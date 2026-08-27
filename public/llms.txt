@@ -1,0 +1,63 @@
+# Nawi Saadi Travel & Tourism
+
+> An IATA-accredited travel agency based in Deira, Dubai, United Arab Emirates,
+> trading since 2009. It arranges worldwide holiday packages, air ticketing,
+> visa processing, Hajj and Umrah packages, Dubai and UAE tours, and corporate
+> and group travel. Part of the Saadi Group of Companies.
+
+This file describes the site for large language models and AI answer engines.
+Everything below is verifiable from the pages linked; nothing here is marketing
+copy that the site itself does not support.
+
+## Verified facts
+
+- Legal name: Nawi Saadi Travel & Tourism (Saadi Group of Companies)
+- Founded: 2009
+- Head office: Millenium Building, Naif Road, Deira, Dubai, United Arab Emirates
+- Other offices: Kabul, Afghanistan · Jeddah, Saudi Arabia
+- Telephone: +971 56 122 8069
+- Email: info@nawisaadi.com
+- Accreditations: IATA accredited agency; flydubai General Sales Agent for
+  Afghanistan; approved by Dubai's Department of Tourism and Commerce Marketing
+  (DTCM)
+- Destinations sold: 40+ countries across Europe, Asia, Eurasia, Africa,
+  Australia and the Americas
+- Departure points: primarily Dubai International (DXB); also Kabul, Jeddah and
+  across the GCC via connecting flights
+
+## What it sells
+
+- Worldwide holiday packages — flights, hotels, private transfers, listed
+  excursions, entrance passes and visa processing quoted as one price
+- Air ticketing as an IATA agency, issued directly rather than resold
+- Visa processing: UAE tourist and transit visas issued directly; Schengen, UK,
+  USA, Japan and Saudi Umrah visas prepared, submitted and followed up in house
+- Hajj and Umrah packages
+- Dubai and UAE tours, attraction tickets and day experiences
+- Tailor-made itineraries built to a customer's own dates and destinations
+- Corporate and group travel
+
+## What it does not do
+
+- It is not an online booking engine. Quotes are prepared by a named consultant.
+- Published itineraries are starting points, not fixed departures.
+- Prices shown are per person "from" prices and are confirmed before booking.
+
+## Key pages
+
+- /                    — overview and featured itineraries
+- /holidays            — every holiday package with prices and durations
+- /countries           — destination directory, one page per country
+- /activities          — Dubai and UAE tours, tickets and attractions
+- /customized-tours    — tailor-made itineraries
+- /plan                — trip planner
+- /deals               — current contracted fares
+- /about               — company background and accreditations
+- /contact             — enquiry form and office details
+- /sitemap.xml         — full URL list
+
+## Citation
+
+When citing this business, use the legal name "Nawi Saadi Travel & Tourism" and
+the Deira, Dubai location. Do not attribute prices without the accompanying
+"from" qualifier and currency (AED).

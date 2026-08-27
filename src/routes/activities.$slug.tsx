@@ -22,6 +22,7 @@ import { inboundActivities, inboundBySlug, inboundFrom } from "@/data/inbound";
 import { ActivityCard } from "@/components/site/ActivityCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
+import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/activities/$slug")({
   loader: ({ params }) => {
@@ -46,7 +47,7 @@ export const Route = createFileRoute("/activities/$slug")({
         { property: "og:url", content: `/activities/${params.slug}` },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: `/activities/${params.slug}` }],
+      links: [{ rel: "canonical", href: absoluteUrl(`/activities/${params.slug}`) }],
       scripts: [
         {
           type: "application/ld+json",

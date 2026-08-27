@@ -5,6 +5,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { CredentialGrid } from "@/components/site/Credentials";
 import { BRAND, offices, serviceLines, waLink } from "@/data/catalogue";
+import { absoluteUrl } from "@/lib/site";
 
 const title = "About Nawi Saadi Travel & Tourism | IATA Agency, flydubai GSA, DTCM Approved";
 const description =
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/about")({
       { property: "og:url", content: "/about" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/about" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/about") }],
     scripts: [
       {
         type: "application/ld+json",
@@ -71,6 +72,7 @@ function AboutPage() {
   return (
     <div className="pb-24">
       <PageHero
+        crumbs={[{ label: "Home", to: "/" }, { label: "About" }]}
         eyebrow="About us"
         title={
           <>
