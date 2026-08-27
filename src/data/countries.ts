@@ -910,6 +910,83 @@ export const countries: Country[] = [
     highlights: ["Christ the Redeemer & Sugarloaf Mountain", "Copacabana & Ipanema beaches", "Iguaçu Falls Brazilian side", "Amazon Rainforest river cruise"],
     bestTime: "December – March, June – September",
     visa: "Tourist Visa support",
+  }),
+  // Bosnia and Herzegovina, Oman and Saudi Arabia each had a live package but
+  // no destination page — no URL to rank, and no parent for the package to
+  // link back to. Nights and prices mirror the packages exactly.
+  c({
+    slug: "bosnia-and-herzegovina",
+    gallery: [
+      "/images/destinations/bosnia-mostar.jpg",
+      "/images/destinations/bosnia-stari-most.jpg",
+      "/images/destinations/bosnia-kravice.jpg",
+      "/images/destinations/bosnia-blagaj.jpg",
+    ],
+    name: "Bosnia and Herzegovina",
+    region: "Europe",
+    image: "/images/destinations/bosnia-mostar.jpg",
+    tagline: "Ottoman bridges and emerald rivers",
+    blurb:
+      "Turquoise rivers, Ottoman stone bridges and green valleys in the heart of the Balkans — a short, inexpensive European trip from Dubai.",
+    nights: "5–7 nights",
+    fromAed: 2899,
+    highlights: [
+      "Stari Most, the rebuilt Ottoman bridge at Mostar",
+      "Kravice Waterfalls on the Trebižat river",
+      "Blagaj Tekke beneath the Buna spring cliff",
+      "Sarajevo old town and the Baščaršija bazaar",
+    ],
+    bestTime: "May – September",
+    visa: "Schengen-style visa support; visa-free for UAE passport holders",
+  }),
+  c({
+    slug: "oman",
+    gallery: [
+      "/images/destinations/oman-salalah.jpg",
+      "/images/destinations/salalah-mughsail.jpg",
+      "/images/destinations/salalah-wadi-darbat.jpg",
+      "/images/destinations/salalah-meadows.jpg",
+    ],
+    name: "Oman",
+    region: "Asia",
+    image: "/images/destinations/oman-salalah.jpg",
+    tagline: "Salalah in the khareef monsoon",
+    blurb:
+      "The Arabian monsoon turns Dhofar green: misty mountains around 22°C, seasonal waterfalls and empty beaches, a short hop from Dubai.",
+    nights: "3–5 nights",
+    fromAed: 1299,
+    highlights: [
+      "Khareef monsoon greenery across the Dhofar mountains",
+      "Wadi Darbat waterfalls and cave pools",
+      "Mughsail beach and the Al Marneef blowholes",
+      "Frankincense souq and the Land of Frankincense museum",
+    ],
+    bestTime: "June – September for khareef; October – March elsewhere",
+    visa: "eVisa, arranged with your booking",
+  }),
+  c({
+    slug: "saudi-arabia",
+    gallery: [
+      "/images/destinations/umrah-clock-tower.jpg",
+      "/images/destinations/umrah-haram.jpg",
+      "/images/destinations/umrah-quba.jpg",
+    ],
+    name: "Saudi Arabia",
+    region: "Asia",
+    image: "/images/destinations/umrah-clock-tower.jpg",
+    tagline: "Umrah in Makkah and Madinah",
+    blurb:
+      "Umrah packages with hotels near Masjid Al Haram and the Prophet's Mosque, transfers between the two holy cities, and full visa handling.",
+    nights: "10–17 nights",
+    fromAed: 3499,
+    highlights: [
+      "Accommodation within walking distance of Masjid Al Haram",
+      "Madinah stay near Al-Masjid an-Nabawi",
+      "Ziyarat visits including Quba Mosque",
+      "Intercity transfers and Umrah visa processing",
+    ],
+    bestTime: "Year round; cooler and busier outside Ramadan",
+    visa: "Umrah visa prepared and submitted by our specialists",
   })
 ];
 
