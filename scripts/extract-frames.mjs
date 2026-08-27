@@ -82,9 +82,9 @@ for (let i = 0; i < COUNT; i++) {
   const buf = Buffer.from(dataUrl.split(",")[1], "base64");
   const name = `f_${String(i + 1).padStart(4, "0")}.webp`;
 
-  await sharp(buf).resize({ width: DESKTOP_W }).webp({ quality: 72 })
+  await sharp(buf).resize({ width: DESKTOP_W }).webp({ quality: 84 })
     .toFile(path.join(OUT, "desktop", name));
-  await sharp(buf).resize({ width: MOBILE_W }).webp({ quality: 66 })
+  await sharp(buf).resize({ width: MOBILE_W }).webp({ quality: 76 })
     .toFile(path.join(OUT, "mobile", name));
 
   written++;

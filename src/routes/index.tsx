@@ -11,8 +11,7 @@ import { ScrollMarquee, type MarqueeItem } from "@/components/site/ScrollMarquee
 import { ScrollRevealText } from "@/components/site/ScrollRevealText";
 import { StackingItineraries, type StackCard } from "@/components/site/StackingItineraries";
 import { ScrollJourneyFilm } from "@/components/site/ScrollJourneyFilm";
-import { CredentialMarquee } from "@/components/site/CredentialMarquee";
-import { FloatingSquares } from "@/components/site/FloatingSquares";
+import { PaperBackdrop } from "@/components/site/PaperBackdrop";
 import { Magnet } from "@/components/site/Magnet";
 import { ArrowBadgeLink } from "@/components/site/ArrowBadgeLink";
 import { PixelRevealCard, type PixelCard } from "@/components/site/PixelRevealCard";
@@ -66,7 +65,6 @@ function Home() {
     <div className="bg-[#FFFFFF] text-[#353844]">
       <Hero />
       <EnquiryBar />
-      <CredentialMarquee />
       <PhotoBand />
       <StatementBand />
       {/* The statement promises the whole trip is handled; the film shows it,
@@ -158,7 +156,7 @@ function PhotoBand() {
 function StatementBand() {
   return (
     <section className="relative bg-[#FFFFFF] py-24 sm:py-32">
-      <FloatingSquares />
+      <PaperBackdrop />
       <div className="relative mx-auto max-w-[1400px] px-5 sm:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <Reveal>
@@ -506,8 +504,9 @@ function Faq() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="bg-[#FFFFFF] py-20 sm:py-24">
-      <div className="mx-auto grid max-w-[1400px] gap-x-16 gap-y-10 px-5 sm:px-8 lg:grid-cols-[minmax(0,22rem)_1fr]">
+    <section className="relative bg-[#FFFFFF] py-20 sm:py-24">
+      <PaperBackdrop />
+      <div className="relative mx-auto grid max-w-[1400px] gap-x-16 gap-y-10 px-5 sm:px-8 lg:grid-cols-[minmax(0,22rem)_1fr]">
         <div className="min-w-0">
           <Eyebrow>Before you book</Eyebrow>
           <h2 className="mt-3 font-display text-3xl leading-tight text-[#00365F] sm:text-4xl">

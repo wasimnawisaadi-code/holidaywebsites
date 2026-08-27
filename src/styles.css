@@ -501,7 +501,7 @@
   }
 }
 
-/* Slow independent bob for the decorative marks in FloatingSquares. */
+/* Slow independent bob, kept for any decorative mark that wants it. */
 @keyframes ns-bob {
   0%,
   100% {
@@ -514,6 +514,26 @@
 
 @media (prefers-reduced-motion: reduce) {
   [style*="ns-bob"] {
+    animation: none !important;
+  }
+}
+
+/* Slow sway for the balloons in PaperBackdrop. Rotation is tiny on purpose —
+   a balloon that visibly tilts reads as a cartoon. */
+@keyframes ns-sway {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: -1.2deg;
+  }
+  50% {
+    translate: 10px -14px;
+    rotate: 1.2deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-balloon] {
     animation: none !important;
   }
 }

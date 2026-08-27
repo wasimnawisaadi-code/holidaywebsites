@@ -160,11 +160,15 @@ export function ScrollJourneyFilm() {
     let running = true;
 
     const size = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // Capped at 1.5 rather than 2. The frames are 1280px wide, so a full 2x
+      // canvas on a wide screen asks for more pixels than the source has and
+      // costs memory and fill rate for detail that does not exist.
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const w = canvas.clientWidth || 1;
       const h = canvas.clientHeight || 1;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
+      ctx.imageSmoothingQuality = "high";
       lastDrawn = -1; // force a redraw at the new size
     };
     size();
@@ -194,8 +198,11 @@ export function ScrollJourneyFilm() {
       if (!img) return;
 
       // A gentle push-in that peaks at the middle of the journey.
+      // Kept close to 1: the source footage is 1280x720, so anything above
+      // cover already upscales, and the old 1.04-1.09 range was magnifying a
+      // 720p frame across a retina full-screen canvas and softening it.
       const p = progressRef.current;
-      const scale = 1.04 + Math.sin(p * Math.PI) * 0.05;
+      const scale = 1 + Math.sin(p * Math.PI) * 0.022;
       const key = idx * 1000 + Math.round(scale * 1000);
       if (key === lastDrawn) return;
       lastDrawn = key;
@@ -278,8 +285,13 @@ export function ScrollJourneyFilm() {
           aerial view of the destination.
         </p>
 
-        {/* Scrim so the copy stays legible over every frame. */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#00365F]/85 via-transparent to-[#00365F]/45" />
+        {/* Scrim. Neutral black, not brand navy: a navy wash across the whole
+            frame tinted the sea and sky blue and read as a colour cast rather
+            than as shading. Weighted to the bottom where the caption sits, with
+            just enough at the very top to keep the header legible — the middle
+            of the picture is left alone. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/45 to-transparent" />
 
         {/* Loading state — the page stays usable while frames arrive. */}
         {!ready ? (
