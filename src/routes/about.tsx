@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Mail, MapPin, MessageCircle, Phone, Quote } from "lucide-react";
-import marina from "@/assets/dubai-marina.jpg";
 import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { CredentialGrid } from "@/components/site/Credentials";
@@ -88,20 +87,6 @@ function AboutPage() {
           { value: "IATA", label: "Accredited" },
         ]}
       />
-
-      <section className="mx-auto mt-14 max-w-[1400px] px-5 sm:px-8">
-        <div className="relative aspect-[21/9] overflow-hidden rounded-3xl">
-          <img
-            src={marina}
-            alt="Dubai Marina skyline at dusk"
-            loading="lazy"
-            width={1600}
-            height={1000}
-            className="size-full object-cover"
-          />
-          <div className="night-fade absolute inset-0" />
-        </div>
-      </section>
 
       {/* Accreditations */}
       <section className="mx-auto mt-20 max-w-[1400px] px-5 sm:px-8">
