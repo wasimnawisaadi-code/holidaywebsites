@@ -1,0 +1,12 @@
+import { chromium } from "playwright";
+import fs from "node:fs";
+fs.mkdirSync("scripts/__foot", { recursive: true });
+const b = await chromium.launch();
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+await p.goto("http://localhost:5199/contact", { waitUntil: "networkidle" });
+await p.waitForTimeout(1500);
+await p.locator("footer").scrollIntoViewIfNeeded();
+await p.waitForTimeout(900);
+await p.locator("footer").screenshot({ path: "scripts/__foot/footer.png" });
+console.log("ok");
+await b.close();

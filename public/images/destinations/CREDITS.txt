@@ -1,0 +1,24 @@
+Photo credits — freely licensed destination imagery sourced from Wikimedia Commons.
+
+These five replaced Unsplash URLs that showed the wrong country entirely
+(e.g. the Uzbekistan card was showing Mount Bromo, Indonesia).
+
+armenia-yerevan-ararat.jpg
+    "Mount Ararat and the Yerevan skyline in spring from the Cascade"
+    CC BY 4.0 — via Wikimedia Commons
+
+uzbekistan-registan.jpg
+    "Registan 01" — Registan Square, Samarkand
+    CC0 (public domain dedication) — via Wikimedia Commons
+
+tanzania-serengeti.jpg
+    "Zebra in the Serengeti Wildebeest Migration"
+    CC BY-SA 2.0 — via Wikimedia Commons
+
+kazakhstan-charyn.jpg
+    "Charyn Canyon, Kazakhstan 02"
+    CC0 (public domain dedication) — via Wikimedia Commons
+
+sri-lanka-nine-arch.jpg
+    "Nine-Arch Bridge in Sri Lanka" — Ella
+    CC BY-SA 4.0 — via Wikimedia Commons

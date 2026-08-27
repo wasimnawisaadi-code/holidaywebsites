@@ -1,0 +1,102 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { countriesByRegion, countryRegions } from "@/data/countries";
+import { Reveal } from "@/components/site/Reveal";
+import { TiltCard } from "@/components/site/Parallax";
+import hero from "@/assets/dest-europe.jpg";
+
+export const Route = createFileRoute("/countries/")({
+  head: () => ({
+    meta: [
+      { title: "Holiday Destinations from Dubai — 40+ Countries | Nawi Saadi" },
+      {
+        name: "description",
+        content:
+          "Browse holiday packages from Dubai to 40+ countries across Europe, Asia, Africa, Eurasia, Australia and the Americas. Visa help, flights and hotels included.",
+      },
+      { property: "og:title", content: "Holiday Destinations from Dubai — 40+ Countries" },
+      {
+        property: "og:description",
+        content: "Europe, Asia, Africa, Eurasia and beyond — holiday packages built from Dubai.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "/countries" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "/countries" }],
+  }),
+  component: CountriesIndex,
+});
+
+function CountriesIndex() {
+  return (
+    <main>
+      <section className="on-dark relative flex min-h-[52vh] items-end overflow-hidden">
+        <img
+          src={hero}
+          alt="Paris rooftops at sunset"
+          width={1280}
+          height={853}
+          className="absolute inset-0 size-full object-cover"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,oklch(0.16_0.05_258/0.55),oklch(0.16_0.05_258/0.9))]" />
+        <div className="relative mx-auto w-full max-w-[1400px] px-5 pb-14 pt-32 sm:px-8">
+          <p className="eyebrow">Destinations · Outbound</p>
+          <h1 className="text-display mt-3 text-4xl sm:text-6xl">Where do you want to go?</h1>
+          <p className="mt-4 max-w-xl text-base opacity-80">
+            Forty-plus countries, all planned from Dubai — flights, hotels, visas and transfers in
+            one package.
+          </p>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8">
+        {countryRegions.map((region) => (
+          <div key={region} className="mb-14">
+            <Reveal>
+              <h2 className="text-display text-2xl sm:text-3xl">{region}</h2>
+            </Reveal>
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {countriesByRegion(region).map((c) => (
+                <Reveal key={c.slug}>
+                  <TiltCard className="h-full">
+                    <Link
+                      to="/countries/$slug"
+                      params={{ slug: c.slug }}
+                      className="group block h-full overflow-hidden rounded-3xl border border-border bg-card"
+                    >
+                      <div className="relative aspect-[4/3] overflow-hidden">
+                        <img
+                          src={c.image}
+                          alt={`${c.name} holiday packages from Dubai`}
+                          loading="lazy"
+                          width={1280}
+                          height={853}
+                          className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        {c.isNew ? (
+                          <span className="absolute left-3 top-3 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-accent">
+                            New
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="p-5">
+                        <h3 className="text-lg font-semibold">{c.name}</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">{c.tagline}</p>
+                        <p className="mt-3 text-sm font-medium text-accent">
+                          {c.fromAed
+                            ? `From AED ${c.fromAed.toLocaleString()}`
+                            : "Price on request"}
+                          <span className="text-muted-foreground"> · {c.nights}</span>
+                        </p>
+                      </div>
+                    </Link>
+                  </TiltCard>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+    </main>
+  );
+}

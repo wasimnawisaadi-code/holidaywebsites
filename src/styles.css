@@ -1,0 +1,343 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Nawi Saadi Holidays — design system.
+ * Midnight desert night + warm gold. Editorial serif display, humanist sans body.
+ */
+
+@theme inline {
+  /* Editorial pairing: a high-contrast didone for display, a quiet grotesque
+     for text. Poppins/Manrope everywhere was the single biggest tell that this
+     was templated. */
+  --font-display: "Playfair Display", "Georgia", ui-serif, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 14px);
+  --radius-3xl: calc(var(--radius) + 26px);
+  --radius-4xl: calc(var(--radius) + 40px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sand: var(--sand);
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-verde: var(--verde);
+  --color-gold: var(--gold);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* Brand palette sampled from the Nawi Saadi logo itself:
+       #00365F  deep navy  (oklch 0.318 0.083 250)
+       #CAA42D  antique gold (oklch 0.712 0.129 84)
+     Paper is a warm off-white so the navy reads as ink on stock, not as a
+     screen colour. Nothing here is invented — the two brand hues plus neutrals
+     derived from them. */
+  /* Text is warm charcoal, not navy.
+     The owner's rule is that blue should be roughly 5% of any page — an
+     accent, not the ink. Navy stayed the --foreground here, so every
+     paragraph, label and icon on every page rendered blue and the whole
+     site read cold. Foreground/card/popover text is now #353844-family
+     warm charcoal; --primary is still the brand navy, so buttons and
+     focus rings keep the brand colour where it earns its place. */
+  --background: #FFFFFF;
+  --foreground: #353844;
+  --ink: #353844;
+  --surface: #FFFFFF;
+  --surface-2: #F8F8F8;
+
+  --card: #FFFFFF;
+  --card-foreground: #353844;
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.235 0.008 60);
+
+  /* #00365F */
+  --primary: #00365F;
+  --primary-foreground: oklch(0.985 0.006 85);
+  --sand: oklch(0.86 0.05 84);
+  --verde: oklch(0.46 0.052 168);
+
+  --secondary: #F8F8F8;
+  --secondary-foreground: oklch(0.235 0.008 60);
+  --muted: #F8F8F8;
+  --muted-foreground: #666666;
+  /* #CAA42D */
+  --accent: #CAA42D;
+  --accent-foreground: oklch(0.238 0.042 250);
+  --destructive: oklch(0.505 0.155 27);
+  --destructive-foreground: oklch(0.985 0.006 85);
+
+  --gold: #CAA42D;
+  --color-gold: var(--gold);
+
+  --border: oklch(0.42 0.018 70 / 22%);
+  --input: oklch(0.42 0.018 70 / 26%);
+  --ring: #CAA42D;
+
+  --chart-1: oklch(0.315 0.079 258);
+  --chart-2: oklch(0.72 0.115 82);
+  --chart-3: oklch(0.6 0.13 30);
+  --chart-4: oklch(0.62 0.09 165);
+  --chart-5: oklch(0.5 0.1 265);
+
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.235 0.008 60);
+  --sidebar-primary: oklch(0.315 0.079 258);
+  --sidebar-primary-foreground: oklch(0.99 0.003 90);
+  --sidebar-accent: oklch(0.962 0.008 78);
+  --sidebar-accent-foreground: oklch(0.235 0.008 60);
+  --sidebar-border: oklch(0.42 0.018 70 / 20%);
+  --sidebar-ring: oklch(0.315 0.079 258);
+
+  --gradient-night: linear-gradient(
+    180deg,
+    oklch(0.16 0.012 60 / 0) 0%,
+    oklch(0.14 0.012 60 / 0.6) 45%,
+    oklch(0.1 0.01 60 / 0.96) 100%
+  );
+  /* Flat brass, not a shiny two-stop ramp — the gradient read as cheap. */
+  --gradient-gold: linear-gradient(100deg, oklch(0.63 0.078 76), oklch(0.565 0.082 70));
+  --shadow-lift: 0 16px 36px -26px oklch(0.185 0.012 60 / 0.5);
+  --shadow-glow:
+    0 0 0 1px oklch(0.605 0.082 74 / 0.28), 0 18px 44px -32px oklch(0.185 0.012 60 / 0.45);
+  --ease-cine: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Sections that sit on imagery or the deep navy band flip to light-on-dark. */
+.on-dark {
+  /* The brand navy pushed down to near-black — same hue family, lights off. */
+  --background: oklch(0.185 0.052 250);
+  --foreground: oklch(0.975 0.006 85);
+  --card: oklch(0.245 0.055 250);
+  --card-foreground: oklch(0.975 0.006 85);
+  --surface: oklch(0.245 0.055 250);
+  --surface-2: oklch(0.29 0.05 250);
+  --primary: oklch(0.775 0.125 84);
+  --primary-foreground: oklch(0.185 0.052 250);
+  --secondary: oklch(0.29 0.05 250);
+  --secondary-foreground: oklch(0.975 0.006 85);
+  --muted: oklch(0.29 0.05 250);
+  --muted-foreground: oklch(0.785 0.018 250);
+  --accent: oklch(0.775 0.125 84);
+  --accent-foreground: oklch(0.185 0.052 250);
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.775 0.125 84);
+  color: var(--foreground);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* A didone at display size wants less weight and tighter tracking than a
+     geometric sans — 700 + heavy negative tracking made it look bloated. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+}
+
+@utility text-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+}
+
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+@utility gold-text {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility night-fade {
+  background: var(--gradient-night);
+}
+
+@utility lift {
+  box-shadow: var(--shadow-lift);
+}
+
+@utility glass {
+  background: oklch(1 0 0 / 0.82);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid oklch(0.235 0.055 258 / 0.1);
+  box-shadow: 0 14px 40px -28px oklch(0.235 0.055 258 / 0.5);
+}
+
+.on-dark .glass,
+.glass.on-dark {
+  background: oklch(0.22 0.05 258 / 0.6);
+  border-color: oklch(1 0 0 / 0.14);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes ns-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility rise {
+  animation: ns-rise 0.9s var(--ease-cine) both;
+}
+
+@keyframes ns-kenburns {
+  from {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.16) translate3d(0, -1.5%, 0);
+  }
+}
+
+@utility kenburns {
+  animation: ns-kenburns 24s var(--ease-cine) infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Navy folded price ribbon used on package & activity cards (house style). */
+@utility price-ribbon {
+  display: inline-flex;
+  align-items: center;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.7rem 2.1rem 0.7rem 1.25rem;
+  clip-path: polygon(0 0, calc(100% - 0.9rem) 0, 100% 50%, calc(100% - 0.9rem) 100%, 0 100%);
+}
+
+@utility perspective-1000 {
+  perspective: 1000px;
+}
+
+@utility perspective-1400 {
+  perspective: 1400px;
+}
+
+@utility preserve-3d {
+  transform-style: preserve-3d;
+}
+
+@utility gold-glow {
+  box-shadow: 0 0 35px -5px rgba(212, 175, 55, 0.35);
+}
+
+@utility gold-border-glow {
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 20px -3px rgba(212, 175, 55, 0.25);
+}
+
+
+/* ------------------------------------------------------------------ *
+ * Canonical surface tones — reference only, not live utility classes.
+ *
+ * Pages had drifted into six different "paper" tones (#FFFFFF, #FFFFFF,
+ * #fcfaf6, #f5f1e8, #fdfbf7, #F8F8F8) and nine different darks (#020b14,
+ * #030e19, #001f3f, #00203c, #00243f, #0a3a63, #12293f), all hardcoded per
+ * route — normalized 2026-08-26. Side by side the pages visibly disagreed.
+ *
+ * There are exactly three grounds now. Use these literal Tailwind classes,
+ * not a new hex, when a section needs a background:
+ *   bg-[#FFFFFF]  — the default page ground ("paper")
+ *   bg-[#F8F8F8]  — the alternating band that sits on top of paper ("raised")
+ *   bg-[#00365F]  — brand navy, for CTA bands and the hero-adjacent rail
+ * `#04121f` is intentionally excluded: it is the WebGL globe stage and the
+ * video-hero scrim, which are meant to read as near-black, not as paper.
+ * ------------------------------------------------------------------ */
