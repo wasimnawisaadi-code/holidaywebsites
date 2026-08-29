@@ -13,11 +13,11 @@ import { StackingItineraries, type StackCard } from "@/components/site/StackingI
 import { ScrollJourneyFilm } from "@/components/site/ScrollJourneyFilm";
 import { PaperBackdrop } from "@/components/site/PaperBackdrop";
 import { Magnet } from "@/components/site/Magnet";
-import { ArrowBadgeLink } from "@/components/site/ArrowBadgeLink";
-import { TrustMetricsBar } from "@/components/site/TrustMetricsBar";
 import { InteractivePackageExplorer } from "@/components/site/InteractivePackageExplorer";
 import { RegionalExplorer } from "@/components/site/RegionalExplorer";
 import { ScrollCuratedShowcase } from "@/components/site/ScrollCuratedShowcase";
+import { TrustMetricsBar } from "@/components/site/TrustMetricsBar";
+import { ArrowBadgeLink } from "@/components/site/ArrowBadgeLink";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
 import { absoluteUrl } from "@/lib/site";

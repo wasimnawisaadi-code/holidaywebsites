@@ -462,7 +462,7 @@ export const countries: Country[] = [
   c({
     slug: "nepal",
     gallery: [
-      "/images/destinations/nepal-machapuchare.jpg",
+      "/images/destinations/nepal-hero.jpg",
       "/images/destinations/nepal-p02.jpg",
       "/images/destinations/nepal-p03.jpg",
       "/images/destinations/nepal-p04.jpg",
@@ -470,7 +470,7 @@ export const countries: Country[] = [
     name: "Nepal",
     region: "Asia",
     image:
-      "/images/destinations/nepal-machapuchare.jpg",
+      "/images/destinations/nepal-hero.jpg",
     tagline: "Himalayas, temples & Annapurna peaks",
     blurb: "Snow-capped Himalayan peaks, ancient pagoda squares in Kathmandu, and serene Pokhara lakeside walks.",
     nights: "5–8 nights",
@@ -542,7 +542,7 @@ export const countries: Country[] = [
   c({
     slug: "hong-kong",
     gallery: [
-      "/images/destinations/hong-kong-skyline.jpg",
+      "/images/destinations/hong-kong-hero.jpg",
       "/images/destinations/hong-kong-p02.jpg",
       "/images/destinations/hong-kong-p03.jpg",
       "/images/destinations/hong-kong-p04.jpg",
@@ -550,7 +550,7 @@ export const countries: Country[] = [
     name: "Hong Kong",
     region: "Asia",
     image:
-      "/images/destinations/hong-kong-skyline.jpg",
+      "/images/destinations/hong-kong-hero.jpg",
     tagline: "Victoria Harbour, skyline & Disneyland",
     blurb: "Dramatic Victoria Peak vistas, world-class Dim Sum dining, and iconic Star Ferry rides across Victoria Harbour.",
     nights: "4–6 nights",
@@ -817,7 +817,7 @@ export const countries: Country[] = [
   c({
     slug: "jordan",
     gallery: [
-      "/images/destinations/jordan-petra.jpg",
+      "/images/destinations/jordan-hero.jpg",
       "/images/destinations/jordan-p02.jpg",
       "/images/destinations/jordan-p03.jpg",
       "/images/destinations/jordan-p04.jpg",
@@ -825,7 +825,7 @@ export const countries: Country[] = [
     name: "Jordan",
     region: "Eurasia",
     image:
-      "/images/destinations/jordan-petra.jpg",
+      "/images/destinations/jordan-hero.jpg",
     tagline: "Petra Rose City, Wadi Rum & Dead Sea",
     blurb: "Walk through the Siq into the rose-red Treasury of Petra, glamp under Martian stars in Wadi Rum, and float in the Dead Sea.",
     nights: "4–6 nights",
@@ -921,7 +921,7 @@ export const countries: Country[] = [
   c({
     slug: "brazil",
     gallery: [
-      "/images/destinations/brazil-christ-redeemer.jpg",
+      "/images/destinations/brazil-hero.jpg",
       "/images/destinations/brazil-g03.jpg",
       "/images/destinations/brazil-g05.jpg",
       "/images/destinations/brazil-p04.jpg",
@@ -929,7 +929,7 @@ export const countries: Country[] = [
     name: "Brazil",
     region: "America",
     image:
-      "/images/destinations/brazil-christ-redeemer.jpg",
+      "/images/destinations/brazil-hero.jpg",
     tagline: "Rio Christ Redeemer, Copacabana & Amazon",
     blurb: "Christ the Redeemer overlooking Guanabara Bay, golden sands of Copacabana, and rainforest adventures.",
     nights: "8–12 nights",
