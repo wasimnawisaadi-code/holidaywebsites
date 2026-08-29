@@ -71,6 +71,20 @@ export type EventRow = {
   meta: Record<string, unknown>;
 };
 
+export type Lead = {
+  id: number;
+  created_at: string;
+  email: string;
+  name: string | null;
+  phone: string | null;
+  source: string;
+  path: string | null;
+  status: string;
+  notes: string | null;
+  detail: Record<string, unknown>;
+  session_id: string | null;
+};
+
 export type Dashboard = {
   configured: boolean;
   totals: { events: number; sessions: number; whatsapp: number; pageViews: number };
@@ -81,6 +95,9 @@ export type Dashboard = {
   byDevice: { device: string; count: number }[];
   byReferrer: { referrer: string; count: number }[];
   byDay: { day: string; count: number }[];
+  leads: Lead[];
+  leadsByStatus: { status: string; count: number }[];
+  leadsBySource: { source: string; count: number }[];
 };
 
 const tally = <T extends string>(rows: { k: T }[]) => {
@@ -100,14 +117,18 @@ export async function loadDashboard(): Promise<Dashboard> {
     byDevice: [],
     byReferrer: [],
     byDay: [],
+    leads: [],
+    leadsByStatus: [],
+    leadsBySource: [],
   };
   if (!adminConfigured()) return empty;
 
   // One wide read rather than a query per panel: at this volume it is a single
   // round trip, and every panel below is a grouping of the same rows.
-  const rows = await rest<EventRow>(
-    "events?select=*&order=created_at.desc&limit=5000",
-  );
+  const [rows, leads] = await Promise.all([
+    rest<EventRow>("events?select=*&order=created_at.desc&limit=5000"),
+    rest<Lead>("leads?select=*&order=created_at.desc&limit=500"),
+  ]);
 
   const sessions = new Set(rows.map((r) => r.session_id).filter(Boolean));
   const whatsapp = rows.filter((r) => r.type === "whatsapp_click");
@@ -148,5 +169,37 @@ export async function loadDashboard(): Promise<Dashboard> {
       .sort((a, b) => (a[0] < b[0] ? 1 : -1))
       .slice(0, 14)
       .map(([day, count]) => ({ day, count })),
+    leads,
+    leadsByStatus: tally(leads.map((l) => ({ k: l.status }))).map(([status, count]) => ({
+      status,
+      count,
+    })),
+    leadsBySource: tally(leads.map((l) => ({ k: l.source }))).map(([source, count]) => ({
+      source,
+      count,
+    })),
   };
+}
+
+/**
+ * Moves a lead through the pipeline. Uses the service role key, so this is only
+ * ever reachable from the authenticated /admin server function.
+ */
+export async function updateLead(
+  id: number,
+  patch: { status?: string; notes?: string },
+): Promise<boolean> {
+  const c = config();
+  if (!c) return false;
+  const res = await fetch(`${c.url}/rest/v1/leads?id=eq.${id}`, {
+    method: "PATCH",
+    headers: {
+      apikey: c.key,
+      Authorization: `Bearer ${c.key}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify(patch),
+  });
+  return res.ok;
 }

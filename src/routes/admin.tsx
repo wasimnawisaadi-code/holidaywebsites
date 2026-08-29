@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import {
-  Activity, MessageCircle, Users, Eye, Smartphone, Globe, Clock, RefreshCw, Lock,
+  Activity, MessageCircle, Users, Eye, Smartphone, Globe, Clock, RefreshCw, Lock, Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Dashboard } from "@/lib/admin-data";
@@ -54,6 +54,20 @@ const signIn = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+/** Moves a lead through the pipeline. Re-checks auth on every call. */
+const saveLead = createServerFn({ method: "POST" })
+  .validator((d: { id: number; status?: string; notes?: string }) => d)
+  .handler(async ({ data }) => {
+    const { updateLead, checkPassword } = await import("@/lib/admin-data");
+    const { getCookie } = await import("@tanstack/react-start/server");
+    // The cookie is checked here too: a server function is a public endpoint,
+    // and being rendered inside an authenticated page proves nothing.
+    const token = getCookie(COOKIE);
+    if (!token || !checkPassword(token)) return { ok: false as const };
+    const { id, ...patch } = data;
+    return { ok: await updateLead(id, patch) };
+  });
+
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
@@ -95,7 +109,7 @@ function SignIn({ configured }: { configured: boolean }) {
           <h1 className="font-display text-2xl">Admin</h1>
         </div>
         <p className="mt-2 font-sans text-xs text-[#666666]">
-          Activity and audit log for nawisaadi.com
+          Activity, leads and audit log for nawisaadiholidays.com
         </p>
 
         {!configured ? (
@@ -161,6 +175,7 @@ function Dashboard({ data }: { data: Dashboard }) {
           <Stat icon={Users} label="Sessions" value={data.totals.sessions} />
           <Stat icon={Eye} label="Page views" value={data.totals.pageViews} />
           <Stat icon={Activity} label="Events logged" value={data.totals.events} />
+          <Stat icon={Mail} label="Leads captured" value={data.leads.length} accent />
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -208,6 +223,8 @@ function Dashboard({ data }: { data: Dashboard }) {
             <Bars rows={data.byDay.map((d) => ({ label: d.day, count: d.count }))} />
           </Panel>
         </div>
+
+        <LeadsPanel leads={data.leads} byStatus={data.leadsByStatus} bySource={data.leadsBySource} />
 
         <Panel title="Audit log — most recent 150 events" icon={Activity} className="mt-6">
           {data.recent.length ? (
@@ -262,6 +279,102 @@ function Dashboard({ data }: { data: Dashboard }) {
         </Panel>
       </div>
     </div>
+  );
+}
+
+const STATUSES = ["new", "contacted", "quoted", "booked", "closed"] as const;
+
+function LeadsPanel({
+  leads, byStatus, bySource,
+}: {
+  leads: Dashboard["leads"];
+  byStatus: Dashboard["leadsByStatus"];
+  bySource: Dashboard["leadsBySource"];
+}) {
+  const router = useRouter();
+  const [busy, setBusy] = useState<number | null>(null);
+
+  const setStatus = async (id: number, status: string) => {
+    setBusy(id);
+    await saveLead({ data: { id, status } });
+    setBusy(null);
+    router.invalidate();
+  };
+
+  return (
+    <Panel title="Leads — subscribers and enquiries" icon={Mail} className="mt-6">
+      {leads.length ? (
+        <>
+          <div className="mb-5 flex flex-wrap gap-2">
+            {byStatus.map((s) => (
+              <span
+                key={s.status}
+                className="rounded-full bg-[#00365F]/8 px-3 py-1 font-sans text-[11px] font-bold uppercase tracking-wide text-[#00365F]"
+              >
+                {s.status} {s.count}
+              </span>
+            ))}
+            {bySource.map((s) => (
+              <span
+                key={s.source}
+                className="rounded-full bg-[#CAA42D]/15 px-3 py-1 font-sans text-[11px] font-bold uppercase tracking-wide text-[#8F7420]"
+              >
+                {s.source} {s.count}
+              </span>
+            ))}
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] border-collapse font-sans text-xs">
+              <thead>
+                <tr className="border-b border-[#E5E5E5] text-left text-[#666666]">
+                  <th className="py-2 pr-4 font-semibold">When</th>
+                  <th className="py-2 pr-4 font-semibold">Email</th>
+                  <th className="py-2 pr-4 font-semibold">Source</th>
+                  <th className="py-2 pr-4 font-semibold">From page</th>
+                  <th className="py-2 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leads.map((l) => (
+                  <tr key={l.id} className="border-b border-[#F1F1F1]">
+                    <td className="whitespace-nowrap py-2 pr-4 text-[#666666]">
+                      {new Date(l.created_at).toLocaleString()}
+                    </td>
+                    <td className="py-2 pr-4">
+                      <a
+                        href={`mailto:${l.email}`}
+                        className="font-semibold text-[#00365F] underline underline-offset-2"
+                      >
+                        {l.email}
+                      </a>
+                    </td>
+                    <td className="py-2 pr-4 text-[#666666]">{l.source}</td>
+                    <td className="max-w-[200px] truncate py-2 pr-4 font-mono text-[#00365F]">
+                      {l.path}
+                    </td>
+                    <td className="py-2">
+                      <select
+                        value={l.status}
+                        disabled={busy === l.id}
+                        onChange={(e) => setStatus(l.id, e.target.value)}
+                        className="rounded-lg border border-[#E5E5E5] px-2 py-1 font-sans text-xs text-[#00365F] outline-none focus:border-[#CAA42D] disabled:opacity-50"
+                      >
+                        {STATUSES.map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : (
+        <Empty />
+      )}
+    </Panel>
   );
 }
 

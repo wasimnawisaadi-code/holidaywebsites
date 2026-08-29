@@ -15,7 +15,7 @@ Allow: /
 
 # Crawlers find the sitemap here. Without this line it is only discoverable if
 # it happens to be linked from a page.
-Sitemap: https://www.nawisaadi.com/sitemap.xml
+Sitemap: https://www.nawisaadiholidays.com/sitemap.xml
 
 # Answer engines and LLM crawlers are allowed, and /llms.txt summarises the
 # business in a form they can cite accurately.

@@ -15,12 +15,14 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { WhatsAppFab } from "@/components/site/WhatsAppFab";
 import { OfferDialog } from "@/components/site/OfferDialog";
 import { AnalyticsTracker } from "@/components/site/AnalyticsTracker";
+import { BRAND } from "@/data/catalogue";
 import {
   absoluteUrl,
   siteUrl,
   OG_IMAGE_PATH,
   verificationMeta,
   analyticsScript,
+  gtmId,
 } from "@/lib/site";
 
 /**
@@ -161,6 +163,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
     scripts: [
+      // Google Tag Manager. Inlined rather than src-loaded because GTM's own
+      // snippet must run before the async gtm.js arrives, so that dataLayer
+      // exists for any tag that fires on page load.
+      ...(gtmId()
+        ? [
+            {
+              children:
+                `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':` +
+                `new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],` +
+                `j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=` +
+                `'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);` +
+                `})(window,document,'script','dataLayer','${gtmId()}');`,
+            },
+          ]
+        : []),
       ...analyticsScript(),
       {
         type: "application/ld+json",
@@ -170,7 +187,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           name: "Nawi Saadi Travel & Tourism",
           alternateName: "Nawi Saadi Holidays",
           foundingDate: "2009",
-          email: "info@nawisaadi.com",
+          email: BRAND.email,
           telephone: "+971 56 122 8069",
           areaServed: ["AE", "AF", "SA"],
           address: {

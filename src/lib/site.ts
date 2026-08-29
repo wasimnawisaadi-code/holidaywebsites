@@ -12,7 +12,7 @@
  *   3. VERCEL_URL        — the per-deployment hostname, for previews
  *   4. the known production domain, so a local build still emits real URLs
  */
-const FALLBACK = "https://www.nawisaadi.com";
+const FALLBACK = "https://www.nawisaadiholidays.com";
 
 function normalise(value: string): string {
   const withProtocol = /^https?:\/\//i.test(value) ? value : `https://${value}`;
@@ -49,10 +49,16 @@ export const OG_IMAGE_PATH = "/og-image.jpg";
  * Returns only the tags that actually have a value — an empty `content`
  * attribute fails verification and looks like a mistake in the head.
  */
+const GOOGLE_VERIFICATION = "bK2R2zLotlHJszgqDkd94qncAsajynHkI_gLnxvL4eA";
+
 export function verificationMeta(): { name: string; content: string }[] {
   const env = typeof process !== "undefined" ? process.env : undefined;
   const pairs: [string, string | undefined][] = [
-    ["google-site-verification", env?.["GOOGLE_SITE_VERIFICATION"]],
+    // Committed rather than env-only: a verification token is a public
+    // ownership proof, not a credential, and hardcoding it means Search
+    // Console stays verified even if the env var is cleared. An env value
+    // still wins, so it can be changed without a code edit.
+    ["google-site-verification", env?.["GOOGLE_SITE_VERIFICATION"] ?? GOOGLE_VERIFICATION],
     ["msvalidate.01", env?.["BING_SITE_VERIFICATION"]],
   ];
   return pairs
@@ -72,4 +78,24 @@ export function analyticsScript(): { src: string; defer: true; "data-domain": st
   const domain = env?.["PLAUSIBLE_DOMAIN"];
   if (!domain) return [];
   return [{ src: "https://plausible.io/js/script.js", defer: true, "data-domain": domain }];
+}
+
+/**
+ * Google Tag Manager.
+ *
+ * GTM is a container: once it loads, tags are added and removed from the GTM
+ * console without touching this codebase. That is the point of using it rather
+ * than pasting gtag directly.
+ *
+ * The container id is public — it appears in the page source of every site that
+ * uses one — so it is committed, with an env override for a staging container.
+ * Returns nothing when disabled, so a build with GTM_ID="" ships no third-party
+ * script at all.
+ */
+const GTM_CONTAINER = "GTM-5S3DM439";
+
+export function gtmId(): string | null {
+  const env = typeof process !== "undefined" ? process.env : undefined;
+  const id = env?.["GTM_ID"] ?? GTM_CONTAINER;
+  return id && id.trim() ? id.trim() : null;
 }

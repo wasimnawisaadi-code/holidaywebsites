@@ -3,13 +3,17 @@ export const BRAND = {
   short: "Nawi Saadi",
   legal: "Nawi Saadi Travel & Tourism (Saadi Group of Companies)",
   whatsapp: "971561228069",
-  email: "info@nawisaadi.com",
+  email: "nawisaadiholiday@gmail.com",
   phone: "+971 56 122 8069",
   city: "Deira, Dubai, United Arab Emirates",
   founded: 2009,
   chairman: "Mr. Shafiqullah Zazai",
   flightsSite: "https://www.nsttrip.com/",
-  mainSite: "https://www.nawisaadi.com/",
+  mainSite: "https://www.nawisaadiholidays.com/",
+  // Build credit shown in the footer. The number is the developer's own
+  // WhatsApp, deliberately separate from the agency line above so a customer
+  // enquiry never lands there.
+  developer: { name: "Mhd Wasim", whatsapp: "971565919456" },
 };
 
 export const credentials = [
@@ -59,7 +63,7 @@ export const offices: Office[] = [
     city: "Dubai",
     country: "United Arab Emirates",
     phone: "+971 56 122 8069",
-    email: "info@nawisaadi.com",
+    email: "nawisaadiholiday@gmail.com",
     address: "Millenium Building, Naif Road, Deira, Dubai, UAE",
     note: "Holidays, UAE tours & visa desk",
   },
@@ -75,7 +79,7 @@ export const offices: Office[] = [
     city: "Jeddah",
     country: "Saudi Arabia",
     phone: "+966 55 990 54 20",
-    email: "info@nawisaadi.com",
+    email: "nawisaadiholiday@gmail.com",
     address: "Jeddah, Kingdom of Saudi Arabia",
     note: "Hajj & Umrah operations",
   },

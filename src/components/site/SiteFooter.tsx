@@ -2,8 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { Phone, Mail, MapPin, MessageCircle, ArrowRight } from "lucide-react";
 import logoImg from "@/assets/logo-ink.png";
 import { HorizonSilhouette } from "@/components/site/HorizonSilhouette";
+import { SubscribeForm } from "@/components/site/SubscribeForm";
 import { BRAND, waLink } from "@/data/catalogue";
-import { offices } from "@/data/catalogue-brand";
+import { offices, BRAND as BRAND_INFO } from "@/data/catalogue-brand";
 
 /**
  * Site footer.
@@ -54,10 +55,16 @@ export function SiteFooter() {
       <HorizonSilhouette className="-mb-px bg-[#FFFFFF] pt-10" />
       <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
         {/* CTA band */}
-        <div className="flex flex-col items-start justify-between gap-6 border-b border-[#E5E5E5] py-12 md:flex-row md:items-center">
-          <p className="max-w-xl font-display text-2xl leading-snug text-[#00365F] sm:text-3xl">
-            Planning something? Tell us the country and the dates.
-          </p>
+        <div className="grid gap-8 border-b border-[#E5E5E5] py-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+          <div className="min-w-0">
+            <p className="max-w-xl font-display text-2xl leading-snug text-[#00365F] sm:text-3xl">
+              Planning something? Tell us the country and the dates.
+            </p>
+            {/* Two routes out of the same band: WhatsApp for someone ready to
+                talk now, email for someone still deciding. */}
+            <SubscribeForm source="footer" className="mt-6 max-w-md" />
+          </div>
+          <div className="lg:justify-self-end">
           <a
             href={waLink("Hi Nawi Saadi, I'd like help planning a holiday.")}
             target="_blank"
@@ -68,6 +75,7 @@ export function SiteFooter() {
             <span>Chat on WhatsApp</span>
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </a>
+          </div>
         </div>
 
         {/* Brand + sitemap */}
@@ -146,6 +154,17 @@ export function SiteFooter() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            {/* Build credit. Links to the developer's own WhatsApp, kept
+                separate from the agency line so a customer enquiry never
+                lands there by mistake. */}
+            <a
+              href={`https://wa.me/${BRAND_INFO.developer.whatsapp}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-[#8F7420]"
+            >
+              Designed &amp; developed by {BRAND_INFO.developer.name}
+            </a>
             <Link to="/privacy" className="transition-colors hover:text-[#8F7420]">
               Privacy policy
             </Link>

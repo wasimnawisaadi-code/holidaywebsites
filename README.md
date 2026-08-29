@@ -39,7 +39,7 @@ be chosen (`"framework": null`).
 
 | Variable   | Purpose |
 | ---------- | ------- |
-| `SITE_URL` | Canonical origin used for `rel=canonical`, `og:` tags and every `sitemap.xml` entry. Set this to the custom domain once it is attached. Without it the site falls back to Vercel's deployment hostname, then to `https://www.nawisaadi.com`. |
+| `SITE_URL` | Canonical origin used for `rel=canonical`, `og:` tags and every `sitemap.xml` entry. Set this to the custom domain once it is attached. Without it the site falls back to Vercel's deployment hostname, then to `https://www.nawisaadiholidays.com`. |
 | `GOOGLE_SITE_VERIFICATION` | Token from Google Search Console → *HTML tag* verification. Emits `<meta name="google-site-verification">`. Omit and no tag is rendered. |
 | `BING_SITE_VERIFICATION` | Token from Bing Webmaster Tools. Emits `<meta name="msvalidate.01">`. |
 | `PLAUSIBLE_DOMAIN` | Enables cookieless Plausible analytics for that domain. Omit and the site loads no third-party scripts at all. |
