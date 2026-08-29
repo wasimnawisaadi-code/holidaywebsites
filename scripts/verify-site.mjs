@@ -33,9 +33,32 @@ for (const [label, viewport] of [
 
   for (const route of ROUTES) {
     const problems = [];
-    const onConsole = (m) => m.type() === "error" && problems.push(m.text().slice(0, 160));
+    // Analytics posts to a Supabase endpoint on another origin. Whether that
+    // call succeeds says nothing about whether this page renders, and before
+    // the migration has run it is expected to fail — so third-party origins
+    // are not counted against the page. Anything served from this site still
+    // is.
+    const external = (u) => {
+      try {
+        return new URL(u, BASE).origin !== new URL(BASE).origin;
+      } catch {
+        return false;
+      }
+    };
+
+    const onConsole = (m) => {
+      if (m.type() !== "error") return;
+      const text = m.text();
+      // A failed subresource logs "Failed to load resource: …" with the URL in
+      // the message *location*, not the text, so the text alone cannot tell a
+      // broken image on this site from an analytics call to another origin.
+      const from = m.location()?.url ?? "";
+      if (external(from) || /supabase\.co/.test(text)) return;
+      problems.push(text.slice(0, 160));
+    };
     const onPageError = (e) => problems.push(`JS: ${e.message.slice(0, 160)}`);
     const onFailed = (r) => {
+      if (external(r.url())) return;
       // Media elements routinely abort their own range requests when a source
       // is swapped or paused off-screen; that is not a broken asset.
       const aborted = (r.failure()?.errorText ?? "").includes("ERR_ABORTED");

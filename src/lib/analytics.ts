@@ -24,6 +24,17 @@ const ANON_KEY = import.meta.env["VITE_SUPABASE_ANON_KEY"] as string | undefined
 
 const SESSION_KEY = "ns-session-id";
 
+/**
+ * Stops sending after the endpoint has clearly failed.
+ *
+ * Before the migration has run, every event 404s. Without this, a single page
+ * view fires a dozen doomed requests and fills the console with noise on a
+ * deployment whose only fault is that the table does not exist yet. One
+ * failure is enough to know; the flag resets on the next page load, so it
+ * heals by itself once the table appears.
+ */
+let disabled = false;
+
 export type EventType =
   | "page_view"
   | "whatsapp_click"
@@ -65,12 +76,12 @@ function device(): string {
 
 /** True once configured, so callers can skip work when tracking is off. */
 export function analyticsEnabled(): boolean {
-  return Boolean(URL_BASE && ANON_KEY);
+  return Boolean(URL_BASE && ANON_KEY) && !disabled;
 }
 
 export function track(type: EventType, meta: Record<string, unknown> = {}): void {
   if (typeof window === "undefined") return;
-  if (!URL_BASE || !ANON_KEY) return;
+  if (!URL_BASE || !ANON_KEY || disabled) return;
 
   const body = JSON.stringify({
     type,
@@ -88,19 +99,17 @@ export function track(type: EventType, meta: Record<string, unknown> = {}): void
 
   const endpoint = `${URL_BASE}/rest/v1/events`;
 
-  // sendBeacon survives the page being unloaded, which is exactly the case for
-  // an outbound WhatsApp click. It cannot set headers, so the keys ride in the
-  // query string — they are the public anon key, which is safe there.
-  try {
-    if (navigator.sendBeacon) {
-      const beaconUrl = `${endpoint}?apikey=${encodeURIComponent(ANON_KEY)}`;
-      const blob = new Blob([body], { type: "application/json" });
-      if (navigator.sendBeacon(beaconUrl, blob)) return;
-    }
-  } catch {
-    /* fall through to fetch */
-  }
-
+  // fetch with keepalive rather than sendBeacon.
+  //
+  // sendBeacon cannot set headers, so the key had to ride in the query string
+  // and the Authorization header was missing entirely. PostgREST rejected the
+  // request, and because a Blob of type application/json is not a
+  // CORS-safelisted content type the browser logged a CORS failure on every
+  // single page load — noise a visitor should never see, and which no
+  // try/catch can suppress because the browser logs it directly.
+  //
+  // keepalive gives the same survive-the-unload behaviour that sendBeacon was
+  // there for, while still sending real headers.
   void fetch(endpoint, {
     method: "POST",
     headers: {
@@ -111,7 +120,16 @@ export function track(type: EventType, meta: Record<string, unknown> = {}): void
     },
     body,
     keepalive: true,
-  }).catch(() => {
-    /* analytics must never surface an error to a visitor */
-  });
+    mode: "cors",
+  })
+    .then((res) => {
+      // 404 means the table is missing, 401/403 means the key or policy is
+      // wrong. None of those recover within a page load, so stop asking.
+      if (res.status === 404 || res.status === 401 || res.status === 403) disabled = true;
+    })
+    .catch(() => {
+      // Network-level failure — offline, blocked by an extension, CORS.
+      // Equally not worth retrying for the rest of this page.
+      disabled = true;
+    });
 }

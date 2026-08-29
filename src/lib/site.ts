@@ -21,8 +21,16 @@ function normalise(value: string): string {
 }
 
 export function siteUrl(): string {
+  // import.meta.env is inlined at build time and therefore readable in the
+  // browser as well as on the server. process.env exists only on the server,
+  // so a component calling this during hydration used to get the fallback
+  // domain on the client and the real one on the server — which React
+  // reported as a hydration mismatch on every page carrying breadcrumb
+  // JSON-LD. Checking the build-time value first makes both sides agree.
+  const build = import.meta.env["VITE_SITE_URL"] as string | undefined;
   const env = typeof process !== "undefined" ? process.env : undefined;
   const candidate =
+    build ||
     env?.["SITE_URL"] ||
     env?.["VERCEL_PROJECT_PRODUCTION_URL"] ||
     env?.["VERCEL_URL"] ||

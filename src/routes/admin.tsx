@@ -25,48 +25,71 @@ const COOKIE = "ns_admin";
 
 /** Reads the dashboard, but only for a request carrying a valid session. */
 const getDashboard = createServerFn({ method: "GET" }).handler(async () => {
-  const { loadDashboard, adminConfigured, checkPassword } = await import("@/lib/admin-data");
+  const { loadDashboard, adminConfigured } = await import("@/lib/admin-data");
+  const { sessionFromToken } = await import("@/lib/admin-auth");
   const { getCookie } = await import("@tanstack/react-start/server");
 
-  const token = getCookie(COOKIE);
-  const authed = Boolean(token && checkPassword(token));
-  if (!authed) return { authed: false as const, configured: adminConfigured() };
+  const session = await sessionFromToken(getCookie(COOKIE));
+  if (!session) return { authed: false as const, configured: adminConfigured() };
 
   const data = await loadDashboard();
-  return { authed: true as const, configured: data.configured, data };
+  return { authed: true as const, configured: data.configured, data, who: session.email };
 });
 
 /** Verifies the password and, on success, sets the session cookie. */
 const signIn = createServerFn({ method: "POST" })
-  .validator((d: { password: string }) => d)
+  .validator((d: { email: string; password: string }) => d)
   .handler(async ({ data }) => {
+    const { signInWithPassword } = await import("@/lib/admin-auth");
     const { checkPassword } = await import("@/lib/admin-data");
     const { setCookie } = await import("@tanstack/react-start/server");
 
-    if (!checkPassword(data.password)) return { ok: false as const };
-    setCookie(COOKIE, data.password, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: true,
-      path: "/",
-      maxAge: 60 * 60 * 12,
-    });
-    return { ok: true as const };
+    const store = (token: string) =>
+      setCookie(COOKIE, token, {
+        httpOnly: true,
+        sameSite: "lax",
+        // Secure would make the cookie unusable over plain-HTTP localhost, so
+        // it is enabled only where the connection actually is HTTPS.
+        secure: process.env["NODE_ENV"] === "production",
+        path: "/",
+        maxAge: 60 * 60 * 8,
+      });
+
+    const result = await signInWithPassword(data.email, data.password);
+    if (result.ok) {
+      store(result.token);
+      return { ok: true as const };
+    }
+
+    // Fallback for a deployment with no Supabase: a shared password, entered
+    // in the password field with the email left blank.
+    if (!data.email && checkPassword(data.password)) {
+      store(data.password);
+      return { ok: true as const };
+    }
+
+    return { ok: false as const, reason: result.reason };
   });
 
 /** Moves a lead through the pipeline. Re-checks auth on every call. */
 const saveLead = createServerFn({ method: "POST" })
   .validator((d: { id: number; status?: string; notes?: string }) => d)
   .handler(async ({ data }) => {
-    const { updateLead, checkPassword } = await import("@/lib/admin-data");
+    const { updateLead } = await import("@/lib/admin-data");
+    const { sessionFromToken } = await import("@/lib/admin-auth");
     const { getCookie } = await import("@tanstack/react-start/server");
-    // The cookie is checked here too: a server function is a public endpoint,
-    // and being rendered inside an authenticated page proves nothing.
-    const token = getCookie(COOKIE);
-    if (!token || !checkPassword(token)) return { ok: false as const };
+    // Re-checked here too: a server function is a public endpoint, and being
+    // rendered inside an authenticated page proves nothing about the caller.
+    if (!(await sessionFromToken(getCookie(COOKIE)))) return { ok: false as const };
     const { id, ...patch } = data;
     return { ok: await updateLead(id, patch) };
   });
+
+const signOut = createServerFn({ method: "POST" }).handler(async () => {
+  const { setCookie } = await import("@tanstack/react-start/server");
+  setCookie(COOKIE, "", { httpOnly: true, path: "/", maxAge: 0 });
+  return { ok: true as const };
+});
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -82,23 +105,26 @@ export const Route = createFileRoute("/admin")({
 function AdminPage() {
   const state = Route.useLoaderData();
   if (!state.authed) return <SignIn configured={state.configured} />;
-  return <Dashboard data={state.data} />;
+  return <Dashboard data={state.data} who={state.who} />;
 }
 
 function SignIn({ configured }: { configured: boolean }) {
   const router = useRouter();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    setError(false);
-    const res = await signIn({ data: { password } });
+    setError(null);
+    const res = await signIn({ data: { email: email.trim(), password } });
     setBusy(false);
     if (res.ok) router.invalidate();
-    else setError(true);
+    // Supabase's own message is shown rather than a generic failure — "email
+    // not confirmed" and "wrong password" need different actions.
+    else setError(res.reason ?? "Sign in failed.");
   };
 
   return (
@@ -122,16 +148,22 @@ function SignIn({ configured }: { configured: boolean }) {
         ) : null}
 
         <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          autoComplete="username"
+          className="mt-6 w-full rounded-xl border border-[#E5E5E5] px-4 py-3 font-sans text-sm outline-none focus:border-[#CAA42D]"
+        />
+        <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
           autoComplete="current-password"
-          className="mt-6 w-full rounded-xl border border-[#E5E5E5] px-4 py-3 font-sans text-sm outline-none focus:border-[#CAA42D]"
+          className="mt-3 w-full rounded-xl border border-[#E5E5E5] px-4 py-3 font-sans text-sm outline-none focus:border-[#CAA42D]"
         />
-        {error ? (
-          <p className="mt-2 font-sans text-xs text-red-600">That password is not correct.</p>
-        ) : null}
+        {error ? <p className="mt-2 font-sans text-xs text-red-600">{error}</p> : null}
 
         <button
           type="submit"
@@ -145,7 +177,7 @@ function SignIn({ configured }: { configured: boolean }) {
   );
 }
 
-function Dashboard({ data }: { data: Dashboard }) {
+function Dashboard({ data, who }: { data: Dashboard; who?: string }) {
   const router = useRouter();
 
   return (
@@ -160,14 +192,29 @@ function Dashboard({ data }: { data: Dashboard }) {
               Everything happening on the site
             </h1>
           </div>
-          <button
-            type="button"
-            onClick={() => router.invalidate()}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#00365F] px-5 py-2.5 font-sans text-xs font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F]"
-          >
-            <RefreshCw className="size-3.5" />
-            Refresh
-          </button>
+          <div className="flex items-center gap-3">
+            {who ? (
+              <span className="font-sans text-xs text-[#666666]">{who}</span>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => router.invalidate()}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#00365F] px-5 py-2.5 font-sans text-xs font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F]"
+            >
+              <RefreshCw className="size-3.5" />
+              Refresh
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                await signOut();
+                router.invalidate();
+              }}
+              className="rounded-xl border border-[#E5E5E5] px-4 py-2.5 font-sans text-xs font-semibold text-[#666666] transition-colors hover:border-[#CAA42D] hover:text-[#00365F]"
+            >
+              Sign out
+            </button>
+          </div>
         </header>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
