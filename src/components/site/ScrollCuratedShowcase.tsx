@@ -8,8 +8,8 @@ const SHOWCASE_SLUGS = [
   "japan-golden-route",
   "maldives-overwater-escape",
   "spain-barcelona-madrid-andalusia",
-  "georgia-kazbegi-tbilisi",
-  "kenya-masai-mara-safari",
+  "georgia-mountain-weekender",
+  "kenya-safari-luxury",
   "salalah-khareef-monsoon",
   "bali-jungle-coast",
 ];
@@ -44,14 +44,14 @@ const SHOWCASE_DATA = [
     bestSeason: "Apr – Jun / Sep – Nov",
   },
   {
-    slug: "georgia-kazbegi-tbilisi",
+    slug: "georgia-mountain-weekender",
     tagline: "Caucasus Mountains & Ancient Old Town",
     coords: "41.7151° N, 44.8271° E",
     vibe: "Caucasian Highlands",
     bestSeason: "May – Oct",
   },
   {
-    slug: "kenya-masai-mara-safari",
+    slug: "kenya-safari-luxury",
     tagline: "Big-Five Game Drives & Luxury Tents",
     coords: "1.2921° S, 36.8219° E",
     vibe: "Wild African Savannah",
