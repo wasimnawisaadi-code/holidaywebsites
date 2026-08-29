@@ -14,6 +14,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { WhatsAppFab } from "@/components/site/WhatsAppFab";
 import { OfferDialog } from "@/components/site/OfferDialog";
+import { AnalyticsTracker } from "@/components/site/AnalyticsTracker";
 import {
   absoluteUrl,
   siteUrl,
@@ -287,6 +288,7 @@ function RootComponent() {
       <SiteFooter />
       <WhatsAppFab />
       <OfferDialog />
+      <AnalyticsTracker />
     </QueryClientProvider>
   );
 }

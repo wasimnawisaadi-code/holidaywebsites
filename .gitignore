@@ -41,3 +41,8 @@ scripts/__*
 
 # Vercel build output
 .vercel
+
+# Local environment (Supabase keys, admin password) — never commit
+.env
+.env.local
+.env.*.local
