@@ -23,15 +23,15 @@ export const countries: Country[] = [
   c({
     slug: "switzerland",
     gallery: [
-      "/images/destinations/switzerland-01.jpg",
-      "/images/destinations/switzerland-02.jpg",
-      "/images/destinations/switzerland-03.jpg",
-      "/images/destinations/switzerland-04.jpg",
+      "/images/destinations/swiss-matterhorn.jpg",
+      "/images/destinations/swiss-jungfraujoch.jpg",
+      "/images/destinations/swiss-lauterbrunnen.jpg",
+      "/images/destinations/swiss-lucerne.jpg",
     ],
     name: "Switzerland",
     region: "Europe",
     image:
-      "/images/destinations/switzerland-01.jpg",
+      "/images/destinations/swiss-matterhorn.jpg",
     tagline: "Alps, lakes and panoramic trains",
     blurb:
       "Glacier peaks, lakeside towns and the world's most scenic rail routes — the classic first trip to Europe from Dubai.",
@@ -49,15 +49,15 @@ export const countries: Country[] = [
   c({
     slug: "france",
     gallery: [
-      "/images/destinations/france-01.jpg",
-      "/images/destinations/france-02.jpg",
-      "/images/destinations/france-03.jpg",
-      "/images/destinations/france-04.jpg",
+      "/images/destinations/france-eiffel.jpg",
+      "/images/destinations/france-louvre.jpg",
+      "/images/destinations/france-nice.jpg",
+      "/images/destinations/france-monaco.jpg",
     ],
     name: "France",
     region: "Europe",
     image:
-      "/images/destinations/france-01.jpg",
+      "/images/destinations/france-eiffel.jpg",
     tagline: "Paris, Riviera and vineyard country",
     blurb:
       "Boulevards, museums and long lunches, with easy add-ons to Nice, Disneyland Paris and the Loire Valley.",
@@ -75,15 +75,15 @@ export const countries: Country[] = [
   c({
     slug: "italy",
     gallery: [
-      "/images/destinations/italy-01.jpg",
-      "/images/destinations/italy-02.jpg",
-      "/images/destinations/italy-03.jpg",
-      "/images/destinations/italy-g04.jpg",
+      "/images/destinations/italy-colosseum.jpg",
+      "/images/destinations/italy-venice.jpg",
+      "/images/destinations/italy-florence.jpg",
+      "/images/destinations/italy-trevi.jpg",
     ],
     name: "Italy",
     region: "Europe",
     image:
-      "/images/destinations/italy-01.jpg",
+      "/images/destinations/hero-italy.jpg",
     tagline: "Rome, Venice and the Amalfi coast",
     blurb:
       "Ancient Rome, canal mornings in Venice and coastline that looks unreal in every photograph.",
@@ -222,15 +222,15 @@ export const countries: Country[] = [
   c({
     slug: "greece",
     gallery: [
-      "/images/destinations/greece-01.jpg",
-      "/images/destinations/greece-02.jpg",
-      "/images/destinations/greece-g03.jpg",
-      "/images/destinations/greece-g05.jpg",
+      "/images/destinations/greece-oia.jpg",
+      "/images/destinations/greece-parthenon.jpg",
+      "/images/destinations/greece-caldera.jpg",
+      "/images/destinations/greece-mykonos.jpg",
     ],
     name: "Greece",
     region: "Europe",
     image:
-      "/images/destinations/greece-01.jpg",
+      "/images/destinations/greece-oia.jpg",
     tagline: "Athens ruins and island blue",
     blurb: "Acropolis mornings, Santorini sunsets and ferries between whitewashed islands.",
     nights: "6–8 nights",
@@ -247,15 +247,15 @@ export const countries: Country[] = [
   c({
     slug: "serbia",
     gallery: [
-      "/images/destinations/serbia-02.jpg",
-      "/images/destinations/serbia-g02.jpg",
-      "/images/destinations/serbia-g04.jpg",
-      "/images/destinations/serbia-g06.jpg",
+      "/images/destinations/serbia-kalemegdan.jpg",
+      "/images/destinations/serbia-saint-sava.jpg",
+      "/images/destinations/serbia-belgrade-waterfront.jpg",
+      "/images/destinations/serbia-uvac-canyon.jpg",
     ],
     name: "Serbia",
     region: "Europe",
     image:
-      "/images/destinations/serbia-02.jpg",
+      "/images/destinations/serbia-kalemegdan.jpg",
     tagline: "Belgrade nightlife, fortresses and Danube dining",
     blurb: "Bohemian cobblestone quarters, historic fortresses, and scenic riverside dining in Southeast Europe.",
     nights: "4–6 nights",
@@ -275,15 +275,15 @@ export const countries: Country[] = [
   c({
     slug: "japan",
     gallery: [
-      "/images/destinations/japan-01.jpg",
-      "/images/destinations/japan-02.jpg",
-      "/images/destinations/japan-03.jpg",
-      "/images/destinations/japan-04.jpg",
+      "/images/destinations/japan-chureito.jpg",
+      "/images/destinations/japan-fushimi.jpg",
+      "/images/destinations/japan-osaka-castle.jpg",
+      "/images/destinations/japan-shibuya.jpg",
     ],
     name: "Japan",
     region: "Asia",
     image:
-      "/images/destinations/japan-01.jpg",
+      "/images/destinations/hero-japan.jpg",
     tagline: "Neon cities and quiet temples",
     blurb:
       "Bullet trains between Tokyo's neon and Kyoto's temple gardens — cherry blossom or autumn colour.",
@@ -302,9 +302,9 @@ export const countries: Country[] = [
     slug: "indonesia",
     gallery: [
       "/images/destinations/hero-bali.jpg",
-      "/images/destinations/indonesia-02.jpg",
-      "/images/destinations/indonesia-03.jpg",
-      "/images/destinations/indonesia-04.jpg",
+      "/images/destinations/bali-bratan.jpg",
+      "/images/destinations/bali-nusa-penida.jpg",
+      "/images/destinations/bali-tanah-lot.jpg",
     ],
     name: "Indonesia",
     region: "Asia",
@@ -397,9 +397,9 @@ export const countries: Country[] = [
     slug: "maldives",
     gallery: [
       "/images/destinations/hero-maldives.jpg",
-      "/images/destinations/maldives-03.jpg",
-      "/images/destinations/maldives-p03.jpg",
-      "/images/destinations/maldives-p04.jpg",
+      "/images/destinations/maldives-villas.jpg",
+      "/images/destinations/maldives-lagoon.jpg",
+      "/images/destinations/maldives-island.jpg",
     ],
     name: "Maldives",
     region: "Asia",
@@ -423,9 +423,9 @@ export const countries: Country[] = [
     slug: "sri-lanka",
     gallery: [
       "/images/destinations/sri-lanka-nine-arch.jpg",
-      "/images/destinations/sri-lanka-01.jpg",
-      "/images/destinations/sri-lanka-02.jpg",
-      "/images/destinations/sri-lanka-g04.jpg",
+      "/images/destinations/sri-lanka-sigiriya.jpg",
+      "/images/destinations/sri-lanka-nuwara-eliya.jpg",
+      "/images/destinations/sri-lanka-galle-fort.jpg",
     ],
     name: "Sri Lanka",
     region: "Asia",
@@ -614,15 +614,15 @@ export const countries: Country[] = [
   c({
     slug: "egypt",
     gallery: [
-      "/images/destinations/egypt-01.jpg",
-      "/images/destinations/egypt-p02.jpg",
-      "/images/destinations/egypt-p03.jpg",
-      "/images/destinations/egypt-p04.jpg",
+      "/images/destinations/egypt-pyramids.jpg",
+      "/images/destinations/egypt-sphinx.jpg",
+      "/images/destinations/egypt-karnak.jpg",
+      "/images/destinations/egypt-abu-simbel.jpg",
     ],
     name: "Egypt",
     region: "Africa",
     image:
-      "/images/destinations/egypt-01.jpg",
+      "/images/destinations/egypt-pyramids.jpg",
     tagline: "Pyramids and Nile cruises",
     blurb: "Giza at sunrise, Luxor temples and a slow Nile cruise between them.",
     nights: "5–8 nights",
@@ -702,15 +702,15 @@ export const countries: Country[] = [
   c({
     slug: "turkey",
     gallery: [
-      "/images/destinations/turkey-01.jpg",
-      "/images/destinations/turkey-02.jpg",
-      "/images/destinations/turkey-04.jpg",
-      "/images/destinations/turkey-p04.jpg",
+      "/images/destinations/turkey-balloons.jpg",
+      "/images/destinations/turkey-hagia-sophia.jpg",
+      "/images/destinations/turkey-bosphorus.jpg",
+      "/images/destinations/turkey-chimneys.jpg",
     ],
     name: "Turkey",
     region: "Eurasia",
     image:
-      "/images/destinations/turkey-01.jpg",
+      "/images/destinations/turkey-balloons.jpg",
     tagline: "Istanbul and Cappadocia balloons",
     blurb: "Two continents, one city — plus sunrise balloons over fairy chimneys.",
     nights: "5–8 nights",
@@ -728,9 +728,9 @@ export const countries: Country[] = [
     slug: "georgia",
     gallery: [
       "/images/destinations/georgia-tbilisi.jpg",
-      "/images/destinations/georgia-01.jpg",
-      "/images/destinations/georgia-p03.jpg",
-      "/images/destinations/georgia-p04.jpg",
+      "/images/destinations/georgia-gergeti.jpg",
+      "/images/destinations/georgia-ananuri.jpg",
+      "/images/destinations/georgia-signagi.jpg",
     ],
     name: "Georgia",
     region: "Eurasia",
@@ -753,9 +753,9 @@ export const countries: Country[] = [
     slug: "azerbaijan",
     gallery: [
       "/images/destinations/azerbaijan-baku.jpg",
-      "/images/destinations/azerbaijan-01.jpg",
-      "/images/destinations/azerbaijan-p03.jpg",
-      "/images/destinations/azerbaijan-p04.jpg",
+      "/images/destinations/baku-flame-towers.jpg",
+      "/images/destinations/baku-heydar-aliyev.jpg",
+      "/images/destinations/baku-maiden-tower.jpg",
     ],
     name: "Azerbaijan",
     region: "Eurasia",

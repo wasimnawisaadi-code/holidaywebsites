@@ -1,7 +1,4 @@
-Photo credits — freely licensed destination imagery sourced from Wikimedia Commons.
-
-These five replaced Unsplash URLs that showed the wrong country entirely
-(e.g. the Uzbekistan card was showing Mount Bromo, Indonesia).
+Photo credits — freely licensed destination imagery sourced from Wikimedia Commons and Unsplash.
 
 armenia-yerevan-ararat.jpg
     "Mount Ararat and the Yerevan skyline in spring from the Cascade"
@@ -23,15 +20,33 @@ sri-lanka-nine-arch.jpg
     "Nine-Arch Bridge in Sri Lanka" — Ella
     CC BY-SA 4.0 — via Wikimedia Commons
 
-High-resolution replacements for three soft 1000x1333 originals.
-Freely licensed, via Wikimedia Commons.
+sri-lanka-sigiriya.jpg
+    "Sigiriya Rock Fortress"
+    CC BY-SA 4.0 — via Wikimedia Commons
 
-hero-italy.jpg
-    Colosseum, Rome — Wikimedia Commons
-    itinerary: Rome · Vatican · Florence · Pisa · Venice
+sri-lanka-nuwara-eliya.jpg
+    "Tea plantations near Nuwara Eliya"
+    CC BY-SA 3.0 — via Wikimedia Commons
 
-High-resolution replacements for three soft 1000x1333 originals.
-Freely licensed, via Wikimedia Commons.
+sri-lanka-galle-fort.jpg
+    "Galle Fort Lighthouse"
+    CC BY-SA 2.0 — via Wikimedia Commons
+
+serbia-kalemegdan.jpg
+    "Belgrade Fortress Kalemegdan"
+    CC BY-SA 4.0 — via Wikimedia Commons
+
+serbia-saint-sava.jpg
+    "Temple of Saint Sava Belgrade"
+    CC BY-SA 4.0 — via Wikimedia Commons
+
+serbia-belgrade-waterfront.jpg
+    "Belgrade Waterfront"
+    CC BY-SA 4.0 — via Wikimedia Commons
+
+serbia-uvac-canyon.jpg
+    "Special Nature Reserve Uvac River Canyon"
+    CC BY-SA 4.0 — via Wikimedia Commons
 
 hero-bali.jpg
     Tegallalang rice terraces, Ubud, Bali — Wikimedia Commons
@@ -44,3 +59,6 @@ hero-italy.jpg
 hero-japan.jpg
     Chureito Pagoda and Mount Fuji — Wikimedia Commons
     itinerary: Tokyo · Mt. Fuji · Hakone · Kyoto · Osaka
+
+hero-maldives.jpg
+    Maldives overwater villas and turquoise atoll lagoon

@@ -512,7 +512,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 5499,
-    "image": "/images/destinations/hero-switzerland.jpg",
+    "image": "/images/destinations/swiss-matterhorn.jpg",
     "intro": "Seven days across turquoise lakes, glacier peaks and postcard villages, travelling on Switzerland's world-famous scenic rail network.",
     "story": "Wake up to lake mist in Lucerne, ascend above the clouds to Jungfraujoch (Top of Europe), and watch the Alps glide past panoramic train windows.",
     "highlights": [
@@ -5135,7 +5135,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 1990,
-    "image": "/images/destinations/serbia-02.jpg",
+    "image": "/images/destinations/serbia-kalemegdan.jpg",
     "intro": "Just 5 hours direct from Dubai: explore the majestic Kalemegdan Fortress overlooking the confluence of the Danube and Sava rivers, grand Orthodox temples, and vibrant café culture.",
     "story": "Discover the crossroads of Central Europe and the Balkans in Belgrade: from the colossal Church of Saint Sava and bohemian Skadarlija cobblestone alleys to the Austro-Hungarian fortresses of Novi Sad.",
     "highlights": [
