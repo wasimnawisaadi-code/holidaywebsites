@@ -295,20 +295,6 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const router = useRouter();
-  const pathname = router.state?.location?.pathname ?? "";
-  const isAdmin = pathname.startsWith("/admin");
-
-  if (isAdmin) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <main id="main">
-          {/* Admin portal renders clean without public website header/footer */}
-          <Outlet />
-        </main>
-      </QueryClientProvider>
-    );
-  }
 
   return (
     <QueryClientProvider client={queryClient}>

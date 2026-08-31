@@ -1,20 +1,15 @@
 import { useEffect, useState } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import { MessageCircle } from "lucide-react";
 import { BRAND, waLink } from "@/data/catalogue";
 import { cn } from "@/lib/utils";
 
 /**
  * Floating WhatsApp button.
- *
- * Hidden until the page has scrolled clear of the first viewport. Pinned to the
- * bottom-right from the very first paint, it landed on top of the hero's own
- * call-to-action row and the enquiry bar beneath it — two competing WhatsApp
- * buttons in the same corner, with the floating one covering the search submit.
- * The hero already offers "Talk to a specialist", so the FAB only needs to
- * appear once that has scrolled away.
  */
 export function WhatsAppFab({ message }: { message?: string }) {
   const [shown, setShown] = useState(false);
+  const pathname = useRouterState({ select: (s) => s?.location?.pathname ?? "" });
 
   useEffect(() => {
     const onScroll = () => setShown(window.scrollY > window.innerHeight * 0.9);
@@ -22,6 +17,8 @@ export function WhatsAppFab({ message }: { message?: string }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <a

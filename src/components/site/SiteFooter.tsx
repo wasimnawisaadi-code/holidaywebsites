@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Phone, Mail, MapPin, MessageCircle, ArrowRight } from "lucide-react";
 import logoImg from "@/assets/logo-ink.png";
 import { HorizonSilhouette } from "@/components/site/HorizonSilhouette";
@@ -47,6 +47,9 @@ const COLUMNS = [
 ] as const;
 
 export function SiteFooter() {
+  const pathname = useRouterState({ select: (s) => s?.location?.pathname ?? "" });
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <footer className="bg-[#F8F8F8]">
       {/* Horizon band. Sits on the page background above the footer and reads as

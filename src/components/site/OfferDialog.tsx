@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle, X, Clock, MapPin } from "lucide-react";
 import { packages, priceParts, waLink } from "@/data/catalogue";
 import { cn } from "@/lib/utils";
@@ -46,10 +46,13 @@ function markSeen() {
 }
 
 export function OfferDialog() {
+  const pathname = useRouterState({ select: (s) => s?.location?.pathname ?? "" });
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const restoreTo = useRef<Element | null>(null);
+
+  if (pathname.startsWith("/admin")) return null;
 
   const pkg = packages.find((p) => p.slug === FEATURED_SLUG);
 

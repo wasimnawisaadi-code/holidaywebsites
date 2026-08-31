@@ -32,6 +32,7 @@ export function SiteHeader() {
   // light, so keeping the header dark for the whole route (as it did before)
   // left a black bar floating over cream sections.
   const pathname = useRouterState({ select: (s) => s?.location?.pathname ?? "" });
+  if (pathname.startsWith("/admin")) return null;
   const hasVideoHero = pathname === "/";
   const transparent = hasVideoHero && !scrolled && !openMenu && !mobileOpen;
   const isLightText = transparent;
