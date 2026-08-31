@@ -30,15 +30,20 @@ const COOKIE = "ns_admin";
 
 /** Reads the dashboard, but only for a request carrying a valid session. */
 const getDashboard = createServerFn({ method: "GET" }).handler(async () => {
-  const { loadDashboard, adminConfigured } = await import("@/lib/admin-data");
-  const { sessionFromToken } = await import("@/lib/admin-auth");
-  const { getCookie } = await import("@tanstack/react-start/server");
+  try {
+    const { loadDashboard, adminConfigured } = await import("@/lib/admin-data");
+    const { sessionFromToken } = await import("@/lib/admin-auth");
+    const { getCookie } = await import("@tanstack/react-start/server");
 
-  const session = await sessionFromToken(getCookie(COOKIE));
-  if (!session) return { authed: false as const, configured: adminConfigured() };
+    const session = await sessionFromToken(getCookie(COOKIE));
+    if (!session) return { authed: false as const, configured: adminConfigured() };
 
-  const data = await loadDashboard();
-  return { authed: true as const, configured: data.configured, data, who: session.email };
+    const data = await loadDashboard();
+    return { authed: true as const, configured: data.configured, data, who: session.email };
+  } catch (err) {
+    console.error("Admin dashboard handler error:", err);
+    return { authed: false as const, configured: false };
+  }
 });
 
 /** Verifies the password and, on success, sets the session cookie. */
@@ -102,8 +107,15 @@ export const Route = createFileRoute("/admin")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  loader: () => getDashboard(),
+  loader: async () => {
+    try {
+      return await getDashboard();
+    } catch {
+      return { authed: false as const, configured: false };
+    }
+  },
   component: AdminPage,
+  errorComponent: () => <SignIn configured={false} />,
 });
 
 function AdminPage() {

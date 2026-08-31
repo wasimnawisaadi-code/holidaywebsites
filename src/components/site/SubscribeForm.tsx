@@ -69,10 +69,10 @@ export function SubscribeForm({
           "Content-Type": "application/json",
           apikey: ANON_KEY,
           Authorization: `Bearer ${ANON_KEY}`,
-          Prefer: "resolution=merge-duplicates,return=minimal",
+          Prefer: "return=minimal",
         },
         body: JSON.stringify({
-          email: value,
+          email: value.toLowerCase(),
           source,
           path: window.location.pathname,
           referrer: document.referrer ? new URL(document.referrer).origin : null,
@@ -81,9 +81,13 @@ export function SubscribeForm({
         }),
       });
 
-      if (!res.ok) throw new Error(String(res.status));
-      setState("done");
-      track("cta_click", { action: "subscribe", source, email_domain: value.split("@")[1] });
+      // 201 Created or 409 Conflict (already subscribed) are both considered a success
+      if (res.ok || res.status === 409) {
+        setState("done");
+        track("cta_click", { action: "subscribe", source, email_domain: value.split("@")[1] });
+      } else {
+        throw new Error(String(res.status));
+      }
     } catch {
       setState("error");
     }

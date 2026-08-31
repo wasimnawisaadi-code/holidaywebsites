@@ -46,17 +46,22 @@ export function checkPassword(supplied: string): boolean {
 }
 
 async function rest<T>(pathAndQuery: string): Promise<T[]> {
-  const c = config();
-  if (!c) return [];
-  const res = await fetch(`${c.url}/rest/v1/${pathAndQuery}`, {
-    headers: {
-      apikey: c.key,
-      Authorization: `Bearer ${c.key}`,
-      Accept: "application/json",
-    },
-  });
-  if (!res.ok) return [];
-  return (await res.json()) as T[];
+  try {
+    const c = config();
+    if (!c || !c.url || !c.key) return [];
+    const res = await fetch(`${c.url}/rest/v1/${pathAndQuery}`, {
+      headers: {
+        apikey: c.key,
+        Authorization: `Bearer ${c.key}`,
+        Accept: "application/json",
+      },
+    });
+    if (!res.ok) return [];
+    return (await res.json().catch(() => [])) as T[];
+  } catch (err) {
+    console.error("Supabase REST error:", err);
+    return [];
+  }
 }
 
 export type EventRow = {

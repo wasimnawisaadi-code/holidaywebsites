@@ -37,7 +37,7 @@ export async function submitLead(payload: LeadPayload): Promise<{ ok: boolean; s
         "Content-Type": "application/json",
         apikey: ANON_KEY,
         Authorization: `Bearer ${ANON_KEY}`,
-        Prefer: "resolution=merge-duplicates,return=minimal",
+        Prefer: "return=minimal",
       },
       body: JSON.stringify({
         email: payload.email.trim().toLowerCase(),
