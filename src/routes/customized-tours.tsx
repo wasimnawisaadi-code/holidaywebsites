@@ -16,6 +16,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { cn } from "@/lib/utils";
 import { absoluteUrl } from "@/lib/site";
+import { submitLead } from "@/lib/leads";
 
 const title = `Customized Tours & Tailor-Made Holidays | ${BRAND.short}`;
 const description =
@@ -383,6 +384,22 @@ function CustomizedToursPage() {
               href={waLink(message)}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => {
+                submitLead({
+                  email: `custom-tour-${Date.now()}@lead.nawisaadiholidays.com`,
+                  source: "custom_tour",
+                  path: "/customized-tours",
+                  detail: {
+                    type: tripTypes.find((t) => t.id === type)?.label,
+                    destination: dest || "Open",
+                    dates: dates || "Flexible",
+                    travellers: pax,
+                    style,
+                    budget,
+                    inclusions: incl,
+                  },
+                }).catch(() => {});
+              }}
               className="mt-7 flex items-center justify-center gap-2 rounded-sm bg-[#00365F] px-5 py-3.5 font-sans text-sm font-semibold text-white transition-colors hover:bg-[#8F7420]"
             >
               <MessageCircle className="size-4" aria-hidden />

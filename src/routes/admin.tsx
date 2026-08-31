@@ -55,20 +55,23 @@ const signIn = createServerFn({ method: "POST" })
         maxAge: 60 * 60 * 8,
       });
 
-    const result = await signInWithPassword(data.email, data.password);
-    if (result.ok) {
-      store(result.token);
-      return { ok: true as const };
-    }
-
-    // Fallback for a deployment with no Supabase: a shared password, entered
-    // in the password field with the email left blank.
-    if (!data.email && checkPassword(data.password)) {
+    // 1. Direct shared admin password check
+    if (checkPassword(data.password)) {
       store(data.password);
       return { ok: true as const };
     }
 
-    return { ok: false as const, reason: result.reason };
+    // 2. Supabase Auth when email is provided
+    if (data.email) {
+      const result = await signInWithPassword(data.email, data.password);
+      if (result.ok) {
+        store(result.token);
+        return { ok: true as const };
+      }
+      return { ok: false as const, reason: result.reason };
+    }
+
+    return { ok: false as const, reason: "Incorrect admin password." };
   });
 
 /** Moves a lead through the pipeline. Re-checks auth on every call. */
@@ -147,19 +150,24 @@ function SignIn({ configured }: { configured: boolean }) {
           </p>
         ) : null}
 
+        <p className="mt-4 rounded-xl bg-slate-50 p-3 font-sans text-xs text-[#00365F]">
+          Enter your <span className="font-semibold text-[#CAA42D]">Admin Password</span> below to sign in directly.
+        </p>
+
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
+          placeholder="Admin Email (optional)"
           autoComplete="username"
-          className="mt-6 w-full rounded-xl border border-[#E5E5E5] px-4 py-3 font-sans text-sm outline-none focus:border-[#CAA42D]"
+          className="mt-4 w-full rounded-xl border border-[#E5E5E5] px-4 py-3 font-sans text-sm outline-none focus:border-[#CAA42D]"
         />
         <input
           type="password"
+          required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          placeholder="Admin Password"
           autoComplete="current-password"
           className="mt-3 w-full rounded-xl border border-[#E5E5E5] px-4 py-3 font-sans text-sm outline-none focus:border-[#CAA42D]"
         />

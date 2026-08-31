@@ -7,6 +7,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { cn } from "@/lib/utils";
 import { absoluteUrl } from "@/lib/site";
+import { submitLead } from "@/lib/leads";
 
 type Search = { pkg?: string | undefined };
 
@@ -194,13 +195,33 @@ function ContactPage() {
 
       <section className="mx-auto mt-14 grid max-w-[1400px] gap-8 px-5 sm:px-8 lg:grid-cols-[1fr_360px]">
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             if (step < steps.length - 1) {
               setStep(step + 1);
               return;
             }
-            setRef(`NS-${Math.random().toString(36).slice(2, 7).toUpperCase()}`);
+            const generatedRef = `NS-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+            setRef(generatedRef);
+            if (form.email || form.phone) {
+              await submitLead({
+                email: form.email || `${generatedRef.toLowerCase()}@lead.nawisaadiholidays.com`,
+                name: form.name,
+                phone: form.phone,
+                source: "contact_enquiry",
+                path: window.location.pathname,
+                detail: {
+                  package: selectedPkg ? selectedPkg.title : "Custom trip",
+                  packageSlug: form.pkg || null,
+                  dates: `${form.from || "Flexible"}${form.to ? ` to ${form.to}` : ""}`,
+                  adults: form.adults,
+                  children: form.children,
+                  budget: form.budget,
+                  reference: generatedRef,
+                },
+                notes: form.notes || null,
+              });
+            }
           }}
           className="glass min-w-0 rounded-3xl p-6 sm:p-8"
         >

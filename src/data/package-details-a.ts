@@ -193,7 +193,7 @@ export const packageDetailsA: Record<string, PackageDetail> = {
       "/images/destinations/umrah-quba.jpg",
       "/images/destinations/umrah-haram.jpg",
       "/images/destinations/umrah-clock-tower.jpg",
-      "/images/destinations/umrah-quba.jpg"
+      "/images/destinations/saudi-arabia-p04.jpg"
     ],
     "dayBlocks": [
       {

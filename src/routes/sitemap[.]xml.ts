@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { countries } from "@/data/countries";
 import { packages } from "@/data/catalogue";
+import { inboundActivities } from "@/data/inbound";
 
 // Resolved from SITE_URL / Vercel env, falling back to the production domain.
 // This shipped as an empty string, which emitted sitemap entries no crawler
@@ -39,6 +40,11 @@ export const Route = createFileRoute("/sitemap.xml")({
           })),
           ...packages.map((p) => ({
             path: `/holidays/${p.slug}`,
+            changefreq: "weekly" as const,
+            priority: "0.8",
+          })),
+          ...inboundActivities.map((a) => ({
+            path: `/activities/${a.slug}`,
             changefreq: "weekly" as const,
             priority: "0.8",
           })),
