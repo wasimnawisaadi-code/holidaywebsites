@@ -1,25 +1,30 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  Activity, MessageCircle, Users, Eye, Smartphone, Globe, Clock, RefreshCw, Lock, Mail,
+  Activity,
+  MessageCircle,
+  Users,
+  Eye,
+  Smartphone,
+  Globe,
+  Clock,
+  RefreshCw,
+  Lock,
+  Mail,
+  Search,
+  Download,
+  Check,
+  Filter,
+  Phone,
+  ExternalLink,
+  MessageSquare,
+  Copy,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Dashboard } from "@/lib/admin-data";
-
-/**
- * Admin dashboard.
- *
- * Everything that touches Supabase runs in a server function. The service role
- * key bypasses Row Level Security, so it stays on the server: the browser only
- * ever receives the aggregated numbers, never the credential.
- *
- * Auth is a single shared password checked server-side. The password is never
- * compared in the browser and never appears in the bundle. It is held in a
- * cookie after a successful check so a refresh does not log you out.
- *
- * The page is noindex — an analytics dashboard has no business in search.
- */
+import type { Dashboard, Lead } from "@/lib/admin-data";
 
 const COOKIE = "ns_admin";
 
@@ -48,8 +53,6 @@ const signIn = createServerFn({ method: "POST" })
       setCookie(COOKIE, token, {
         httpOnly: true,
         sameSite: "lax",
-        // Secure would make the cookie unusable over plain-HTTP localhost, so
-        // it is enabled only where the connection actually is HTTPS.
         secure: process.env["NODE_ENV"] === "production",
         path: "/",
         maxAge: 60 * 60 * 8,
@@ -81,8 +84,6 @@ const saveLead = createServerFn({ method: "POST" })
     const { updateLead } = await import("@/lib/admin-data");
     const { sessionFromToken } = await import("@/lib/admin-auth");
     const { getCookie } = await import("@tanstack/react-start/server");
-    // Re-checked here too: a server function is a public endpoint, and being
-    // rendered inside an authenticated page proves nothing about the caller.
     if (!(await sessionFromToken(getCookie(COOKIE)))) return { ok: false as const };
     const { id, ...patch } = data;
     return { ok: await updateLead(id, patch) };
@@ -97,7 +98,7 @@ const signOut = createServerFn({ method: "POST" }).handler(async () => {
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Admin — Nawi Saadi" },
+      { title: "Executive Admin Dashboard — Nawi Saadi Holidays" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -108,7 +109,7 @@ export const Route = createFileRoute("/admin")({
 function AdminPage() {
   const state = Route.useLoaderData();
   if (!state.authed) return <SignIn configured={state.configured} />;
-  return <Dashboard data={state.data} who={state.who} />;
+  return <DashboardView data={state.data} who={state.who} />;
 }
 
 function SignIn({ configured }: { configured: boolean }) {
@@ -125,8 +126,6 @@ function SignIn({ configured }: { configured: boolean }) {
     const res = await signIn({ data: { email: email.trim(), password } });
     setBusy(false);
     if (res.ok) router.invalidate();
-    // Supabase's own message is shown rather than a generic failure — "email
-    // not confirmed" and "wrong password" need different actions.
     else setError(res.reason ?? "Sign in failed.");
   };
 
@@ -134,24 +133,21 @@ function SignIn({ configured }: { configured: boolean }) {
     <div className="flex min-h-screen items-center justify-center bg-[#00365F] px-5">
       <form onSubmit={submit} className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl">
         <div className="flex items-center gap-2 text-[#00365F]">
-          <Lock className="size-4 text-[#CAA42D]" />
-          <h1 className="font-display text-2xl">Admin</h1>
+          <Lock className="size-5 text-[#CAA42D]" />
+          <h1 className="font-display text-2xl font-bold">Admin Portal</h1>
         </div>
         <p className="mt-2 font-sans text-xs text-[#666666]">
-          Activity, leads and audit log for nawisaadiholidays.com
+          Executive leads, analytics & WhatsApp monitoring for Nawi Saadi Holidays
         </p>
 
         {!configured ? (
-          <p className="mt-5 rounded-xl bg-amber-50 p-3 font-sans text-xs leading-relaxed text-amber-900">
-            Supabase is not configured on this deployment. Set{" "}
-            <code className="font-mono">SUPABASE_URL</code>,{" "}
-            <code className="font-mono">SUPABASE_SERVICE_ROLE_KEY</code> and{" "}
-            <code className="font-mono">ADMIN_PASSWORD</code>.
+          <p className="mt-4 rounded-xl bg-amber-50 p-3 font-sans text-xs leading-relaxed text-amber-900">
+            Supabase connection pending. Enter your <code className="font-mono font-bold">ADMIN_PASSWORD</code> to sign in.
           </p>
         ) : null}
 
         <p className="mt-4 rounded-xl bg-slate-50 p-3 font-sans text-xs text-[#00365F]">
-          Enter your <span className="font-semibold text-[#CAA42D]">Admin Password</span> below to sign in directly.
+          Enter your <span className="font-semibold text-[#CAA42D]">Admin Password</span> to sign in directly.
         </p>
 
         <input
@@ -171,46 +167,92 @@ function SignIn({ configured }: { configured: boolean }) {
           autoComplete="current-password"
           className="mt-3 w-full rounded-xl border border-[#E5E5E5] px-4 py-3 font-sans text-sm outline-none focus:border-[#CAA42D]"
         />
-        {error ? <p className="mt-2 font-sans text-xs text-red-600">{error}</p> : null}
+        {error ? <p className="mt-2 font-sans text-xs font-semibold text-red-600">{error}</p> : null}
 
         <button
           type="submit"
           disabled={busy}
-          className="mt-4 w-full rounded-xl bg-[#00365F] px-6 py-3 font-sans text-sm font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F] disabled:opacity-60"
+          className="mt-5 w-full rounded-xl bg-[#00365F] px-6 py-3.5 font-sans text-sm font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F] disabled:opacity-60 shadow-md"
         >
-          {busy ? "Checking…" : "Sign in"}
+          {busy ? "Authenticating…" : "Sign In to Admin"}
         </button>
       </form>
     </div>
   );
 }
 
-function Dashboard({ data, who }: { data: Dashboard; who?: string }) {
+type TabType = "overview" | "leads" | "whatsapp" | "sessions";
+
+function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
   const router = useRouter();
+  const [tab, setTab] = useState<TabType>("leads");
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8] px-5 py-10 sm:px-8">
-      <div className="mx-auto max-w-[1400px]">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8F7420]">
-              Activity
-            </p>
-            <h1 className="mt-2 font-display text-3xl text-[#00365F] sm:text-4xl">
-              Everything happening on the site
-            </h1>
-          </div>
+    <div className="min-h-screen bg-[#F4F6F8] pb-20">
+      {/* Top Navigation Bar */}
+      <header className="sticky top-0 z-30 border-b border-[#E2E8F0] bg-white/95 px-5 py-4 backdrop-blur-md sm:px-8">
+        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            {who ? (
-              <span className="font-sans text-xs text-[#666666]">{who}</span>
-            ) : null}
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[#00365F] text-[#CAA42D] font-bold">
+              NS
+            </div>
+            <div>
+              <h1 className="font-display text-xl font-bold text-[#00365F]">
+                Nawi Saadi Operations
+              </h1>
+              <p className="font-sans text-[11px] text-[#666666]">
+                Live Production Management · {who ? <span className="font-medium text-[#00365F]">{who}</span> : "Admin"}
+              </p>
+            </div>
+          </div>
+
+          {/* Tab Navigation */}
+          <nav className="flex items-center gap-1 rounded-2xl bg-[#F1F5F9] p-1">
+            {[
+              { id: "leads", label: "Leads & Enquiries", count: data.leads.length, icon: Mail },
+              { id: "whatsapp", label: "WhatsApp Intent Log", count: data.totals.whatsapp, icon: MessageCircle },
+              { id: "overview", label: "Analytics Overview", icon: Activity },
+              { id: "sessions", label: "Live Visitor Feed", count: data.recent.length, icon: Users },
+            ].map((t) => {
+              const Icon = t.icon;
+              const active = tab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setTab(t.id as TabType)}
+                  className={cn(
+                    "flex items-center gap-2 rounded-xl px-3.5 py-2 font-sans text-xs font-bold transition-all",
+                    active
+                      ? "bg-[#00365F] text-white shadow-sm"
+                      : "text-[#475569] hover:bg-white/60 hover:text-[#00365F]",
+                  )}
+                >
+                  <Icon className={cn("size-3.5", active ? "text-[#CAA42D]" : "text-[#64748B]")} />
+                  <span>{t.label}</span>
+                  {t.count !== undefined ? (
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-[10px]",
+                        active ? "bg-white/20 text-white" : "bg-[#E2E8F0] text-[#475569]",
+                      )}
+                    >
+                      {t.count}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => router.invalidate()}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#00365F] px-5 py-2.5 font-sans text-xs font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F]"
+              className="inline-flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-3.5 py-2 font-sans text-xs font-semibold text-[#00365F] shadow-sm transition-colors hover:border-[#CAA42D] hover:bg-[#CAA42D]/10"
             >
-              <RefreshCw className="size-3.5" />
-              Refresh
+              <RefreshCw className="size-3.5 text-[#CAA42D]" />
+              <span>Refresh</span>
             </button>
             <button
               type="button"
@@ -218,252 +260,596 @@ function Dashboard({ data, who }: { data: Dashboard; who?: string }) {
                 await signOut();
                 router.invalidate();
               }}
-              className="rounded-xl border border-[#E5E5E5] px-4 py-2.5 font-sans text-xs font-semibold text-[#666666] transition-colors hover:border-[#CAA42D] hover:text-[#00365F]"
+              className="rounded-xl border border-[#E2E8F0] bg-white px-3.5 py-2 font-sans text-xs font-semibold text-red-600 shadow-sm transition-colors hover:bg-red-50"
             >
-              Sign out
+              Sign Out
             </button>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Stat icon={MessageCircle} label="WhatsApp clicks" value={data.totals.whatsapp} accent />
-          <Stat icon={Users} label="Sessions" value={data.totals.sessions} />
-          <Stat icon={Eye} label="Page views" value={data.totals.pageViews} />
-          <Stat icon={Activity} label="Events logged" value={data.totals.events} />
-          <Stat icon={Mail} label="Leads captured" value={data.leads.length} accent />
+      {/* Main Content Area */}
+      <main className="mx-auto max-w-[1500px] px-5 pt-8 sm:px-8">
+        {/* KPI Banner */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <KpiCard
+            icon={Mail}
+            label="Total Customer Leads"
+            value={data.leads.length}
+            note="Subscribers & Enquiries"
+            accent
+          />
+          <KpiCard
+            icon={MessageCircle}
+            label="WhatsApp Enquiries"
+            value={data.totals.whatsapp}
+            note="Direct chats initiated"
+          />
+          <KpiCard
+            icon={Users}
+            label="Unique Visitors"
+            value={data.totals.sessions}
+            note="Tracked browser sessions"
+          />
+          <KpiCard
+            icon={Eye}
+            label="Page Views"
+            value={data.totals.pageViews}
+            note="Destination & tour views"
+          />
+          <KpiCard
+            icon={Activity}
+            label="Total Interactions"
+            value={data.totals.events}
+            note="Button clicks & browsing"
+          />
         </div>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <Panel title="WhatsApp clicks by page" icon={MessageCircle}>
-            {data.whatsappContexts.length ? (
-              <ul className="divide-y divide-[#E5E5E5]">
-                {data.whatsappContexts.map((c) => (
-                  <li key={c.context} className="flex items-start justify-between gap-4 py-2.5">
-                    <div className="min-w-0">
-                      <p className="truncate font-mono text-xs text-[#00365F]">{c.context}</p>
-                      {c.intent ? (
-                        <p className="mt-0.5 truncate font-sans text-[11px] text-[#666666]">
-                          {c.intent}
-                        </p>
-                      ) : null}
-                    </div>
-                    <span className="shrink-0 font-display text-lg font-bold text-[#CAA42D]">
-                      {c.count}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <Empty />
-            )}
-          </Panel>
+        {tab === "leads" && (
+          <LeadsManager leads={data.leads} byStatus={data.leadsByStatus} bySource={data.leadsBySource} />
+        )}
 
-          <Panel title="Most viewed pages" icon={Eye}>
-            <Bars rows={data.topPaths.map((p) => ({ label: p.path, count: p.count }))} />
-          </Panel>
+        {tab === "whatsapp" && <WhatsAppIntentLog contexts={data.whatsappContexts} events={data.recent} />}
 
-          <Panel title="Event types" icon={Activity}>
-            <Bars rows={data.byType.map((t) => ({ label: t.type, count: t.count }))} />
-          </Panel>
+        {tab === "overview" && <AnalyticsOverview data={data} />}
 
-          <Panel title="Devices" icon={Smartphone}>
-            <Bars rows={data.byDevice.map((d) => ({ label: d.device, count: d.count }))} />
-          </Panel>
+        {tab === "sessions" && <SessionsFeed recent={data.recent} />}
+      </main>
+    </div>
+  );
+}
 
-          <Panel title="Where visitors come from" icon={Globe}>
-            <Bars rows={data.byReferrer.map((r) => ({ label: r.referrer, count: r.count }))} />
-          </Panel>
-
-          <Panel title="Last 14 days" icon={Clock}>
-            <Bars rows={data.byDay.map((d) => ({ label: d.day, count: d.count }))} />
-          </Panel>
-        </div>
-
-        <LeadsPanel leads={data.leads} byStatus={data.leadsByStatus} bySource={data.leadsBySource} />
-
-        <Panel title="Audit log — most recent 150 events" icon={Activity} className="mt-6">
-          {data.recent.length ? (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[820px] border-collapse font-sans text-xs">
-                <thead>
-                  <tr className="border-b border-[#E5E5E5] text-left text-[#666666]">
-                    <th className="py-2 pr-4 font-semibold">When</th>
-                    <th className="py-2 pr-4 font-semibold">Event</th>
-                    <th className="py-2 pr-4 font-semibold">Path</th>
-                    <th className="py-2 pr-4 font-semibold">Device</th>
-                    <th className="py-2 pr-4 font-semibold">Session</th>
-                    <th className="py-2 font-semibold">Detail</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.recent.map((e) => (
-                    <tr key={e.id} className="border-b border-[#F1F1F1] align-top">
-                      <td className="whitespace-nowrap py-2 pr-4 text-[#666666]">
-                        {new Date(e.created_at).toLocaleString()}
-                      </td>
-                      <td className="py-2 pr-4">
-                        <span
-                          className={cn(
-                            "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                            e.type === "whatsapp_click"
-                              ? "bg-[#CAA42D]/20 text-[#8F7420]"
-                              : "bg-[#00365F]/8 text-[#00365F]",
-                          )}
-                        >
-                          {e.type}
-                        </span>
-                      </td>
-                      <td className="max-w-[220px] truncate py-2 pr-4 font-mono text-[#00365F]">
-                        {e.path}
-                      </td>
-                      <td className="py-2 pr-4 text-[#666666]">{e.device}</td>
-                      <td className="py-2 pr-4 font-mono text-[10px] text-[#999]">
-                        {e.session_id?.slice(0, 8)}
-                      </td>
-                      <td className="max-w-[320px] truncate py-2 font-mono text-[10px] text-[#666666]">
-                        {JSON.stringify(e.meta)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <Empty />
+function KpiCard({
+  icon: Icon,
+  label,
+  value,
+  note,
+  accent = false,
+}: {
+  icon: typeof Activity;
+  label: string;
+  value: number;
+  note?: string;
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border p-5 shadow-sm transition-all",
+        accent
+          ? "border-[#CAA42D]/40 bg-gradient-to-br from-white to-[#CAA42D]/10"
+          : "border-[#E2E8F0] bg-white",
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <span className="font-sans text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+          {label}
+        </span>
+        <div
+          className={cn(
+            "flex size-8 items-center justify-center rounded-lg",
+            accent ? "bg-[#CAA42D] text-[#00365F]" : "bg-[#00365F]/10 text-[#00365F]",
           )}
-        </Panel>
+        >
+          <Icon className="size-4" />
+        </div>
       </div>
+      <p className="mt-3 font-display text-3xl font-extrabold text-[#00365F]">
+        {value.toLocaleString()}
+      </p>
+      {note ? <p className="mt-1 font-sans text-xs text-[#94A3B8]">{note}</p> : null}
     </div>
   );
 }
 
 const STATUSES = ["new", "contacted", "quoted", "booked", "closed"] as const;
 
-function LeadsPanel({
-  leads, byStatus, bySource,
+function LeadsManager({
+  leads,
+  byStatus,
+  bySource,
 }: {
-  leads: Dashboard["leads"];
+  leads: Lead[];
   byStatus: Dashboard["leadsByStatus"];
   bySource: Dashboard["leadsBySource"];
 }) {
   const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [busy, setBusy] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
 
-  const setStatus = async (id: number, status: string) => {
+  const filtered = useMemo(() => {
+    return leads.filter((l) => {
+      if (statusFilter !== "all" && l.status !== statusFilter) return false;
+      if (sourceFilter !== "all" && l.source !== sourceFilter) return false;
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      const ref = String(l.detail?.["reference"] ?? "");
+      const pkg = String(l.detail?.["package"] ?? "");
+      return (
+        l.email.toLowerCase().includes(q) ||
+        (l.name && l.name.toLowerCase().includes(q)) ||
+        (l.phone && l.phone.includes(q)) ||
+        ref.toLowerCase().includes(q) ||
+        pkg.toLowerCase().includes(q) ||
+        (l.notes && l.notes.toLowerCase().includes(q))
+      );
+    });
+  }, [leads, search, statusFilter, sourceFilter]);
+
+  const updateStatus = async (id: number, status: string) => {
     setBusy(id);
     await saveLead({ data: { id, status } });
     setBusy(null);
     router.invalidate();
   };
 
-  return (
-    <Panel title="Leads — subscribers and enquiries" icon={Mail} className="mt-6">
-      {leads.length ? (
-        <>
-          <div className="mb-5 flex flex-wrap gap-2">
-            {byStatus.map((s) => (
-              <span
-                key={s.status}
-                className="rounded-full bg-[#00365F]/8 px-3 py-1 font-sans text-[11px] font-bold uppercase tracking-wide text-[#00365F]"
-              >
-                {s.status} {s.count}
-              </span>
-            ))}
-            {bySource.map((s) => (
-              <span
-                key={s.source}
-                className="rounded-full bg-[#CAA42D]/15 px-3 py-1 font-sans text-[11px] font-bold uppercase tracking-wide text-[#8F7420]"
-              >
-                {s.source} {s.count}
-              </span>
-            ))}
-          </div>
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] border-collapse font-sans text-xs">
-              <thead>
-                <tr className="border-b border-[#E5E5E5] text-left text-[#666666]">
-                  <th className="py-2 pr-4 font-semibold">When</th>
-                  <th className="py-2 pr-4 font-semibold">Email</th>
-                  <th className="py-2 pr-4 font-semibold">Source</th>
-                  <th className="py-2 pr-4 font-semibold">From page</th>
-                  <th className="py-2 font-semibold">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leads.map((l) => (
-                  <tr key={l.id} className="border-b border-[#F1F1F1]">
-                    <td className="whitespace-nowrap py-2 pr-4 text-[#666666]">
-                      {new Date(l.created_at).toLocaleString()}
+  const exportCsv = () => {
+    const headers = ["ID", "Created At", "Email", "Name", "Phone", "Source", "Status", "Path", "Reference", "Package", "Dates", "Travellers", "Budget", "Notes"];
+    const rows = filtered.map((l) => [
+      l.id,
+      new Date(l.created_at).toISOString(),
+      l.email,
+      l.name ?? "",
+      l.phone ?? "",
+      l.source,
+      l.status,
+      l.path ?? "",
+      String(l.detail?.["reference"] ?? ""),
+      String(l.detail?.["package"] ?? ""),
+      String(l.detail?.["dates"] ?? ""),
+      String(l.detail?.["adults"] ? `${l.detail["adults"]} adults` : ""),
+      String(l.detail?.["budget"] ?? ""),
+      l.notes ?? "",
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `nawi-saadi-leads-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="mt-8 rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
+      {/* Title & Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#F1F5F9] pb-6">
+        <div>
+          <h2 className="font-display text-2xl font-bold text-[#00365F]">
+            Customer Inquiries & Subscribers Pipeline
+          </h2>
+          <p className="mt-1 font-sans text-xs text-[#64748B]">
+            Showing {filtered.length} of {leads.length} recorded submissions
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={exportCsv}
+          disabled={!filtered.length}
+          className="inline-flex items-center gap-2 rounded-xl bg-[#00365F] px-4 py-2.5 font-sans text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#CAA42D] hover:text-[#00365F] disabled:opacity-50"
+        >
+          <Download className="size-4" />
+          <span>Export to CSV</span>
+        </button>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="relative min-w-[240px] flex-1">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#94A3B8]" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name, email, phone, reference, or package…"
+            className="w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] py-2.5 pl-10 pr-4 font-sans text-xs outline-none focus:border-[#CAA42D] focus:bg-white"
+          />
+        </div>
+
+        {/* Status Pills */}
+        <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-1">
+          <button
+            type="button"
+            onClick={() => setStatusFilter("all")}
+            className={cn(
+              "rounded-lg px-3 py-1 font-sans text-xs font-bold capitalize transition-colors",
+              statusFilter === "all" ? "bg-[#00365F] text-white" : "text-[#64748B] hover:text-[#00365F]",
+            )}
+          >
+            All ({leads.length})
+          </button>
+          {byStatus.map((s) => (
+            <button
+              key={s.status}
+              type="button"
+              onClick={() => setStatusFilter(s.status)}
+              className={cn(
+                "rounded-lg px-3 py-1 font-sans text-xs font-bold capitalize transition-colors",
+                statusFilter === s.status ? "bg-[#00365F] text-white" : "text-[#64748B] hover:text-[#00365F]",
+              )}
+            >
+              {s.status} ({s.count})
+            </button>
+          ))}
+        </div>
+
+        {/* Source Dropdown */}
+        <select
+          value={sourceFilter}
+          onChange={(e) => setSourceFilter(e.target.value)}
+          aria-label="Filter by Lead Source"
+          className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2.5 font-sans text-xs font-semibold text-[#00365F] outline-none focus:border-[#CAA42D]"
+        >
+          <option value="all">All Sources ({leads.length})</option>
+          {bySource.map((s) => (
+            <option key={s.source} value={s.source}>
+              {s.source} ({s.count})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Leads Table */}
+      {filtered.length ? (
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full min-w-[900px] border-collapse font-sans text-xs">
+            <thead>
+              <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-left text-[#64748B]">
+                <th className="rounded-l-xl py-3 px-4 font-bold">Received</th>
+                <th className="py-3 px-4 font-bold">Customer Contact</th>
+                <th className="py-3 px-4 font-bold">Lead Source</th>
+                <th className="py-3 px-4 font-bold">Trip / Context</th>
+                <th className="py-3 px-4 font-bold">Status</th>
+                <th className="rounded-r-xl py-3 px-4 text-right font-bold">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F1F5F9]">
+              {filtered.map((l) => {
+                const isExpanded = expanded === l.id;
+                const ref = String(l.detail?.["reference"] ?? "");
+                const pkg = String(l.detail?.["package"] ?? "");
+                const dates = String(l.detail?.["dates"] ?? "");
+                const travellers = l.detail?.["adults"] ? `${l.detail["adults"]}A ${l.detail["children"] ?? 0}C` : "";
+                const budget = String(l.detail?.["budget"] ?? "");
+
+                return (
+                  <tr key={l.id} className={cn("transition-colors hover:bg-[#F8FAFC]", isExpanded && "bg-[#F8FAFC]")}>
+                    {/* Timestamp */}
+                    <td className="py-3.5 px-4 whitespace-nowrap text-[#64748B]">
+                      <div className="font-semibold text-[#00365F]">
+                        {new Date(l.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      </div>
+                      <div className="text-[11px] text-[#94A3B8]">
+                        {new Date(l.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </div>
                     </td>
-                    <td className="py-2 pr-4">
-                      <a
-                        href={`mailto:${l.email}`}
-                        className="font-semibold text-[#00365F] underline underline-offset-2"
+
+                    {/* Contact */}
+                    <td className="py-3.5 px-4">
+                      {l.name ? <div className="font-bold text-[#00365F]">{l.name}</div> : null}
+                      <div className="flex items-center gap-1.5">
+                        <a href={`mailto:${l.email}`} className="font-medium text-[#00365F] hover:text-[#CAA42D] hover:underline">
+                          {l.email}
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(l.email, `email-${l.id}`)}
+                          title="Copy Email"
+                          className="text-[#94A3B8] hover:text-[#00365F]"
+                        >
+                          {copied === `email-${l.id}` ? <Check className="size-3 text-emerald-600" /> : <Copy className="size-3" />}
+                        </button>
+                      </div>
+                      {l.phone ? (
+                        <div className="mt-0.5 flex items-center gap-1.5 text-xs text-[#00365F]">
+                          <Phone className="size-3 text-[#CAA42D]" />
+                          <span>{l.phone}</span>
+                          <a
+                            href={`https://wa.me/${l.phone.replace(/[^0-9]/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 hover:bg-emerald-100"
+                          >
+                            <MessageSquare className="size-2.5" /> WhatsApp
+                          </a>
+                        </div>
+                      ) : null}
+                    </td>
+
+                    {/* Source */}
+                    <td className="py-3.5 px-4">
+                      <span
+                        className={cn(
+                          "inline-block rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider",
+                          l.source === "contact_enquiry"
+                            ? "bg-blue-100 text-blue-800"
+                            : l.source === "custom_tour"
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-slate-100 text-slate-700",
+                        )}
                       >
-                        {l.email}
-                      </a>
+                        {l.source}
+                      </span>
+                      {ref ? <div className="mt-1 font-mono text-[10px] font-bold text-[#CAA42D]">Ref: {ref}</div> : null}
                     </td>
-                    <td className="py-2 pr-4 text-[#666666]">{l.source}</td>
-                    <td className="max-w-[200px] truncate py-2 pr-4 font-mono text-[#00365F]">
-                      {l.path}
+
+                    {/* Trip details */}
+                    <td className="py-3.5 px-4 max-w-[260px]">
+                      {pkg ? <div className="font-semibold text-[#00365F] truncate">{pkg}</div> : <div className="text-[#64748B] font-mono text-[11px] truncate">{l.path ?? "Direct"}</div>}
+                      {dates ? <div className="text-[11px] text-[#64748B]">📅 {dates}</div> : null}
+                      {travellers ? <div className="text-[11px] text-[#64748B]">👥 {travellers} {budget ? `· AED ${budget}` : ""}</div> : null}
                     </td>
-                    <td className="py-2">
+
+                    {/* Status selector */}
+                    <td className="py-3.5 px-4">
                       <select
                         value={l.status}
                         disabled={busy === l.id}
-                        onChange={(e) => setStatus(l.id, e.target.value)}
-                        className="rounded-lg border border-[#E5E5E5] px-2 py-1 font-sans text-xs text-[#00365F] outline-none focus:border-[#CAA42D] disabled:opacity-50"
+                        onChange={(e) => updateStatus(l.id, e.target.value)}
+                        className={cn(
+                          "rounded-lg border px-2.5 py-1 font-sans text-xs font-bold capitalize outline-none transition-colors",
+                          l.status === "new"
+                            ? "border-amber-300 bg-amber-50 text-amber-900"
+                            : l.status === "contacted"
+                              ? "border-blue-300 bg-blue-50 text-blue-900"
+                              : l.status === "quoted"
+                                ? "border-purple-300 bg-purple-50 text-purple-900"
+                                : l.status === "booked"
+                                  ? "border-emerald-300 bg-emerald-50 text-emerald-900"
+                                  : "border-slate-300 bg-slate-50 text-slate-700",
+                        )}
                       >
                         {STATUSES.map((s) => (
                           <option key={s} value={s}>{s}</option>
                         ))}
                       </select>
                     </td>
+
+                    {/* Actions / Expand */}
+                    <td className="py-3.5 px-4 text-right">
+                      <button
+                        type="button"
+                        onClick={() => setExpanded(isExpanded ? null : l.id)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-[#E2E8F0] px-2.5 py-1 text-xs font-semibold text-[#00365F] hover:border-[#CAA42D]"
+                      >
+                        <span>{isExpanded ? "Hide" : "Details"}</span>
+                        {isExpanded ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+                      </button>
+                    </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       ) : (
-        <Empty />
+        <div className="mt-8 rounded-2xl border border-dashed border-[#CBD5E1] p-12 text-center">
+          <Mail className="mx-auto size-8 text-[#94A3B8]" />
+          <h3 className="mt-3 font-display text-lg font-bold text-[#00365F]">No leads found</h3>
+          <p className="mt-1 font-sans text-xs text-[#64748B]">Try changing your search keywords or filter options.</p>
+        </div>
       )}
-    </Panel>
+    </div>
   );
 }
 
-function Stat({
-  icon: Icon, label, value, accent = false,
+function WhatsAppIntentLog({
+  contexts,
+  events,
 }: {
-  icon: typeof Activity; label: string; value: number; accent?: boolean;
+  contexts: Dashboard["whatsappContexts"];
+  events: Dashboard["recent"];
 }) {
+  const whatsappEvents = useMemo(() => {
+    return events.filter((e) => e.type === "whatsapp_click");
+  }, [events]);
+
   return (
-    <div
-      className={cn(
-        "rounded-3xl border p-6",
-        accent ? "border-[#CAA42D] bg-[#CAA42D]/8" : "border-[#E5E5E5] bg-white",
+    <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_400px]">
+      <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
+        <h2 className="font-display text-2xl font-bold text-[#00365F]">
+          Live WhatsApp Clicks & Pre-filled Messages
+        </h2>
+        <p className="mt-1 font-sans text-xs text-[#64748B]">
+          Audit log of every WhatsApp chat triggered from the website
+        </p>
+
+        {whatsappEvents.length ? (
+          <div className="mt-6 space-y-4">
+            {whatsappEvents.map((w) => {
+              const intent = String(w.meta?.["intent"] ?? "");
+              const context = String(w.meta?.["context"] ?? w.path ?? "General Enquiry");
+              return (
+                <div key={w.id} className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 transition-all hover:border-[#CAA42D]">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E8F0] pb-2.5">
+                    <span className="font-sans text-xs font-bold text-[#00365F]">{context}</span>
+                    <span className="font-sans text-[11px] text-[#64748B]">
+                      {new Date(w.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  <p className="mt-2.5 font-sans text-xs leading-relaxed text-[#334155]">
+                    {intent ? (
+                      <span className="font-medium text-[#00365F]">&ldquo;{intent}&rdquo;</span>
+                    ) : (
+                      <span className="text-[#94A3B8] italic">Direct WhatsApp Floating Action Button click</span>
+                    )}
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#64748B]">
+                    <span>📱 {w.device ?? "Device Unknown"}</span>
+                    <span>📍 Path: <code className="font-mono text-[#00365F]">{w.path}</code></span>
+                    <span>🔑 Session: <code className="font-mono text-[10px] text-[#94A3B8]">{w.session_id?.slice(0, 10)}</code></span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="mt-8 rounded-2xl border border-dashed border-[#CBD5E1] p-12 text-center text-[#64748B]">
+            No recent WhatsApp clicks recorded yet.
+          </div>
+        )}
+      </div>
+
+      {/* Top converting contexts */}
+      <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
+        <h3 className="font-display text-lg font-bold text-[#00365F]">
+          Most Inquired Pages
+        </h3>
+        <p className="mt-1 font-sans text-xs text-[#64748B]">
+          Pages driving the highest WhatsApp bookings
+        </p>
+
+        {contexts.length ? (
+          <ul className="mt-6 divide-y divide-[#F1F5F9]">
+            {contexts.map((c) => (
+              <li key={c.context} className="flex items-center justify-between gap-3 py-3">
+                <span className="truncate font-sans text-xs font-semibold text-[#00365F]">{c.context}</span>
+                <span className="rounded-full bg-[#CAA42D]/20 px-2.5 py-0.5 font-display text-xs font-extrabold text-[#8F7420]">
+                  {c.count} {c.count === 1 ? "click" : "clicks"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-6 text-xs text-[#94A3B8]">No context stats yet.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsOverview({ data }: { data: Dashboard }) {
+  return (
+    <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <Panel title="Most Visited Itineraries & Pages" icon={Eye}>
+        <Bars rows={data.topPaths.map((p) => ({ label: p.path, count: p.count }))} />
+      </Panel>
+
+      <Panel title="Traffic by Device" icon={Smartphone}>
+        <Bars rows={data.byDevice.map((d) => ({ label: d.device, count: d.count }))} />
+      </Panel>
+
+      <Panel title="Traffic Referral Sources" icon={Globe}>
+        <Bars rows={data.byReferrer.map((r) => ({ label: r.referrer, count: r.count }))} />
+      </Panel>
+
+      <Panel title="Daily Visitors (Last 14 Days)" icon={Clock}>
+        <Bars rows={data.byDay.map((d) => ({ label: d.day, count: d.count }))} />
+      </Panel>
+    </div>
+  );
+}
+
+function SessionsFeed({ recent }: { recent: Dashboard["recent"] }) {
+  return (
+    <div className="mt-8 rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
+      <h2 className="font-display text-2xl font-bold text-[#00365F]">
+        Live Visitor Activity Feed (Last 150 Events)
+      </h2>
+      <p className="mt-1 font-sans text-xs text-[#64748B]">
+        Real-time audit log of page views, button taps, and trip explorations
+      </p>
+
+      {recent.length ? (
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full min-w-[850px] border-collapse font-sans text-xs">
+            <thead>
+              <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-left text-[#64748B]">
+                <th className="rounded-l-xl py-3 px-4 font-bold">Timestamp</th>
+                <th className="py-3 px-4 font-bold">Event Type</th>
+                <th className="py-3 px-4 font-bold">Page Path</th>
+                <th className="py-3 px-4 font-bold">Device</th>
+                <th className="py-3 px-4 font-bold">Session ID</th>
+                <th className="rounded-r-xl py-3 px-4 font-bold">Payload / Detail</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F1F5F9]">
+              {recent.map((e) => (
+                <tr key={e.id} className="transition-colors hover:bg-[#F8FAFC]">
+                  <td className="py-3 px-4 whitespace-nowrap text-[#64748B]">
+                    {new Date(e.created_at).toLocaleString()}
+                  </td>
+                  <td className="py-3 px-4">
+                    <span
+                      className={cn(
+                        "rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                        e.type === "whatsapp_click"
+                          ? "bg-[#CAA42D]/20 text-[#8F7420]"
+                          : e.type === "page_view"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-slate-100 text-slate-700",
+                      )}
+                    >
+                      {e.type}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 font-mono font-semibold text-[#00365F]">{e.path}</td>
+                  <td className="py-3 px-4 text-[#64748B]">{e.device ?? "—"}</td>
+                  <td className="py-3 px-4 font-mono text-[10px] text-[#94A3B8]">{e.session_id?.slice(0, 10)}</td>
+                  <td className="py-3 px-4 font-mono text-[10px] text-[#64748B] max-w-[280px] truncate">
+                    {JSON.stringify(e.meta)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="mt-8 p-12 text-center text-xs text-[#94A3B8]">
+          No events logged yet.
+        </div>
       )}
-    >
-      <Icon className={cn("size-5", accent ? "text-[#CAA42D]" : "text-[#00365F]/40")} />
-      <p className="mt-3 font-display text-3xl font-bold text-[#00365F]">
-        {value.toLocaleString()}
-      </p>
-      <p className="mt-1 font-sans text-[11px] font-semibold uppercase tracking-wider text-[#666666]">
-        {label}
-      </p>
     </div>
   );
 }
 
 function Panel({
-  title, icon: Icon, children, className,
+  title,
+  icon: Icon,
+  children,
+  className,
 }: {
-  title: string; icon: typeof Activity; children: React.ReactNode; className?: string;
+  title: string;
+  icon: typeof Activity;
+  children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <section className={cn("rounded-3xl border border-[#E5E5E5] bg-white p-6", className)}>
-      <h2 className="flex items-center gap-2 font-display text-lg text-[#00365F]">
+    <section className={cn("rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm", className)}>
+      <h2 className="flex items-center gap-2 font-display text-lg font-bold text-[#00365F]">
         <Icon className="size-4 text-[#CAA42D]" />
         {title}
       </h2>
@@ -472,34 +858,25 @@ function Panel({
   );
 }
 
-/** Horizontal bars scaled to the largest row, so proportions read at a glance. */
 function Bars({ rows }: { rows: { label: string; count: number }[] }) {
-  if (!rows.length) return <Empty />;
+  if (!rows.length) return <p className="text-xs text-[#94A3B8]">No data recorded yet.</p>;
   const max = Math.max(...rows.map((r) => r.count));
   return (
-    <ul className="space-y-2">
+    <ul className="space-y-3">
       {rows.map((r) => (
         <li key={r.label}>
           <div className="flex items-baseline justify-between gap-3">
-            <span className="truncate font-mono text-xs text-[#00365F]">{r.label}</span>
-            <span className="shrink-0 font-sans text-xs font-bold text-[#666666]">{r.count}</span>
+            <span className="truncate font-sans text-xs font-semibold text-[#00365F]">{r.label}</span>
+            <span className="shrink-0 font-display text-xs font-bold text-[#64748B]">{r.count.toLocaleString()}</span>
           </div>
-          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#F1F1F1]">
+          <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-[#F1F5F9]">
             <div
-              className="h-full rounded-full bg-[#CAA42D]"
-              style={{ width: `${Math.max(2, (r.count / max) * 100)}%` }}
+              className="h-full rounded-full bg-gradient-to-r from-[#00365F] to-[#CAA42D]"
+              style={{ width: `${Math.max(3, (r.count / max) * 100)}%` }}
             />
           </div>
         </li>
       ))}
     </ul>
-  );
-}
-
-function Empty() {
-  return (
-    <p className="py-6 text-center font-sans text-xs text-[#666666]">
-      Nothing recorded yet. Events appear here as visitors use the site.
-    </p>
   );
 }
