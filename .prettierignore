@@ -6,3 +6,12 @@ pnpm-lock.yaml
 package-lock.json
 bun.lock
 routeTree.gen.ts
+
+# Bulk content files. These are hand-maintained JSON-shaped data, and running
+# the formatter over them rewrites thousands of lines of quoting and wrapping
+# for no benefit — which buries any real content change in the diff.
+src/data/catalogue.ts
+src/data/package-details-a.ts
+src/data/package-details-b.ts
+src/data/inbound-tours.ts
+src/data/inbound-tickets.ts

@@ -17,7 +17,15 @@ export type PriceOption = {
   adult?: number;
   child?: number;
   note?: string;
-  unit?: "per person" | "per vehicle" | "per hour" | "per group";
+  /**
+   * How the price is charged, shown verbatim beside the amount.
+   *
+   * Free text rather than a union: the tickets data legitimately says things
+   * like "per jet ski (1 or 2 pax)" and "for 2 hours", which no fixed list
+   * survives contact with. Eleven of those were already in the data and were
+   * failing to type-check.
+   */
+  unit?: string;
 };
 
 export type TimeBlock = {

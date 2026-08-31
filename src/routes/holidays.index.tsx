@@ -37,11 +37,37 @@ export const Route = createFileRoute("/holidays/")({
       {
         name: "description",
         content:
-          "Browse official IATA accredited luxury holiday packages from Dubai to Switzerland, Maldives, Japan, Bali, Georgia, Turkey, Azerbaijan, Kenya and Umrah. Direct flights, 5-star hotels & complete visa handling.",
+          "Holiday packages from Dubai to Switzerland, the Maldives, Japan, Bali, Georgia, Turkey and beyond — flights, hotels, transfers and visas handled for you.",
       },
-      { property: "og:title", content: "Curated Luxury Holiday Packages | Nawi Saadi Travel" },
+      { property: "og:title", content: "Holiday Packages from Dubai | Nawi Saadi" },
+      {
+        property: "og:description",
+        content:
+          "Holiday packages from Dubai to Switzerland, the Maldives, Japan, Bali, Georgia, Turkey and beyond — flights, hotels, transfers and visas handled for you.",
+      },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/holidays") }],
+    scripts: [
+      {
+        // An ItemList is what makes a listing page eligible to appear as a
+        // carousel rather than a single blue link. The detail pages already
+        // describe themselves as TouristTrips; this declares the collection
+        // they belong to, and the order they are shown in.
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "Holiday packages from Dubai",
+          numberOfItems: packages.length,
+          itemListElement: packages.slice(0, 50).map((p, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: p.title,
+            url: absoluteUrl(`/holidays/${p.slug}`),
+          })),
+        }),
+      },
+    ],
   }),
   component: HolidaysPage,
 });
@@ -53,7 +79,15 @@ function HolidaysPage() {
   const [query, setQuery] = useState(search.q ?? "");
   const [selectedRegion, setSelectedRegion] = useState<string>("All");
 
-  const regions = ["All", "Europe", "Asia", "Caucasus", "Middle East", "Island & Tropical", "Africa"];
+  const regions = [
+    "All",
+    "Europe",
+    "Asia",
+    "Caucasus",
+    "Middle East",
+    "Island & Tropical",
+    "Africa",
+  ];
 
   const results = useMemo(() => {
     return packages.filter((p) => {
@@ -90,7 +124,6 @@ function HolidaysPage() {
 
       <section className="relative border-b border-[#E5E5E5] bg-[#FFFFFF] py-14">
         <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
-
           {/* Luxury Filter Controls */}
           <div className="mt-10 rounded-3xl border border-white/15 bg-white/10 p-5 shadow-2xl backdrop-blur-xl">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -145,7 +178,9 @@ function HolidaysPage() {
 
               <div className="flex items-end">
                 <a
-                  href={waLink("Hi Nawi Saadi Travel, I would like a custom quote for a holiday package.")}
+                  href={waLink(
+                    "Hi Nawi Saadi Travel, I would like a custom quote for a holiday package.",
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#CAA42D] via-[#DDBE5E] to-[#CAA42D] py-2.5 text-xs font-black text-[#00365F] shadow-md transition-transform hover:scale-102"
@@ -162,7 +197,8 @@ function HolidaysPage() {
       {/* Package Results Count */}
       <section className="mx-auto max-w-[1400px] px-5 sm:px-8 py-8 flex items-center justify-between border-b border-slate-200">
         <div className="text-sm font-bold text-slate-700">
-          Showing <span className="text-[#00365F] font-extrabold">{results.length}</span> Verified Holiday Packages
+          Showing <span className="text-[#00365F] font-extrabold">{results.length}</span> Verified
+          Holiday Packages
         </div>
         <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
           <ShieldCheck className="size-4 text-[#CAA42D]" />
@@ -182,7 +218,8 @@ function HolidaysPage() {
           <div className="col-span-full rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-sm">
             <h3 className="text-2xl font-bold text-[#00365F]">No matching packages found</h3>
             <p className="mt-2 text-sm text-slate-600">
-              We design custom bespoke holidays everyday. Tell our Dubai travel specialists where you want to go.
+              We design custom bespoke holidays everyday. Tell our Dubai travel specialists where
+              you want to go.
             </p>
             <Link
               to="/customized-tours"

@@ -6,7 +6,7 @@ import { BRAND, offices, packages, waLink } from "@/data/catalogue";
 import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { cn } from "@/lib/utils";
-import { absoluteUrl } from "@/lib/site";
+import { absoluteUrl, siteUrl } from "@/lib/site";
 import { submitLead } from "@/lib/leads";
 
 type Search = { pkg?: string | undefined };
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/contact" },
+      { property: "og:url", content: absoluteUrl("/contact") },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/contact") }],
@@ -38,6 +38,8 @@ export const Route = createFileRoute("/contact")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "TravelAgency",
+          // Same @id as the root entity — see the note in __root.tsx.
+          "@id": `${siteUrl()}/#organization`,
           name: BRAND.name,
           telephone: BRAND.phone,
           email: BRAND.email,
@@ -60,6 +62,11 @@ function ContactPage() {
   const search = Route.useSearch();
   const [step, setStep] = useState(0);
   const [ref, setRef] = useState<string | null>(null);
+  // Whether the enquiry actually reached the database. The confirmation screen
+  // says something different when it did not, because a reference number for a
+  // request nobody received is worse than no reference at all.
+  const [recorded, setRecorded] = useState(true);
+  const [sending, setSending] = useState(false);
   const [form, setForm] = useState({
     from: "",
     to: "",
@@ -94,30 +101,66 @@ function ContactPage() {
   );
 
   if (ref) {
+    // Two different screens, because they are two different situations. When
+    // the enquiry reached us, WhatsApp is an optional extra. When the write
+    // failed, WhatsApp is the whole recovery path and has to read like it —
+    // showing "request received" over a write that never landed is precisely
+    // how an enquiry gets lost without anyone noticing.
     return (
       <div className="mx-auto flex min-h-[70vh] max-w-2xl flex-col justify-center px-5 pt-28 pb-24 text-center">
-        <span className="mx-auto flex size-14 items-center justify-center rounded-full bg-verde/15">
-          <Check className="size-7 text-verde" aria-hidden />
+        <span
+          className={cn(
+            "mx-auto flex size-14 items-center justify-center rounded-full",
+            recorded ? "bg-verde/15" : "bg-amber-100",
+          )}
+        >
+          {recorded ? (
+            <Check className="size-7 text-verde" aria-hidden />
+          ) : (
+            <MessageCircle className="size-7 text-amber-700" aria-hidden />
+          )}
         </span>
-        <h1 className="text-display mt-6 text-4xl sm:text-5xl">Thank you — request received.</h1>
-        <p className="mt-4 text-muted-foreground">
-          Your reference is <span className="text-accent">{ref}</span>
-          {selectedPkg ? (
-            <>
-              {" "}
-              for <span className="text-foreground">{selectedPkg.title}</span>
-            </>
-          ) : null}
-          . A travel consultant in Dubai will review availability and come back to you with
-          confirmed options and pricing.
-        </p>
+
+        {recorded ? (
+          <>
+            <h1 className="text-display mt-6 text-4xl sm:text-5xl">
+              Thank you — request received.
+            </h1>
+            <p className="mt-4 text-muted-foreground">
+              Your reference is <span className="text-accent">{ref}</span>
+              {selectedPkg ? (
+                <>
+                  {" "}
+                  for <span className="text-foreground">{selectedPkg.title}</span>
+                </>
+              ) : null}
+              . A travel consultant in Dubai will review availability and come back to you with
+              confirmed options and pricing.
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="text-display mt-6 text-4xl sm:text-5xl">Send this to us on WhatsApp</h1>
+            <p className="mt-4 text-muted-foreground">
+              We couldn&apos;t save your enquiry just now, so please don&apos;t rely on this page.
+              The button below opens WhatsApp with every detail you entered already written out, and
+              a consultant in Dubai will pick it up from there. You can also call{" "}
+              <a href={`tel:${BRAND.phone.replace(/\s/g, "")}`} className="text-accent">
+                {BRAND.phone}
+              </a>
+              .
+            </p>
+          </>
+        )}
+
         <a
           href={waLink(`${summaryMessage}\nReference: ${ref}`)}
           target="_blank"
           rel="noopener noreferrer"
           className="mx-auto mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"
         >
-          <MessageCircle className="size-4" aria-hidden /> Continue on WhatsApp
+          <MessageCircle className="size-4" aria-hidden />
+          {recorded ? "Continue on WhatsApp" : "Send my enquiry on WhatsApp"}
         </a>
         <Link to="/holidays" className="mt-4 text-sm text-muted-foreground hover:text-accent">
           Keep browsing holidays
@@ -202,9 +245,10 @@ function ContactPage() {
               return;
             }
             const generatedRef = `NS-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
-            setRef(generatedRef);
+            setSending(true);
+            let wrote = false;
             if (form.email || form.phone) {
-              await submitLead({
+              const result = await submitLead({
                 email: form.email || `${generatedRef.toLowerCase()}@lead.nawisaadiholidays.com`,
                 name: form.name,
                 phone: form.phone,
@@ -221,7 +265,11 @@ function ContactPage() {
                 },
                 notes: form.notes || null,
               });
+              wrote = result.ok;
             }
+            setRecorded(wrote);
+            setSending(false);
+            setRef(generatedRef);
           }}
           className="glass min-w-0 rounded-3xl p-6 sm:p-8"
         >

@@ -82,6 +82,7 @@ export function ParallaxImage({
         ref={imgRef}
         src={src}
         alt={alt}
+        decoding="async"
         loading={priority ? "eager" : "lazy"}
         // The extra height is what there is to move into; without it the drift
         // would expose the frame's background at the top or bottom.

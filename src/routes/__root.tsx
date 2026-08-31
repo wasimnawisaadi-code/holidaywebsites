@@ -88,10 +88,20 @@ function NotFoundComponent() {
   );
 }
 
+/**
+ * Route-level error boundary.
+ *
+ * The message is deliberately not shown to visitors in production. It was
+ * added during a deployment investigation and is exactly the kind of thing
+ * that quietly stays in: a raw exception string can name internal modules,
+ * env keys and table names, and it means nothing to a customer trying to book
+ * a holiday. It still prints to the console, and still renders on screen in
+ * development, which is where anyone who needs it is looking.
+ */
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
   useEffect(() => {
+    console.error(error);
   }, [error]);
 
   return (
@@ -103,9 +113,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p className="mt-2 text-sm text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
-        {error?.message ? (
-          <div className="mt-4 max-h-48 overflow-auto rounded-xl bg-red-50 p-3 text-left font-mono text-xs text-red-800 border border-red-200">
-            <strong>Error:</strong> {error.message}
+        {import.meta.env.DEV && error?.message ? (
+          <div className="mt-4 max-h-48 overflow-auto rounded-xl border border-red-200 bg-red-50 p-3 text-left font-mono text-xs text-red-800">
+            <strong>Error (development only):</strong> {error.message}
           </div>
         ) : null}
         <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -166,7 +176,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      // Icon set generated from the brand mark by scripts/generate-icons.mjs.
+      // The site previously declared a single 701x479 PNG as image/x-icon and
+      // offered nothing for iOS, so a home-screen bookmark fell back to a
+      // screenshot of the page.
+      { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
+      { rel: "icon", href: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
     scripts: [
       // Google Tag Manager. Inlined rather than src-loaded because GTM's own
@@ -190,6 +207,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "TravelAgency",
+          // A stable identifier for the business as an entity. Without it, the
+          // extra TravelAgency blocks on /about and /contact read as two more
+          // agencies that happen to share a name and phone number, and the
+          // signals split three ways instead of reinforcing one. With it they
+          // merge into a single node.
+          "@id": `${siteUrl()}/#organization`,
           name: "Nawi Saadi Travel & Tourism",
           alternateName: "Nawi Saadi Holidays",
           foundingDate: "2009",
@@ -285,12 +308,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const gtm = gtmId();
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
+        {/*
+          GTM's <noscript> half. The head snippet alone records nothing for a
+          visitor with JavaScript disabled or blocked, and it has to be the
+          first thing in <body> to fire before anything else renders.
+        */}
+        {gtm ? (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtm}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+              title="Google Tag Manager"
+            />
+          </noscript>
+        ) : null}
         {children}
         <Scripts />
       </body>
@@ -303,6 +344,17 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {/*
+        Keyboard and screen-reader users land on the header's mega-menus first
+        and have to tab through every destination on every page load. This is
+        visually hidden until focused, which is the whole convention.
+      */}
+      <a
+        href="#main"
+        className="sr-only rounded-br-xl bg-[#00365F] px-4 py-3 font-sans text-sm font-semibold text-white focus:not-sr-only focus:absolute focus:left-0 focus:top-0 focus:z-[100]"
+      >
+        Skip to main content
+      </a>
       <SiteHeader />
       <main id="main">
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}

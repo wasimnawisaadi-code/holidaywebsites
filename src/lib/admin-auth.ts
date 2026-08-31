@@ -86,7 +86,10 @@ export async function signInWithPassword(
   });
 
   if (!res.ok) {
-    const body = (await res.json().catch(() => ({}))) as { msg?: string; error_description?: string };
+    const body = (await res.json().catch(() => ({}))) as {
+      msg?: string;
+      error_description?: string;
+    };
     return {
       ok: false,
       reason: body.msg ?? body.error_description ?? "Email or password is not correct.",
@@ -103,9 +106,11 @@ export async function signInWithPassword(
 export async function sessionFromToken(token: string | undefined): Promise<Session | null> {
   if (!token) return null;
 
-  // The shared-password fallback stores the password itself, not a JWT.
-  const shared = env("ADMIN_PASSWORD");
-  if (shared && token === shared) return { email: "shared-password", via: "password" };
+  // The shared-password fallback carries a signed, expiring token rather than
+  // the password itself — see issueSharedToken below. A cookie minted by the
+  // previous scheme (the raw password) no longer validates, which is intended:
+  // it means one more sign-in, and the credential stops living in the browser.
+  if (await verifySharedToken(token)) return { email: "shared-password", via: "password" };
 
   const s = supabase();
   if (!s) return null;
@@ -121,4 +126,130 @@ export async function sessionFromToken(token: string | undefined): Promise<Sessi
   if (!isAllowed(user.email)) return null;
 
   return { email: user.email ?? "unknown", via: "supabase" };
+}
+
+/* -------------------------------------------------------------------------
+ * Shared-password session tokens
+ *
+ * The cookie used to hold ADMIN_PASSWORD verbatim: `sessionFromToken` compared
+ * the cookie value against the env var directly. That works, but it means the
+ * long-lived credential itself is written to disk in the browser profile, sent
+ * on every request, and sitting in any proxy or log that captures a Cookie
+ * header. Anything that reads the cookie once has the password permanently.
+ *
+ * What is stored now is a signed, expiring assertion instead:
+ *
+ *     v1.<expiry-epoch-seconds>.<hex hmac-sha256 of "v1.<expiry>">
+ *
+ * The signing key is ADMIN_PASSWORD, so no new environment variable is needed
+ * and rotating the password invalidates every outstanding session. The token
+ * cannot be turned back into the password, and it stops working on its own
+ * after the expiry — even if the cookie is copied elsewhere.
+ *
+ * Web Crypto rather than node:crypto, so this behaves the same on the Node
+ * runtime and on an edge deployment.
+ * ---------------------------------------------------------------------- */
+
+const TOKEN_VERSION = "v1";
+
+async function hmacHex(key: string, message: string): Promise<string> {
+  const enc = new TextEncoder();
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(key),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", cryptoKey, enc.encode(message));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** Length-independent comparison, so a mismatch leaks no position information. */
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+/** Mints a signed session token for the shared-password path. */
+export async function issueSharedToken(ttlSeconds: number): Promise<string | null> {
+  const secret = env("ADMIN_PASSWORD");
+  if (!secret) return null;
+  const expiry = Math.floor(Date.now() / 1000) + ttlSeconds;
+  const payload = `${TOKEN_VERSION}.${expiry}`;
+  return `${payload}.${await hmacHex(secret, payload)}`;
+}
+
+async function verifySharedToken(token: string): Promise<boolean> {
+  const secret = env("ADMIN_PASSWORD");
+  if (!secret) return false;
+
+  const parts = token.split(".");
+  if (parts.length !== 3) return false;
+  const [version, expiryRaw, signature] = parts as [string, string, string];
+  if (version !== TOKEN_VERSION) return false;
+
+  const expiry = Number(expiryRaw);
+  if (!Number.isFinite(expiry) || expiry * 1000 < Date.now()) return false;
+
+  return timingSafeEqual(signature, await hmacHex(secret, `${version}.${expiryRaw}`));
+}
+
+/* -------------------------------------------------------------------------
+ * Sign-in throttling
+ *
+ * There was no limit at all: /admin's sign-in server function would check any
+ * number of passwords as fast as they could be posted, which is the whole
+ * attack against a single shared secret.
+ *
+ * This is an in-process counter, and it is worth being clear about what that
+ * does and does not buy on a serverless platform. Each warm instance keeps its
+ * own map, so an attacker spraying across many cold starts gets more attempts
+ * than the numbers below suggest. What it reliably stops is the realistic
+ * case — a sustained run of guesses, which lands on one warm instance and is
+ * locked out within seconds. Durable throttling would mean a database write per
+ * attempt; for an agency admin panel behind a long random password, that is not
+ * a trade worth making.
+ * ---------------------------------------------------------------------- */
+
+const MAX_ATTEMPTS = 5;
+const WINDOW_MS = 15 * 60 * 1000;
+const LOCKOUT_MS = 15 * 60 * 1000;
+
+type Attempt = { count: number; first: number; lockedUntil: number };
+const attempts = new Map<string, Attempt>();
+
+function prune(now: number): void {
+  // Bounded so a spray across many spoofed keys cannot grow the map forever.
+  if (attempts.size < 1000) return;
+  for (const [key, a] of attempts) {
+    if (a.lockedUntil < now && now - a.first > WINDOW_MS) attempts.delete(key);
+  }
+}
+
+/** How long the caller must wait, in ms. Zero means "go ahead". */
+export function throttleRetryAfterMs(key: string): number {
+  const now = Date.now();
+  const a = attempts.get(key);
+  if (!a) return 0;
+  if (a.lockedUntil > now) return a.lockedUntil - now;
+  return 0;
+}
+
+export function recordFailedSignIn(key: string): void {
+  const now = Date.now();
+  prune(now);
+  const a = attempts.get(key);
+  if (!a || now - a.first > WINDOW_MS) {
+    attempts.set(key, { count: 1, first: now, lockedUntil: 0 });
+    return;
+  }
+  a.count += 1;
+  if (a.count >= MAX_ATTEMPTS) a.lockedUntil = now + LOCKOUT_MS;
+}
+
+export function clearFailedSignIns(key: string): void {
+  attempts.delete(key);
 }

@@ -5,15 +5,22 @@ export type { Office } from "./catalogue-brand";
 export type TravelStyle =
   | "Family"
   | "Honeymoon"
+  | "Romantic"
   | "Luxury"
   | "Adventure"
   | "Beach"
   | "City Escape"
   | "Cultural"
+  | "Historical"
+  | "Nature"
+  | "Mountain"
+  | "Safari"
+  | "Theme Park"
   | "Shopping"
   | "Northern Lights"
   | "Cruises"
-  | "Weekend Escape";
+  | "Weekend Escape"
+  | "Budget Friendly";
 
 export type PriceStatus = "from" | "on-request";
 
@@ -1806,7 +1813,6 @@ export const packages: HolidayPackage[] = [
     "seasonal": "Year-Round Safari",
     "itinerary": [
       {
-        "day": 1,
         "day": 1,
         "title": "Day 1 — Fly Dubai to Nairobi & Scenic Drive to Masai Mara",
         "summary": "Arrive in Nairobi, meet your private safari guide and travel through the Great Rift Valley to your luxury Mara camp.",
@@ -5619,7 +5625,7 @@ export const packages: HolidayPackage[] = [
     "title": "Portugal Coastal Charms: Lisbon Tram 28, Sintra Pena Palace & Porto Douro River",
     "destination": "Lisbon · Alfama · Belém · Sintra · Pena Palace · Porto · Douro River",
     "country": "Portugal",
-    "region": "Europe",
+    "region": "International",
     "days": 6,
     "nights": 5,
     "styles": [
@@ -5748,7 +5754,7 @@ export const packages: HolidayPackage[] = [
     "title": "Mauritius Island Bliss: Le Morne Coral Lagoon, Chamarel Seven Earths & Luxury Beach",
     "destination": "Le Morne · Chamarel · Île aux Cerfs · Port Louis · Grand Baie",
     "country": "Mauritius",
-    "region": "Africa",
+    "region": "International",
     "days": 6,
     "nights": 5,
     "styles": [
@@ -6134,6 +6140,7 @@ export const emirates = [
 
 export const travelStyles: TravelStyle[] = [
   "Honeymoon",
+  "Romantic",
   "Family",
   "Luxury",
   "Adventure",
@@ -6141,9 +6148,15 @@ export const travelStyles: TravelStyle[] = [
   "City Escape",
   "Shopping",
   "Cultural",
+  "Historical",
+  "Nature",
+  "Mountain",
+  "Safari",
+  "Theme Park",
   "Northern Lights",
   "Cruises",
-  "Weekend Escape"
+  "Weekend Escape",
+  "Budget Friendly"
 ];
 
 export function priceLabel(p: { priceStatus: PriceStatus; priceFrom?: number }) {

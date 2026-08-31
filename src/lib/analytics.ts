@@ -79,15 +79,53 @@ export function analyticsEnabled(): boolean {
   return Boolean(URL_BASE && ANON_KEY) && !disabled;
 }
 
+/**
+ * Referring origin only — never the full URL, which would carry the visitor's
+ * search terms.
+ *
+ * This used to read `new global.URL(...)`. `global` is a Node identifier and
+ * does not exist in a browser, so the expression threw ReferenceError for
+ * every visitor who arrived with a referrer — which is to say everyone
+ * clicking through from Google, Instagram or any other site. The throw
+ * propagated out of AnalyticsTracker into the root error boundary, and those
+ * visitors were shown "This page didn't load" instead of the site. Direct
+ * visits were unaffected, which is why it survived testing.
+ */
+function referrerOrigin(): string | null {
+  try {
+    return document.referrer ? new URL(document.referrer).origin : null;
+  } catch {
+    // A malformed referrer is not worth a thrown exception either.
+    return null;
+  }
+}
+
 export function track(type: EventType, meta: Record<string, unknown> = {}): void {
   if (typeof window === "undefined") return;
   if (!URL_BASE || !ANON_KEY || disabled) return;
 
+  try {
+    send(type, meta);
+  } catch {
+    // The contract at the top of this file is that analytics can never break
+    // the site. It was only ever true of the network call; everything that ran
+    // before it — reading the referrer, the viewport, the session id — could
+    // throw straight into the render. Now it genuinely holds.
+    disabled = true;
+  }
+}
+
+function send(type: EventType, meta: Record<string, unknown>): void {
+  // Re-narrowed here rather than relying on the caller's check: these are
+  // module-level `string | undefined`, and TypeScript cannot carry a guard
+  // across a function boundary.
+  if (!URL_BASE || !ANON_KEY) return;
+  const apiKey = ANON_KEY;
+
   const body = JSON.stringify({
     type,
     path: window.location.pathname,
-    // Only the referring origin, never a full URL with someone's query string.
-    referrer: document.referrer ? new global.URL(document.referrer).origin : null,
+    referrer: referrerOrigin(),
     session_id: sessionId(),
     user_agent: navigator.userAgent.slice(0, 400),
     viewport_w: window.innerWidth,
@@ -114,8 +152,8 @@ export function track(type: EventType, meta: Record<string, unknown> = {}): void
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      apikey: ANON_KEY,
-      Authorization: `Bearer ${ANON_KEY}`,
+      apikey: apiKey,
+      Authorization: `Bearer ${apiKey}`,
       Prefer: "return=minimal",
     },
     body,

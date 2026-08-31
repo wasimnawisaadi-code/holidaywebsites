@@ -113,6 +113,7 @@ function Row({
             <img
               src={it.src}
               alt=""
+              decoding="async"
               loading="lazy"
               className="size-full object-cover"
             />

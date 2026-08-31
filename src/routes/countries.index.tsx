@@ -21,7 +21,7 @@ export const Route = createFileRoute("/countries/")({
         content: "Europe, Asia, Africa, Eurasia and beyond — holiday packages built from Dubai.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/countries" },
+      { property: "og:url", content: absoluteUrl("/countries") },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/countries") }],
@@ -65,6 +65,7 @@ function CountriesIndex() {
                         <img
                           src={c.image}
                           alt={`${c.name} holiday packages from Dubai`}
+                          decoding="async"
                           loading="lazy"
                           width={1280}
                           height={853}

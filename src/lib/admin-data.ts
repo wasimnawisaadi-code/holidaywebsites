@@ -64,6 +64,16 @@ async function rest<T>(pathAndQuery: string): Promise<T[]> {
   }
 }
 
+/**
+ * Anything PostgREST can return inside a jsonb column.
+ *
+ * `Record<string, unknown>` is what these were, and Start's server-function
+ * boundary rejected it: it cannot prove `unknown` survives serialisation. It
+ * is JSON coming out of Postgres, so saying so is both accurate and enough.
+ */
+export type JsonValue =
+  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
 export type EventRow = {
   id: number;
   created_at: string;
@@ -73,7 +83,7 @@ export type EventRow = {
   session_id: string | null;
   device: string | null;
   user_agent: string | null;
-  meta: Record<string, unknown>;
+  meta: Record<string, JsonValue>;
 };
 
 export type Lead = {
@@ -86,7 +96,7 @@ export type Lead = {
   path: string | null;
   status: string;
   notes: string | null;
-  detail: Record<string, unknown>;
+  detail: Record<string, JsonValue>;
   session_id: string | null;
 };
 

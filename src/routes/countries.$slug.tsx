@@ -19,6 +19,7 @@ import { BRAND, packages, priceLabel, waLink } from "@/data/catalogue";
 import { PackageCard } from "@/components/site/PackageCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
+import { metaDescription } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/countries/$slug")({
@@ -33,7 +34,9 @@ export const Route = createFileRoute("/countries/$slug")({
     }
     const { country } = loaderData;
     const title = `${country.name} Holiday Packages from Dubai | ${BRAND.short}`;
-    const description = `${country.name} tour packages from Dubai — ${country.tagline}. ${country.nights} itineraries with flights, hotels, transfers and visa assistance by Nawi Saadi Travel & Tourism.`;
+    const description = metaDescription(
+      `${country.name} tour packages from Dubai — ${country.tagline}. ${country.nights} itineraries with flights, hotels, transfers and visa assistance by Nawi Saadi Travel & Tourism.`,
+    );
     return {
       meta: [
         { title },
@@ -106,7 +109,7 @@ function CountryPage() {
     (p) =>
       p.country.toLowerCase() === country.name.toLowerCase() ||
       p.destination.toLowerCase().includes(country.name.toLowerCase()) ||
-      (country.name === "Indonesia (Bali)" && p.slug === "bali-jungle-coast")
+      (country.name === "Indonesia (Bali)" && p.slug === "bali-jungle-coast"),
   );
 
   const enquiry = waLink(
@@ -120,7 +123,12 @@ function CountryPage() {
         <img
           src={country.image}
           alt={`${country.name} — ${country.tagline}`}
-          className="size-full object-cover brightness-75 scale-105 transition-transform duration-1000"
+          width={1600}
+          height={1000}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          className="size-full scale-105 object-cover brightness-75 transition-transform duration-1000"
         />
         <div className="night-fade absolute inset-0 bg-gradient-to-t from-[#00365F] via-[#00365F]/40 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-[1400px] px-5 pb-14 sm:px-8">
@@ -137,7 +145,8 @@ function CountryPage() {
               <Moon className="size-4 text-[#CAA42D]" aria-hidden /> {country.nights}
             </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#00365F]/80 px-4 py-2 text-white backdrop-blur-md">
-              <CalendarDays className="size-4 text-[#CAA42D]" aria-hidden /> Best Season: {country.bestTime}
+              <CalendarDays className="size-4 text-[#CAA42D]" aria-hidden /> Best Season:{" "}
+              {country.bestTime}
             </span>
             {country.fromAed ? (
               <span className="inline-flex items-center gap-2 rounded-full bg-[#CAA42D] px-4 py-2 text-[#00243f] font-bold shadow-md">
@@ -157,6 +166,8 @@ function CountryPage() {
               alt={`${country.name} — view ${shot + 1}`}
               width={1600}
               height={1000}
+              loading="lazy"
+              decoding="async"
               className="size-full object-cover transition-all duration-500"
             />
             <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
@@ -181,6 +192,7 @@ function CountryPage() {
                   src={g}
                   alt=""
                   className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  decoding="async"
                   loading="lazy"
                 />
                 <span className="absolute top-2 left-2 flex size-5 items-center justify-center rounded-full bg-black/50 text-[10px] font-bold text-white backdrop-blur-xs">
@@ -195,13 +207,20 @@ function CountryPage() {
       {/* Main Content & Sticky Booking Box */}
       <section className="mx-auto mt-14 grid max-w-[1400px] gap-10 px-5 sm:px-8 lg:grid-cols-[1.5fr_1fr]">
         <div>
-          <h2 className="text-3xl font-extrabold text-[#00365F] sm:text-4xl">About Traveling to {country.name}</h2>
+          <h2 className="text-3xl font-extrabold text-[#00365F] sm:text-4xl">
+            About Traveling to {country.name}
+          </h2>
           <p className="mt-4 text-lg text-slate-600 leading-relaxed">{country.blurb}</p>
 
-          <h3 className="mt-10 text-2xl font-bold text-[#00365F]">Trip Highlights &amp; Must-See Sights</h3>
+          <h3 className="mt-10 text-2xl font-bold text-[#00365F]">
+            Trip Highlights &amp; Must-See Sights
+          </h3>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {country.highlights.map((h) => (
-              <li key={h} className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4 text-sm border border-slate-200">
+              <li
+                key={h}
+                className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4 text-sm border border-slate-200"
+              >
                 <Check className="mt-0.5 size-4 shrink-0 text-[#CAA42D]" aria-hidden />
                 <span className="font-semibold text-slate-800">{h}</span>
               </li>
@@ -214,7 +233,8 @@ function CountryPage() {
               <p className="font-bold text-[#00365F]">Visa Requirements for UAE Residents</p>
               <p className="mt-1 text-sm text-slate-700">{country.visa}</p>
               <p className="mt-1 text-xs text-slate-500">
-                * Our Dubai IATA team provides full documentation preparation, translation, and appointment assistance.
+                * Our Dubai IATA team provides full documentation preparation, translation, and
+                appointment assistance.
               </p>
             </div>
           </div>
@@ -222,14 +242,17 @@ function CountryPage() {
 
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-xl">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Plan This Journey</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Plan This Journey
+            </span>
             <p className="text-display mt-2 text-3xl font-extrabold text-[#00365F]">
               {country.fromAed
                 ? `From AED ${country.fromAed.toLocaleString()}`
                 : "Price on request"}
             </p>
             <p className="mt-2 text-xs text-slate-500 leading-relaxed">
-              Per person, indicative rate. Includes flights from Dubai DXB, verified 4★/5★ accommodations, private airport transfers, and guided sightseeing.
+              Per person, indicative rate. Includes flights from Dubai DXB, verified 4★/5★
+              accommodations, private airport transfers, and guided sightseeing.
             </p>
             <a
               href={enquiry}
@@ -248,10 +271,12 @@ function CountryPage() {
             </Link>
             <div className="mt-5 space-y-2 border-t border-slate-100 pt-4 text-xs text-slate-500">
               <p className="flex items-center gap-2">
-                <ShieldCheck className="size-4 text-[#CAA42D]" /> Planned by our IATA Dubai Consultants
+                <ShieldCheck className="size-4 text-[#CAA42D]" /> Planned by our IATA Dubai
+                Consultants
               </p>
               <p className="flex items-center gap-2">
-                <Plane className="size-4 text-[#CAA42D]" /> Direct DXB flydubai &amp; Emirates Connections
+                <Plane className="size-4 text-[#CAA42D]" /> Direct DXB flydubai &amp; Emirates
+                Connections
               </p>
             </div>
           </div>
@@ -287,7 +312,9 @@ function CountryPage() {
               Bespoke {country.name} Holidays Built Around You
             </h3>
             <p className="mt-3 max-w-2xl mx-auto text-sm text-slate-600 leading-relaxed">
-              We design private custom holidays to {country.name} every week. Choose your departure date, duration, preferred hotel stars, and private guided excursions — our Dubai team handles everything end-to-end.
+              We design private custom holidays to {country.name} every week. Choose your departure
+              date, duration, preferred hotel stars, and private guided excursions — our Dubai team
+              handles everything end-to-end.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <a
@@ -346,6 +373,7 @@ function CountryPage() {
                     <img
                       src={c.image}
                       alt={c.name}
+                      decoding="async"
                       loading="lazy"
                       className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />

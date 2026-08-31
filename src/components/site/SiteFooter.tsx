@@ -31,8 +31,20 @@ const COLUMNS = [
     heading: "Dubai & UAE",
     links: [
       { label: "Tours & attractions", to: "/activities" },
-      { label: "Desert safari", to: "/activities/evening-desert-safari-with-bbq-dinner" },
-      { label: "Burj Khalifa", to: "/activities/burj-khalifa-at-the-top" },
+      // Deep links to two activity detail pages. Written in the router's
+      // param form rather than as a literal path, which is what the typed
+      // `Link` accepts — the literal versions type-checked as errors and would
+      // have broken silently if either slug were ever renamed.
+      {
+        label: "Desert safari",
+        to: "/activities/$slug",
+        params: { slug: "evening-desert-safari-with-bbq-dinner" },
+      },
+      {
+        label: "Burj Khalifa",
+        to: "/activities/$slug",
+        params: { slug: "burj-khalifa-at-the-top" },
+      },
       { label: "Dubai guide", to: "/dubai" },
       { label: "United Arab Emirates", to: "/uae" },
     ],
@@ -68,26 +80,34 @@ export function SiteFooter() {
             <SubscribeForm source="footer" className="mt-6 max-w-md" />
           </div>
           <div className="lg:justify-self-end">
-          <a
-            href={waLink("Hi Nawi Saadi, I'd like help planning a holiday.")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#00365F] px-7 py-3.5 font-sans text-sm font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F]"
-          >
-            <MessageCircle className="size-4" />
-            <span>Chat on WhatsApp</span>
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-          </a>
+            <a
+              href={waLink("Hi Nawi Saadi, I'd like help planning a holiday.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#00365F] px-7 py-3.5 font-sans text-sm font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F]"
+            >
+              <MessageCircle className="size-4" />
+              <span>Chat on WhatsApp</span>
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+            </a>
           </div>
         </div>
 
         {/* Brand + sitemap */}
         <div className="grid gap-10 py-14 lg:grid-cols-[minmax(0,20rem)_1fr] lg:gap-16">
           <div className="min-w-0">
-            <img src={logoImg} alt={BRAND.name} className="h-14 w-auto" />
+            <img
+              src={logoImg}
+              alt={BRAND.name}
+              width={437}
+              height={315}
+              loading="lazy"
+              decoding="async"
+              className="h-14 w-auto"
+            />
             <p className="mt-5 max-w-xs font-sans text-xs leading-relaxed text-[#666666]">
-              Worldwide holidays, flights, visas and Umrah arranged end to end from our Deira
-              office since {BRAND.founded}.
+              Worldwide holidays, flights, visas and Umrah arranged end to end from our Deira office
+              since {BRAND.founded}.
             </p>
             <div className="mt-6 flex flex-col gap-2.5 font-sans text-sm">
               <a
@@ -118,6 +138,7 @@ export function SiteFooter() {
                     <li key={l.label}>
                       <Link
                         to={l.to}
+                        {...("params" in l ? { params: l.params } : {})}
                         className="font-sans text-sm text-[#666666] transition-colors hover:text-[#8F7420]"
                       >
                         {l.label}

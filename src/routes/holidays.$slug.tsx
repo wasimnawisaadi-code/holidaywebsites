@@ -28,6 +28,7 @@ import { packageDetail } from "@/data/package-details";
 import { PackageCard } from "@/components/site/PackageCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
+import { packageTitle, metaDescription } from "@/lib/seo";
 import { absoluteUrl, siteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/holidays/$slug")({
@@ -46,8 +47,8 @@ export const Route = createFileRoute("/holidays/$slug")({
       };
     }
     const { pkg, detail } = loaderData;
-    const title = `${pkg.title} — ${pkg.days} Days ${pkg.country} Package from Dubai | ${BRAND.short}`;
-    const description = (detail?.overview ?? pkg.intro).slice(0, 155);
+    const title = packageTitle(pkg.title, pkg.days, pkg.country);
+    const description = metaDescription(detail?.overview ?? pkg.intro);
     return {
       meta: [
         { title },
@@ -192,7 +193,9 @@ function PackagePage() {
   // Interactive booking state
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
-  const [hotelTier, setHotelTier] = useState<"3-Star Comfort" | "4-Star Superior" | "5-Star Luxury">("4-Star Superior");
+  const [hotelTier, setHotelTier] = useState<
+    "3-Star Comfort" | "4-Star Superior" | "5-Star Luxury"
+  >("4-Star Superior");
 
   const basePrice = pkg.priceFrom || 2499;
 
@@ -214,14 +217,21 @@ function PackagePage() {
     (c) =>
       c.name.toLowerCase() === pkg.country.toLowerCase() ||
       c.slug.toLowerCase() === pkg.country.toLowerCase() ||
-      (c.name === "United States of America" && pkg.country.includes("United States"))
+      (c.name === "United States of America" && pkg.country.includes("United States")),
   );
 
   const countryGallery = countryRecord?.gallery?.length ? countryRecord.gallery : [];
   const rawGallery = detail?.gallery?.length ? detail.gallery : [];
   const combined = [...new Set([pkg.image, ...rawGallery, ...countryGallery])];
-  const gallery = combined.length >= 4 ? combined.slice(0, 4) : (combined.length ? combined : [pkg.image]);
-  const related = packages.filter((p) => p.slug !== pkg.slug && (p.region === pkg.region || p.styles.some(s => pkg.styles.includes(s)))).slice(0, 3);
+  const gallery =
+    combined.length >= 4 ? combined.slice(0, 4) : combined.length ? combined : [pkg.image];
+  const related = packages
+    .filter(
+      (p) =>
+        p.slug !== pkg.slug &&
+        (p.region === pkg.region || p.styles.some((s) => pkg.styles.includes(s))),
+    )
+    .slice(0, 3);
 
   return (
     <article className="pb-32">
@@ -232,7 +242,10 @@ function PackagePage() {
           alt={`${pkg.title} — ${pkg.days} day holiday in ${pkg.country}`}
           width={1600}
           height={1000}
-          className="kenburns absolute inset-0 size-full object-cover brightness-75 scale-105"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          className="kenburns absolute inset-0 size-full scale-105 object-cover brightness-75"
         />
         <div className="night-fade absolute inset-0 bg-gradient-to-t from-[#00365F] via-[#00365F]/40 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-[1400px] px-5 pb-14 sm:px-8">
@@ -284,6 +297,8 @@ function PackagePage() {
               alt={`${pkg.title} — view ${shot + 1}`}
               width={1600}
               height={1000}
+              loading="lazy"
+              decoding="async"
               className="size-full object-cover transition-all duration-500"
             />
             <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
@@ -307,6 +322,7 @@ function PackagePage() {
                 <img
                   src={g}
                   alt=""
+                  decoding="async"
                   loading="lazy"
                   className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
@@ -376,7 +392,10 @@ function PackagePage() {
                         {blocks ? (
                           <div className="grid gap-4 sm:grid-cols-2">
                             <p className="flex gap-3">
-                              <Sunrise className="mt-0.5 size-4 shrink-0 text-[#CAA42D]" aria-hidden />
+                              <Sunrise
+                                className="mt-0.5 size-4 shrink-0 text-[#CAA42D]"
+                                aria-hidden
+                              />
                               <span>
                                 <span className="block font-bold text-[#00365F]">Morning</span>
                                 <span className="text-slate-600">{blocks.morning}</span>
@@ -390,14 +409,20 @@ function PackagePage() {
                               </span>
                             </p>
                             <p className="flex gap-3">
-                              <Sunset className="mt-0.5 size-4 shrink-0 text-[#CAA42D]" aria-hidden />
+                              <Sunset
+                                className="mt-0.5 size-4 shrink-0 text-[#CAA42D]"
+                                aria-hidden
+                              />
                               <span>
                                 <span className="block font-bold text-[#00365F]">Evening</span>
                                 <span className="text-slate-600">{blocks.evening}</span>
                               </span>
                             </p>
                             <p className="flex gap-3">
-                              <BedDouble className="mt-0.5 size-4 shrink-0 text-[#CAA42D]" aria-hidden />
+                              <BedDouble
+                                className="mt-0.5 size-4 shrink-0 text-[#CAA42D]"
+                                aria-hidden
+                              />
                               <span>
                                 <span className="block font-bold text-[#00365F]">Overnight</span>
                                 <span className="text-slate-600">{blocks.overnight}</span>
@@ -405,16 +430,27 @@ function PackagePage() {
                             </p>
                           </div>
                         ) : null}
-                        <ul className={cn("space-y-2", blocks && "mt-5 border-t border-slate-200 pt-4")}>
+                        <ul
+                          className={cn(
+                            "space-y-2",
+                            blocks && "mt-5 border-t border-slate-200 pt-4",
+                          )}
+                        >
                           {d.activities.map((a) => (
                             <li key={a} className="flex gap-2 text-slate-700">
-                              <Check className="mt-0.5 size-4 shrink-0 text-[#CAA42D]" aria-hidden />
+                              <Check
+                                className="mt-0.5 size-4 shrink-0 text-[#CAA42D]"
+                                aria-hidden
+                              />
                               <span>{a}</span>
                             </li>
                           ))}
                         </ul>
-                        <p className="mt-4 text-xs font-semibold text-slate-500 border-t border-slate-200/60 pt-3">
-                          Meals: {d.meals} · Transport: {d.transport}
+                        <p className="mt-4 border-t border-slate-200/60 pt-3 text-xs font-semibold text-slate-500">
+                          {/* The per-day detail block carries the more specific
+                              line where it exists; the itinerary's own coarser
+                              value is the fallback. */}
+                          Meals: {blocks?.meals ?? d.meals} · Transport: {d.transport}
                         </p>
                       </div>
                     )}
@@ -429,7 +465,7 @@ function PackagePage() {
               <div className="rounded-3xl bg-slate-50 p-6 border border-slate-200">
                 <h3 className="text-base font-bold text-[#00365F]">What's included</h3>
                 <ul className="mt-4 space-y-2.5 text-sm">
-                  {pkg.inclusions.map((i) => (
+                  {(detail?.inclusions ?? pkg.inclusions).map((i) => (
                     <li key={i} className="flex gap-2.5 text-slate-700">
                       <Check className="mt-0.5 size-4 shrink-0 text-[#CAA42D]" aria-hidden />
                       <span>{i}</span>
@@ -440,7 +476,7 @@ function PackagePage() {
               <div className="rounded-3xl border border-slate-200 p-6 bg-white">
                 <h3 className="text-base font-bold text-[#00365F]">Not included</h3>
                 <ul className="mt-4 space-y-2.5 text-sm">
-                  {pkg.exclusions.map((i) => (
+                  {(detail?.exclusions ?? pkg.exclusions).map((i) => (
                     <li key={i} className="flex gap-2.5 text-slate-500">
                       <X className="mt-0.5 size-4 shrink-0 text-rose-500" aria-hidden />
                       <span>{i}</span>
@@ -455,15 +491,21 @@ function PackagePage() {
             <Section id="accommodation" title="Accommodation &amp; Hotel Tier">
               <div className="grid gap-4 rounded-3xl bg-slate-50 p-6 border border-slate-200 sm:grid-cols-3">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Hotel Category</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Hotel Category
+                  </p>
                   <p className="mt-1 font-bold text-[#00365F]">{detail.accommodation.category}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Room Type</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Room Type
+                  </p>
                   <p className="mt-1 font-bold text-[#00365F]">{detail.accommodation.roomType}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Meal Plan</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Meal Plan
+                  </p>
                   <p className="mt-1 font-bold text-[#00365F]">{detail.accommodation.mealPlan}</p>
                 </div>
                 {detail.accommodation.note ? (
@@ -479,7 +521,10 @@ function PackagePage() {
             <Section id="transport" title="Transportation">
               <ul className="space-y-2.5 text-sm">
                 {detail.transportation.map((t) => (
-                  <li key={t} className="flex gap-3 rounded-2xl bg-slate-50 p-4 border border-slate-200 text-slate-700">
+                  <li
+                    key={t}
+                    className="flex gap-3 rounded-2xl bg-slate-50 p-4 border border-slate-200 text-slate-700"
+                  >
                     <Bus className="mt-0.5 size-4 shrink-0 text-[#CAA42D]" aria-hidden />
                     <span>{t}</span>
                   </li>
@@ -543,7 +588,9 @@ function PackagePage() {
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Calculation</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Total Calculation
+                </p>
                 <p className="text-2xl font-extrabold text-[#00365F] mt-1">
                   AED {estimatedTotal.toLocaleString()}
                 </p>
@@ -671,9 +718,7 @@ function PackagePage() {
       {related.length > 0 ? (
         <section className="mx-auto mt-24 max-w-[1400px] px-5 sm:px-8">
           <div className="border-b border-slate-200 pb-4">
-            <h2 className="text-2xl font-bold text-[#00365F] sm:text-3xl">
-              You May Also Like
-            </h2>
+            <h2 className="text-2xl font-bold text-[#00365F] sm:text-3xl">You May Also Like</h2>
           </div>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((p) => (

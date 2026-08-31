@@ -1,6 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowRight, ChevronDown, MessageCircle, Phone, Plane, ShieldCheck, Headset } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronDown,
+  MessageCircle,
+  Phone,
+  Plane,
+  ShieldCheck,
+  Headset,
+} from "lucide-react";
 import { BRAND, packages, priceParts, waLink } from "@/data/catalogue";
 import { countries } from "@/data/countries";
 import { inboundActivities } from "@/data/inbound";
@@ -37,15 +45,16 @@ const FAQS = [
   },
 ];
 
+/** Shared so the meta description and og:description cannot drift apart. */
+const HOME_DESCRIPTION =
+  "IATA-accredited travel agency in Deira, Dubai since 2009. Worldwide holiday packages, flights, UAE tours and visas — arranged end to end by one team.";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Nawi Saadi Travel & Tourism — Luxury Worldwide Holidays from Dubai" },
-      {
-        name: "description",
-        content:
-          "IATA-accredited travel agency in Deira, Dubai since 2009. Curated worldwide holiday packages to Switzerland, Japan, Maldives, Georgia, Turkey, Azerbaijan and VIP Umrah — flights, hotels, transfers and visas handled by one team.",
-      },
+      { title: "Nawi Saadi | Worldwide Holiday Packages from Dubai" },
+      { name: "description", content: HOME_DESCRIPTION },
+      { property: "og:description", content: HOME_DESCRIPTION },
       {
         property: "og:title",
         content: "Nawi Saadi Travel & Tourism — Luxury Worldwide Holidays from Dubai",
@@ -340,6 +349,7 @@ function UaeRail() {
                 <img
                   src={a.image}
                   alt={a.title}
+                  decoding="async"
                   loading="lazy"
                   className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
@@ -413,7 +423,9 @@ function Assurance() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <h3 className="font-display text-xl text-[#00365F]">{title}</h3>
-                      <p className="mt-2 font-sans text-sm leading-relaxed text-[#666666]">{body}</p>
+                      <p className="mt-2 font-sans text-sm leading-relaxed text-[#666666]">
+                        {body}
+                      </p>
                     </div>
                     <Icon className="mt-1 size-5 shrink-0 text-[#E5E5E5] transition-colors group-hover:text-[#CAA42D]" />
                   </div>
@@ -486,18 +498,15 @@ function ContactClose() {
               </a>
             </Magnet>
           </div>
-
         </div>
       </div>
     </section>
   );
 }
 
-
 /* ---------------------------------------------------------------- *
  * FAQ — three questions, not ten
  * ---------------------------------------------------------------- */
-
 
 function Faq() {
   const [open, setOpen] = useState<number | null>(0);

@@ -20,7 +20,7 @@ import { submitLead } from "@/lib/leads";
 
 const title = `Customized Tours & Tailor-Made Holidays | ${BRAND.short}`;
 const description =
-  "Build a fully tailor-made holiday with Nawi Saadi Travel & Tourism Dubai — your dates, your pace, your budget. Honeymoons, family trips, corporate travel and multi-country journeys.";
+  "Build a tailor-made holiday from Dubai — your dates, your pace, your budget. Honeymoons, family trips, corporate and multi-country journeys.";
 
 export const Route = createFileRoute("/customized-tours")({
   head: () => ({
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/customized-tours")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/customized-tours" },
+      { property: "og:url", content: absoluteUrl("/customized-tours") },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/customized-tours") }],
@@ -65,12 +65,27 @@ export const Route = createFileRoute("/customized-tours")({
  */
 
 const tripTypes = [
-  { id: "honeymoon", label: "Honeymoon & romance", icon: Heart, note: "Private villas, scenic pacing" },
+  {
+    id: "honeymoon",
+    label: "Honeymoon & romance",
+    icon: Heart,
+    note: "Private villas, scenic pacing",
+  },
   { id: "family", label: "Family holiday", icon: Users, note: "Kid-friendly pacing & suites" },
   { id: "group", label: "Group / friends", icon: Compass, note: "Private coach, shared itinerary" },
-  { id: "corporate", label: "Corporate / MICE", icon: Plane, note: "Flights, meetings & logistics" },
+  {
+    id: "corporate",
+    label: "Corporate / MICE",
+    icon: Plane,
+    note: "Flights, meetings & logistics",
+  },
   { id: "multi", label: "Multi-country tour", icon: Sparkles, note: "Two or more destinations" },
-  { id: "luxury", label: "Five-star luxury", icon: BadgeCheck, note: "Top-tier hotels & chauffeur" },
+  {
+    id: "luxury",
+    label: "Five-star luxury",
+    icon: BadgeCheck,
+    note: "Top-tier hotels & chauffeur",
+  },
 ] as const;
 
 const styleOptions = [
@@ -199,18 +214,13 @@ function CustomizedToursPage() {
       </section>
 
       {/* The brief */}
-      <section
-        id="brief"
-        className="border-t border-[#e3ded4] bg-[#FFFFFF] py-20 scroll-mt-28"
-      >
+      <section id="brief" className="border-t border-[#e3ded4] bg-[#FFFFFF] py-20 scroll-mt-28">
         <div className="mx-auto grid max-w-[1400px] gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_360px] lg:items-start">
           <div>
             <p className="font-sans text-[11px] font-medium tracking-[0.24em] text-[#8F7420] uppercase">
               Your brief
             </p>
-            <h2 className="mt-3 font-display text-3xl font-medium sm:text-4xl">
-              Design your trip
-            </h2>
+            <h2 className="mt-3 font-display text-3xl font-medium sm:text-4xl">Design your trip</h2>
 
             <fieldset className="mt-10">
               <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
@@ -234,18 +244,13 @@ function CustomizedToursPage() {
                       )}
                     >
                       <Icon
-                        className={cn(
-                          "size-5",
-                          on ? "text-[#12293f]" : "text-[#8F7420]",
-                        )}
+                        className={cn("size-5", on ? "text-[#12293f]" : "text-[#8F7420]")}
                         aria-hidden
                       />
                       <span className="mt-3 block font-sans text-sm font-semibold text-[#353844]">
                         {t.label}
                       </span>
-                      <span className="mt-1 block font-sans text-xs text-[#8b8378]">
-                        {t.note}
-                      </span>
+                      <span className="mt-1 block font-sans text-xs text-[#8b8378]">{t.note}</span>
                     </button>
                   );
                 })}
@@ -374,10 +379,7 @@ function CustomizedToursPage() {
               <Row k="Travellers" v={pax} />
               <Row k="Pace" v={style} />
               <Row k="Budget" v={budget} />
-              <Row
-                k="Inclusions"
-                v={incl.length ? `${incl.length} selected` : "To be advised"}
-              />
+              <Row k="Inclusions" v={incl.length ? `${incl.length} selected` : "To be advised"} />
             </dl>
 
             <a
@@ -415,8 +417,8 @@ function CustomizedToursPage() {
             </Link>
 
             <p className="mt-6 border-t border-[#e3ded4] pt-5 font-sans text-[11px] leading-relaxed text-[#8b8378]">
-              The consultation and first itinerary draft are free. IATA
-              accredited agency, member #2009.
+              The consultation and first itinerary draft are free. IATA accredited agency, member
+              #2009.
             </p>
           </aside>
         </div>
@@ -428,13 +430,7 @@ function CustomizedToursPage() {
 const inputCls =
   "w-full rounded-sm border border-[#ded7c9] bg-white px-4 py-3 font-sans text-sm text-[#353844] outline-none transition-colors focus:border-[#8F7420]";
 
-function Labelled({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Labelled({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
       <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">

@@ -1,5 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, MessageCircle, Flame, Clock, Sparkles, CheckCircle2, ShieldCheck, Tag, Star, Percent } from "lucide-react";
+import {
+  ArrowRight,
+  MessageCircle,
+  Flame,
+  Clock,
+  Sparkles,
+  CheckCircle2,
+  ShieldCheck,
+  Tag,
+  Star,
+  Percent,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { BRAND, packages, waLink } from "@/data/catalogue";
 import { inboundActivities, inboundUnder100 } from "@/data/inbound";
@@ -63,12 +74,19 @@ const COMBO_DEALS = [
 export const Route = createFileRoute("/deals")({
   head: () => ({
     meta: [
-      { title: `Dubai Flash Deals & Combo Passes — from AED ${cheapest} | Nawi Saadi Travel` },
+      { title: `Dubai Deals & Combo Passes from AED ${cheapest} | Nawi Saadi` },
       {
         name: "description",
         content: `Exclusive UAE contracted rates, Dubai attraction combo passes, and worldwide holiday packages from AED ${cheapestHoliday}. Official DTCM barcode tickets dispatched on WhatsApp.`,
       },
-      { property: "og:title", content: "Holiday Deals & Dubai Attraction Passes | Nawi Saadi Travel" },
+      {
+        property: "og:description",
+        content: `UAE contracted rates, Dubai attraction combo passes and worldwide holiday packages from AED ${cheapestHoliday}. DTCM barcode tickets sent on WhatsApp.`,
+      },
+      {
+        property: "og:title",
+        content: "Holiday Deals & Dubai Attraction Passes | Nawi Saadi Travel",
+      },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/deals") }],
   }),
@@ -114,12 +132,15 @@ function DealsPage() {
               </h1>
 
               <p className="mt-4 text-base text-slate-200 max-w-xl leading-relaxed">
-                Save up to 35% with pre-negotiated wholesale rates. Official barcodes with DTCM accreditation delivered straight to your WhatsApp in 15 minutes.
+                Save up to 35% with pre-negotiated wholesale rates. Official barcodes with DTCM
+                accreditation delivered straight to your WhatsApp in 15 minutes.
               </p>
 
               <div className="mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-4">
                 <a
-                  href={waLink("Hi Nawi Saadi, I would like to book a special deal package on WhatsApp.")}
+                  href={waLink(
+                    "Hi Nawi Saadi, I would like to book a special deal package on WhatsApp.",
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 px-6 py-3.5 text-xs font-extrabold text-[#00365F] shadow-xl transition-all hover:from-amber-300 hover:to-amber-400"
@@ -187,6 +208,10 @@ function DealsPage() {
                   <img
                     src={combo.image}
                     alt={combo.title}
+                    width={1200}
+                    height={800}
+                    loading="lazy"
+                    decoding="async"
                     className="size-full object-cover transition-transform duration-700 group-hover:scale-108"
                   />
                   <div className="absolute top-3 left-3">
@@ -223,7 +248,9 @@ function DealsPage() {
                     </div>
 
                     <a
-                      href={waLink(`Hi Nawi Saadi, I want to book the Combo Deal: ${combo.title} at AED ${combo.price}.`)}
+                      href={waLink(
+                        `Hi Nawi Saadi, I want to book the Combo Deal: ${combo.title} at AED ${combo.price}.`,
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 rounded-xl bg-[#00365F] px-3.5 py-2 text-xs font-bold text-white transition-all hover:bg-[#CAA42D] hover:text-[#00365F]"
@@ -308,11 +335,14 @@ function DealsPage() {
               Looking for Custom Group or Corporate Deals?
             </h3>
             <p className="mt-1 text-xs text-slate-300">
-              We offer wholesale group discounts for 6+ travelers, company offsites, and private yacht charters.
+              We offer wholesale group discounts for 6+ travelers, company offsites, and private
+              yacht charters.
             </p>
           </div>
           <a
-            href={waLink("Hi Nawi Saadi, I would like to inquire about group discounts and corporate packages.")}
+            href={waLink(
+              "Hi Nawi Saadi, I would like to inquire about group discounts and corporate packages.",
+            )}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#CAA42D] px-6 py-3.5 text-xs font-extrabold text-[#00365F] shadow-lg hover:bg-amber-300 transition-colors"

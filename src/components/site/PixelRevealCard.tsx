@@ -44,6 +44,7 @@ export function PixelRevealCard({ card, index }: { card: PixelCard; index: numbe
       <img
         src={card.image}
         alt={card.title}
+        decoding="async"
         loading={index < 3 ? "eager" : "lazy"}
         className="absolute inset-0 size-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
       />

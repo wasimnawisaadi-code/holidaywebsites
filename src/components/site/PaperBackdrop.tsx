@@ -59,7 +59,7 @@ export function PaperBackdrop({
         // Larger balloons are nearer, so they travel further — the same rule
         // that makes the parallax read as depth rather than as random drift.
         const target = -p * (70 + i * 34);
-        shown[i] += (target - (shown[i] ?? 0)) * 0.1;
+        shown[i] = (shown[i] ?? 0) + (target - (shown[i] ?? 0)) * 0.1;
         n.style.transform = `translate3d(0, ${(shown[i] ?? 0).toFixed(2)}px, 0)`;
       });
     };

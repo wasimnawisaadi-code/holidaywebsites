@@ -33,7 +33,12 @@ export const regionalDestinations: RegionGroup[] = [
       { name: "Malaysia", slug: "malaysia", link: "/countries/malaysia" },
       { name: "Thailand", slug: "thailand", link: "/countries/thailand" },
       { name: "Sri Lanka", slug: "sri-lanka", link: "/countries/sri-lanka" },
-      { name: "Maldives", slug: "maldives-overwater-escape", isNew: true, link: "/holidays/maldives-overwater-escape" },
+      {
+        name: "Maldives",
+        slug: "maldives-overwater-escape",
+        isNew: true,
+        link: "/holidays/maldives-overwater-escape",
+      },
       { name: "Nepal", slug: "nepal", link: "/countries/nepal" },
       { name: "Vietnam", slug: "vietnam", link: "/countries/vietnam" },
       { name: "China", slug: "china", link: "/countries/china" },
@@ -58,7 +63,11 @@ export const regionalDestinations: RegionGroup[] = [
     countries: [
       { name: "Turkey", slug: "cappadocia-sky-turkey", link: "/holidays/cappadocia-sky-turkey" },
       { name: "Azerbaijan", slug: "baku-wonders", link: "/holidays/baku-wonders" },
-      { name: "Georgia", slug: "georgia-mountain-weekender", link: "/holidays/georgia-mountain-weekender" },
+      {
+        name: "Georgia",
+        slug: "georgia-mountain-weekender",
+        link: "/holidays/georgia-mountain-weekender",
+      },
       { name: "Armenia", slug: "armenia", link: "/countries/armenia" },
       { name: "Kazakhstan", slug: "kazakhstan", link: "/countries/kazakhstan" },
       { name: "Jordan", slug: "jordan", link: "/countries/jordan" },
@@ -67,9 +76,7 @@ export const regionalDestinations: RegionGroup[] = [
   },
   {
     region: "Australia Tours",
-    countries: [
-      { name: "Australia", slug: "australia", link: "/countries/australia" },
-    ],
+    countries: [{ name: "Australia", slug: "australia", link: "/countries/australia" }],
   },
   {
     region: "America",
@@ -80,6 +87,55 @@ export const regionalDestinations: RegionGroup[] = [
     ],
   },
 ];
+
+/**
+ * One entry in a region column.
+ *
+ * These links live in the data as plain strings, and the call site used to
+ * hand them straight to `<Link to={c.link as any}>`. The cast turned off the
+ * router's route checking for all 41 of them, so a mistyped slug would have
+ * compiled, shipped, and 404'd silently. Splitting the path into its route and
+ * its param restores that checking: a slug that no longer resolves is now a
+ * type error at the route level rather than a dead link in production.
+ */
+function DestinationLink({
+  href,
+  className,
+  children,
+}: {
+  href: string | undefined;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  if (href?.startsWith("/countries/")) {
+    return (
+      <Link
+        to="/countries/$slug"
+        params={{ slug: href.slice("/countries/".length) }}
+        className={className}
+      >
+        {children}
+      </Link>
+    );
+  }
+  if (href?.startsWith("/holidays/")) {
+    return (
+      <Link
+        to="/holidays/$slug"
+        params={{ slug: href.slice("/holidays/".length) }}
+        className={className}
+      >
+        {children}
+      </Link>
+    );
+  }
+  // No specific destination page yet — the directory is the honest fallback.
+  return (
+    <Link to="/countries" className={className}>
+      {children}
+    </Link>
+  );
+}
 
 export function RegionalDestinationsGrid() {
   return (
@@ -95,7 +151,9 @@ export function RegionalDestinationsGrid() {
         </div>
 
         <a
-          href={waLink(`Hi ${BRAND.short}, I want to enquire about holiday packages to a specific country.`)}
+          href={waLink(
+            `Hi ${BRAND.short}, I want to enquire about holiday packages to a specific country.`,
+          )}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-full bg-[#00365F] px-5 py-2.5 text-xs font-bold text-white shadow-md transition-transform hover:scale-105"
@@ -115,12 +173,12 @@ export function RegionalDestinationsGrid() {
             <ul className="space-y-2 text-xs font-semibold text-slate-700">
               {grp.countries.map((c) => (
                 <li key={c.name} className="flex items-center gap-1.5">
-                  <Link
-                    to={c.link as any}
+                  <DestinationLink
+                    href={c.link}
                     className="transition-colors hover:text-[#CAA42D] hover:underline"
                   >
                     {c.name}
-                  </Link>
+                  </DestinationLink>
                   {c.isNew && (
                     <span className="rounded bg-[#CAA42D] px-1.5 py-0.5 text-[9px] font-black text-[#00365F] uppercase">
                       NEW

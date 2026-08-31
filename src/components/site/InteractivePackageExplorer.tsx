@@ -9,29 +9,56 @@ const TABS = [
   {
     id: "alpine",
     label: "🏔️ Alpine & Nature",
-    filter: (p: typeof packages[0]) =>
-      ["Switzerland", "Georgia", "Kyrgyzstan", "Nepal", "Kazakhstan", "Austria", "Germany", "Finland"].includes(p.country) ||
-      p.styles.includes("Adventure"),
+    filter: (p: (typeof packages)[0]) =>
+      [
+        "Switzerland",
+        "Georgia",
+        "Kyrgyzstan",
+        "Nepal",
+        "Kazakhstan",
+        "Austria",
+        "Germany",
+        "Finland",
+      ].includes(p.country) || p.styles.includes("Adventure"),
   },
   {
     id: "beach",
     label: "🏖️ Tropical & Beach",
-    filter: (p: typeof packages[0]) =>
-      ["Maldives", "Indonesia", "Mauritius", "Seychelles", "Thailand", "Malaysia", "Sri Lanka"].includes(p.country) ||
+    filter: (p: (typeof packages)[0]) =>
+      [
+        "Maldives",
+        "Indonesia",
+        "Mauritius",
+        "Seychelles",
+        "Thailand",
+        "Malaysia",
+        "Sri Lanka",
+      ].includes(p.country) ||
       p.styles.includes("Beach") ||
       p.styles.includes("Honeymoon"),
   },
   {
     id: "culture",
     label: "🏛️ Culture & Heritage",
-    filter: (p: typeof packages[0]) =>
-      ["Spain", "Italy", "Japan", "Turkey", "Egypt", "France", "United Kingdom", "China", "Uzbekistan", "Jordan", "Serbia"].includes(p.country) ||
-      p.styles.includes("Cultural"),
+    filter: (p: (typeof packages)[0]) =>
+      [
+        "Spain",
+        "Italy",
+        "Japan",
+        "Turkey",
+        "Egypt",
+        "France",
+        "United Kingdom",
+        "China",
+        "Uzbekistan",
+        "Jordan",
+        "Serbia",
+      ].includes(p.country) || p.styles.includes("Cultural"),
   },
   {
     id: "quick",
     label: "⚡ 4-Day Quick Escapes",
-    filter: (p: typeof packages[0]) => p.days <= 4,
+    filter: (p: (typeof packages)[0]) => p.days <= 4,
   },
 ] as const;
 
@@ -83,6 +110,7 @@ export function InteractivePackageExplorer() {
                 <img
                   src={p.image}
                   alt={p.title}
+                  decoding="async"
                   loading="lazy"
                   className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
                 />
@@ -106,9 +134,7 @@ export function InteractivePackageExplorer() {
                       {p.days} Days / {p.nights} Nights
                     </span>
                     <span>•</span>
-                    <span className="line-clamp-1">
-                      {p.styles.slice(0, 2).join(", ")}
-                    </span>
+                    <span className="line-clamp-1">{p.styles.slice(0, 2).join(", ")}</span>
                   </div>
 
                   <h3 className="mt-2.5 line-clamp-2 font-display text-lg font-bold leading-snug text-[#00365F] transition-colors group-hover:text-[#8F7420]">

@@ -391,6 +391,57 @@
   }
 }
 
+/* ---------------------------------------------------------------------
+ * Glass that stays legible off the hero.
+ *
+ * `liquid-glass` is 8% white over a backdrop-filter, which means it has
+ * almost no colour of its own — it borrows whatever is painted behind it.
+ * That is exactly right over a dark hero video and exactly wrong anywhere
+ * else, and the homepage search bar does both: it is pulled up into the
+ * hero, but it is taller than the space left below the headline, so it
+ * overhangs onto the white page body. On a phone that put two thirds of the
+ * bar on white, and its white labels vanished completely — the "When" and
+ * "Travellers" fields were invisible. On desktop the trust cards below sat
+ * 24px behind it and bled up through the glass as a white wash.
+ *
+ * Adding a navy base fixes both without giving up the look: over the hero
+ * the blur and the gradient ring still read as glass, and off the hero the
+ * bar keeps brand-navy contrast behind its white type.
+ * ------------------------------------------------------------------ */
+@utility liquid-glass-navy {
+  position: relative;
+  background: color-mix(in srgb, #00365f 88%, transparent);
+  backdrop-filter: blur(14px) saturate(135%);
+  -webkit-backdrop-filter: blur(14px) saturate(135%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.16);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.16) 22%,
+      rgba(255, 255, 255, 0) 45%,
+      rgba(255, 255, 255, 0) 58%,
+      rgba(255, 255, 255, 0.16) 80%,
+      rgba(255, 255, 255, 0.5) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
 /* Brighter state, for a selected or hovered glass surface. */
 @utility liquid-glass-strong {
   background: rgba(255, 255, 255, 0.15);

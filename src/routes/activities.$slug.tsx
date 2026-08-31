@@ -22,6 +22,7 @@ import { inboundActivities, inboundBySlug, inboundFrom } from "@/data/inbound";
 import { ActivityCard } from "@/components/site/ActivityCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
+import { activityTitle, metaDescription } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/activities/$slug")({
@@ -35,8 +36,8 @@ export const Route = createFileRoute("/activities/$slug")({
       return { meta: [{ title: "Activity unavailable" }, { name: "robots", content: "noindex" }] };
     }
     const a = loaderData.activity;
-    const title = `${a.title} — ${a.emirate} | Book with ${BRAND.short}`;
-    const description = a.overview.slice(0, 155);
+    const title = activityTitle(a.title, a.emirate);
+    const description = metaDescription(a.overview);
     return {
       meta: [
         { title },
@@ -218,6 +219,9 @@ function ActivityPage() {
               alt={`${a.title} — view ${shot + 1}`}
               width={1600}
               height={1000}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
               className="size-full object-cover transition-all duration-500"
             />
           </div>
@@ -230,7 +234,9 @@ function ActivityPage() {
                 aria-label={`Show image ${i + 1}`}
                 className={cn(
                   "relative aspect-[4/3] overflow-hidden rounded-2xl ring-2 transition-all cursor-pointer bg-slate-100",
-                  shot === i ? "ring-[#00365F] shadow-md" : "ring-transparent hover:ring-[#00365F]/40 opacity-80 hover:opacity-100",
+                  shot === i
+                    ? "ring-[#00365F] shadow-md"
+                    : "ring-transparent hover:ring-[#00365F]/40 opacity-80 hover:opacity-100",
                 )}
               >
                 <img src={g} alt="" className="size-full object-cover" loading="lazy" />
@@ -268,7 +274,9 @@ function ActivityPage() {
                     className="absolute -left-[31px] top-1 size-3.5 rounded-full border-2 border-[#CAA42D] bg-white"
                     aria-hidden
                   />
-                  <p className="text-xs font-bold uppercase tracking-wider text-[#CAA42D]">{t.time}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#CAA42D]">
+                    {t.time}
+                  </p>
                   <p className="mt-1 text-sm text-slate-700 font-medium">{t.detail}</p>
                 </li>
               ))}
@@ -301,7 +309,9 @@ function ActivityPage() {
                           <span className="mt-0.5 block text-xs text-slate-500">{o.note}</span>
                         ) : null}
                         {o.unit && o.unit !== "per person" ? (
-                          <span className="mt-0.5 block text-xs text-[#CAA42D] font-semibold">{o.unit}</span>
+                          <span className="mt-0.5 block text-xs text-[#CAA42D] font-semibold">
+                            {o.unit}
+                          </span>
                         ) : null}
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap font-bold text-[#00365F]">
@@ -316,7 +326,8 @@ function ActivityPage() {
               </table>
             </div>
             <p className="mt-3 text-xs text-slate-500">
-              * Official DTCM contracted rates. Instant digital mobile voucher delivered to your WhatsApp.
+              * Official DTCM contracted rates. Instant digital mobile voucher delivered to your
+              WhatsApp.
             </p>
           </Section>
 
@@ -350,7 +361,10 @@ function ActivityPage() {
           <Section id="transport" title="Transportation">
             <ul className="space-y-2.5 text-sm">
               {a.transportation.map((t) => (
-                <li key={t} className="flex gap-3 rounded-2xl bg-slate-50 p-4 border border-slate-200 text-slate-700">
+                <li
+                  key={t}
+                  className="flex gap-3 rounded-2xl bg-slate-50 p-4 border border-slate-200 text-slate-700"
+                >
                   <Bus className="mt-0.5 size-4 shrink-0 text-[#CAA42D]" aria-hidden />
                   <span>{t}</span>
                 </li>
@@ -361,7 +375,10 @@ function ActivityPage() {
           <Section id="info" title="Important information">
             <div className="grid gap-4 sm:grid-cols-2">
               {a.importantInfo.map((n) => (
-                <div key={n.title} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div
+                  key={n.title}
+                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                >
                   <p className="flex items-center gap-2 font-bold text-[#00365F]">
                     <Info className="size-4 shrink-0 text-[#CAA42D]" aria-hidden />
                     {n.title}
@@ -410,9 +427,16 @@ function ActivityPage() {
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Calculation</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Total Calculation
+                </p>
                 <p className="text-2xl font-extrabold text-[#00365F] mt-1">
-                  AED {totalPrice > 0 ? totalPrice.toLocaleString() : (a.fromPrice ? a.fromPrice.toLocaleString() : "On Request")}
+                  AED{" "}
+                  {totalPrice > 0
+                    ? totalPrice.toLocaleString()
+                    : a.fromPrice
+                      ? a.fromPrice.toLocaleString()
+                      : "On Request"}
                 </p>
               </div>
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-[#8F7420]">
@@ -553,7 +577,7 @@ function ActivityPage() {
         <div className="min-w-0">
           <p className="truncate text-xs font-bold text-[#00365F]">{a.title}</p>
           <p className="text-sm font-extrabold text-[#CAA42D]">
-            AED {totalPrice > 0 ? totalPrice.toLocaleString() : (a.fromPrice || "On Request")}
+            AED {totalPrice > 0 ? totalPrice.toLocaleString() : a.fromPrice || "On Request"}
           </p>
         </div>
         <a

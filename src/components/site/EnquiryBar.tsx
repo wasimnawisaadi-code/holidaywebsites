@@ -17,8 +17,18 @@ import { packages, waLink } from "@/data/catalogue";
  */
 
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ] as const;
 
 export function EnquiryBar() {
@@ -58,7 +68,9 @@ export function EnquiryBar() {
       destination ? `to ${destination}` : "",
       month ? `in ${month}` : "",
       travellers ? `for ${travellers}` : "",
-    ].filter(Boolean).join(" ");
+    ]
+      .filter(Boolean)
+      .join(" ");
     window.open(
       waLink(`Hi Nawi Saadi, I'd like a holiday quote${bits ? " " + bits : ""}.`),
       "_blank",
@@ -70,7 +82,7 @@ export function EnquiryBar() {
     <div className="relative z-30 mx-auto -mt-16 max-w-[1400px] px-5 sm:-mt-20 sm:px-8">
       <form
         onSubmit={submit}
-        className="liquid-glass sheen grid gap-px overflow-hidden rounded-2xl shadow-[0_24px_60px_-30px_rgba(0,20,40,0.55)] sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_auto]"
+        className="liquid-glass-navy sheen grid gap-px overflow-hidden rounded-2xl shadow-[0_24px_60px_-30px_rgba(0,20,40,0.55)] sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_auto]"
       >
         <Field icon={MapPin} label="Destination">
           <input
@@ -97,7 +109,9 @@ export function EnquiryBar() {
           >
             <option value="">Flexible</option>
             {upcomingMonths.map((m) => (
-              <option key={m} value={m}>{m}</option>
+              <option key={m} value={m}>
+                {m}
+              </option>
             ))}
           </select>
         </Field>
@@ -110,7 +124,9 @@ export function EnquiryBar() {
             className="w-full cursor-pointer bg-transparent font-sans text-sm font-semibold text-white outline-none [&>option]:text-[#00365F]"
           >
             {["1 adult", "2 adults", "2 adults + children", "Family group", "6+ group"].map((t) => (
-              <option key={t} value={t}>{t}</option>
+              <option key={t} value={t}>
+                {t}
+              </option>
             ))}
           </select>
         </Field>

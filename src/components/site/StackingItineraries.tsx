@@ -108,6 +108,7 @@ export function StackingItineraries({ cards }: { cards: StackCard[] }) {
                 <img
                   src={c.image}
                   alt={c.title}
+                  decoding="async"
                   loading={i === 0 ? "eager" : "lazy"}
                   className="absolute inset-0 size-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
                 />
@@ -141,7 +142,9 @@ export function StackingItineraries({ cards }: { cards: StackCard[] }) {
                     <MapPin className="size-4 text-[#CAA42D]" />
                     <div>
                       <dt className="sr-only">Country</dt>
-                      <dd className="font-sans text-sm font-semibold text-[#00365F]">{c.country}</dd>
+                      <dd className="font-sans text-sm font-semibold text-[#00365F]">
+                        {c.country}
+                      </dd>
                     </div>
                   </div>
                 </dl>
@@ -151,7 +154,9 @@ export function StackingItineraries({ cards }: { cards: StackCard[] }) {
                     <span className="block font-sans text-[10px] font-semibold uppercase tracking-[0.16em] text-[#666666]">
                       {c.priceLabel}
                     </span>
-                    <span className="font-display text-2xl font-bold text-[#00365F]">{c.price}</span>
+                    <span className="font-display text-2xl font-bold text-[#00365F]">
+                      {c.price}
+                    </span>
                   </div>
                   <Link
                     to="/holidays/$slug"

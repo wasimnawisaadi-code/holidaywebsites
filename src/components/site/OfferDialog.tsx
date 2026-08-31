@@ -52,7 +52,11 @@ export function OfferDialog() {
   const closeRef = useRef<HTMLButtonElement>(null);
   const restoreTo = useRef<Element | null>(null);
 
-  if (pathname.startsWith("/admin")) return null;
+  // Every hook below must run on every render. Returning early here (as this
+  // did) changes the hook count when a visitor moves between /admin and a
+  // public page, which crashes the tree. The check is applied at the render
+  // guard further down instead.
+  const onAdmin = pathname.startsWith("/admin");
 
   const pkg = packages.find((p) => p.slug === FEATURED_SLUG);
 
@@ -65,6 +69,7 @@ export function OfferDialog() {
   // ---- when to show ------------------------------------------------------
   useEffect(() => {
     if (!pkg) return;
+    if (onAdmin) return;
     if (alreadySeen()) return;
     // The planner and contact pages are where someone is already typing to us;
     // interrupting that is the one place a promo is actively unhelpful.
@@ -90,7 +95,7 @@ export function OfferDialog() {
       window.clearTimeout(timer);
       document.removeEventListener("pointerout", onLeave);
     };
-  }, [pkg]);
+  }, [pkg, onAdmin]);
 
   // ---- focus + escape + scroll lock while open ---------------------------
   useEffect(() => {
@@ -131,7 +136,7 @@ export function OfferDialog() {
     };
   }, [open, dismiss]);
 
-  if (!pkg || !open) return null;
+  if (onAdmin || !pkg || !open) return null;
 
   const price = priceParts(pkg);
 
@@ -172,6 +177,10 @@ export function OfferDialog() {
           <img
             src={pkg.image}
             alt={pkg.title}
+            width={1600}
+            height={1000}
+            loading="lazy"
+            decoding="async"
             className="absolute inset-0 size-full object-cover"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#00365F]/50 to-transparent" />

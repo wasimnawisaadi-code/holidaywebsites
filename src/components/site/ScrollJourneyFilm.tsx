@@ -259,6 +259,8 @@ export function ScrollJourneyFilm() {
           <img
             src="/frames/journey/desktop/f_0001.webp"
             alt="Aerial view of a beach resort on a Nawi Saadi holiday"
+            loading="eager"
+            decoding="async"
             className="w-full rounded-3xl object-cover"
           />
         </div>
@@ -272,11 +274,7 @@ export function ScrollJourneyFilm() {
     // Four viewports of scroll: one to settle, three to scrub through.
     <section ref={sectionRef} className="relative h-[400vh] bg-[#00365F]">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 size-full"
-          aria-hidden="true"
-        />
+        <canvas ref={canvasRef} className="absolute inset-0 size-full" aria-hidden="true" />
 
         {/* Screen-reader and no-JS description of what the sequence shows. */}
         <p className="sr-only">

@@ -9,9 +9,9 @@ import { PageHero } from "@/components/site/PageHero";
 import { cn } from "@/lib/utils";
 import { absoluteUrl } from "@/lib/site";
 
-const title = `Dubai & UAE Tours, Tickets and Activities | ${BRAND.name}`;
+const title = `Dubai & UAE Tours and Tickets | ${BRAND.short}`;
 const description =
-  "DTCM-approved UAE tour operator. Desert safaris, dhow and yacht cruises, Burj Khalifa tickets, Atlantis Aquaventure, Ferrari World and attraction passes, booked through our Deira office.";
+  "DTCM-approved UAE tour operator. Desert safaris, dhow cruises, Burj Khalifa tickets, Ferrari World and attraction passes, booked from our Deira office.";
 
 type Emirate = "All" | "Dubai" | "Abu Dhabi" | "Sharjah & Northern Emirates";
 
@@ -23,10 +23,29 @@ export const Route = createFileRoute("/activities/")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/activities" },
+      { property: "og:url", content: absoluteUrl("/activities") },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/activities") }],
+    scripts: [
+      {
+        // Same reasoning as /holidays: the individual TouristAttraction pages
+        // are only understood as a set if the collection is declared.
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "Dubai and UAE tours, tickets and attractions",
+          numberOfItems: inboundActivities.length,
+          itemListElement: inboundActivities.slice(0, 50).map((a, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: a.title,
+            url: absoluteUrl(`/activities/${a.slug}`),
+          })),
+        }),
+      },
+    ],
   }),
   component: ActivitiesPage,
 });
@@ -109,11 +128,13 @@ function ActivitiesPage() {
               <SlidersHorizontal className="size-3.5 text-[#CAA42D]" />
               Emirate
             </span>
-            {(["All", "Dubai", "Abu Dhabi", "Sharjah & Northern Emirates"] as Emirate[]).map((e) => (
-              <Chip key={e} on={emirate === e} onClick={() => setEmirate(e)}>
-                {e === "All" ? "All emirates" : e}
-              </Chip>
-            ))}
+            {(["All", "Dubai", "Abu Dhabi", "Sharjah & Northern Emirates"] as Emirate[]).map(
+              (e) => (
+                <Chip key={e} on={emirate === e} onClick={() => setEmirate(e)}>
+                  {e === "All" ? "All emirates" : e}
+                </Chip>
+              ),
+            )}
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -121,11 +142,7 @@ function ActivitiesPage() {
               Category
             </span>
             {(["All", ...inboundCategories] as const).map((c) => (
-              <Chip
-                key={c}
-                on={cat === c}
-                onClick={() => setCat(c as InboundCategory | "All")}
-              >
+              <Chip key={c} on={cat === c} onClick={() => setCat(c as InboundCategory | "All")}>
                 {c === "All" ? "All categories" : c}
               </Chip>
             ))}

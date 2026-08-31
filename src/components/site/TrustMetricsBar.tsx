@@ -1,12 +1,27 @@
-import { Star, Globe2, ShieldCheck, MessageCircle } from "lucide-react";
+import { Building2, Globe2, ShieldCheck, MessageCircle } from "lucide-react";
 import { BRAND } from "@/data/catalogue";
 
+/**
+ * Every figure here has to be one the agency can evidence on request.
+ *
+ * The first card used to read "4.9 / 5.0 — Rated by 1,400+ UAE Travelers".
+ * Nothing in the business data supports either number, there is no review
+ * platform behind it, and an unevidenced rating is both a Meta/Google ads
+ * policy breach and the kind of claim a UAE consumer authority can act on.
+ * It has been replaced with the three-office footprint, which is real and is
+ * a stronger differentiator than a rating no competitor believes anyway.
+ *
+ * If a genuine aggregate rating exists — a Google Business Profile score, say
+ * — put it back here AND add an aggregateRating to the TravelAgency schema in
+ * __root.tsx, citing the platform it came from. Do not restore one without
+ * the other.
+ */
 const METRICS = [
   {
-    icon: Star,
-    value: "4.9 / 5.0",
-    label: "Rated by 1,400+ UAE Travelers",
-    badge: "Top Rated",
+    icon: Building2,
+    value: "3 Country Offices",
+    label: "Dubai · Kabul · Jeddah",
+    badge: "Since 2009",
   },
   {
     icon: Globe2,
@@ -18,7 +33,7 @@ const METRICS = [
     icon: ShieldCheck,
     value: "IATA & DTCM Licensed",
     label: "Official flydubai GSA Partner",
-    badge: "Since 2009",
+    badge: "Accredited",
   },
   {
     icon: MessageCircle,
@@ -29,8 +44,12 @@ const METRICS = [
 ];
 
 export function TrustMetricsBar() {
+  // Positive top margin, deliberately. This was -mt-6, which tucked the white
+  // card 24px behind the search bar above it — and because that bar is a
+  // translucent glass panel with no colour of its own, the card bled straight
+  // up through it as a white wash over the "Anywhere" and "Flexible" fields.
   return (
-    <div className="relative z-20 mx-auto -mt-6 max-w-[1400px] px-5 sm:px-8">
+    <div className="relative z-20 mx-auto mt-6 max-w-[1400px] px-5 sm:px-8">
       <div className="grid grid-cols-2 gap-3 rounded-3xl border border-slate-200/80 bg-white/95 p-4 shadow-xl backdrop-blur-md sm:p-6 lg:grid-cols-4 lg:gap-6">
         {METRICS.map((m, i) => {
           const Icon = m.icon;
@@ -50,9 +69,7 @@ export function TrustMetricsBar() {
               <p className="mt-3 font-display text-lg font-bold text-[#00365F] sm:text-xl">
                 {m.value}
               </p>
-              <p className="mt-0.5 font-sans text-xs text-slate-500 line-clamp-1">
-                {m.label}
-              </p>
+              <p className="mt-0.5 font-sans text-xs text-slate-500 line-clamp-1">{m.label}</p>
             </div>
           );
         })}

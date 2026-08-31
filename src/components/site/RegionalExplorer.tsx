@@ -8,7 +8,16 @@ const REGIONS = [
     count: "15 Destinations",
     fromPrice: "3,890",
     image: "/images/destinations/hero-switzerland.jpg",
-    slugs: ["switzerland", "france", "italy", "spain", "germany", "netherlands", "greece", "austria"],
+    slugs: [
+      "switzerland",
+      "france",
+      "italy",
+      "spain",
+      "germany",
+      "netherlands",
+      "greece",
+      "austria",
+    ],
   },
   {
     name: "Asia & Far East",
@@ -16,7 +25,16 @@ const REGIONS = [
     count: "12 Destinations",
     fromPrice: "2,490",
     image: "/images/destinations/hero-japan.jpg",
-    slugs: ["japan", "indonesia", "maldives", "thailand", "singapore", "malaysia", "vietnam", "south-korea"],
+    slugs: [
+      "japan",
+      "indonesia",
+      "maldives",
+      "thailand",
+      "singapore",
+      "malaysia",
+      "vietnam",
+      "south-korea",
+    ],
   },
   {
     name: "Eurasia & Caucasus",
@@ -77,6 +95,7 @@ export function RegionalExplorer() {
               <img
                 src={r.image}
                 alt={r.name}
+                decoding="async"
                 loading="lazy"
                 className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -92,9 +111,7 @@ export function RegionalExplorer() {
                 <p className="text-xs font-bold uppercase tracking-wider text-[#CAA42D]">
                   From AED {r.fromPrice}
                 </p>
-                <h3 className="mt-1 font-display text-2xl font-bold text-white">
-                  {r.name}
-                </h3>
+                <h3 className="mt-1 font-display text-2xl font-bold text-white">{r.name}</h3>
                 <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-slate-200">
                   {r.tagline}
                 </p>

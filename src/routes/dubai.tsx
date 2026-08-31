@@ -47,11 +47,13 @@ function DubaiPage() {
           alt="Dubai skyline at night"
           width={1920}
           height={1088}
+          loading="eager"
           fetchPriority="high"
+          decoding="async"
           className="kenburns absolute inset-0 size-full object-cover"
         />
         <div className="night-fade absolute inset-0" />
-        <GoldParticleField count={45} className="z-10 opacity-75" />
+        <GoldParticleField particleCount={45} className="z-10 opacity-75" />
 
         <div className="relative z-20 mx-auto flex h-full max-w-[1400px] flex-col justify-end px-5 pb-12 sm:px-8">
           <Depth speed={30}>

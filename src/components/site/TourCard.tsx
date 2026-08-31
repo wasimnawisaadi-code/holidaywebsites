@@ -9,6 +9,7 @@ export function TourCard({ e, eager = false }: { e: Experience; eager?: boolean 
         <img
           src={e.image}
           alt={`${e.title} — ${e.emirate}`}
+          decoding="async"
           loading={eager ? "eager" : "lazy"}
           width={1280}
           height={800}

@@ -17,7 +17,7 @@ const pool = inboundActivities.filter((e) => e.emirate !== "Dubai" && e.emirate 
 export const Route = createFileRoute("/uae")({
   head: () => ({
     meta: [
-      { title: "UAE Tours Beyond Dubai — Abu Dhabi, Sharjah, RAK & More | Nawi Saadi" },
+      { title: "UAE Tours Beyond Dubai | Nawi Saadi Holidays" },
       {
         name: "description",
         content:
@@ -49,10 +49,13 @@ function UaePage() {
           alt="The UAE coastline at dusk"
           width={1600}
           height={1000}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 size-full object-cover"
         />
         <div className="night-fade absolute inset-0" />
-        <GoldParticleField count={40} className="z-10 opacity-70" />
+        <GoldParticleField particleCount={40} className="z-10 opacity-70" />
 
         <div className="relative z-20 mx-auto flex h-full max-w-[1400px] flex-col justify-end px-5 pb-12 sm:px-8">
           <Depth speed={26}>

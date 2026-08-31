@@ -23,6 +23,11 @@ export const Route = createFileRoute("/terms")({
           "Booking conditions for Nawi Saadi Travel & Tourism: how quotes and prices work, payment, changes and cancellations, visa responsibilities and travel insurance.",
       },
       { property: "og:title", content: `Terms & Booking Conditions | ${BRAND.short}` },
+      {
+        property: "og:description",
+        content:
+          "Booking conditions for Nawi Saadi Travel & Tourism: quotes, payment, changes and cancellations, visas and travel insurance.",
+      },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/terms") }],
   }),

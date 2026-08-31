@@ -17,6 +17,7 @@ export function PackageCard({ pkg, tall }: { pkg: HolidayPackage; tall?: boolean
         <img
           src={pkg.image}
           alt={`${pkg.title} — ${pkg.country} holiday package`}
+          decoding="async"
           loading="lazy"
           width={1280}
           height={800}
@@ -53,9 +54,7 @@ export function PackageCard({ pkg, tall }: { pkg: HolidayPackage; tall?: boolean
             {pkg.title}
           </Link>
         </h3>
-        <p className="mt-1 text-xs text-slate-500 truncate">
-          {pkg.destination}
-        </p>
+        <p className="mt-1 text-xs text-slate-500 truncate">{pkg.destination}</p>
 
         <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
           <div>

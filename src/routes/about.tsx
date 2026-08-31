@@ -4,11 +4,11 @@ import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { CredentialGrid } from "@/components/site/Credentials";
 import { BRAND, offices, serviceLines, waLink } from "@/data/catalogue";
-import { absoluteUrl } from "@/lib/site";
+import { absoluteUrl, siteUrl } from "@/lib/site";
 
-const title = "About Nawi Saadi Travel & Tourism | IATA Agency, flydubai GSA, DTCM Approved";
+const title = "About Nawi Saadi | IATA Travel Agency in Dubai";
 const description =
-  "Nawi Saadi Travel & Tourism — established 2009, IATA accredited, flydubai General Sales Agent in Afghanistan and Dubai DTCM approved, with offices in Kabul, Dubai and Jeddah.";
+  "IATA-accredited travel agency established 2009, flydubai GSA and DTCM approved, with offices in Dubai, Kabul and Jeddah.";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/about")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/about" },
+      { property: "og:url", content: absoluteUrl("/about") },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/about") }],
@@ -28,6 +28,9 @@ export const Route = createFileRoute("/about")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "TravelAgency",
+          // Same @id as the root entity, so this is understood as more detail
+          // about one business rather than a second one.
+          "@id": `${siteUrl()}/#organization`,
           name: BRAND.name,
           foundingDate: "2009",
           email: BRAND.email,

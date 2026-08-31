@@ -1,6 +1,15 @@
 import { useRef, useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Compass, Sparkles, MapPin, Clock, MessageCircle, Star } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Compass,
+  Sparkles,
+  MapPin,
+  Clock,
+  MessageCircle,
+  Star,
+} from "lucide-react";
 import { packages, waLink, BRAND } from "@/data/catalogue";
 
 const SHOWCASE_SLUGS = [
@@ -126,7 +135,8 @@ export function ScrollCuratedShowcase() {
               Journeys Crafted for <span className="italic text-[#CAA42D]">The Discerning</span>
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-slate-300 sm:text-base">
-              Swipe or glide through our most requested worldwide escapes — complete with private DXB flights, luxury hotels, chauffeured transfers, and fast-track visas.
+              Swipe or glide through our most requested worldwide escapes — complete with private
+              DXB flights, luxury hotels, chauffeured transfers, and fast-track visas.
             </p>
           </div>
 
@@ -189,6 +199,7 @@ export function ScrollCuratedShowcase() {
                   <img
                     src={pkg.image}
                     alt={pkg.title}
+                    decoding="async"
                     loading="lazy"
                     className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                   />

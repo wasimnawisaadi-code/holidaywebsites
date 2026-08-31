@@ -32,7 +32,13 @@ export function SiteHeader() {
   // light, so keeping the header dark for the whole route (as it did before)
   // left a black bar floating over cream sections.
   const pathname = useRouterState({ select: (s) => s?.location?.pathname ?? "" });
-  if (pathname.startsWith("/admin")) return null;
+  // The admin panel renders its own chrome. The early return that hides the
+  // header there MUST come after every hook below — returning before them
+  // changes the hook count between renders, and React aborts the whole tree
+  // with "rendered fewer hooks than expected" the moment a visitor navigates
+  // between /admin and any public page. That crash is what the admin portal
+  // was previously being patched around.
+  const onAdmin = pathname.startsWith("/admin");
   const hasVideoHero = pathname === "/";
   const transparent = hasVideoHero && !scrolled && !openMenu && !mobileOpen;
   const isLightText = transparent;
@@ -77,6 +83,8 @@ export function SiteHeader() {
 
   const featured = packages.slice(0, 6);
 
+  if (onAdmin) return null;
+
   return (
     <header
       className={cn(
@@ -92,6 +100,11 @@ export function SiteHeader() {
           <img
             src={isLightText ? logoOnDark : logoOnLight}
             alt={BRAND.name}
+            width={437}
+            height={315}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
             className="h-16 w-auto sm:h-[4.75rem]"
           />
         </Link>
@@ -130,7 +143,9 @@ export function SiteHeader() {
             href={`tel:${BRAND.phone.replace(/\s/g, "")}`}
             className={cn(
               "flex items-center gap-2 text-sm font-semibold transition-colors",
-              isLightText ? "text-white hover:text-[#DDBE5E]" : "text-[#00365F] hover:text-[#8F7420]",
+              isLightText
+                ? "text-white hover:text-[#DDBE5E]"
+                : "text-[#00365F] hover:text-[#8F7420]",
             )}
           >
             <Phone className="size-4 text-[#CAA42D]" />
@@ -160,7 +175,9 @@ export function SiteHeader() {
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
           className={cn(
             "flex size-11 items-center justify-center rounded-xl border lg:hidden transition-colors",
-            isLightText ? "border-white/20 bg-white/5 text-white" : "border-[#00365F]/20 text-[#00365F]",
+            isLightText
+              ? "border-white/20 bg-white/5 text-white"
+              : "border-[#00365F]/20 text-[#00365F]",
           )}
         >
           {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}

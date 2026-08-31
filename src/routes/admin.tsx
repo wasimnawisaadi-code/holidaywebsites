@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import {
   Activity,
   MessageCircle,
@@ -46,13 +46,47 @@ const getDashboard = createServerFn({ method: "GET" }).handler(async () => {
   }
 });
 
-/** Verifies the password and, on success, sets the session cookie. */
+const SESSION_SECONDS = 60 * 60 * 8;
+
+/**
+ * Verifies the credentials and, on success, sets the session cookie.
+ *
+ * Two things changed here beyond the original happy path:
+ *
+ *   - Attempts are throttled per client address. A single shared password with
+ *     unlimited guesses is the one thing this panel could not survive.
+ *   - The shared-password path stores a signed, expiring token rather than the
+ *     password itself, so the credential never sits in a browser cookie.
+ */
 const signIn = createServerFn({ method: "POST" })
-  .validator((d: { email: string; password: string }) => d)
+  .validator((d: { email: string; password: string }) => ({
+    email: String(d.email ?? "").slice(0, 320),
+    password: String(d.password ?? "").slice(0, 200),
+  }))
   .handler(async ({ data }) => {
-    const { signInWithPassword } = await import("@/lib/admin-auth");
+    const {
+      signInWithPassword,
+      issueSharedToken,
+      throttleRetryAfterMs,
+      recordFailedSignIn,
+      clearFailedSignIns,
+    } = await import("@/lib/admin-auth");
     const { checkPassword } = await import("@/lib/admin-data");
-    const { setCookie } = await import("@tanstack/react-start/server");
+    const { setCookie, getRequestHeader } = await import("@tanstack/react-start/server");
+
+    // Vercel sets x-forwarded-for; the first entry is the client. Falls back to
+    // a single shared bucket when no address is available, which throttles
+    // conservatively rather than not at all.
+    const forwarded = getRequestHeader("x-forwarded-for") ?? "";
+    const client = forwarded.split(",")[0]?.trim() || getRequestHeader("x-real-ip") || "unknown";
+
+    const waitMs = throttleRetryAfterMs(client);
+    if (waitMs > 0) {
+      return {
+        ok: false as const,
+        reason: `Too many failed attempts. Try again in ${Math.ceil(waitMs / 60000)} minute(s).`,
+      };
+    }
 
     const store = (token: string) =>
       setCookie(COOKIE, token, {
@@ -60,31 +94,64 @@ const signIn = createServerFn({ method: "POST" })
         sameSite: "lax",
         secure: process.env["NODE_ENV"] === "production",
         path: "/",
-        maxAge: 60 * 60 * 8,
+        maxAge: SESSION_SECONDS,
       });
 
-    // 1. Direct shared admin password check
+    // 1. Shared admin password
     if (checkPassword(data.password)) {
-      store(data.password);
-      return { ok: true as const };
+      const token = await issueSharedToken(SESSION_SECONDS);
+      if (token) {
+        clearFailedSignIns(client);
+        store(token);
+        return { ok: true as const };
+      }
     }
 
-    // 2. Supabase Auth when email is provided
+    // 2. Supabase Auth when an email is supplied
     if (data.email) {
       const result = await signInWithPassword(data.email, data.password);
       if (result.ok) {
+        clearFailedSignIns(client);
         store(result.token);
         return { ok: true as const };
       }
+      recordFailedSignIn(client);
       return { ok: false as const, reason: result.reason };
     }
 
+    recordFailedSignIn(client);
     return { ok: false as const, reason: "Incorrect admin password." };
   });
 
-/** Moves a lead through the pipeline. Re-checks auth on every call. */
+const STATUSES = ["new", "contacted", "quoted", "booked", "closed"] as const;
+type LeadStatus = (typeof STATUSES)[number];
+
+/**
+ * Moves a lead through the pipeline. Re-checks auth on every call.
+ *
+ * The validator does real work now. It previously passed its argument straight
+ * through — the type annotation is erased at runtime, so the only thing between
+ * a POST body and a service-role PATCH was TypeScript's word for it. `id` is
+ * coerced to an integer because it is interpolated into a PostgREST filter, and
+ * `status` is checked against the pipeline values so a typo (or a crafted
+ * request) cannot invent a state the filters and colours know nothing about.
+ */
 const saveLead = createServerFn({ method: "POST" })
-  .validator((d: { id: number; status?: string; notes?: string }) => d)
+  .validator((d: { id: number; status?: string; notes?: string }) => {
+    const id = Number(d?.id);
+    if (!Number.isInteger(id) || id <= 0) throw new Error("A lead id is required.");
+
+    const patch: { id: number; status?: LeadStatus; notes?: string } = { id };
+    if (d?.status !== undefined) {
+      const status = String(d.status);
+      if (!(STATUSES as readonly string[]).includes(status)) {
+        throw new Error(`Unknown lead status: ${status}`);
+      }
+      patch.status = status as LeadStatus;
+    }
+    if (d?.notes !== undefined) patch.notes = String(d.notes).slice(0, 5000);
+    return patch;
+  })
   .handler(async ({ data }) => {
     const { updateLead } = await import("@/lib/admin-data");
     const { sessionFromToken } = await import("@/lib/admin-auth");
@@ -154,12 +221,14 @@ function SignIn({ configured }: { configured: boolean }) {
 
         {!configured ? (
           <p className="mt-4 rounded-xl bg-amber-50 p-3 font-sans text-xs leading-relaxed text-amber-900">
-            Supabase connection pending. Enter your <code className="font-mono font-bold">ADMIN_PASSWORD</code> to sign in.
+            Supabase connection pending. Enter your{" "}
+            <code className="font-mono font-bold">ADMIN_PASSWORD</code> to sign in.
           </p>
         ) : null}
 
         <p className="mt-4 rounded-xl bg-slate-50 p-3 font-sans text-xs text-[#00365F]">
-          Enter your <span className="font-semibold text-[#CAA42D]">Admin Password</span> to sign in directly.
+          Enter your <span className="font-semibold text-[#CAA42D]">Admin Password</span> to sign in
+          directly.
         </p>
 
         <input
@@ -179,7 +248,9 @@ function SignIn({ configured }: { configured: boolean }) {
           autoComplete="current-password"
           className="mt-3 w-full rounded-xl border border-[#E5E5E5] px-4 py-3 font-sans text-sm outline-none focus:border-[#CAA42D]"
         />
-        {error ? <p className="mt-2 font-sans text-xs font-semibold text-red-600">{error}</p> : null}
+        {error ? (
+          <p className="mt-2 font-sans text-xs font-semibold text-red-600">{error}</p>
+        ) : null}
 
         <button
           type="submit"
@@ -213,7 +284,8 @@ function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
                 Nawi Saadi Operations
               </h1>
               <p className="font-sans text-[11px] text-[#666666]">
-                Live Production Management · {who ? <span className="font-medium text-[#00365F]">{who}</span> : "Admin"}
+                Live Production Management ·{" "}
+                {who ? <span className="font-medium text-[#00365F]">{who}</span> : "Admin"}
               </p>
             </div>
           </div>
@@ -222,9 +294,19 @@ function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
           <nav className="flex items-center gap-1 rounded-2xl bg-[#F1F5F9] p-1">
             {[
               { id: "leads", label: "Leads & Enquiries", count: data.leads.length, icon: Mail },
-              { id: "whatsapp", label: "WhatsApp Intent Log", count: data.totals.whatsapp, icon: MessageCircle },
+              {
+                id: "whatsapp",
+                label: "WhatsApp Intent Log",
+                count: data.totals.whatsapp,
+                icon: MessageCircle,
+              },
               { id: "overview", label: "Analytics Overview", icon: Activity },
-              { id: "sessions", label: "Live Visitor Feed", count: data.recent.length, icon: Users },
+              {
+                id: "sessions",
+                label: "Live Visitor Feed",
+                count: data.recent.length,
+                icon: Users,
+              },
             ].map((t) => {
               const Icon = t.icon;
               const active = tab === t.id;
@@ -318,10 +400,16 @@ function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
         </div>
 
         {tab === "leads" && (
-          <LeadsManager leads={data.leads} byStatus={data.leadsByStatus} bySource={data.leadsBySource} />
+          <LeadsManager
+            leads={data.leads}
+            byStatus={data.leadsByStatus}
+            bySource={data.leadsBySource}
+          />
         )}
 
-        {tab === "whatsapp" && <WhatsAppIntentLog contexts={data.whatsappContexts} events={data.recent} />}
+        {tab === "whatsapp" && (
+          <WhatsAppIntentLog contexts={data.whatsappContexts} events={data.recent} />
+        )}
 
         {tab === "overview" && <AnalyticsOverview data={data} />}
 
@@ -374,8 +462,6 @@ function KpiCard({
   );
 }
 
-const STATUSES = ["new", "contacted", "quoted", "booked", "closed"] as const;
-
 function LeadsManager({
   leads,
   byStatus,
@@ -420,13 +506,34 @@ function LeadsManager({
   };
 
   const copyToClipboard = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(id);
-    setTimeout(() => setCopied(null), 2000);
+    // writeText rejects on an insecure origin or a denied permission. Ticking
+    // regardless told the user something was on their clipboard when it was not.
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopied(id);
+        setTimeout(() => setCopied(null), 2000);
+      })
+      .catch(() => setCopied(null));
   };
 
   const exportCsv = () => {
-    const headers = ["ID", "Created At", "Email", "Name", "Phone", "Source", "Status", "Path", "Reference", "Package", "Dates", "Travellers", "Budget", "Notes"];
+    const headers = [
+      "ID",
+      "Created At",
+      "Email",
+      "Name",
+      "Phone",
+      "Source",
+      "Status",
+      "Path",
+      "Reference",
+      "Package",
+      "Dates",
+      "Travellers",
+      "Budget",
+      "Notes",
+    ];
     const rows = filtered.map((l) => [
       l.id,
       new Date(l.created_at).toISOString(),
@@ -444,14 +551,35 @@ function LeadsManager({
       l.notes ?? "",
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
+    // Excel and Sheets treat a cell opening with = + - or @ as a formula, so a
+    // customer note reading "=cmd|..." becomes executable the moment someone in
+    // the office opens the export. An apostrophe prefix keeps the text intact
+    // and inert. Tabs and carriage returns are flattened because they break the
+    // row apart regardless of quoting.
+    const cell = (value: unknown): string => {
+      const text = String(value ?? "").replace(/[\t\r\n]+/g, " ");
+      const safe = /^[=+\-@]/.test(text) ? `'${text}` : text;
+      return `"${safe.replace(/"/g, '""')}"`;
+    };
+
+    const csv = [headers.map(cell).join(","), ...rows.map((r) => r.map(cell).join(","))].join(
+      "\r\n",
+    );
+
+    // A Blob rather than a data: URI. encodeURI leaves "#" untouched, so one
+    // hash anywhere in a customer note truncated the file at that point, and a
+    // long export ran past the browser's data-URI length limit. The BOM is what
+    // makes Excel read the file as UTF-8 — without it every Arabic or accented
+    // name in the list arrives as mojibake.
+    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `nawi-saadi-leads-${new Date().toISOString().slice(0, 10)}.csv`);
+    link.href = url;
+    link.download = `nawi-saadi-leads-${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -498,7 +626,9 @@ function LeadsManager({
             onClick={() => setStatusFilter("all")}
             className={cn(
               "rounded-lg px-3 py-1 font-sans text-xs font-bold capitalize transition-colors",
-              statusFilter === "all" ? "bg-[#00365F] text-white" : "text-[#64748B] hover:text-[#00365F]",
+              statusFilter === "all"
+                ? "bg-[#00365F] text-white"
+                : "text-[#64748B] hover:text-[#00365F]",
             )}
           >
             All ({leads.length})
@@ -510,7 +640,9 @@ function LeadsManager({
               onClick={() => setStatusFilter(s.status)}
               className={cn(
                 "rounded-lg px-3 py-1 font-sans text-xs font-bold capitalize transition-colors",
-                statusFilter === s.status ? "bg-[#00365F] text-white" : "text-[#64748B] hover:text-[#00365F]",
+                statusFilter === s.status
+                  ? "bg-[#00365F] text-white"
+                  : "text-[#64748B] hover:text-[#00365F]",
               )}
             >
               {s.status} ({s.count})
@@ -554,114 +686,167 @@ function LeadsManager({
                 const ref = String(l.detail?.["reference"] ?? "");
                 const pkg = String(l.detail?.["package"] ?? "");
                 const dates = String(l.detail?.["dates"] ?? "");
-                const travellers = l.detail?.["adults"] ? `${l.detail["adults"]}A ${l.detail["children"] ?? 0}C` : "";
+                const travellers = l.detail?.["adults"]
+                  ? `${l.detail["adults"]}A ${l.detail["children"] ?? 0}C`
+                  : "";
                 const budget = String(l.detail?.["budget"] ?? "");
 
                 return (
-                  <tr key={l.id} className={cn("transition-colors hover:bg-[#F8FAFC]", isExpanded && "bg-[#F8FAFC]")}>
-                    {/* Timestamp */}
-                    <td className="py-3.5 px-4 whitespace-nowrap text-[#64748B]">
-                      <div className="font-semibold text-[#00365F]">
-                        {new Date(l.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                      </div>
-                      <div className="text-[11px] text-[#94A3B8]">
-                        {new Date(l.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </div>
-                    </td>
+                  <Fragment key={l.id}>
+                    <tr
+                      className={cn(
+                        "transition-colors hover:bg-[#F8FAFC]",
+                        isExpanded && "bg-[#F8FAFC]",
+                      )}
+                    >
+                      {/* Timestamp */}
+                      <td className="py-3.5 px-4 whitespace-nowrap text-[#64748B]">
+                        <div className="font-semibold text-[#00365F]">
+                          {new Date(l.created_at).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </div>
+                        <div className="text-[11px] text-[#94A3B8]">
+                          {new Date(l.created_at).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                      </td>
 
-                    {/* Contact */}
-                    <td className="py-3.5 px-4">
-                      {l.name ? <div className="font-bold text-[#00365F]">{l.name}</div> : null}
-                      <div className="flex items-center gap-1.5">
-                        <a href={`mailto:${l.email}`} className="font-medium text-[#00365F] hover:text-[#CAA42D] hover:underline">
-                          {l.email}
-                        </a>
+                      {/* Contact */}
+                      <td className="py-3.5 px-4">
+                        {l.name ? <div className="font-bold text-[#00365F]">{l.name}</div> : null}
+                        <div className="flex items-center gap-1.5">
+                          <a
+                            href={`mailto:${l.email}`}
+                            className="font-medium text-[#00365F] hover:text-[#CAA42D] hover:underline"
+                          >
+                            {l.email}
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(l.email, `email-${l.id}`)}
+                            title="Copy Email"
+                            className="text-[#94A3B8] hover:text-[#00365F]"
+                          >
+                            {copied === `email-${l.id}` ? (
+                              <Check className="size-3 text-emerald-600" />
+                            ) : (
+                              <Copy className="size-3" />
+                            )}
+                          </button>
+                        </div>
+                        {l.phone ? (
+                          <div className="mt-0.5 flex items-center gap-1.5 text-xs text-[#00365F]">
+                            <Phone className="size-3 text-[#CAA42D]" />
+                            <span>{l.phone}</span>
+                            <a
+                              href={`https://wa.me/${l.phone.replace(/[^0-9]/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 hover:bg-emerald-100"
+                            >
+                              <MessageSquare className="size-2.5" /> WhatsApp
+                            </a>
+                          </div>
+                        ) : null}
+                      </td>
+
+                      {/* Source */}
+                      <td className="py-3.5 px-4">
+                        <span
+                          className={cn(
+                            "inline-block rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider",
+                            l.source === "contact_enquiry"
+                              ? "bg-blue-100 text-blue-800"
+                              : l.source === "custom_tour"
+                                ? "bg-amber-100 text-amber-800"
+                                : "bg-slate-100 text-slate-700",
+                          )}
+                        >
+                          {l.source}
+                        </span>
+                        {ref ? (
+                          <div className="mt-1 font-mono text-[10px] font-bold text-[#CAA42D]">
+                            Ref: {ref}
+                          </div>
+                        ) : null}
+                      </td>
+
+                      {/* Trip details */}
+                      <td className="py-3.5 px-4 max-w-[260px]">
+                        {pkg ? (
+                          <div className="font-semibold text-[#00365F] truncate">{pkg}</div>
+                        ) : (
+                          <div className="text-[#64748B] font-mono text-[11px] truncate">
+                            {l.path ?? "Direct"}
+                          </div>
+                        )}
+                        {dates ? (
+                          <div className="text-[11px] text-[#64748B]">📅 {dates}</div>
+                        ) : null}
+                        {travellers ? (
+                          <div className="text-[11px] text-[#64748B]">
+                            👥 {travellers} {budget ? `· AED ${budget}` : ""}
+                          </div>
+                        ) : null}
+                      </td>
+
+                      {/* Status selector */}
+                      <td className="py-3.5 px-4">
+                        <select
+                          value={l.status}
+                          disabled={busy === l.id}
+                          onChange={(e) => updateStatus(l.id, e.target.value)}
+                          className={cn(
+                            "rounded-lg border px-2.5 py-1 font-sans text-xs font-bold capitalize outline-none transition-colors",
+                            l.status === "new"
+                              ? "border-amber-300 bg-amber-50 text-amber-900"
+                              : l.status === "contacted"
+                                ? "border-blue-300 bg-blue-50 text-blue-900"
+                                : l.status === "quoted"
+                                  ? "border-purple-300 bg-purple-50 text-purple-900"
+                                  : l.status === "booked"
+                                    ? "border-emerald-300 bg-emerald-50 text-emerald-900"
+                                    : "border-slate-300 bg-slate-50 text-slate-700",
+                          )}
+                        >
+                          {STATUSES.map((s) => (
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+
+                      {/* Actions / Expand */}
+                      <td className="py-3.5 px-4 text-right">
                         <button
                           type="button"
-                          onClick={() => copyToClipboard(l.email, `email-${l.id}`)}
-                          title="Copy Email"
-                          className="text-[#94A3B8] hover:text-[#00365F]"
+                          onClick={() => setExpanded(isExpanded ? null : l.id)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-[#E2E8F0] px-2.5 py-1 text-xs font-semibold text-[#00365F] hover:border-[#CAA42D]"
                         >
-                          {copied === `email-${l.id}` ? <Check className="size-3 text-emerald-600" /> : <Copy className="size-3" />}
+                          <span>{isExpanded ? "Hide" : "Details"}</span>
+                          {isExpanded ? (
+                            <ChevronUp className="size-3" />
+                          ) : (
+                            <ChevronDown className="size-3" />
+                          )}
                         </button>
-                      </div>
-                      {l.phone ? (
-                        <div className="mt-0.5 flex items-center gap-1.5 text-xs text-[#00365F]">
-                          <Phone className="size-3 text-[#CAA42D]" />
-                          <span>{l.phone}</span>
-                          <a
-                            href={`https://wa.me/${l.phone.replace(/[^0-9]/g, "")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 hover:bg-emerald-100"
-                          >
-                            <MessageSquare className="size-2.5" /> WhatsApp
-                          </a>
-                        </div>
-                      ) : null}
-                    </td>
+                      </td>
+                    </tr>
 
-                    {/* Source */}
-                    <td className="py-3.5 px-4">
-                      <span
-                        className={cn(
-                          "inline-block rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider",
-                          l.source === "contact_enquiry"
-                            ? "bg-blue-100 text-blue-800"
-                            : l.source === "custom_tour"
-                              ? "bg-amber-100 text-amber-800"
-                              : "bg-slate-100 text-slate-700",
-                        )}
-                      >
-                        {l.source}
-                      </span>
-                      {ref ? <div className="mt-1 font-mono text-[10px] font-bold text-[#CAA42D]">Ref: {ref}</div> : null}
-                    </td>
-
-                    {/* Trip details */}
-                    <td className="py-3.5 px-4 max-w-[260px]">
-                      {pkg ? <div className="font-semibold text-[#00365F] truncate">{pkg}</div> : <div className="text-[#64748B] font-mono text-[11px] truncate">{l.path ?? "Direct"}</div>}
-                      {dates ? <div className="text-[11px] text-[#64748B]">📅 {dates}</div> : null}
-                      {travellers ? <div className="text-[11px] text-[#64748B]">👥 {travellers} {budget ? `· AED ${budget}` : ""}</div> : null}
-                    </td>
-
-                    {/* Status selector */}
-                    <td className="py-3.5 px-4">
-                      <select
-                        value={l.status}
-                        disabled={busy === l.id}
-                        onChange={(e) => updateStatus(l.id, e.target.value)}
-                        className={cn(
-                          "rounded-lg border px-2.5 py-1 font-sans text-xs font-bold capitalize outline-none transition-colors",
-                          l.status === "new"
-                            ? "border-amber-300 bg-amber-50 text-amber-900"
-                            : l.status === "contacted"
-                              ? "border-blue-300 bg-blue-50 text-blue-900"
-                              : l.status === "quoted"
-                                ? "border-purple-300 bg-purple-50 text-purple-900"
-                                : l.status === "booked"
-                                  ? "border-emerald-300 bg-emerald-50 text-emerald-900"
-                                  : "border-slate-300 bg-slate-50 text-slate-700",
-                        )}
-                      >
-                        {STATUSES.map((s) => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
-                    </td>
-
-                    {/* Actions / Expand */}
-                    <td className="py-3.5 px-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() => setExpanded(isExpanded ? null : l.id)}
-                        className="inline-flex items-center gap-1 rounded-lg border border-[#E2E8F0] px-2.5 py-1 text-xs font-semibold text-[#00365F] hover:border-[#CAA42D]"
-                      >
-                        <span>{isExpanded ? "Hide" : "Details"}</span>
-                        {isExpanded ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
-                      </button>
-                    </td>
-                  </tr>
+                    {isExpanded ? (
+                      <tr id={`lead-detail-${l.id}`} className="bg-[#F8FAFC]">
+                        <td colSpan={6} className="px-4 pb-6">
+                          <LeadDetail lead={l} />
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
                 );
               })}
             </tbody>
@@ -671,9 +856,154 @@ function LeadsManager({
         <div className="mt-8 rounded-2xl border border-dashed border-[#CBD5E1] p-12 text-center">
           <Mail className="mx-auto size-8 text-[#94A3B8]" />
           <h3 className="mt-3 font-display text-lg font-bold text-[#00365F]">No leads found</h3>
-          <p className="mt-1 font-sans text-xs text-[#64748B]">Try changing your search keywords or filter options.</p>
+          <p className="mt-1 font-sans text-xs text-[#64748B]">
+            Try changing your search keywords or filter options.
+          </p>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * The expanded row behind the "Details" button.
+ *
+ * This did not exist. The button toggled a highlight and nothing else, so
+ * everything the enquiry form collects beyond the four summary columns — the
+ * free-text requirements the customer typed, the budget, the page they came
+ * from, the session that ties them back to the visitor feed — was written to
+ * the database and then never shown to anyone.
+ *
+ * Notes are the other half. `leads.notes` exists, the server function has
+ * always accepted it, and there was no way to write one: a consultant could
+ * move a lead to "contacted" but not record what was said.
+ */
+function LeadDetail({ lead }: { lead: Lead }) {
+  const router = useRouter();
+  const [notes, setNotes] = useState(lead.notes ?? "");
+  const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+
+  // A different lead can land in this slot when the list re-sorts after a
+  // refresh, and the box must not keep the previous lead's text.
+  //
+  // Adjusting during render rather than in an effect, which is React's own
+  // recommendation for resetting state on a prop change: it runs before the
+  // browser paints, so the previous lead's notes never flash. An effect keyed
+  // on `lead.notes` — the obvious version — also cleared the "Saved"
+  // confirmation the instant the post-save refresh arrived, so the write
+  // landed but the panel gave no sign of it.
+  const [seenId, setSeenId] = useState(lead.id);
+  if (seenId !== lead.id) {
+    setSeenId(lead.id);
+    setNotes(lead.notes ?? "");
+    setState("idle");
+  }
+
+  const dirty = notes !== (lead.notes ?? "");
+
+  const save = async () => {
+    setState("saving");
+    const res = await saveLead({ data: { id: lead.id, notes } });
+    if (!res.ok) {
+      setState("error");
+      return;
+    }
+    setState("saved");
+    // Refresh in the background so the row's own copy catches up; the panel
+    // already shows the value that was written.
+    void router.invalidate();
+  };
+
+  // Everything the forms record, minus the fields already shown as columns.
+  const facts: [string, string][] = Object.entries(lead.detail ?? {})
+    .filter(([, v]) => v !== null && v !== "" && v !== undefined)
+    .map(([k, v]) => [
+      k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()),
+      typeof v === "object" ? JSON.stringify(v) : String(v),
+    ]);
+
+  return (
+    <div className="grid gap-5 rounded-2xl border border-[#E2E8F0] bg-white p-5 lg:grid-cols-[1fr_340px]">
+      <div>
+        <h4 className="font-sans text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+          Enquiry detail
+        </h4>
+
+        {facts.length ? (
+          <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+            {facts.map(([label, value]) => (
+              <div key={label} className="min-w-0">
+                <dt className="font-sans text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">
+                  {label}
+                </dt>
+                <dd className="font-sans text-xs text-[#00365F]">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : (
+          <p className="mt-3 font-sans text-xs text-[#94A3B8]">
+            No extra detail was captured with this submission.
+          </p>
+        )}
+
+        <dl className="mt-5 grid gap-x-6 gap-y-2 border-t border-[#F1F5F9] pt-4 sm:grid-cols-2">
+          <div className="min-w-0">
+            <dt className="font-sans text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">
+              Landed on
+            </dt>
+            <dd className="truncate font-mono text-xs text-[#00365F]">{lead.path ?? "—"}</dd>
+          </div>
+          <div className="min-w-0">
+            <dt className="font-sans text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">
+              Session
+            </dt>
+            <dd className="truncate font-mono text-xs text-[#64748B]">
+              {lead.session_id ?? "not recorded"}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <label
+          htmlFor={`notes-${lead.id}`}
+          className="font-sans text-[11px] font-bold uppercase tracking-wider text-[#64748B]"
+        >
+          Consultant notes
+        </label>
+        <textarea
+          id={`notes-${lead.id}`}
+          value={notes}
+          onChange={(e) => {
+            setNotes(e.target.value);
+            if (state !== "idle") setState("idle");
+          }}
+          rows={6}
+          maxLength={5000}
+          placeholder="What was quoted, what they asked for, when to follow up…"
+          className="mt-2 w-full resize-y rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3 font-sans text-xs leading-relaxed text-[#00365F] outline-none focus:border-[#CAA42D] focus:bg-white"
+        />
+        <div className="mt-2 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={save}
+            disabled={!dirty || state === "saving"}
+            className="rounded-xl bg-[#00365F] px-4 py-2 font-sans text-xs font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F] disabled:opacity-40"
+          >
+            {state === "saving" ? "Saving…" : "Save note"}
+          </button>
+          {state === "saved" && !dirty ? (
+            <span className="inline-flex items-center gap-1 font-sans text-xs font-semibold text-emerald-700">
+              <Check className="size-3.5" /> Saved
+            </span>
+          ) : null}
+          {state === "error" ? (
+            <span className="font-sans text-xs font-semibold text-red-600">
+              Could not save — try again.
+            </span>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }
@@ -705,7 +1035,10 @@ function WhatsAppIntentLog({
               const intent = String(w.meta?.["intent"] ?? "");
               const context = String(w.meta?.["context"] ?? w.path ?? "General Enquiry");
               return (
-                <div key={w.id} className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 transition-all hover:border-[#CAA42D]">
+                <div
+                  key={w.id}
+                  className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 transition-all hover:border-[#CAA42D]"
+                >
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E8F0] pb-2.5">
                     <span className="font-sans text-xs font-bold text-[#00365F]">{context}</span>
                     <span className="font-sans text-[11px] text-[#64748B]">
@@ -716,13 +1049,22 @@ function WhatsAppIntentLog({
                     {intent ? (
                       <span className="font-medium text-[#00365F]">&ldquo;{intent}&rdquo;</span>
                     ) : (
-                      <span className="text-[#94A3B8] italic">Direct WhatsApp Floating Action Button click</span>
+                      <span className="text-[#94A3B8] italic">
+                        Direct WhatsApp Floating Action Button click
+                      </span>
                     )}
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#64748B]">
                     <span>📱 {w.device ?? "Device Unknown"}</span>
-                    <span>📍 Path: <code className="font-mono text-[#00365F]">{w.path}</code></span>
-                    <span>🔑 Session: <code className="font-mono text-[10px] text-[#94A3B8]">{w.session_id?.slice(0, 10)}</code></span>
+                    <span>
+                      📍 Path: <code className="font-mono text-[#00365F]">{w.path}</code>
+                    </span>
+                    <span>
+                      🔑 Session:{" "}
+                      <code className="font-mono text-[10px] text-[#94A3B8]">
+                        {w.session_id?.slice(0, 10)}
+                      </code>
+                    </span>
                   </div>
                 </div>
               );
@@ -737,9 +1079,7 @@ function WhatsAppIntentLog({
 
       {/* Top converting contexts */}
       <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
-        <h3 className="font-display text-lg font-bold text-[#00365F]">
-          Most Inquired Pages
-        </h3>
+        <h3 className="font-display text-lg font-bold text-[#00365F]">Most Inquired Pages</h3>
         <p className="mt-1 font-sans text-xs text-[#64748B]">
           Pages driving the highest WhatsApp bookings
         </p>
@@ -748,7 +1088,9 @@ function WhatsAppIntentLog({
           <ul className="mt-6 divide-y divide-[#F1F5F9]">
             {contexts.map((c) => (
               <li key={c.context} className="flex items-center justify-between gap-3 py-3">
-                <span className="truncate font-sans text-xs font-semibold text-[#00365F]">{c.context}</span>
+                <span className="truncate font-sans text-xs font-semibold text-[#00365F]">
+                  {c.context}
+                </span>
                 <span className="rounded-full bg-[#CAA42D]/20 px-2.5 py-0.5 font-display text-xs font-extrabold text-[#8F7420]">
                   {c.count} {c.count === 1 ? "click" : "clicks"}
                 </span>
@@ -830,7 +1172,9 @@ function SessionsFeed({ recent }: { recent: Dashboard["recent"] }) {
                   </td>
                   <td className="py-3 px-4 font-mono font-semibold text-[#00365F]">{e.path}</td>
                   <td className="py-3 px-4 text-[#64748B]">{e.device ?? "—"}</td>
-                  <td className="py-3 px-4 font-mono text-[10px] text-[#94A3B8]">{e.session_id?.slice(0, 10)}</td>
+                  <td className="py-3 px-4 font-mono text-[10px] text-[#94A3B8]">
+                    {e.session_id?.slice(0, 10)}
+                  </td>
                   <td className="py-3 px-4 font-mono text-[10px] text-[#64748B] max-w-[280px] truncate">
                     {JSON.stringify(e.meta)}
                   </td>
@@ -840,9 +1184,7 @@ function SessionsFeed({ recent }: { recent: Dashboard["recent"] }) {
           </table>
         </div>
       ) : (
-        <div className="mt-8 p-12 text-center text-xs text-[#94A3B8]">
-          No events logged yet.
-        </div>
+        <div className="mt-8 p-12 text-center text-xs text-[#94A3B8]">No events logged yet.</div>
       )}
     </div>
   );
@@ -860,7 +1202,9 @@ function Panel({
   className?: string;
 }) {
   return (
-    <section className={cn("rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm", className)}>
+    <section
+      className={cn("rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm", className)}
+    >
       <h2 className="flex items-center gap-2 font-display text-lg font-bold text-[#00365F]">
         <Icon className="size-4 text-[#CAA42D]" />
         {title}
@@ -878,8 +1222,12 @@ function Bars({ rows }: { rows: { label: string; count: number }[] }) {
       {rows.map((r) => (
         <li key={r.label}>
           <div className="flex items-baseline justify-between gap-3">
-            <span className="truncate font-sans text-xs font-semibold text-[#00365F]">{r.label}</span>
-            <span className="shrink-0 font-display text-xs font-bold text-[#64748B]">{r.count.toLocaleString()}</span>
+            <span className="truncate font-sans text-xs font-semibold text-[#00365F]">
+              {r.label}
+            </span>
+            <span className="shrink-0 font-display text-xs font-bold text-[#64748B]">
+              {r.count.toLocaleString()}
+            </span>
           </div>
           <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-[#F1F5F9]">
             <div

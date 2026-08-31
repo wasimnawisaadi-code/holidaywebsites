@@ -22,6 +22,11 @@ export const Route = createFileRoute("/privacy")({
           "How Nawi Saadi Travel & Tourism collects, uses and stores the information you share when you request a holiday quote or contact our Deira office.",
       },
       { property: "og:title", content: `Privacy Policy | ${BRAND.short}` },
+      {
+        property: "og:description",
+        content:
+          "How Nawi Saadi Travel & Tourism collects, uses and stores the information you share when you request a holiday quote.",
+      },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/privacy") }],
   }),
@@ -94,10 +99,10 @@ function PrivacyPage() {
 
         <LegalSection title="Cookies and analytics">
           <p>
-            This site sets no advertising or tracking cookies. Some pages remember small
-            preferences in your own browser&apos;s local storage; that data never leaves your
-            device. If a privacy-respecting analytics service is enabled, it records aggregate page
-            views only and does not build a profile of you.
+            This site sets no advertising or tracking cookies. Some pages remember small preferences
+            in your own browser&apos;s local storage; that data never leaves your device. If a
+            privacy-respecting analytics service is enabled, it records aggregate page views only
+            and does not build a profile of you.
           </p>
         </LegalSection>
 
