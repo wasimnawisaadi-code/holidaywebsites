@@ -31,7 +31,7 @@ export function SiteHeader() {
   // header lands on paper like everywhere else — the landing page body is
   // light, so keeping the header dark for the whole route (as it did before)
   // left a black bar floating over cream sections.
-  const { pathname } = useRouterState({ select: (s) => s.location });
+  const pathname = useRouterState({ select: (s) => s?.location?.pathname ?? "" });
   const hasVideoHero = pathname === "/";
   const transparent = hasVideoHero && !scrolled && !openMenu && !mobileOpen;
   const isLightText = transparent;

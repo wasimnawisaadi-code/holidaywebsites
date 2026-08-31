@@ -21,7 +21,7 @@ import { track, analyticsEnabled } from "@/lib/analytics";
  * links added later by any component.
  */
 export function AnalyticsTracker() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const pathname = useRouterState({ select: (s) => s?.location?.pathname ?? "" });
   const previous = useRef<string | null>(null);
   const enteredAt = useRef<number>(Date.now());
   const depthsSent = useRef<Set<number>>(new Set());
