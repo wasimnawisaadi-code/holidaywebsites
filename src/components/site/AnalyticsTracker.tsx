@@ -61,11 +61,13 @@ export function AnalyticsTracker() {
       const label = (link.textContent ?? "").trim().slice(0, 80);
 
       if (href.includes("wa.me") || href.includes("whatsapp")) {
+        const textParam = href.includes("text=") ? decodeURIComponent(href.split("text=")[1] ?? "") : "";
         track("whatsapp_click", {
           context: window.location.pathname,
           label,
-          // The prefilled message says which package the enquiry is about.
-          intent: decodeURIComponent(href.split("text=")[1] ?? "").slice(0, 160),
+          intent: textParam,
+          href: href.slice(0, 500),
+          title: document.title,
         });
         return;
       }
