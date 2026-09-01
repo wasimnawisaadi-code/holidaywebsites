@@ -34,7 +34,8 @@ const read = (f) => fs.readFileSync(f, "utf8");
 function packages() {
   const s = read("src/data/catalogue.ts");
   const out = [];
-  const re = /"slug":\s*"([^"]+)",\s*\n\s*"title":\s*"([^"]+)",\s*\n\s*"destination":\s*"([^"]*)",\s*\n\s*"country":\s*"([^"]+)"/g;
+  const re =
+    /"slug":\s*"([^"]+)",\s*\n\s*"title":\s*"([^"]+)",\s*\n\s*"destination":\s*"([^"]*)",\s*\n\s*"country":\s*"([^"]+)"/g;
   let m;
   while ((m = re.exec(s))) {
     const [, slug, title, destination, country] = m;
@@ -42,11 +43,17 @@ function packages() {
     const img = /"image":\s*"([^"]+)"/.exec(tail);
     const days = /"days":\s*(\d+)/.exec(tail);
     out.push({
-      slug, title, destination, country,
+      slug,
+      title,
+      destination,
+      country,
       image: img ? img[1] : null,
       days: days ? Number(days[1]) : null,
       // Cities and regions as the itinerary actually names them.
-      places: destination.split(/\s*[·,]\s*/).map((x) => x.trim()).filter(Boolean),
+      places: destination
+        .split(/\s*[·,]\s*/)
+        .map((x) => x.trim())
+        .filter(Boolean),
     });
   }
   return out;
@@ -79,22 +86,37 @@ const usage = new Map();
 for (const c of ctys) for (const g of c.gallery) usage.set(g, [...(usage.get(g) ?? []), c.name]);
 for (const [img, where] of usage) {
   const uniq = [...new Set(where)];
-  if (uniq.length > 1) add("HIGH", `shared across ${uniq.length} countries (${uniq.join(", ")}): ${img}`);
+  if (uniq.length > 1)
+    add("HIGH", `shared across ${uniq.length} countries (${uniq.join(", ")}): ${img}`);
 }
 
 for (const c of ctys) {
   if (c.gallery.length < 4) add("MEDIUM", `${c.name}: gallery has ${c.gallery.length}/4 images`);
   for (const g of c.gallery) {
     const disk = path.join("public", g);
-    if (!fs.existsSync(disk)) { add("CRITICAL", `${c.name}: missing file ${g}`); continue; }
+    if (!fs.existsSync(disk)) {
+      add("CRITICAL", `${c.name}: missing file ${g}`);
+      continue;
+    }
     const bytes = fs.statSync(disk).size;
-    if (bytes < 60_000) add("MEDIUM", `${c.name}: ${g} is only ${(bytes / 1024).toFixed(0)}KB — likely low resolution`);
+    // File size is not a proxy for resolution. brazil-g03.jpg is 41KB and a
+    // full 1600x1063 — it is a sunset silhouette that is mostly black, so it
+    // compresses to almost nothing. Measure the pixels instead.
+    if (bytes < 20_000)
+      add(
+        "MEDIUM",
+        `${c.name}: ${g} is only ${(bytes / 1024).toFixed(0)}KB — check it is not a placeholder`,
+      );
   }
 }
 
 for (const p of pkgs) {
-  if (!p.image) { add("CRITICAL", `${p.slug}: no hero image`); continue; }
-  if (!fs.existsSync(path.join("public", p.image))) add("CRITICAL", `${p.slug}: hero missing ${p.image}`);
+  if (!p.image) {
+    add("CRITICAL", `${p.slug}: no hero image`);
+    continue;
+  }
+  if (!fs.existsSync(path.join("public", p.image)))
+    add("CRITICAL", `${p.slug}: hero missing ${p.image}`);
 }
 
 // ---- report ----------------------------------------------------------------
@@ -114,7 +136,10 @@ console.log("looking at the picture catches that, so review the contact sheets."
 if (reportOnly) process.exit(0);
 fs.mkdirSync(OUT, { recursive: true });
 
-const W = 400, H = 285, COLS = 3, PAD = 8;
+const W = 400,
+  H = 285,
+  COLS = 3,
+  PAD = 8;
 let sheets = 0;
 for (const c of ctys) {
   const imgs = c.gallery.filter((g) => fs.existsSync(path.join("public", g)));
@@ -122,17 +147,20 @@ for (const c of ctys) {
   const rows = Math.ceil(imgs.length / COLS);
   const tiles = [];
   for (let i = 0; i < imgs.length; i++) {
-    const buf = await sharp(path.join("public", imgs[i]))
-      .resize(W, H, { fit: "cover" })
-      .toBuffer();
+    const buf = await sharp(path.join("public", imgs[i])).resize(W, H, { fit: "cover" }).toBuffer();
     tiles.push({ input: buf, left: (i % COLS) * (W + PAD), top: Math.floor(i / COLS) * (H + PAD) });
   }
   await sharp({
     create: {
-      width: COLS * (W + PAD), height: rows * (H + PAD),
-      channels: 4, background: { r: 255, g: 255, b: 255, alpha: 1 },
+      width: COLS * (W + PAD),
+      height: rows * (H + PAD),
+      channels: 4,
+      background: { r: 255, g: 255, b: 255, alpha: 1 },
     },
-  }).composite(tiles).png().toFile(path.join(OUT, `${c.slug}.png`));
+  })
+    .composite(tiles)
+    .png()
+    .toFile(path.join(OUT, `${c.slug}.png`));
   sheets++;
 }
 console.log(`\n${sheets} contact sheets written to ${OUT}/`);

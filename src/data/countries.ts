@@ -101,6 +101,7 @@ export const countries: Country[] = [
       "/images/destinations/united-kingdom-01.jpg",
       "/images/destinations/united-kingdom-02.jpg",
       "/images/destinations/united-kingdom-03.jpg",
+      "/images/destinations/uk-edinburgh-castle.jpg",
     ],
     name: "United Kingdom",
     region: "Europe",
@@ -145,7 +146,12 @@ export const countries: Country[] = [
   }),
   c({
     slug: "czech-republic",
-    gallery: ["/images/destinations/czech-republic-01.jpg"],
+    gallery: [
+      "/images/destinations/czech-republic-01.jpg",
+      "/images/destinations/czech-charles-bridge.jpg",
+      "/images/destinations/czech-old-town-square.jpg",
+      "/images/destinations/czech-cesky-krumlov.jpg",
+    ],
     name: "Czech Republic",
     region: "Europe",
     image: "/images/destinations/czech-republic-01.jpg",
@@ -161,8 +167,9 @@ export const countries: Country[] = [
     slug: "austria",
     gallery: [
       "/images/destinations/austria-01.jpg",
-      "/images/destinations/austria-g03.jpg",
       "/images/destinations/austria-g05.jpg",
+      "/images/destinations/austria-salzburg.jpg",
+      "/images/destinations/austria-g03.jpg",
     ],
     name: "Austria",
     region: "Europe",
@@ -307,7 +314,12 @@ export const countries: Country[] = [
   }),
   c({
     slug: "singapore",
-    gallery: ["/images/destinations/singapore-01.jpg", "/images/destinations/singapore-g04.jpg"],
+    gallery: [
+      "/images/destinations/singapore-01.jpg",
+      "/images/destinations/singapore-g04.jpg",
+      "/images/destinations/singapore-supertree.jpg",
+      "/images/destinations/singapore-marina-bay.jpg",
+    ],
     name: "Singapore",
     region: "Asia",
     image: "/images/destinations/singapore-01.jpg",
@@ -348,6 +360,7 @@ export const countries: Country[] = [
     gallery: [
       "/images/destinations/thailand-01.jpg",
       "/images/destinations/thailand-g03.jpg",
+      "/images/destinations/thailand-grand-palace.jpg",
       "/images/destinations/thailand-g05.jpg",
     ],
     name: "Thailand",
@@ -558,7 +571,12 @@ export const countries: Country[] = [
   // Africa
   c({
     slug: "morocco",
-    gallery: ["/images/destinations/morocco-01.jpg"],
+    gallery: [
+      "/images/destinations/morocco-01.jpg",
+      "/images/destinations/morocco-chefchaouen.jpg",
+      "/images/destinations/morocco-marrakech.jpg",
+      "/images/destinations/morocco-sahara.jpg",
+    ],
     name: "Morocco",
     region: "Africa",
     image: "/images/destinations/morocco-01.jpg",
@@ -584,6 +602,7 @@ export const countries: Country[] = [
     // needs sourcing from a licensed provider; see the image audit.
     gallery: [
       "/images/destinations/kenya-01.jpg",
+      "/images/destinations/kenya-savannah-sunrise.jpg",
       "/images/destinations/kenya-p03.jpg",
       "/images/destinations/kenya-p04.jpg",
     ],
@@ -825,7 +844,7 @@ export const countries: Country[] = [
     slug: "jordan",
     gallery: [
       "/images/destinations/jordan-hero.jpg",
-      "/images/destinations/jordan-p02.jpg",
+      "/images/destinations/jordan-dead-sea.jpg",
       "/images/destinations/jordan-p03.jpg",
       "/images/destinations/jordan-p01.jpg",
     ],
@@ -850,6 +869,7 @@ export const countries: Country[] = [
     slug: "uzbekistan",
     gallery: [
       "/images/destinations/uzbekistan-registan.jpg",
+      "/images/destinations/uzbekistan-bukhara.jpg",
       "/images/destinations/uzbekistan-p03.jpg",
       "/images/destinations/uzbekistan-p04.jpg",
     ],
@@ -901,7 +921,12 @@ export const countries: Country[] = [
   // America
   c({
     slug: "united-states",
-    gallery: ["/images/destinations/united-states-01.jpg"],
+    gallery: [
+      "/images/destinations/united-states-01.jpg",
+      "/images/destinations/usa-times-square.jpg",
+      "/images/destinations/usa-niagara.jpg",
+      "/images/destinations/usa-washington-dc.jpg",
+    ],
     name: "United States of America",
     region: "America",
     image: "/images/destinations/united-states-01.jpg",
@@ -948,8 +973,9 @@ export const countries: Country[] = [
     slug: "brazil",
     gallery: [
       "/images/destinations/brazil-hero.jpg",
+      "/images/destinations/brazil-iguazu.jpg",
+      "/images/destinations/brazil-copacabana.jpg",
       "/images/destinations/brazil-g03.jpg",
-      "/images/destinations/brazil-g05.jpg",
     ],
     name: "Brazil",
     region: "America",
@@ -1085,6 +1111,7 @@ export const countries: Country[] = [
     // package sold here is Bavaria and Berlin, so Munich belongs first.
     gallery: [
       "/images/destinations/germany-g03.jpg",
+      "/images/destinations/germany-neuschwanstein-castle.jpg",
       "/images/destinations/germany-g04.jpg",
       "/images/destinations/germany-g02.jpg",
     ],

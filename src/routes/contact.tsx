@@ -13,7 +13,7 @@ type Search = { pkg?: string | undefined };
 
 const title = `Contact & Enquire | ${BRAND.name} Dubai`;
 const description =
-  "Talk to a Dubai-based travel consultant. Send your dates, travellers and trip idea, and we reply on WhatsApp within working hours. Offices in Dubai, Kabul and Jeddah.";
+  "Talk to a Dubai-based travel consultant. Send your dates, travellers and trip idea, and we reply on WhatsApp within working hours.";
 
 export const Route = createFileRoute("/contact")({
   validateSearch: (search: Record<string, unknown>): Search => {

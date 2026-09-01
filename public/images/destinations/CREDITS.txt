@@ -62,3 +62,105 @@ hero-japan.jpg
 
 hero-maldives.jpg
     Maldives overwater villas and turquoise atoll lagoon
+
+
+--- Added in the destination-relevance refill ---
+
+morocco-marrakech.jpg
+    "Jemaa el-Fnaa (7346166250).jpg"
+    CC BY 2.0 — via Wikimedia Commons
+    by Jorge Láscar from Australia
+
+morocco-chefchaouen.jpg
+    "Chefchaouen (Blue City).jpg"
+    CC BY-SA 4.0 — via Wikimedia Commons
+    by Allenfleming
+
+morocco-sahara.jpg
+    "Camel Tour on Erg Chebbi riding across the dunes.jpg"
+    CC BY-SA 3.0 — via Wikimedia Commons
+    by Johannes K Becker
+
+czech-charles-bridge.jpg
+    "Prague Charles Bridge Pano 1.jpg"
+    CC BY-SA 3.0 — via Wikimedia Commons
+    by Tepold
+
+czech-cesky-krumlov.jpg
+    "Český Krumlov (Krummau) - panorama - old city.JPG"
+    CC BY-SA 3.0 — via Wikimedia Commons
+    by Pudelek (Marcin Szala)
+
+usa-niagara.jpg
+    "Niagara Falls Horseshoe aerial view.jpg"
+    CC BY-SA 3.0 — via Wikimedia Commons
+
+usa-washington-dc.jpg
+    "Lincoln Memorial east side.JPG"
+    CC BY-SA 3.0 — via Wikimedia Commons
+    by Martin Falbisoner
+
+singapore-supertree.jpg
+    "Singapore Supertree-Grove-in-The-Gardens-01.jpg"
+    CC BY-SA 3.0 — via Wikimedia Commons
+    by CEphoto, Uwe Aranas
+
+germany-neuschwanstein-castle.jpg
+    "Neuschwanstein Castle LOC print rotated.jpg"
+    Public domain — via Wikimedia Commons
+    by Unknown authorUnknown author
+
+brazil-iguazu.jpg
+    "00 1838 Iguazu Falls from the Brazilian side.jpg"
+    CC BY-SA 4.0 — via Wikimedia Commons
+    by W. Bulach
+
+jordan-dead-sea.jpg
+    "Dead Sea, Jordan 02.jpg"
+    CC BY-SA 3.0 — via Wikimedia Commons
+    by Bernard Gagnon
+
+austria-salzburg.jpg
+    "Old Town Salzburg across the Salzach river.jpg"
+    CC BY-SA 3.0 — via Wikimedia Commons
+    by Jiuguang Wang
+
+thailand-grand-palace.jpg
+    "A roof of a building at the Grand Palace, Bangkok, sunrise, 2017.jpg"
+    CC BY-SA 4.0 — via Wikimedia Commons
+    by Bjørn Erik Pedersen
+
+uk-edinburgh-castle.jpg
+    "Edinburgh Castle 12.jpg"
+    CC BY-SA 3.0 — via Wikimedia Commons
+    by Ad Meskens
+
+kenya-savannah-sunrise.jpg
+    "African Sunrise, Amboseli National Park (30385097358).jpg"
+    CC BY 2.0 — via Wikimedia Commons
+    by Ray in Manila
+
+singapore-marina-bay.jpg
+    "Marina Bay Sands and the skyline of the Central Business District, Singapore, at night - 20120723.jpg"
+    CC BY-SA 2.0 — via Wikimedia Commons
+    by Nicolas Lannuzel
+
+usa-times-square.jpg
+    "New York City - Times Square (16727268647).jpg"
+    CC BY 2.0 — via Wikimedia Commons
+    by Sam valadi
+
+czech-old-town-square.jpg
+    "Old Town Square Praga 01.jpg"
+    CC BY-SA 3.0 — via Wikimedia Commons
+    by Mihael Grmek
+
+uzbekistan-bukhara.jpg
+    "Po-i-Kalyan in Bukhara.jpg"
+    CC BY-SA 4.0 — via Wikimedia Commons
+    by Maksimsokolov
+
+brazil-copacabana.jpg
+    "Forte de Copacabana panorama.jpg"
+    CC BY 3.0 br — via Wikimedia Commons
+    by Gabriel Heusi/Brasil2016.gov.br
