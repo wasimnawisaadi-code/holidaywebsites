@@ -827,7 +827,7 @@ export const countries: Country[] = [
       "/images/destinations/jordan-hero.jpg",
       "/images/destinations/jordan-p02.jpg",
       "/images/destinations/jordan-p03.jpg",
-      "/images/destinations/jordan-p04.jpg",
+      "/images/destinations/jordan-p01.jpg",
     ],
     name: "Jordan",
     region: "Eurasia",

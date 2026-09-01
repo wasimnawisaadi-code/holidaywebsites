@@ -4,11 +4,11 @@
   "pad": 4,
   "desktop": {
     "dir": "/frames/journey/desktop",
-    "width": 1280
+    "width": 1920
   },
   "mobile": {
     "dir": "/frames/journey/mobile",
-    "width": 720
+    "width": 1080
   },
   "source": {
     "duration": 10.005,

@@ -151,20 +151,30 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {/* Offices */}
-        <div className="grid gap-6 border-t border-[#E5E5E5] py-10 sm:grid-cols-3">
-          {offices.map((o) => (
-            <div key={o.city} className="flex min-w-0 gap-3">
-              <MapPin className="mt-0.5 size-4 shrink-0 text-[#CAA42D]" />
-              <div className="min-w-0">
-                <p className="font-sans text-sm font-semibold text-[#00365F]">
-                  {o.city}
-                  <span className="ml-2 font-normal text-[#666666]">{o.country}</span>
-                </p>
-                <p className="mt-1 font-sans text-xs leading-relaxed text-[#666666]">{o.address}</p>
+        {/*
+          Dubai only. The Kabul and Jeddah offices are real and still listed on
+          /about and /contact — this is the footer of a site selling Dubai
+          holidays, and three addresses here made the reader hunt for the one
+          that matters. The other two are a click away where someone looking
+          for them will actually look.
+        */}
+        <div className="grid gap-6 border-t border-[#E5E5E5] py-10">
+          {offices
+            .filter((o) => o.city === "Dubai")
+            .map((o) => (
+              <div key={o.city} className="flex min-w-0 gap-3">
+                <MapPin className="mt-0.5 size-4 shrink-0 text-[#CAA42D]" />
+                <div className="min-w-0">
+                  <p className="font-sans text-sm font-semibold text-[#00365F]">
+                    {o.city}
+                    <span className="ml-2 font-normal text-[#666666]">{o.country}</span>
+                  </p>
+                  <p className="mt-1 font-sans text-xs leading-relaxed text-[#666666]">
+                    {o.address}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         {/* Legal line */}

@@ -63,7 +63,19 @@ export function ScrollJourneyFilm() {
   const [chapter, setChapter] = useState(0);
   const [reduced, setReduced] = useState(false);
 
-  // ---- load manifest + preload frames -------------------------------------
+  // ---- load manifest + frames ---------------------------------------------
+  //
+  // Two things this deliberately does not do.
+  //
+  // It does not start on mount. The film sits well down the homepage, and
+  // every frame it fetches competes with the hero video, the fonts and the
+  // page's own JavaScript for the same connection. Loading begins when the
+  // section is within a viewport and a half of being seen.
+  //
+  // It does not fetch all 120 frames at once. It takes every fourth frame
+  // first, which is enough to scrub against, marks the film ready, and then
+  // fills in the gaps in the background. The sequence becomes usable after
+  // about a quarter of the bytes instead of all of them.
   useEffect(() => {
     let cancelled = false;
 
@@ -72,13 +84,17 @@ export function ScrollJourneyFilm() {
       return;
     }
 
-    (async () => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const load = async () => {
       const res = await fetch("/frames/journey/manifest.json").catch(() => null);
       if (!res || !res.ok || cancelled) return;
       const m: Manifest = await res.json();
 
-      // Mobile gets the smaller set — the desktop frames are roughly twice the
-      // bytes and a phone has neither the bandwidth nor the memory headroom.
+      // A phone gets the smaller set: fewer bytes, and less decoded bitmap
+      // held in memory, which is the part that actually crashes low-end
+      // devices.
       const useMobile = window.matchMedia("(max-width: 768px)").matches;
       const src = useMobile ? m.mobile : m.desktop;
 
@@ -86,33 +102,70 @@ export function ScrollJourneyFilm() {
       const imgs: HTMLImageElement[] = new Array(m.count);
       let done = 0;
 
-      await Promise.all(
-        Array.from({ length: m.count }, (_, i) => {
-          return new Promise<void>((resolve) => {
-            const img = new Image();
-            img.decoding = "async";
-            img.src = `${src.dir}/f_${String(i + 1).padStart(m.pad, "0")}.webp`;
-            const finish = () => {
-              imgs[i] = img;
-              done++;
-              // Throttle the state writes: one per frame would be 120 renders.
-              if (done % 8 === 0 || done === m.count) setLoaded(done);
-              resolve();
-            };
-            img.onload = finish;
-            // A missing frame must not stall the whole sequence.
-            img.onerror = finish;
-          });
-        }),
-      );
+      const fetchFrame = (i: number) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.decoding = "async";
+          img.src = `${src.dir}/f_${String(i + 1).padStart(m.pad, "0")}.webp`;
+          const finish = () => {
+            imgs[i] = img;
+            done++;
+            if (done % 8 === 0 || done === m.count) setLoaded(done);
+            resolve();
+          };
+          img.onload = finish;
+          // A missing frame must not stall the sequence.
+          img.onerror = finish;
+        });
 
+      /** Runs the queue a few at a time so the network is not saturated. */
+      const run = async (indices: number[], concurrency = 6) => {
+        let next = 0;
+        await Promise.all(
+          Array.from({ length: Math.min(concurrency, indices.length) }, async () => {
+            while (!cancelled) {
+              const slot = next++;
+              if (slot >= indices.length) return;
+              await fetchFrame(indices[slot] as number);
+            }
+          }),
+        );
+      };
+
+      const all = Array.from({ length: m.count }, (_, i) => i);
+      const sparse = all.filter((i) => i % 4 === 0);
+      const rest = all.filter((i) => i % 4 !== 0);
+
+      await run(sparse);
       if (cancelled) return;
-      framesRef.current = imgs.filter(Boolean);
+
+      // Playable now. Gaps fall back to the nearest loaded frame while the
+      // remainder streams in behind.
+      framesRef.current = imgs;
       setReady(true);
-    })();
+
+      await run(rest);
+      if (cancelled) return;
+      framesRef.current = imgs;
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          void load();
+        }
+      },
+      // Half a viewport of lead-in. 150% reached far enough up the page that
+      // the film began fetching on a homepage that had not been scrolled at
+      // all, which is the behaviour this observer exists to prevent.
+      { rootMargin: "60% 0px" },
+    );
+    io.observe(el);
 
     return () => {
       cancelled = true;
+      io.disconnect();
     };
   }, []);
 
@@ -160,11 +213,14 @@ export function ScrollJourneyFilm() {
     let running = true;
 
     const size = () => {
-      // Capped at 1.5 rather than 2. The frames are 1280px wide, so a full 2x
-      // canvas on a wide screen asks for more pixels than the source has and
-      // costs memory and fill rate for detail that does not exist.
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      const w = canvas.clientWidth || 1;
+      // The frames are 1920px wide now, so a 2x canvas on a 1440px viewport is
+      // asking for 2880px of a 1920px source and buys nothing. Capping by the
+      // frame width rather than a fixed number keeps the canvas at or below
+      // the resolution that actually exists.
+      const w0 = canvas.clientWidth || 1;
+      const maxDpr = Math.max(1, 1920 / w0);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2, maxDpr);
+      const w = w0;
       const h = canvas.clientHeight || 1;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
@@ -194,15 +250,24 @@ export function ScrollJourneyFilm() {
       }
 
       const idx = Math.round(clamp(shownFrame, 0, frames.length - 1));
-      const img = frames[idx];
-      if (!img) return;
+      // Every fourth frame arrives first so the film is scrubbable early; the
+      // gaps fill in behind. Until one arrives, show the nearest frame that
+      // has — a held frame reads as a slightly lower frame rate, whereas
+      // skipping the draw reads as the film being broken.
+      let img = frames[idx];
+      if (!img) {
+        for (let d = 1; d <= 4 && !img; d++) {
+          img = frames[idx - d] ?? frames[idx + d];
+        }
+      }
+      if (!img || !img.complete || img.naturalWidth === 0) return;
 
-      // A gentle push-in that peaks at the middle of the journey.
-      // Kept close to 1: the source footage is 1280x720, so anything above
-      // cover already upscales, and the old 1.04-1.09 range was magnifying a
-      // 720p frame across a retina full-screen canvas and softening it.
+      // A gentle push-in that peaks at the middle of the journey. This was
+      // held near 1 because magnifying a 1280px frame across a full-screen
+      // retina canvas softened it visibly; at 1920 there is headroom for the
+      // move to read again.
       const p = progressRef.current;
-      const scale = 1 + Math.sin(p * Math.PI) * 0.022;
+      const scale = 1 + Math.sin(p * Math.PI) * 0.04;
       const key = idx * 1000 + Math.round(scale * 1000);
       if (key === lastDrawn) return;
       lastDrawn = key;

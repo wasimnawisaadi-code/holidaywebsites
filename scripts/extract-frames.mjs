@@ -7,8 +7,8 @@
  * is what guarantees an exact, evenly-spaced sequence.
  *
  * Two sizes are written so mobile does not download desktop-resolution frames:
- *   public/frames/journey/desktop/f_0001.webp  (1280 wide)
- *   public/frames/journey/mobile/f_0001.webp   ( 720 wide)
+ *   public/frames/journey/desktop/f_0001.webp  (1920 wide)
+ *   public/frames/journey/mobile/f_0001.webp   (1080 wide)
  *
  * Everything the player needs is written to manifest.json alongside them, so
  * the component never hardcodes a frame count.
@@ -34,8 +34,8 @@ const BASE = process.env.BASE_URL || "http://localhost:5199";
 const COUNT = Number(process.argv[2] || 120);
 const SLUG = process.argv[3] || "journey";
 const CLIP = process.argv[4] || "luxury-journey.mp4";
-const DESKTOP_W = Number(process.argv[5] || 1280);
-const MOBILE_W = Number(process.argv[6] || 720);
+const DESKTOP_W = Number(process.argv[5] || 1920);
+const MOBILE_W = Number(process.argv[6] || 1080);
 const OUT = `public/frames/${SLUG}`;
 
 // Stage the clip and the bare capture page under public/ so the browser can
@@ -86,8 +86,14 @@ const meta = await page.evaluate(async (src) => {
   v.src = src;
   await new Promise((res, rej) => {
     const t = setTimeout(() => rej(new Error("metadata timeout")), 30000);
-    v.onloadeddata = () => { clearTimeout(t); res(); };
-    v.onerror = () => { clearTimeout(t); rej(new Error("video load error")); };
+    v.onloadeddata = () => {
+      clearTimeout(t);
+      res();
+    };
+    v.onerror = () => {
+      clearTimeout(t);
+      rej(new Error("video load error"));
+    };
   });
   const c = document.getElementById("c");
   c.width = v.videoWidth;
@@ -120,9 +126,26 @@ for (let i = 0; i < COUNT; i++) {
   const buf = Buffer.from(dataUrl.split(",")[1], "base64");
   const name = `f_${String(i + 1).padStart(4, "0")}.webp`;
 
-  await sharp(buf).resize({ width: DESKTOP_W }).webp({ quality: 84 })
+  // The source clip is 1280x720, but the film is drawn full-bleed onto a
+  // canvas that is the whole viewport — 1920 wide on a desktop, and up to
+  // 2880 once devicePixelRatio is applied. The browser was therefore
+  // upscaling every frame by 1.5x to 2.25x with canvas interpolation, which
+  // is what made the sequence look soft and left stair-stepping on high
+  // contrast edges like palm fronds.
+  //
+  // Doing that upscale here instead, once, with lanczos3 and a light unsharp
+  // mask, gives the canvas a frame close to its own drawing size. It cannot
+  // invent detail the 720p source never had, but it removes the interpolation
+  // mush and the jagged edges, which is most of what reads as "low quality".
+  await sharp(buf)
+    .resize({ width: DESKTOP_W, kernel: "lanczos3" })
+    .sharpen({ sigma: 0.7, m1: 0.6, m2: 0.25 })
+    .webp({ quality: 88, effort: 5 })
     .toFile(path.join(OUT, "desktop", name));
-  await sharp(buf).resize({ width: MOBILE_W }).webp({ quality: 76 })
+  await sharp(buf)
+    .resize({ width: MOBILE_W, kernel: "lanczos3" })
+    .sharpen({ sigma: 0.6, m1: 0.5, m2: 0.25 })
+    .webp({ quality: 80, effort: 5 })
     .toFile(path.join(OUT, "mobile", name));
 
   written++;
@@ -132,8 +155,9 @@ for (let i = 0; i < COUNT; i++) {
 await browser.close();
 
 const size = (dir) =>
-  fs.readdirSync(path.join(OUT, dir)).reduce(
-    (t, f) => t + fs.statSync(path.join(OUT, dir, f)).size, 0);
+  fs
+    .readdirSync(path.join(OUT, dir))
+    .reduce((t, f) => t + fs.statSync(path.join(OUT, dir, f)).size, 0);
 
 const manifest = {
   count: written,
