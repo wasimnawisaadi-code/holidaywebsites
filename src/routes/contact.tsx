@@ -13,7 +13,7 @@ type Search = { pkg?: string | undefined };
 
 const title = `Contact & Enquire | ${BRAND.name} Dubai`;
 const description =
-  "Talk to a Dubai-based travel consultant. Send your dates, travellers and trip idea — we reply on WhatsApp within working hours. Offices in Dubai, Kabul and Jeddah.";
+  "Talk to a Dubai-based travel consultant. Send your dates, travellers and trip idea, and we reply on WhatsApp within working hours. Offices in Dubai, Kabul and Jeddah.";
 
 export const Route = createFileRoute("/contact")({
   validateSearch: (search: Record<string, unknown>): Search => {
@@ -179,7 +179,7 @@ function ContactPage() {
             Tell us about <span className="italic text-[#DDBE5E]">the trip</span>
           </>
         }
-        intro="Five short steps, no payment and no obligation — just a real consultant in Dubai building your options."
+        intro="Five short steps, no payment and no obligation. Just a real consultant in Dubai building your options."
         image={heroDubai}
         imageAlt="Dubai skyline at dusk"
       />
@@ -192,7 +192,7 @@ function ContactPage() {
               icon: MessageCircle,
               label: "WhatsApp",
               value: BRAND.phone,
-              note: "Fastest reply — usually minutes",
+              note: "Fastest reply, usually minutes",
               href: waLink(`Hi ${BRAND.short}, I'd like help planning a trip.`),
               external: true,
             },

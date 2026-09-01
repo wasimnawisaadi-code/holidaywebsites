@@ -93,7 +93,7 @@ function ActivitiesPage() {
             Tours, tickets &amp; <span className="italic text-[#DDBE5E]">attractions</span>
           </>
         }
-        intro="Desert safaris, cruises, observation decks and theme parks across the UAE — booked and ticketed through our Deira office as a DTCM-approved tour operator."
+        intro="Desert safaris, cruises, observation decks and theme parks across the UAE, booked and ticketed through our Deira office as a DTCM-approved tour operator."
         image="/images/dst/view-at-the-top-burj-khalifa-burj-foot-shot-original-print2-1-2000x1335.jpg"
         imageAlt="Burj Khalifa rising over Downtown Dubai"
         stats={[{ value: "DTCM", label: "Approved operator" }]}

@@ -20,7 +20,7 @@ import { submitLead } from "@/lib/leads";
 
 const title = `Customized Tours & Tailor-Made Holidays | ${BRAND.short}`;
 const description =
-  "Build a tailor-made holiday from Dubai — your dates, your pace, your budget. Honeymoons, family trips, corporate and multi-country journeys.";
+  "Build a tailor-made holiday from Dubai on your dates, at your pace, to your budget. Honeymoons, family trips, corporate and multi-country journeys.";
 
 export const Route = createFileRoute("/customized-tours")({
   head: () => ({

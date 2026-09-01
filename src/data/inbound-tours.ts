@@ -455,7 +455,7 @@ export const inboundTours: InboundActivity[] = [
     instantConfirm: true,
     fromPrice: 249,
     overview:
-      "Step aboard the legendary 240-foot Lotus Mega Yacht — one of the largest commercial luxury yachts in the world. Featuring 5 expansive decks, an onboard swimming pool, cinema, 5-star international buffet with live cooking stations by The Westin Hotel chefs, and panoramic sunset and night views of Dubai Marina, JBR, Bluewaters Island, and Atlantis The Palm.",
+      "Step aboard the legendary 240-foot Lotus Mega Yacht, one of the largest commercial luxury yachts in the world. Featuring 5 expansive decks, an onboard swimming pool, cinema, 5-star international buffet with live cooking stations by The Westin Hotel chefs, and panoramic sunset and night views of Dubai Marina, JBR, Bluewaters Island, and Atlantis The Palm.",
     highlights: [
       "Sail on a 240ft multi-deck superyacht with pool and open lounge",
       "5-star gourmet buffet with live cooking stations and canapés",
@@ -546,7 +546,7 @@ export const inboundTours: InboundActivity[] = [
     instantConfirm: true,
     fromPrice: 160,
     overview:
-      "Cruise Dubai Marina aboard the 16,000 sq ft Ocean Empress — the world's largest traditional luxury boat. Enjoy an elaborate international BBQ buffet, live cooking stations, energetic entertainment shows, and magnificent night views of the illuminated Dubai Marina skyscrapers and Bluewaters Island.",
+      "Cruise Dubai Marina aboard the 16,000 sq ft Ocean Empress, the world's largest traditional luxury boat. Enjoy an elaborate international BBQ buffet, live cooking stations, energetic entertainment shows, and magnificent night views of the illuminated Dubai Marina skyscrapers and Bluewaters Island.",
     highlights: [
       "Cruising aboard the world's largest traditional motorized vessel",
       "Lavish international buffet with BBQ, Asian, Arabic and Italian cuisines",
@@ -948,7 +948,7 @@ export const inboundTours: InboundActivity[] = [
     instantConfirm: true,
     fromPrice: 145,
     overview:
-      "Journey from Dubai to the UAE capital, Abu Dhabi. Tour the breathtaking Sheikh Zayed Grand Mosque — one of the world's largest and most opulent mosques — followed by Emirates Palace, Qasr Al Watan Presidential Palace, Corniche drive, Heritage Village, Date Market, and photo stops at Ferrari World on Yas Island.",
+      "Journey from Dubai to the UAE capital, Abu Dhabi. Tour the breathtaking Sheikh Zayed Grand Mosque, one of the world's largest and most opulent mosques, followed by Emirates Palace, Qasr Al Watan Presidential Palace, Corniche drive, Heritage Village, Date Market, and photo stops at Ferrari World on Yas Island.",
     highlights: [
       "Full guided tour inside Sheikh Zayed Grand Mosque",
       "Photo stop at the world-famous Emirates Palace Mandarin Oriental",

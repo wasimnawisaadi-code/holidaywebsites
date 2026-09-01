@@ -8,8 +8,12 @@
  * 32 pixels, where the wordmark is an illegible smudge. There was also no
  * apple-touch-icon, so an iOS home-screen bookmark fell back to a screenshot.
  *
- * This crops to the gold architectural mark alone — the part that survives at
- * favicon size — and sets it on brand navy.
+ * Two glyphs, chosen by size. The architectural mark is fine gold line-art:
+ * magnified at 32px it collapses into a muddy triangle, because the strokes
+ * are thinner than a pixel and merge. So the small sizes — the browser tab,
+ * the bookmark row, the address-bar dropdown — get an "NS" monogram in the
+ * brand serif, which holds at 16px, and the large sizes get the real mark,
+ * which has the room to read. This is the ordinary way brands ship favicons.
  *
  *   node scripts/generate-icons.mjs
  */
@@ -24,8 +28,8 @@ const MARK = { left: 73, top: 0, width: 291, height: 213 };
 
 const mark = await sharp(SRC).extract(MARK).png().toBuffer();
 
-/** Mark centred on navy, with breathing room so it survives icon masking. */
-async function icon(size, padRatio = 0.18) {
+/** The architectural mark, centred on navy with room for icon masking. */
+async function markIcon(size, padRatio = 0.18) {
   const inner = Math.round(size * (1 - padRatio * 2));
   const resized = await sharp(mark)
     .resize(inner, inner, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
@@ -34,6 +38,25 @@ async function icon(size, padRatio = 0.18) {
     .composite([{ input: resized, gravity: "center" }])
     .png({ compressionLevel: 9 })
     .toBuffer();
+}
+
+/**
+ * "NS" in a serif close to the site's Playfair display face.
+ *
+ * Rendered at 8x and downsampled rather than drawn at the target size, so the
+ * letterforms get proper antialiasing instead of the hinting mush a 16px
+ * render produces.
+ */
+async function monogramIcon(size) {
+  const big = 256;
+  const svg = Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${big}" height="${big}">` +
+      `<rect width="${big}" height="${big}" fill="#00365F"/>` +
+      `<text x="${big / 2}" y="${big / 2}" font-family="Georgia, 'Times New Roman', serif" ` +
+      `font-size="150" font-weight="700" fill="#CAA42D" text-anchor="middle" ` +
+      `dominant-baseline="central">NS</text></svg>`,
+  );
+  return sharp(svg).resize(size, size).png({ compressionLevel: 9 }).toBuffer();
 }
 
 /** Minimal ICO container. The format accepts PNG payloads directly. */
@@ -62,10 +85,12 @@ function ico(pngs) {
 }
 
 const outputs = [
-  ["public/favicon-32.png", await icon(32, 0.12)],
-  ["public/apple-touch-icon.png", await icon(180, 0.16)],
-  ["public/icon-192.png", await icon(192, 0.18)],
-  ["public/icon-512.png", await icon(512, 0.18)],
+  // Small: monogram, because the mark does not survive here.
+  ["public/favicon-32.png", await monogramIcon(32)],
+  // Large: the real mark, which has the resolution to carry it.
+  ["public/apple-touch-icon.png", await markIcon(180, 0.16)],
+  ["public/icon-192.png", await markIcon(192, 0.18)],
+  ["public/icon-512.png", await markIcon(512, 0.18)],
 ];
 for (const [path, buf] of outputs) {
   fs.writeFileSync(path, buf);
@@ -73,9 +98,9 @@ for (const [path, buf] of outputs) {
 }
 
 const icoBuf = ico([
-  { size: 16, data: await icon(16, 0.08) },
-  { size: 32, data: await icon(32, 0.12) },
-  { size: 48, data: await icon(48, 0.14) },
+  { size: 16, data: await monogramIcon(16) },
+  { size: 32, data: await monogramIcon(32) },
+  { size: 48, data: await monogramIcon(48) },
 ]);
 fs.writeFileSync("public/favicon.ico", icoBuf);
 console.log(

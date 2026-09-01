@@ -112,12 +112,7 @@ export function PageHero({
           </div>
 
           {stats?.length ? (
-            <dl
-              className={cn(
-                "flex shrink-0 gap-8 sm:gap-12",
-                centered && "justify-center",
-              )}
-            >
+            <dl className={cn("flex shrink-0 gap-8 sm:gap-12", centered && "justify-center")}>
               {stats.map((s, i) => (
                 <div
                   key={s.label}

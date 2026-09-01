@@ -13,7 +13,7 @@ const pool = inboundActivities.filter((e) => e.emirate === "Dubai" || e.emirate 
 export const Route = createFileRoute("/dubai")({
   head: () => ({
     meta: [
-      { title: "Dubai Tours, Tickets & Things To Do — from AED 24 | Nawi Saadi" },
+      { title: "Dubai Tours & Tickets from AED 24 | Nawi Saadi" },
       {
         name: "description",
         content:
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/dubai")({
       {
         property: "og:description",
         content:
-          "Everything to do in Dubai — attractions, desert nights, parks, cruises and combo savers.",
+          "Everything to do in Dubai: attractions, desert nights, parks, cruises and combo savers.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

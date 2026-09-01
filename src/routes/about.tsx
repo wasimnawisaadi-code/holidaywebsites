@@ -39,7 +39,7 @@ export const Route = createFileRoute("/about")({
           areaServed: ["AE", "AF", "SA"],
           hasCredential: [
             "IATA Accredited Agency",
-            "flydubai General Sales Agent — Afghanistan",
+            "flydubai General Sales Agent for Afghanistan",
             "Dubai Department of Tourism and Commerce Marketing (DTCM) approved",
           ],
           address: offices.map((o) => ({
@@ -58,7 +58,7 @@ export const Route = createFileRoute("/about")({
 const principles = [
   {
     title: "Our Mission",
-    body: "Excellence in every journey — complete travel solutions tailored to diverse needs, creating memorable experiences through reliable service, professionalism, value and genuine care.",
+    body: "Excellence in every journey, with complete travel solutions tailored to diverse needs, creating memorable experiences through reliable service, professionalism, value and genuine care.",
   },
   {
     title: "Our Vision",
@@ -143,7 +143,7 @@ function AboutPage() {
             <p className="eyebrow">At a glance</p>
             <dl className="mt-5 space-y-4 text-sm">
               {[
-                ["Established", "2009, Kabul — Afghanistan"],
+                ["Established", "2009, Kabul, Afghanistan"],
                 ["Group", "Saadi Group of Companies"],
                 ["Chairman", BRAND.chairman],
                 ["Team", "50+ travel professionals"],

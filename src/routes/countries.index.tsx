@@ -9,16 +9,16 @@ import { absoluteUrl } from "@/lib/site";
 export const Route = createFileRoute("/countries/")({
   head: () => ({
     meta: [
-      { title: "Holiday Destinations from Dubai — 40+ Countries | Nawi Saadi" },
+      { title: "Holiday Destinations from Dubai | Nawi Saadi" },
       {
         name: "description",
         content:
           "Browse holiday packages from Dubai to 40+ countries across Europe, Asia, Africa, Eurasia, Australia and the Americas. Visa help, flights and hotels included.",
       },
-      { property: "og:title", content: "Holiday Destinations from Dubai — 40+ Countries" },
+      { property: "og:title", content: "Holiday Destinations from Dubai, 40+ Countries" },
       {
         property: "og:description",
-        content: "Europe, Asia, Africa, Eurasia and beyond — holiday packages built from Dubai.",
+        content: "Europe, Asia, Africa, Eurasia and beyond. Holiday packages built from Dubai.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: absoluteUrl("/countries") },
@@ -40,7 +40,7 @@ function CountriesIndex() {
             Where do you <span className="italic text-[#DDBE5E]">want to go?</span>
           </>
         }
-        intro="Forty-plus countries, all planned from Dubai — flights, hotels, visas and transfers arranged in one package."
+        intro="Forty-plus countries, all planned from Dubai, with flights, hotels, visas and transfers arranged in one package."
         image={hero}
         imageAlt="Paris rooftops at sunset"
         stats={[{ value: `${countries.length}+`, label: "Countries" }]}

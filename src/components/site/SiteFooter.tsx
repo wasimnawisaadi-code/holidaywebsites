@@ -169,14 +169,12 @@ export function SiteFooter() {
 
         {/* Legal line */}
         <div className="flex flex-col items-start justify-between gap-3 border-t border-[#E5E5E5] py-7 font-sans text-xs text-[#666666] sm:flex-row sm:items-center">
-          <div className="space-y-1">
-            <p>
-              © {new Date().getFullYear()} {BRAND.legal}
-            </p>
-            <p className="text-[10px] tracking-wide text-[#888888]">
-              Designed &amp; Developed by Mhd Wasim
-            </p>
-          </div>
+          {/* The build credit is the linked version on the right, which uses
+              BRAND_INFO.developer so the name stays in sync. A second, hardcoded
+              copy used to sit here too, so the footer said it twice. */}
+          <p>
+            © {new Date().getFullYear()} {BRAND.legal}
+          </p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             {/* Build credit. Links to the developer's own WhatsApp, kept
                 separate from the agency line so a customer enquiry never

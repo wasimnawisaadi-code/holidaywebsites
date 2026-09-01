@@ -61,7 +61,9 @@ export function AnalyticsTracker() {
       const label = (link.textContent ?? "").trim().slice(0, 80);
 
       if (href.includes("wa.me") || href.includes("whatsapp")) {
-        const textParam = href.includes("text=") ? decodeURIComponent(href.split("text=")[1] ?? "") : "";
+        const textParam = href.includes("text=")
+          ? decodeURIComponent(href.split("text=")[1] ?? "")
+          : "";
         track("whatsapp_click", {
           context: window.location.pathname,
           label,

@@ -16,7 +16,7 @@ export function PackageCard({ pkg, tall }: { pkg: HolidayPackage; tall?: boolean
       >
         <img
           src={pkg.image}
-          alt={`${pkg.title} — ${pkg.country} holiday package`}
+          alt={`${pkg.title}, ${pkg.country} holiday package`}
           decoding="async"
           loading="lazy"
           width={1280}

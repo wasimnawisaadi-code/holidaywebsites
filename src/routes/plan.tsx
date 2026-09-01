@@ -10,7 +10,7 @@ import { absoluteUrl } from "@/lib/site";
 export const Route = createFileRoute("/plan")({
   head: () => ({
     meta: [
-      { title: "Plan My Trip — Custom Holiday Planning | Nawi Saadi Holidays" },
+      { title: "Plan My Trip | Custom Holiday Planning, Nawi Saadi" },
       {
         name: "description",
         content:
@@ -68,7 +68,7 @@ function PlanPage() {
             Build the trip <span className="italic text-[#DDBE5E]">around you</span>
           </>
         }
-        intro="Four quick choices and we'll shortlist journeys and experiences. Suggestions are indicative — availability and final pricing are always confirmed by our team before booking."
+        intro="Four quick choices and we'll shortlist journeys and experiences. Suggestions are indicative. Availability and final pricing are always confirmed by our team before booking."
         image="/images/destinations/georgia-gergeti.jpg"
         imageAlt="Mountain church on a Georgia itinerary"
       />
@@ -76,7 +76,9 @@ function PlanPage() {
       <section className="mx-auto mt-12 grid max-w-[1400px] gap-8 px-5 sm:px-8 lg:grid-cols-[420px_1fr]">
         <div className="h-fit border border-[#ded7c9] bg-[#FFFFFF] p-7 lg:sticky lg:top-28">
           <fieldset>
-            <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">Where to</legend>
+            <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+              Where to
+            </legend>
             <div className="mt-3 flex flex-wrap gap-2">
               {regions.map((r) => (
                 <button
@@ -97,7 +99,9 @@ function PlanPage() {
           </fieldset>
 
           <fieldset className="mt-7">
-            <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">Travel style</legend>
+            <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+              Travel style
+            </legend>
             <div className="mt-3 flex flex-wrap gap-2">
               {travelStyles.map((s) => (
                 <button
@@ -118,7 +122,9 @@ function PlanPage() {
           </fieldset>
 
           <label className="mt-7 block">
-            <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">Travellers — {travellers}</span>
+            <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+              Travellers — {travellers}
+            </span>
             <input
               type="range"
               min={1}
@@ -130,7 +136,9 @@ function PlanPage() {
           </label>
 
           <label className="mt-5 block">
-            <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">Nights — {nights}</span>
+            <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+              Nights — {nights}
+            </span>
             <input
               type="range"
               min={2}

@@ -394,7 +394,7 @@ export const packages: HolidayPackage[] = [
     "priceStatus": "from",
     "priceFrom": 2899,
     "image": "/images/destinations/bosnia-mostar.jpg",
-    "intro": "Turquoise rivers, Ottoman stone bridges, lush green valleys, and emerald waterfalls in the heart of the Balkans — just 5 hours from Dubai.",
+    "intro": "Turquoise rivers, Ottoman stone bridges, lush green valleys, and emerald waterfalls in the heart of the Balkans, just 5 hours from Dubai.",
     "story": "Explore Sarajevo's historic Baščaršija bazaar, watch daring divers leap from Mostar's UNESCO Old Bridge, and relax at the majestic Kravice Waterfalls.",
     "highlights": [
       "Guided walking tour of Sarajevo's Ottoman Baščaršija Old Town",
@@ -468,7 +468,7 @@ export const packages: HolidayPackage[] = [
         "title": "Day 5 — Full-day trip to Kravice Waterfalls — a 120-m...",
         "summary": "Swim in the emerald pools, take a wooden boat tour under the falls, and visit the medieval",
         "activities": [
-          "Full-day trip to Kravice Waterfalls — a 120-meter wide natural amphitheater of 25m cascading waterfalls surrounded by lush greenery.",
+          "Full-day trip to Kravice Waterfalls, a 120-meter wide natural amphitheater of 25m cascading waterfalls surrounded by lush greenery.",
           "Swim in the emerald pools, take a wooden boat tour under the falls, and visit the medieval fortified stone village of Počitelj.",
           "Return to Sarajevo for your final evening in Bosnia."
         ],
@@ -523,7 +523,7 @@ export const packages: HolidayPackage[] = [
     "intro": "Seven days across turquoise lakes, glacier peaks and postcard villages, travelling on Switzerland's world-famous scenic rail network.",
     "story": "Wake up to lake mist in Lucerne, ascend above the clouds to Jungfraujoch (Top of Europe), and watch the Alps glide past panoramic train windows.",
     "highlights": [
-      "Jungfraujoch — Top of Europe cogwheel railway",
+      "Jungfraujoch, Top of Europe cogwheel railway",
       "Mount Titlis Rotair revolving cable car & Cliff Walk",
       "GoldenPass panoramic scenic train journey",
       "Sunset catamaran cruise on Lake Lucerne",
@@ -593,7 +593,7 @@ export const packages: HolidayPackage[] = [
         "title": "Day 5 — Board the famous Eiger Express and cogwheel t...",
         "summary": "Visit the Ice Palace, Sphinx Observatory, and Alpine Sensation exhibition.",
         "activities": [
-          "Board the famous Eiger Express and cogwheel train to Jungfraujoch — Top of Europe (3,454m).",
+          "Board the famous Eiger Express and cogwheel train to Jungfraujoch, Top of Europe (3,454m).",
           "Visit the Ice Palace, Sphinx Observatory, and Alpine Sensation exhibition.",
           "Descend past Lauterbrunnen waterfalls back to Interlaken."
         ],
@@ -4710,7 +4710,7 @@ export const packages: HolidayPackage[] = [
     "priceFrom": 6990,
     "image": "/images/destinations/brazil-christ-redeemer.jpg",
     "intro": "Experience the vibrant samba rhythm of Rio de Janeiro, stand at the feet of Christ the Redeemer on Corcovado, and feel the thundering mist of Iguazu Falls.",
-    "story": "Soak in the sun on famous Copacabana and Ipanema beaches, ride cable cars up Sugarloaf Mountain, and fly to the tropical rainforest border to witness Iguazu Falls — the world's most immense waterfall system.",
+    "story": "Soak in the sun on famous Copacabana and Ipanema beaches, ride cable cars up Sugarloaf Mountain, and fly to the tropical rainforest border to witness Iguazu Falls, the world's most immense waterfall system.",
     "highlights": [
       "Cogwheel train ride through Tijuca Forest to Christ the Redeemer atop Corcovado",
       "Two-stage glass cable car ascent up Sugarloaf Mountain at sunset",
@@ -5817,7 +5817,7 @@ export const packages: HolidayPackage[] = [
         "title": "Day 2 — Southwest Scenic Wonders: Chamarel & Sacred Crater Lake",
         "summary": "Seven Coloured Earths, Chamarel Waterfalls, and sacred Grand Bassin.",
         "activities": [
-          "Drive into the lush Chamarel mountains to witness the Seven Coloured Earths — dunes of red, brown, violet, and green volcanic sands.",
+          "Drive into the lush Chamarel mountains to witness the Seven Coloured Earths, dunes of red, brown, violet, and green volcanic sands.",
           "View the dramatic Chamarel Waterfall plunging 100 meters into a lush tropical amphitheater.",
           "Visit the sacred crater lake of Grand Bassin (Ganga Talao) guarded by monumental 108-foot statues of Lord Shiva and Durga.",
           "Enjoy panoramic views over the Black River Gorges nature reserve."
@@ -6122,7 +6122,7 @@ export const experiences: Experience[] = [
   { slug: "global-village", title: "Global Village Dubai Season Entry Ticket", emirate: "Dubai", category: "Attraction", duration: "Half Day", audience: ["Families", "Children", "Groups"], priceStatus: "from", priceFrom: 25, badge: "Best Value", instantConfirm: true, image: "/images/inbound/global-village/img-1.webp", overview: "90+ country pavilions, street food, live cultural shows and carnival rides." },
   { slug: "the-view-palm", title: "The View at The Palm (Level 52)", emirate: "Dubai", category: "Attraction", duration: "1–2 Hours", audience: ["Families", "Couples"], priceStatus: "from", priceFrom: 105, wasPrice: 125, badge: "Must Try", instantConfirm: true, image: "/images/inbound/view-at-the-top-of-the-palm/img-1.jpg", overview: "360° views of Palm Jumeirah from Level 52, 240m above the island." },
   { slug: "ski-dubai-snow-park", title: "Ski Dubai Snow Park & Slope", emirate: "Dubai", category: "Theme Park", duration: "2–4 Hours", audience: ["Families", "Children"], priceStatus: "from", priceFrom: 220, badge: "Popular", instantConfirm: true, image: "/images/inbound/ski-dubai/img-1.jpg", overview: "Real snow all year: toboggan runs, penguin encounters and full winter gear included." },
-  { slug: "img-worlds", title: "IMG Worlds of Adventure Mega Indoor Park", emirate: "Dubai", category: "Theme Park", duration: "Full Day", audience: ["Families", "Children", "Groups"], priceStatus: "from", priceFrom: 245, wasPrice: 345, badge: "Must Try", instantConfirm: true, image: "/images/inbound/img-world-of-adventure/img-1.jpg", overview: "World's largest indoor theme park — Marvel, Cartoon Network and Velociraptor coaster." },
+  { slug: "img-worlds", title: "IMG Worlds of Adventure Mega Indoor Park", emirate: "Dubai", category: "Theme Park", duration: "Full Day", audience: ["Families", "Children", "Groups"], priceStatus: "from", priceFrom: 245, wasPrice: 345, badge: "Must Try", instantConfirm: true, image: "/images/inbound/img-world-of-adventure/img-1.jpg", overview: "World's largest indoor theme park, home to Marvel, Cartoon Network and the Velociraptor coaster." },
   { slug: "ferrari-world", title: "Ferrari World Abu Dhabi (Yas Island)", emirate: "Abu Dhabi", category: "Theme Park", duration: "Full Day", audience: ["Families", "Groups", "Adults"], priceStatus: "from", priceFrom: 345, badge: "Must Try", instantConfirm: true, image: "/images/inbound/ferrari-world/img-1.webp", overview: "Formula Rossa 240km/h fastest rollercoaster, Flying Aces and 40 Ferrari rides." },
   { slug: "louvre-abu-dhabi", title: "Louvre Abu Dhabi Universal Museum", emirate: "Abu Dhabi", category: "Culture", duration: "2–4 Hours", audience: ["Adults", "Families"], priceStatus: "from", priceFrom: 65, badge: "Popular", instantConfirm: true, image: "/images/inbound/louvre-museum-abu-dhabi/img-1.jpg", overview: "Jean Nouvel's rain-of-light floating dome and 12 world-class galleries." }
 ];

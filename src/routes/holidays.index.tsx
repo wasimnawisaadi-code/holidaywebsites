@@ -37,13 +37,13 @@ export const Route = createFileRoute("/holidays/")({
       {
         name: "description",
         content:
-          "Holiday packages from Dubai to Switzerland, the Maldives, Japan, Bali, Georgia, Turkey and beyond — flights, hotels, transfers and visas handled for you.",
+          "Holiday packages from Dubai to Switzerland, the Maldives, Japan, Bali, Georgia, Turkey and beyond, with flights, hotels, transfers and visas handled for you.",
       },
       { property: "og:title", content: "Holiday Packages from Dubai | Nawi Saadi" },
       {
         property: "og:description",
         content:
-          "Holiday packages from Dubai to Switzerland, the Maldives, Japan, Bali, Georgia, Turkey and beyond — flights, hotels, transfers and visas handled for you.",
+          "Holiday packages from Dubai to Switzerland, the Maldives, Japan, Bali, Georgia, Turkey and beyond, with flights, hotels, transfers and visas handled for you.",
       },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/holidays") }],

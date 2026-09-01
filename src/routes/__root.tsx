@@ -145,7 +145,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Nawi Saadi Travel & Tourism — Dubai Holidays, UAE Tours & Flights" },
+      { title: "Dubai Holidays, UAE Tours & Flights | Nawi Saadi" },
       {
         name: "description",
         content:
@@ -227,7 +227,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           },
           hasCredential: [
             "IATA Accredited Agency",
-            "flydubai General Sales Agent — Afghanistan",
+            "flydubai General Sales Agent for Afghanistan",
             "Dubai Department of Tourism and Commerce Marketing (DTCM) approved",
           ],
           url: siteUrl(),
@@ -239,7 +239,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           location: [
             {
               "@type": "TravelAgency",
-              name: "Nawi Saadi Travel & Tourism — Deira",
+              name: "Nawi Saadi Travel & Tourism, Deira",
               address: {
                 "@type": "PostalAddress",
                 streetAddress: "Millenium Building, Naif Road, Deira",
@@ -249,7 +249,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             },
             {
               "@type": "TravelAgency",
-              name: "Nawi Saadi Travel & Tourism — Kabul",
+              name: "Nawi Saadi Travel & Tourism, Kabul",
               address: {
                 "@type": "PostalAddress",
                 streetAddress: "Khost Tower, Jade Maiwand Road",
@@ -259,7 +259,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             },
             {
               "@type": "TravelAgency",
-              name: "Nawi Saadi Travel & Tourism — Jeddah",
+              name: "Nawi Saadi Travel & Tourism, Jeddah",
               address: {
                 "@type": "PostalAddress",
                 addressLocality: "Jeddah",

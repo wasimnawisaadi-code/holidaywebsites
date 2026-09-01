@@ -393,7 +393,7 @@ export const inboundTickets: InboundActivity[] = [
       "Leap of Faith 9-story near-vertical drop through shark-filled lagoon",
       "Trident Tower featuring Odyssey of Terror and Shockwave slides",
       "1km private white-sand beach with views of the Arabian Gulf",
-      "Splashers Kids Play Area — the biggest dedicated children's waterpark in the region",
+      "Splashers Kids Play Area, the biggest dedicated children's waterpark in the region",
       "Option to add entry to The Lost Chambers Aquarium (65,000 marine animals)",
     ],
     timeline: [
@@ -563,7 +563,7 @@ export const inboundTickets: InboundActivity[] = [
     highlights: [
       "World's largest natural flower garden with 150+ million blooms",
       "Life-sized Emirates A380 aircraft covered entirely in living flowers",
-      "Iconic Heart Passage — Dubai's most Instagrammed romantic walkway",
+      "Iconic Heart Passage, Dubai's most Instagrammed romantic walkway",
       "Giant floral clocks, castles, cartoon characters, and illuminated umbrellas",
       "Floral floating lady, sunflower fields, and live musical street entertainment",
     ],
@@ -1457,7 +1457,7 @@ export const inboundTickets: InboundActivity[] = [
     instantConfirm: true,
     fromPrice: 345,
     overview:
-      "The world's first Ferrari-branded theme park located on Yas Island. Strap in for Formula Rossa — the fastest roller coaster in the world, blasting from 0 to 240 km/h in 4.9 seconds with 4.8G force. Experience Flying Aces (world's highest roller coaster loop at 52m), Mission Ferrari (5D multisensory coaster), and interactive Ferrari racing simulators.",
+      "The world's first Ferrari-branded theme park located on Yas Island. Strap in for Formula Rossa, the fastest roller coaster in the world, blasting from 0 to 240 km/h in 4.9 seconds with 4.8G force. Experience Flying Aces (world's highest roller coaster loop at 52m), Mission Ferrari (5D multisensory coaster), and interactive Ferrari racing simulators.",
     highlights: [
       "Formula Rossa: the world's fastest roller coaster (240 km/h)",
       "Flying Aces: the world's highest non-inverting coaster loop (52 metres)",
@@ -1816,7 +1816,7 @@ export const inboundTickets: InboundActivity[] = [
     instantConfirm: true,
     fromPrice: 165,
     overview:
-      "A groundbreaking 17,000 sqm purpose-built home for environmental phenomena by international art collective teamLab. Discover digital art installations that have no physical existence of their own — created dynamically by the environmental phenomena of light, water, air, sound, and the presence of visitors.",
+      "A groundbreaking 17,000 sqm purpose-built home for environmental phenomena by international art collective teamLab. Discover digital art installations that have no physical existence of their own, created dynamically by the environmental phenomena of light, water, air, sound, and the presence of visitors.",
     highlights: [
       "17,000 sqm multi-sensory digital art architecture on Saadiyat Island",
       "Evolving digital artworks that change in real time with your touch and breath",
@@ -1874,7 +1874,7 @@ export const inboundTickets: InboundActivity[] = [
     instantConfirm: true,
     fromPrice: 245,
     overview:
-      "Located right opposite the Burj Al Arab, Wild Wadi is themed around the Arabian folklore of Juha. Features 30 adrenaline-charged waterslides including Jumeirah Sceirah (120-metre 80 km/h drop), Master Blasters water roller coasters, Wipeout and Riptide surf simulators, and Breaker's Bay — the largest wave pool in the Middle East.",
+      "Located right opposite the Burj Al Arab, Wild Wadi is themed around the Arabian folklore of Juha. Features 30 adrenaline-charged waterslides including Jumeirah Sceirah (120-metre 80 km/h drop), Master Blasters water roller coasters, Wipeout and Riptide surf simulators, and Breaker's Bay, the largest wave pool in the Middle East.",
     highlights: [
       "30 waterslides and rides positioned directly in front of the Burj Al Arab",
       "Jumeirah Sceirah 32-metre tandem freefall slide reaching 80 km/h",

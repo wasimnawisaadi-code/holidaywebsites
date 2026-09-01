@@ -8,7 +8,7 @@ export function TourCard({ e, eager = false }: { e: Experience; eager?: boolean 
       <div className="relative aspect-[16/10] overflow-hidden">
         <img
           src={e.image}
-          alt={`${e.title} — ${e.emirate}`}
+          alt={`${e.title}, ${e.emirate}`}
           decoding="async"
           loading={eager ? "eager" : "lazy"}
           width={1280}

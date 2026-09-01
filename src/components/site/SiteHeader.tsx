@@ -96,7 +96,7 @@ export function SiteHeader() {
       onMouseLeave={scheduleClose}
     >
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-5 py-3 sm:px-8">
-        <Link to="/" className="shrink-0" aria-label={`${BRAND.name} — home`}>
+        <Link to="/" className="shrink-0" aria-label={`${BRAND.name} home`}>
           <img
             src={isLightText ? logoOnDark : logoOnLight}
             alt={BRAND.name}

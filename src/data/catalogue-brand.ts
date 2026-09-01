@@ -24,7 +24,7 @@ export const credentials = [
   },
   {
     code: "GSA",
-    title: "flydubai GSA — Afghanistan",
+    title: "flydubai GSA for Afghanistan",
     body: "Appointed General Sales Agent for flydubai in Afghanistan, including passenger services at Kabul International Airport.",
   },
   {
@@ -45,7 +45,7 @@ export const credentials = [
   {
     code: "3",
     title: "Offices in 3 Countries",
-    body: "Kabul (Afghanistan), Dubai (UAE) and Jeddah (Saudi Arabia) — plus dedicated airport service desks.",
+    body: "Kabul (Afghanistan), Dubai (UAE) and Jeddah (Saudi Arabia), plus dedicated airport service desks.",
   },
 ] as const;
 
@@ -73,7 +73,7 @@ export const offices: Office[] = [
     phone: "+93 79 820 3051",
     email: "infokbl@nawisaadi.com",
     address: "Khost Tower, Jade Maiwand Road, Kabul, Afghanistan",
-    note: "Head office — established 2009. Airport assistance and flydubai GSA passenger services at Kabul International, Departure Terminal.",
+    note: "Head office, established 2009. Airport assistance and flydubai GSA passenger services at Kabul International, Departure Terminal.",
   },
   {
     city: "Jeddah",
@@ -100,7 +100,7 @@ export const serviceLines = [
   },
   {
     title: "UAE Tours & Attractions",
-    body: "Desert safaris, Burj Khalifa, theme parks, cruises and city tours — many under AED 100.",
+    body: "Desert safaris, Burj Khalifa, theme parks, cruises and city tours, many under AED 100.",
   },
   {
     title: "Hajj & Umrah",

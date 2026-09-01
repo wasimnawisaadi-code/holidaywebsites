@@ -26,7 +26,7 @@ export const Route = createFileRoute("/uae")({
       { property: "og:title", content: "UAE Tours Beyond Dubai | Nawi Saadi Holidays" },
       {
         property: "og:description",
-        content: "Emirate by emirate — what to see, what to book and what it costs.",
+        content: "Emirate by emirate: what to see, what to book and what it costs.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

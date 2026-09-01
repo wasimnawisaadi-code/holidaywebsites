@@ -239,7 +239,7 @@ function PackagePage() {
       <header className="on-dark relative h-[72vh] min-h-[490px] w-full overflow-hidden bg-[#00365F]">
         <img
           src={pkg.image}
-          alt={`${pkg.title} — ${pkg.days} day holiday in ${pkg.country}`}
+          alt={`${pkg.title}, a ${pkg.days} day holiday in ${pkg.country}`}
           width={1600}
           height={1000}
           loading="eager"
@@ -294,7 +294,7 @@ function PackagePage() {
           <div className="relative aspect-[16/10] overflow-hidden rounded-3xl bg-slate-100 shadow-md">
             <img
               src={gallery[shot] ?? pkg.image}
-              alt={`${pkg.title} — view ${shot + 1}`}
+              alt={`${pkg.title}, view ${shot + 1}`}
               width={1600}
               height={1000}
               loading="lazy"

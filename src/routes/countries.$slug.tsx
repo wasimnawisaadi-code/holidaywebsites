@@ -35,7 +35,7 @@ export const Route = createFileRoute("/countries/$slug")({
     const { country } = loaderData;
     const title = `${country.name} Holiday Packages from Dubai | ${BRAND.short}`;
     const description = metaDescription(
-      `${country.name} tour packages from Dubai — ${country.tagline}. ${country.nights} itineraries with flights, hotels, transfers and visa assistance by Nawi Saadi Travel & Tourism.`,
+      `${country.name} tour packages from Dubai: ${country.tagline}. ${country.nights} itineraries with flights, hotels, transfers and visa assistance by Nawi Saadi Travel & Tourism.`,
     );
     return {
       meta: [
@@ -122,7 +122,7 @@ function CountryPage() {
       <section className="on-dark relative h-[68vh] min-h-[460px] w-full overflow-hidden bg-[#00365F]">
         <img
           src={country.image}
-          alt={`${country.name} — ${country.tagline}`}
+          alt={`${country.name}: ${country.tagline}`}
           width={1600}
           height={1000}
           loading="eager"
@@ -163,7 +163,7 @@ function CountryPage() {
           <div className="relative aspect-[16/10] overflow-hidden rounded-3xl bg-slate-100 shadow-md">
             <img
               src={gallery[shot] ?? country.image}
-              alt={`${country.name} — view ${shot + 1}`}
+              alt={`${country.name}, view ${shot + 1}`}
               width={1600}
               height={1000}
               loading="lazy"

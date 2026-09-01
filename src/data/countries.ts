@@ -30,21 +30,20 @@ export const countries: Country[] = [
     ],
     name: "Switzerland",
     region: "Europe",
-    image:
-      "/images/destinations/swiss-matterhorn.jpg",
+    image: "/images/destinations/swiss-matterhorn.jpg",
     tagline: "Alps, lakes and panoramic trains",
     blurb:
-      "Glacier peaks, lakeside towns and the world's most scenic rail routes — the classic first trip to Europe from Dubai.",
+      "Glacier peaks, lakeside towns and the world's most scenic rail routes. The classic first trip to Europe from Dubai.",
     nights: "6–9 nights",
     fromAed: 5499,
     highlights: [
-      "Jungfraujoch — Top of Europe",
+      "Jungfraujoch, Top of Europe",
       "Lake Lucerne cruise",
       "Glacier Express",
-      "Interlaken & Grindelwald"
+      "Interlaken & Grindelwald",
     ],
     bestTime: "May – September",
-    visa: "Schengen visa — we assist end to end",
+    visa: "Schengen visa: we assist end to end",
   }),
   c({
     slug: "france",
@@ -56,8 +55,7 @@ export const countries: Country[] = [
     ],
     name: "France",
     region: "Europe",
-    image:
-      "/images/destinations/france-eiffel.jpg",
+    image: "/images/destinations/france-eiffel.jpg",
     tagline: "Paris, Riviera and vineyard country",
     blurb:
       "Boulevards, museums and long lunches, with easy add-ons to Nice, Disneyland Paris and the Loire Valley.",
@@ -67,10 +65,10 @@ export const countries: Country[] = [
       "Eiffel Tower summit",
       "Louvre & Seine cruise",
       "Disneyland Paris",
-      "French Riviera day trips"
+      "French Riviera day trips",
     ],
     bestTime: "April – October",
-    visa: "Schengen visa — we assist end to end",
+    visa: "Schengen visa: we assist end to end",
   }),
   c({
     slug: "italy",
@@ -82,8 +80,7 @@ export const countries: Country[] = [
     ],
     name: "Italy",
     region: "Europe",
-    image:
-      "/images/destinations/hero-italy.jpg",
+    image: "/images/destinations/hero-italy.jpg",
     tagline: "Rome, Venice and the Amalfi coast",
     blurb:
       "Ancient Rome, canal mornings in Venice and coastline that looks unreal in every photograph.",
@@ -93,10 +90,10 @@ export const countries: Country[] = [
       "Colosseum & Vatican",
       "Venice gondola",
       "Florence & Tuscany",
-      "Amalfi coast drive"
+      "Amalfi coast drive",
     ],
     bestTime: "April – June, September – October",
-    visa: "Schengen visa — we assist end to end",
+    visa: "Schengen visa: we assist end to end",
   }),
   c({
     slug: "united-kingdom",
@@ -108,8 +105,7 @@ export const countries: Country[] = [
     ],
     name: "United Kingdom",
     region: "Europe",
-    image:
-      "/images/destinations/united-kingdom-01.jpg",
+    image: "/images/destinations/united-kingdom-01.jpg",
     tagline: "London, Scotland and the countryside",
     blurb: "Museums, West End nights and green hills a train ride away.",
     nights: "5–8 nights",
@@ -118,10 +114,10 @@ export const countries: Country[] = [
       "London Eye & Thames",
       "Warner Bros Studio Tour",
       "Edinburgh Castle",
-      "Lake District"
+      "Lake District",
     ],
     bestTime: "May – September",
-    visa: "UK visa — full documentation support",
+    visa: "UK visa: full documentation support",
   }),
   c({
     slug: "finland",
@@ -133,8 +129,7 @@ export const countries: Country[] = [
     ],
     name: "Finland",
     region: "Europe",
-    image:
-      "/images/destinations/finland-northern-lights.jpg",
+    image: "/images/destinations/finland-northern-lights.jpg",
     tagline: "Northern lights and glass igloos",
     blurb: "Lapland in winter: aurora hunting, husky sledding and Santa's own village.",
     nights: "4–6 nights",
@@ -143,10 +138,10 @@ export const countries: Country[] = [
       "Aurora borealis hunt",
       "Glass igloo stay",
       "Husky & reindeer safari",
-      "Santa Claus Village"
+      "Santa Claus Village",
     ],
     bestTime: "December – March",
-    visa: "Schengen visa — we assist end to end",
+    visa: "Schengen visa: we assist end to end",
     isNew: true,
   }),
   c({
@@ -159,15 +154,14 @@ export const countries: Country[] = [
     ],
     name: "Czech Republic",
     region: "Europe",
-    image:
-      "/images/destinations/czech-republic-01.jpg",
+    image: "/images/destinations/czech-republic-01.jpg",
     tagline: "Prague's fairytale old town",
     blurb: "Cobbled lanes, castle views and one of Europe's best value city breaks.",
     nights: "4–6 nights",
     fromAed: 3499,
     highlights: ["Prague Castle", "Charles Bridge", "Old Town Square", "Cesky Krumlov day trip"],
     bestTime: "April – October",
-    visa: "Schengen visa — we assist end to end",
+    visa: "Schengen visa: we assist end to end",
   }),
   c({
     slug: "austria",
@@ -179,8 +173,7 @@ export const countries: Country[] = [
     ],
     name: "Austria",
     region: "Europe",
-    image:
-      "/images/destinations/austria-01.jpg",
+    image: "/images/destinations/austria-01.jpg",
     tagline: "Vienna palaces and alpine lakes",
     blurb: "Imperial Vienna paired with Hallstatt and Salzburg's mountain scenery.",
     nights: "5–7 nights",
@@ -189,10 +182,10 @@ export const countries: Country[] = [
       "Schönbrunn Palace",
       "Hallstatt lake village",
       "Salzburg old town",
-      "Swarovski Crystal Worlds"
+      "Swarovski Crystal Worlds",
     ],
     bestTime: "May – September",
-    visa: "Schengen visa — we assist end to end",
+    visa: "Schengen visa: we assist end to end",
   }),
   c({
     slug: "hungary",
@@ -204,8 +197,7 @@ export const countries: Country[] = [
     ],
     name: "Hungary",
     region: "Europe",
-    image:
-      "/images/destinations/hungary-01.jpg",
+    image: "/images/destinations/hungary-01.jpg",
     tagline: "Budapest, thermal baths, Danube nights",
     blurb: "The Danube lit up at night and thermal spas that make winter worth it.",
     nights: "4–5 nights",
@@ -214,10 +206,10 @@ export const countries: Country[] = [
       "Danube dinner cruise",
       "Széchenyi thermal bath",
       "Buda Castle",
-      "Parliament building"
+      "Parliament building",
     ],
     bestTime: "March – October",
-    visa: "Schengen visa — we assist end to end",
+    visa: "Schengen visa: we assist end to end",
   }),
   c({
     slug: "greece",
@@ -229,8 +221,7 @@ export const countries: Country[] = [
     ],
     name: "Greece",
     region: "Europe",
-    image:
-      "/images/destinations/greece-oia.jpg",
+    image: "/images/destinations/greece-oia.jpg",
     tagline: "Athens ruins and island blue",
     blurb: "Acropolis mornings, Santorini sunsets and ferries between whitewashed islands.",
     nights: "6–8 nights",
@@ -239,10 +230,10 @@ export const countries: Country[] = [
       "Acropolis of Athens",
       "Santorini caldera sunset",
       "Mykonos beaches",
-      "Island-hopping ferries"
+      "Island-hopping ferries",
     ],
     bestTime: "May – October",
-    visa: "Schengen visa — we assist end to end",
+    visa: "Schengen visa: we assist end to end",
   }),
   c({
     slug: "serbia",
@@ -254,17 +245,17 @@ export const countries: Country[] = [
     ],
     name: "Serbia",
     region: "Europe",
-    image:
-      "/images/destinations/serbia-kalemegdan.jpg",
+    image: "/images/destinations/serbia-kalemegdan.jpg",
     tagline: "Belgrade nightlife, fortresses and Danube dining",
-    blurb: "Bohemian cobblestone quarters, historic fortresses, and scenic riverside dining in Southeast Europe.",
+    blurb:
+      "Bohemian cobblestone quarters, historic fortresses, and scenic riverside dining in Southeast Europe.",
     nights: "4–6 nights",
     fromAed: 2499,
     highlights: [
       "Belgrade Fortress (Kalemegdan)",
       "Saint Sava Temple",
       "Novi Sad & Petrovaradin Citadel",
-      "Danube River sunset cruise"
+      "Danube River sunset cruise",
     ],
     bestTime: "May – September",
     visa: "Visa-free / Schengen / eVisa support",
@@ -282,21 +273,20 @@ export const countries: Country[] = [
     ],
     name: "Japan",
     region: "Asia",
-    image:
-      "/images/destinations/hero-japan.jpg",
+    image: "/images/destinations/hero-japan.jpg",
     tagline: "Neon cities and quiet temples",
     blurb:
-      "Bullet trains between Tokyo's neon and Kyoto's temple gardens — cherry blossom or autumn colour.",
+      "Bullet trains between Tokyo's neon and Kyoto's temple gardens, in cherry blossom or autumn colour.",
     nights: "6–9 nights",
     fromAed: 6499,
     highlights: [
       "Tokyo & Shibuya",
       "Mount Fuji day trip",
       "Kyoto temples & geisha district",
-      "Shinkansen bullet train"
+      "Shinkansen bullet train",
     ],
     bestTime: "March – April, October – November",
-    visa: "Japan visa — we handle the paperwork",
+    visa: "Japan visa: we handle the paperwork",
   }),
   c({
     slug: "indonesia",
@@ -308,8 +298,7 @@ export const countries: Country[] = [
     ],
     name: "Indonesia",
     region: "Asia",
-    image:
-      "/images/destinations/hero-bali.jpg",
+    image: "/images/destinations/hero-bali.jpg",
     tagline: "Bali rice terraces and island escapes",
     blurb: "Villas over the jungle, temple mornings and boat days to Nusa Penida.",
     nights: "5–8 nights",
@@ -318,7 +307,7 @@ export const countries: Country[] = [
       "Ubud rice terraces",
       "Nusa Penida boat day",
       "Uluwatu sunset temple",
-      "Private pool villas"
+      "Private pool villas",
     ],
     bestTime: "April – October",
     visa: "Visa on arrival",
@@ -333,8 +322,7 @@ export const countries: Country[] = [
     ],
     name: "Singapore",
     region: "Asia",
-    image:
-      "/images/destinations/singapore-01.jpg",
+    image: "/images/destinations/singapore-01.jpg",
     tagline: "Family city break, done perfectly",
     blurb: "Gardens by the Bay, Sentosa theme parks and a skyline built for photographs.",
     nights: "4–5 nights",
@@ -343,10 +331,10 @@ export const countries: Country[] = [
       "Universal Studios Sentosa",
       "Gardens by the Bay",
       "Marina Bay Sands SkyPark",
-      "Singapore Zoo & Night Safari"
+      "Singapore Zoo & Night Safari",
     ],
     bestTime: "Year round",
-    visa: "Singapore visa — quick processing",
+    visa: "Singapore visa: quick processing",
   }),
   c({
     slug: "malaysia",
@@ -358,8 +346,7 @@ export const countries: Country[] = [
     ],
     name: "Malaysia",
     region: "Asia",
-    image:
-      "/images/destinations/malaysia-g01.jpg",
+    image: "/images/destinations/malaysia-g01.jpg",
     tagline: "Kuala Lumpur and Langkawi",
     blurb: "City towers, rainforest cable cars and cheap island time.",
     nights: "5–7 nights",
@@ -378,8 +365,7 @@ export const countries: Country[] = [
     ],
     name: "Thailand",
     region: "Asia",
-    image:
-      "/images/destinations/thailand-01.jpg",
+    image: "/images/destinations/thailand-01.jpg",
     tagline: "Bangkok buzz, island calm",
     blurb: "Street food nights in Bangkok then longtail boats around Krabi and Phuket.",
     nights: "5–8 nights",
@@ -388,7 +374,7 @@ export const countries: Country[] = [
       "Phi Phi islands",
       "James Bond Island",
       "Bangkok grand palace",
-      "Phuket beach resorts"
+      "Phuket beach resorts",
     ],
     bestTime: "November – April",
     visa: "Visa on arrival for most passports",
@@ -403,8 +389,7 @@ export const countries: Country[] = [
     ],
     name: "Maldives",
     region: "Asia",
-    image:
-      "/images/destinations/hero-maldives.jpg",
+    image: "/images/destinations/hero-maldives.jpg",
     tagline: "Overwater villas, four hours away",
     blurb: "The honeymoon standard: lagoon villas, house reefs and seaplane transfers.",
     nights: "4–6 nights",
@@ -413,7 +398,7 @@ export const countries: Country[] = [
       "Overwater villa stay",
       "House reef snorkelling",
       "Sunset dolphin cruise",
-      "Private sandbank dinner"
+      "Private sandbank dinner",
     ],
     bestTime: "November – April",
     visa: "Free visa on arrival",
@@ -429,15 +414,14 @@ export const countries: Country[] = [
     ],
     name: "Sri Lanka",
     region: "Asia",
-    image:
-      "/images/destinations/sri-lanka-nine-arch.jpg",
+    image: "/images/destinations/sri-lanka-nine-arch.jpg",
     tagline: "Tea hills, safari and surf",
-    blurb: "Short flight, big variety — hill country trains, leopard safaris and southern beaches.",
+    blurb: "Short flight, big variety: hill country trains, leopard safaris and southern beaches.",
     nights: "5–7 nights",
     fromAed: 2399,
     highlights: ["Ella train ride", "Yala safari", "Sigiriya rock", "Galle Fort"],
     bestTime: "December – April",
-    visa: "ETA — issued online",
+    visa: "ETA, issued online",
   }),
   c({
     slug: "vietnam",
@@ -449,8 +433,7 @@ export const countries: Country[] = [
     ],
     name: "Vietnam",
     region: "Asia",
-    image:
-      "/images/destinations/vietnam-halong-bay.jpg",
+    image: "/images/destinations/vietnam-halong-bay.jpg",
     tagline: "Ha Long Bay and lantern towns",
     blurb: "Limestone bays, Hoi An lanterns and some of Asia's best food.",
     nights: "6–9 nights",
@@ -469,13 +452,18 @@ export const countries: Country[] = [
     ],
     name: "Nepal",
     region: "Asia",
-    image:
-      "/images/destinations/nepal-hero.jpg",
+    image: "/images/destinations/nepal-hero.jpg",
     tagline: "Himalayas, temples & Annapurna peaks",
-    blurb: "Snow-capped Himalayan peaks, ancient pagoda squares in Kathmandu, and serene Pokhara lakeside walks.",
+    blurb:
+      "Snow-capped Himalayan peaks, ancient pagoda squares in Kathmandu, and serene Pokhara lakeside walks.",
     nights: "5–8 nights",
     fromAed: 1899,
-    highlights: ["Kathmandu Durbar Square", "Pokhara Phewa Lake", "Mount Everest Mountain Flight", "Swayambhunath Monkey Temple"],
+    highlights: [
+      "Kathmandu Durbar Square",
+      "Pokhara Phewa Lake",
+      "Mount Everest Mountain Flight",
+      "Swayambhunath Monkey Temple",
+    ],
     bestTime: "October – April",
     visa: "Visa on Arrival for UAE residents",
   }),
@@ -489,15 +477,20 @@ export const countries: Country[] = [
     ],
     name: "China",
     region: "Asia",
-    image:
-      "/images/destinations/china-01.jpg",
+    image: "/images/destinations/china-01.jpg",
     tagline: "Great Wall, Forbidden City & Shanghai skyline",
-    blurb: "Imperial wonders, the ancient Silk Road, and the high-tech neon skylines of Shanghai and Beijing.",
+    blurb:
+      "Imperial wonders, the ancient Silk Road, and the high-tech neon skylines of Shanghai and Beijing.",
     nights: "7–10 nights",
     fromAed: 5299,
-    highlights: ["Great Wall of China at Mutianyu", "Forbidden City & Summer Palace", "Shanghai Bund & Oriental Pearl", "Terracotta Warriors in Xi'an"],
+    highlights: [
+      "Great Wall of China at Mutianyu",
+      "Forbidden City & Summer Palace",
+      "Shanghai Bund & Oriental Pearl",
+      "Terracotta Warriors in Xi'an",
+    ],
     bestTime: "April – May, September – October",
-    visa: "China Tourist Visa — full handling",
+    visa: "China Tourist Visa: full handling",
   }),
   c({
     slug: "south-korea",
@@ -509,13 +502,18 @@ export const countries: Country[] = [
     ],
     name: "South Korea",
     region: "Asia",
-    image:
-      "/images/destinations/south-korea-seoul.jpg",
+    image: "/images/destinations/south-korea-seoul.jpg",
     tagline: "Seoul palaces, K-Culture & Jeju Island",
-    blurb: "Centuries-old royal palaces standing beside futuristic K-Pop streets, gourmet street food markets, and scenic Jeju Island.",
+    blurb:
+      "Centuries-old royal palaces standing beside futuristic K-Pop streets, gourmet street food markets, and scenic Jeju Island.",
     nights: "6–9 nights",
     fromAed: 4999,
-    highlights: ["Gyeongbokgung Palace & Hanbok experience", "N Seoul Tower & Myeongdong", "Nami Island day excursion", "Jeju Island waterfalls & volcanic peaks"],
+    highlights: [
+      "Gyeongbokgung Palace & Hanbok experience",
+      "N Seoul Tower & Myeongdong",
+      "Nami Island day excursion",
+      "Jeju Island waterfalls & volcanic peaks",
+    ],
     bestTime: "March – May, September – November",
     visa: "K-ETA / Tourist Visa",
   }),
@@ -529,13 +527,18 @@ export const countries: Country[] = [
     ],
     name: "Kyrgyzstan",
     region: "Asia",
-    image:
-      "/images/destinations/kyrgyzstan-03.jpg",
+    image: "/images/destinations/kyrgyzstan-03.jpg",
     tagline: "Tian Shan mountains & Issyk-Kul alpine lakes",
-    blurb: "Untouched alpine landscapes, nomadic yurt camps, and crystal blue mountain lakes just 4 hours from Dubai.",
+    blurb:
+      "Untouched alpine landscapes, nomadic yurt camps, and crystal blue mountain lakes just 4 hours from Dubai.",
     nights: "4–6 nights",
     fromAed: 2299,
-    highlights: ["Issyk-Kul Lake alpine resort", "Ala Archa National Park", "Bishkek Ala-Too Square", "Chon-Kemin Valley horseback riding"],
+    highlights: [
+      "Issyk-Kul Lake alpine resort",
+      "Ala Archa National Park",
+      "Bishkek Ala-Too Square",
+      "Chon-Kemin Valley horseback riding",
+    ],
     bestTime: "May – September",
     visa: "Visa-free / eVisa for UAE residents",
   }),
@@ -549,13 +552,18 @@ export const countries: Country[] = [
     ],
     name: "Hong Kong",
     region: "Asia",
-    image:
-      "/images/destinations/hong-kong-hero.jpg",
+    image: "/images/destinations/hong-kong-hero.jpg",
     tagline: "Victoria Harbour, skyline & Disneyland",
-    blurb: "Dramatic Victoria Peak vistas, world-class Dim Sum dining, and iconic Star Ferry rides across Victoria Harbour.",
+    blurb:
+      "Dramatic Victoria Peak vistas, world-class Dim Sum dining, and iconic Star Ferry rides across Victoria Harbour.",
     nights: "4–6 nights",
     fromAed: 3999,
-    highlights: ["Victoria Peak Tram & Sky Terrace", "Star Ferry & Symphony of Lights", "Hong Kong Disneyland", "Tian Tan Big Buddha & Ngong Ping 360"],
+    highlights: [
+      "Victoria Peak Tram & Sky Terrace",
+      "Star Ferry & Symphony of Lights",
+      "Hong Kong Disneyland",
+      "Tian Tan Big Buddha & Ngong Ping 360",
+    ],
     bestTime: "October – December",
     visa: "Pre-arrival Registration / Visa-free",
   }),
@@ -571,8 +579,7 @@ export const countries: Country[] = [
     ],
     name: "Morocco",
     region: "Africa",
-    image:
-      "/images/destinations/morocco-01.jpg",
+    image: "/images/destinations/morocco-01.jpg",
     tagline: "Souks, riads and Sahara camps",
     blurb: "Marrakech medinas, Atlas passes and a night under desert stars.",
     nights: "6–8 nights",
@@ -581,23 +588,26 @@ export const countries: Country[] = [
       "Marrakech souks",
       "Sahara desert camp",
       "Atlas mountains",
-      "Chefchaouen blue city"
+      "Chefchaouen blue city",
     ],
     bestTime: "October – April",
     visa: "Visa-free for many nationalities",
   }),
   c({
     slug: "kenya",
+    // kenya-02.jpg removed: it is Yosemite Valley in California — El Capitan,
+    // the Merced River and ponderosa pines — filed under a Kenyan filename and
+    // shown in a Masai Mara safari gallery. Three honest photographs are worth
+    // more than four with a lie in them. A genuine Masai Mara replacement
+    // needs sourcing from a licensed provider; see the image audit.
     gallery: [
       "/images/destinations/kenya-01.jpg",
-      "/images/destinations/kenya-02.jpg",
       "/images/destinations/kenya-p03.jpg",
       "/images/destinations/kenya-p04.jpg",
     ],
     name: "Kenya",
     region: "Africa",
-    image:
-      "/images/destinations/kenya-01.jpg",
+    image: "/images/destinations/kenya-01.jpg",
     tagline: "Masai Mara safari classic",
     blurb: "Big Five mornings, balloon safaris and Mara sunsets.",
     nights: "5–8 nights",
@@ -606,7 +616,7 @@ export const countries: Country[] = [
       "Masai Mara Big Five",
       "Hot air balloon safari",
       "Lake Nakuru flamingos",
-      "Amboseli & Kilimanjaro views"
+      "Amboseli & Kilimanjaro views",
     ],
     bestTime: "July – October",
     visa: "eTA",
@@ -621,8 +631,7 @@ export const countries: Country[] = [
     ],
     name: "Egypt",
     region: "Africa",
-    image:
-      "/images/destinations/egypt-pyramids.jpg",
+    image: "/images/destinations/egypt-pyramids.jpg",
     tagline: "Pyramids and Nile cruises",
     blurb: "Giza at sunrise, Luxor temples and a slow Nile cruise between them.",
     nights: "5–8 nights",
@@ -631,7 +640,7 @@ export const countries: Country[] = [
       "Pyramids of Giza",
       "Nile cruise Luxor–Aswan",
       "Valley of the Kings",
-      "Egyptian Museum"
+      "Egyptian Museum",
     ],
     bestTime: "October – April",
     visa: "Visa on arrival for UAE residents",
@@ -646,13 +655,18 @@ export const countries: Country[] = [
     ],
     name: "Tanzania",
     region: "Africa",
-    image:
-      "/images/destinations/tanzania-serengeti.jpg",
+    image: "/images/destinations/tanzania-serengeti.jpg",
     tagline: "Serengeti Migration, Ngorongoro & Zanzibar",
-    blurb: "Witness the Great Wildebeest Migration on the endless plains of the Serengeti, followed by white sand beaches in Zanzibar.",
+    blurb:
+      "Witness the Great Wildebeest Migration on the endless plains of the Serengeti, followed by white sand beaches in Zanzibar.",
     nights: "6–9 nights",
     fromAed: 5899,
-    highlights: ["Serengeti National Park Big Five Safari", "Ngorongoro Crater caldera game drive", "Zanzibar spice tours & Stone Town", "Mount Kilimanjaro viewpoint"],
+    highlights: [
+      "Serengeti National Park Big Five Safari",
+      "Ngorongoro Crater caldera game drive",
+      "Zanzibar spice tours & Stone Town",
+      "Mount Kilimanjaro viewpoint",
+    ],
     bestTime: "June – October, December – March",
     visa: "eVisa / Visa on Arrival",
   }),
@@ -666,13 +680,18 @@ export const countries: Country[] = [
     ],
     name: "South Africa",
     region: "Africa",
-    image:
-      "/images/destinations/south-africa-02.jpg",
+    image: "/images/destinations/south-africa-02.jpg",
     tagline: "Cape Town, Table Mountain & Kruger Safari",
-    blurb: "Table Mountain cable cars, penguins at Boulders Beach, and thrilling Big Five game drives in Kruger.",
+    blurb:
+      "Table Mountain cable cars, penguins at Boulders Beach, and thrilling Big Five game drives in Kruger.",
     nights: "7–10 nights",
     fromAed: 5699,
-    highlights: ["Table Mountain & Cape Point", "Kruger National Park luxury safari", "Boulders Beach African penguin colony", "Stellenbosch vineyard scenery"],
+    highlights: [
+      "Table Mountain & Cape Point",
+      "Kruger National Park luxury safari",
+      "Boulders Beach African penguin colony",
+      "Stellenbosch vineyard scenery",
+    ],
     bestTime: "November – April",
     visa: "Tourist Visa support",
   }),
@@ -686,13 +705,18 @@ export const countries: Country[] = [
     ],
     name: "Seychelles",
     region: "Africa",
-    image:
-      "/images/destinations/seychelles-04.jpg",
+    image: "/images/destinations/seychelles-04.jpg",
     tagline: "Granite boulders, turquoise lagoons & giant tortoises",
-    blurb: "Powder-soft white beaches, iconic granite boulders at Anse Source d'Argent, and pristine coral reefs in the Indian Ocean.",
+    blurb:
+      "Powder-soft white beaches, iconic granite boulders at Anse Source d'Argent, and pristine coral reefs in the Indian Ocean.",
     nights: "4–7 nights",
     fromAed: 4899,
-    highlights: ["Anse Source d'Argent on La Digue", "Vallée de Mai UNESCO prehistoric palm forest", "Curieuse Island giant tortoises", "Private catamaran island hopping"],
+    highlights: [
+      "Anse Source d'Argent on La Digue",
+      "Vallée de Mai UNESCO prehistoric palm forest",
+      "Curieuse Island giant tortoises",
+      "Private catamaran island hopping",
+    ],
     bestTime: "April – May, October – November",
     visa: "Visa-free for all nationalities (Travel Auth)",
     isNew: true,
@@ -709,17 +733,16 @@ export const countries: Country[] = [
     ],
     name: "Turkey",
     region: "Eurasia",
-    image:
-      "/images/destinations/turkey-balloons.jpg",
+    image: "/images/destinations/turkey-balloons.jpg",
     tagline: "Istanbul and Cappadocia balloons",
-    blurb: "Two continents, one city — plus sunrise balloons over fairy chimneys.",
+    blurb: "Two continents in one city, plus sunrise balloons over fairy chimneys.",
     nights: "5–8 nights",
     fromAed: 2899,
     highlights: [
       "Hagia Sophia & Blue Mosque",
       "Bosphorus dinner cruise",
       "Cappadocia balloon ride",
-      "Pamukkale terraces"
+      "Pamukkale terraces",
     ],
     bestTime: "April – June, September – November",
     visa: "eVisa / visa-free for UAE residents",
@@ -734,8 +757,7 @@ export const countries: Country[] = [
     ],
     name: "Georgia",
     region: "Eurasia",
-    image:
-      "/images/destinations/georgia-tbilisi.jpg",
+    image: "/images/destinations/georgia-tbilisi.jpg",
     tagline: "Caucasus mountains and wine valleys",
     blurb: "Tbilisi's sulphur baths, Kazbegi peaks and the world's oldest wine region.",
     nights: "4–6 nights",
@@ -744,7 +766,7 @@ export const countries: Country[] = [
       "Tbilisi old town",
       "Kazbegi & Gergeti church",
       "Kakheti wine tasting",
-      "Gudauri snow"
+      "Gudauri snow",
     ],
     bestTime: "April – October",
     visa: "Visa-free for UAE residents",
@@ -759,17 +781,16 @@ export const countries: Country[] = [
     ],
     name: "Azerbaijan",
     region: "Eurasia",
-    image:
-      "/images/destinations/azerbaijan-baku.jpg",
+    image: "/images/destinations/azerbaijan-baku.jpg",
     tagline: "Baku's flame towers, three hours away",
-    blurb: "Old city walls and modern architecture — the easiest short break from Dubai.",
+    blurb: "Old city walls and modern architecture. The easiest short break from Dubai.",
     nights: "3–5 nights",
     fromAed: 1899,
     highlights: [
       "Flame Towers",
       "Old City (Icherisheher)",
       "Gobustan mud volcanoes",
-      "Gabala day trip"
+      "Gabala day trip",
     ],
     bestTime: "April – June, September – November",
     visa: "eVisa in 3 working days",
@@ -784,8 +805,7 @@ export const countries: Country[] = [
     ],
     name: "Armenia",
     region: "Eurasia",
-    image:
-      "/images/destinations/armenia-yerevan-ararat.jpg",
+    image: "/images/destinations/armenia-yerevan-ararat.jpg",
     tagline: "Monasteries and mountain roads",
     blurb: "Ancient monasteries, Lake Sevan and a very short flight from Dubai.",
     nights: "4–5 nights",
@@ -804,13 +824,18 @@ export const countries: Country[] = [
     ],
     name: "Kazakhstan",
     region: "Eurasia",
-    image:
-      "/images/destinations/kazakhstan-charyn.jpg",
+    image: "/images/destinations/kazakhstan-charyn.jpg",
     tagline: "Almaty apple city, Charyn Canyon & Shymbulak",
-    blurb: "Shymbulak ski resort, emerald Big Almaty Lake, and the dramatic red sandstone cliffs of Charyn Canyon.",
+    blurb:
+      "Shymbulak ski resort, emerald Big Almaty Lake, and the dramatic red sandstone cliffs of Charyn Canyon.",
     nights: "4–6 nights",
     fromAed: 2199,
-    highlights: ["Shymbulak Mountain Resort cable car", "Charyn Canyon Grand Canyon of Asia", "Medeu highest ice skating rink", "Panfilov Park & Zenkov Cathedral"],
+    highlights: [
+      "Shymbulak Mountain Resort cable car",
+      "Charyn Canyon Grand Canyon of Asia",
+      "Medeu highest ice skating rink",
+      "Panfilov Park & Zenkov Cathedral",
+    ],
     bestTime: "May – October (Skiing: Dec – March)",
     visa: "Visa-free for UAE residents",
   }),
@@ -824,13 +849,18 @@ export const countries: Country[] = [
     ],
     name: "Jordan",
     region: "Eurasia",
-    image:
-      "/images/destinations/jordan-hero.jpg",
+    image: "/images/destinations/jordan-hero.jpg",
     tagline: "Petra Rose City, Wadi Rum & Dead Sea",
-    blurb: "Walk through the Siq into the rose-red Treasury of Petra, glamp under Martian stars in Wadi Rum, and float in the Dead Sea.",
+    blurb:
+      "Walk through the Siq into the rose-red Treasury of Petra, glamp under Martian stars in Wadi Rum, and float in the Dead Sea.",
     nights: "4–6 nights",
     fromAed: 3299,
-    highlights: ["Petra UNESCO Treasury & Monastery", "Wadi Rum 4x4 Jeep safari & bedouin camp", "Dead Sea mineral mud bath", "Amman Citadel & Roman Theatre"],
+    highlights: [
+      "Petra UNESCO Treasury & Monastery",
+      "Wadi Rum 4x4 Jeep safari & bedouin camp",
+      "Dead Sea mineral mud bath",
+      "Amman Citadel & Roman Theatre",
+    ],
     bestTime: "March – May, September – November",
     visa: "Visa on Arrival / Jordan Pass",
   }),
@@ -844,13 +874,18 @@ export const countries: Country[] = [
     ],
     name: "Uzbekistan",
     region: "Eurasia",
-    image:
-      "/images/destinations/uzbekistan-registan.jpg",
+    image: "/images/destinations/uzbekistan-registan.jpg",
     tagline: "Samarkand, Bukhara & Silk Road Turquoise Domes",
-    blurb: "Towering turquoise minarets, mosaic madrasahs, and Silk Road trading domes in ancient Samarkand and Bukhara.",
+    blurb:
+      "Towering turquoise minarets, mosaic madrasahs, and Silk Road trading domes in ancient Samarkand and Bukhara.",
     nights: "5–7 nights",
     fromAed: 2799,
-    highlights: ["Registan Square in Samarkand", "Bukhara Ark Fortress & Kalyan Minaret", "Shah-i-Zinda necropolis avenue", "Afrosiyob High-Speed Bullet Train"],
+    highlights: [
+      "Registan Square in Samarkand",
+      "Bukhara Ark Fortress & Kalyan Minaret",
+      "Shah-i-Zinda necropolis avenue",
+      "Afrosiyob High-Speed Bullet Train",
+    ],
     bestTime: "March – May, September – November",
     visa: "eVisa / Visa-free for UAE residents",
   }),
@@ -866,13 +901,18 @@ export const countries: Country[] = [
     ],
     name: "Australia",
     region: "Australia",
-    image:
-      "/images/destinations/australia-01.jpg",
+    image: "/images/destinations/australia-01.jpg",
     tagline: "Sydney Opera House, Great Barrier Reef & Melbourne",
-    blurb: "Sail Sydney Harbour, dive the world's largest coral reef, and explore the coastal beauty of Melbourne's Great Ocean Road.",
+    blurb:
+      "Sail Sydney Harbour, dive the world's largest coral reef, and explore the coastal beauty of Melbourne's Great Ocean Road.",
     nights: "8–12 nights",
     fromAed: 6999,
-    highlights: ["Sydney Opera House & Harbour Bridge", "Great Barrier Reef snorkeling excursion", "Melbourne Great Ocean Road & 12 Apostles", "Blue Mountains Scenic World"],
+    highlights: [
+      "Sydney Opera House & Harbour Bridge",
+      "Great Barrier Reef snorkeling excursion",
+      "Melbourne Great Ocean Road & 12 Apostles",
+      "Blue Mountains Scenic World",
+    ],
     bestTime: "September – November, March – May",
     visa: "Australian Tourist Visa (eVisitor/ETA)",
   }),
@@ -888,13 +928,18 @@ export const countries: Country[] = [
     ],
     name: "United States of America",
     region: "America",
-    image:
-      "/images/destinations/united-states-01.jpg",
+    image: "/images/destinations/united-states-01.jpg",
     tagline: "New York, California, Las Vegas & Orlando",
-    blurb: "Times Square energy, Hollywood glamour, Grand Canyon scale, and Florida theme park thrills planned from Dubai.",
+    blurb:
+      "Times Square energy, Hollywood glamour, Grand Canyon scale, and Florida theme park thrills planned from Dubai.",
     nights: "8–14 nights",
     fromAed: 7499,
-    highlights: ["Statue of Liberty & Manhattan skyline", "Grand Canyon National Park helicopter tour", "Universal Studios & Walt Disney World", "Golden Gate Bridge & California coast"],
+    highlights: [
+      "Statue of Liberty & Manhattan skyline",
+      "Grand Canyon National Park helicopter tour",
+      "Universal Studios & Walt Disney World",
+      "Golden Gate Bridge & California coast",
+    ],
     bestTime: "Year-round depending on region",
     visa: "US B1/B2 Tourist Visa assistance",
   }),
@@ -908,13 +953,18 @@ export const countries: Country[] = [
     ],
     name: "Argentina",
     region: "America",
-    image:
-      "/images/destinations/argentina-perito-moreno.jpg",
+    image: "/images/destinations/argentina-perito-moreno.jpg",
     tagline: "Buenos Aires tango, Iguazú Falls & Patagonia",
-    blurb: "Passionate tango shows in Buenos Aires, thunderous Iguazú Falls, and glacier trekking in Patagonia.",
+    blurb:
+      "Passionate tango shows in Buenos Aires, thunderous Iguazú Falls, and glacier trekking in Patagonia.",
     nights: "8–12 nights",
     fromAed: 7999,
-    highlights: ["Iguazú Falls Devil's Throat walkway", "Buenos Aires San Telmo & La Boca", "Perito Moreno Glacier boat cruise", "Mendoza Andes wine valley"],
+    highlights: [
+      "Iguazú Falls Devil's Throat walkway",
+      "Buenos Aires San Telmo & La Boca",
+      "Perito Moreno Glacier boat cruise",
+      "Mendoza Andes wine valley",
+    ],
     bestTime: "October – April",
     visa: "Tourist Visa / ETA",
   }),
@@ -928,13 +978,18 @@ export const countries: Country[] = [
     ],
     name: "Brazil",
     region: "America",
-    image:
-      "/images/destinations/brazil-hero.jpg",
+    image: "/images/destinations/brazil-hero.jpg",
     tagline: "Rio Christ Redeemer, Copacabana & Amazon",
-    blurb: "Christ the Redeemer overlooking Guanabara Bay, golden sands of Copacabana, and rainforest adventures.",
+    blurb:
+      "Christ the Redeemer overlooking Guanabara Bay, golden sands of Copacabana, and rainforest adventures.",
     nights: "8–12 nights",
     fromAed: 7899,
-    highlights: ["Christ the Redeemer & Sugarloaf Mountain", "Copacabana & Ipanema beaches", "Iguaçu Falls Brazilian side", "Amazon Rainforest river cruise"],
+    highlights: [
+      "Christ the Redeemer & Sugarloaf Mountain",
+      "Copacabana & Ipanema beaches",
+      "Iguaçu Falls Brazilian side",
+      "Amazon Rainforest river cruise",
+    ],
     bestTime: "December – March, June – September",
     visa: "Tourist Visa support",
   }),
@@ -954,7 +1009,7 @@ export const countries: Country[] = [
     image: "/images/destinations/bosnia-mostar.jpg",
     tagline: "Ottoman bridges and emerald rivers",
     blurb:
-      "Turquoise rivers, Ottoman stone bridges and green valleys in the heart of the Balkans — a short, inexpensive European trip from Dubai.",
+      "Turquoise rivers, Ottoman stone bridges and green valleys in the heart of the Balkans. A short, inexpensive European trip from Dubai.",
     nights: "5–7 nights",
     fromAed: 2899,
     highlights: [
@@ -1015,52 +1070,63 @@ export const countries: Country[] = [
     ],
     bestTime: "Year round; cooler and busier outside Ramadan",
     visa: "Umrah visa prepared and submitted by our specialists",
-  }),
+  }),
   c({
     slug: "spain",
+    // Reordered after a visual audit. The Sagrada Familia frame is three
+    // construction cranes against a blown-out sky, which is a true photograph
+    // and a poor advertisement. g04 (Plaza de Espana, Seville) leads instead —
+    // it is on this package's Andalusia leg and it is unmistakable.
     gallery: [
+      "/images/destinations/spain-g04.jpg",
+      "/images/destinations/spain-g03.jpg",
       "/images/destinations/spain-sagrada-familia.jpg",
       "/images/destinations/spain-g02.jpg",
-      "/images/destinations/spain-g03.jpg",
-      "/images/destinations/spain-g04.jpg",
     ],
     name: "Spain",
     region: "Europe",
-    image: "/images/destinations/spain-sagrada-familia.jpg",
+    image: "/images/destinations/spain-g04.jpg",
     tagline: "Gaudi architecture, tapas and Mediterranean passion",
-    blurb: "Marvel at Gaudí's soaring Sagrada Família in Barcelona, explore the majestic Royal Palace of Madrid, and experience fiery Flamenco in Seville.",
+    blurb:
+      "Marvel at Gaudí's soaring Sagrada Família in Barcelona, explore the majestic Royal Palace of Madrid, and experience fiery Flamenco in Seville.",
     nights: "5–8 nights",
     fromAed: 4499,
     highlights: [
       "Sagrada Família & Park Güell",
       "Madrid Royal Palace & Prado Museum",
       "Seville Plaza de España & Flamenco",
-      "Barcelona Gothic Quarter & Las Ramblas"
+      "Barcelona Gothic Quarter & Las Ramblas",
     ],
     bestTime: "April – October",
-    visa: "Schengen visa — full documentation assistance",
+    visa: "Schengen visa: full documentation assistance",
     isNew: true,
   }),
   c({
     slug: "germany",
+    // Reordered after a visual audit. germany-neuschwanstein.jpg does not show
+    // Neuschwanstein — it is a hazy valley with the edge of a stone statue in
+    // shot — so it no longer leads. g03 (Munich Marienplatz) and g04 (Cologne
+    // Cathedral) are the two images a customer can actually recognise, and the
+    // package sold here is Bavaria and Berlin, so Munich belongs first.
     gallery: [
-      "/images/destinations/germany-neuschwanstein.jpg",
-      "/images/destinations/germany-g02.jpg",
       "/images/destinations/germany-g03.jpg",
       "/images/destinations/germany-g04.jpg",
+      "/images/destinations/germany-g02.jpg",
+      "/images/destinations/germany-neuschwanstein.jpg",
     ],
     name: "Germany",
     region: "Europe",
-    image: "/images/destinations/germany-neuschwanstein.jpg",
+    image: "/images/destinations/germany-g03.jpg",
     tagline: "Fairytale castles, Bavarian Alps and historic capitals",
-    blurb: "Step inside the fairytale Neuschwanstein Castle nestled in the Bavarian Alps, explore Munich's Marienplatz, and discover Berlin's iconic Brandenburg Gate.",
+    blurb:
+      "Step inside the fairytale Neuschwanstein Castle nestled in the Bavarian Alps, explore Munich's Marienplatz, and discover Berlin's iconic Brandenburg Gate.",
     nights: "5–7 nights",
     fromAed: 4699,
     highlights: [
       "Neuschwanstein Fairytale Castle",
       "Munich Marienplatz & BMW Welt",
       "Berlin Brandenburg Gate & Wall Memorial",
-      "Cologne Twin-Spire Gothic Cathedral"
+      "Cologne Twin-Spire Gothic Cathedral",
     ],
     bestTime: "May – October & December (Christmas Markets)",
     visa: "Schengen visa assistance",
@@ -1078,14 +1144,15 @@ export const countries: Country[] = [
     region: "Europe",
     image: "/images/destinations/netherlands-amsterdam.jpg",
     tagline: "Canal rings, tulip gardens and historic windmills",
-    blurb: "Cruise along Amsterdam's UNESCO canal rings, witness millions of blooming tulips at Keukenhof, and visit historic wooden windmills at Zaanse Schans.",
+    blurb:
+      "Cruise along Amsterdam's UNESCO canal rings, witness millions of blooming tulips at Keukenhof, and visit historic wooden windmills at Zaanse Schans.",
     nights: "4–6 nights",
     fromAed: 3999,
     highlights: [
       "Amsterdam Canal Ring boat cruise",
       "Keukenhof Gardens tulip paradise",
       "Zaanse Schans working windmills & cheese farm",
-      "Rijksmuseum & Van Gogh Museum"
+      "Rijksmuseum & Van Gogh Museum",
     ],
     bestTime: "March – September",
     visa: "Schengen visa assistance",
@@ -1103,14 +1170,15 @@ export const countries: Country[] = [
     region: "Europe",
     image: "/images/destinations/portugal-belem-tower.jpg",
     tagline: "Sunlit Atlantic coast, yellow trams and fairytale palaces",
-    blurb: "Ride vintage yellow Tram 28 through Lisbon's Alfama, explore the colorful Pena Palace in romantic Sintra, and cruise the Douro River in Porto.",
+    blurb:
+      "Ride vintage yellow Tram 28 through Lisbon's Alfama, explore the colorful Pena Palace in romantic Sintra, and cruise the Douro River in Porto.",
     nights: "5–7 nights",
     fromAed: 4299,
     highlights: [
       "Lisbon Belém Tower & Jerónimos Monastery",
       "Sintra colorful Pena Palace & Quinta da Regaleira",
       "Porto historic Ribeira & Douro River bridges",
-      "Pastéis de Belém custard tart tasting"
+      "Pastéis de Belém custard tart tasting",
     ],
     bestTime: "April – October",
     visa: "Schengen visa assistance",
@@ -1128,14 +1196,15 @@ export const countries: Country[] = [
     region: "Africa",
     image: "/images/destinations/mauritius-le-morne.jpg",
     tagline: "Turquoise lagoons, coral reefs and volcanic wonders",
-    blurb: "Indulge in 5-star beachfront luxury beneath Le Morne mountain, discover the rainbow sands of Chamarel Seven Coloured Earths, and catamaran through crystal lagoons.",
+    blurb:
+      "Indulge in 5-star beachfront luxury beneath Le Morne mountain, discover the rainbow sands of Chamarel Seven Coloured Earths, and catamaran through crystal lagoons.",
     nights: "5–7 nights",
     fromAed: 4899,
     highlights: [
       "Le Morne Brabant turquoise lagoon beaches",
       "Chamarel Seven Coloured Earths & Waterfall",
       "Île aux Cerfs private catamaran cruise",
-      "Pamplemousses Botanical Garden giant water lilies"
+      "Pamplemousses Botanical Garden giant water lilies",
     ],
     bestTime: "Year-round paradise",
     visa: "Visa on arrival for most nationalities / UAE residents",
@@ -1153,14 +1222,15 @@ export const countries: Country[] = [
     region: "Eurasia",
     image: "/images/destinations/qatar-doha-skyline.jpg",
     tagline: "Futuristic skylines, falcon souqs and cultural gems",
-    blurb: "Stroll the illuminated Doha Corniche, wander through the bustling spices and falcon markets of Souq Waqif, and explore world-class museums on the Arabian Gulf.",
+    blurb:
+      "Stroll the illuminated Doha Corniche, wander through the bustling spices and falcon markets of Souq Waqif, and explore world-class museums on the Arabian Gulf.",
     nights: "3–4 nights",
     fromAed: 1699,
     highlights: [
       "Doha West Bay skyline & Corniche dhow cruise",
       "Souq Waqif traditional market & Falcon Souq",
       "Museum of Islamic Art architectural icon",
-      "Katara Cultural Village & Pearl-Qatar luxury marina"
+      "Katara Cultural Village & Pearl-Qatar luxury marina",
     ],
     bestTime: "October – April",
     visa: "GCC Resident eVisa / Visa-free access",
@@ -1178,20 +1248,20 @@ export const countries: Country[] = [
     region: "Eurasia",
     image: "/images/destinations/bahrain-manama-skyline.jpg",
     tagline: "Island of pearls, ancient forts and modern charm",
-    blurb: "Discover the Kingdom of Bahrain: ancient UNESCO Portuguese forts overlooking the sea, Bahrain World Trade Center, and traditional sweet-scented souqs.",
+    blurb:
+      "Discover the Kingdom of Bahrain: ancient UNESCO Portuguese forts overlooking the sea, Bahrain World Trade Center, and traditional sweet-scented souqs.",
     nights: "3–4 nights",
     fromAed: 1499,
     highlights: [
       "Manama Bay & Bahrain World Trade Center",
       "UNESCO Qal'at al-Bahrain (Bahrain Fort)",
       "Al Fateh Grand Mosque tour",
-      "Bab Al Bahrain & historic Manama Souq"
+      "Bab Al Bahrain & historic Manama Souq",
     ],
     bestTime: "October – April",
     visa: "GCC Resident eVisa / Visa-free access",
     isNew: true,
   }),
-
 ];
 
 export const countryRegions: CountryRegion[] = [
@@ -1200,7 +1270,7 @@ export const countryRegions: CountryRegion[] = [
   "Africa",
   "Eurasia",
   "Australia",
-  "America"
+  "America",
 ];
 
 export function countriesByRegion(region: CountryRegion) {

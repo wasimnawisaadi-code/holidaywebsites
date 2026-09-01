@@ -518,7 +518,7 @@ export const packageDetailsB: Record<string, PackageDetail> = {
     ]
   },
   "greece-santorini-athens": {
-    "overview": "Greece is the timeless meeting point of Western civilization and sublime Mediterranean beauty. This signature 6-day package from Dubai takes you to the legendary ruins of ancient Athens—visiting the Acropolis, Parthenon, and the neoclassical alleys of Plaka—before cruising across the azure Aegean Sea to the volcanic island of Santorini. Stay in a luxury cliffside resort perched on the caldera rim, sail past volcanic hot springs on a private catamaran, and witness the world's most celebrated golden sunset in Oia.",
+    "overview": "Greece is the timeless meeting point of Western civilization and sublime Mediterranean beauty. This signature 6-day package from Dubai takes you to the legendary ruins of ancient Athens, visiting the Acropolis, Parthenon, and the neoclassical alleys of Plaka—before cruising across the azure Aegean Sea to the volcanic island of Santorini. Stay in a luxury cliffside resort perched on the caldera rim, sail past volcanic hot springs on a private catamaran, and witness the world's most celebrated golden sunset in Oia.",
     "gallery": [
       "/images/destinations/greece-oia.jpg",
       "/images/destinations/greece-parthenon.jpg",

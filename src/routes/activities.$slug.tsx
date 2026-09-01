@@ -216,7 +216,7 @@ function ActivityPage() {
           <div className="relative aspect-[16/10] overflow-hidden rounded-3xl bg-slate-100 shadow-md">
             <img
               src={gallery[shot] ?? a.image}
-              alt={`${a.title} — view ${shot + 1}`}
+              alt={`${a.title}, view ${shot + 1}`}
               width={1600}
               height={1000}
               loading="eager"

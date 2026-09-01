@@ -14,13 +14,7 @@ import { cn } from "@/lib/utils";
  * full sentence is kept in an `aria-label` and the pieces hidden from
  * assistive tech, so it is announced once, normally.
  */
-export function ScrollRevealText({
-  text,
-  className,
-}: {
-  text: string;
-  className?: string;
-}) {
+export function ScrollRevealText({ text, className }: { text: string; className?: string }) {
   const ref = useRef<HTMLParagraphElement>(null);
   const [progress, setProgress] = useState(0);
   const [enabled, setEnabled] = useState(false);

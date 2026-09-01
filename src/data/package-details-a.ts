@@ -98,7 +98,7 @@ export const packageDetailsA: Record<string, PackageDetail> = {
     ]
   },
   "salalah-khareef-monsoon": {
-    "overview": "Every summer between July and September, an extraordinary natural phenomenon transforms the southern Dhofar region of Oman into a lush, mist-shrouded green wonderland known as Khareef. While the rest of the Arabian Gulf experiences peak summer heat, Salalah enjoys crisp 22°C temperatures, gentle drizzle, flowing freshwater wadis, and roaming camel herds grazing on emerald green mountain pastures. This signature 4-day package departs directly from Dubai—available via luxury sleeper-coach bus or direct 1.5-hour flight—taking you to the cascading waterfalls of Wadi Darbat, the dramatic rock blowholes of Mughsail, the highest peaks of Jabal Samhan, and the aromatic frankincense souqs of historic Salalah.",
+    "overview": "Every summer between July and September, an extraordinary natural phenomenon transforms the southern Dhofar region of Oman into a lush, mist-shrouded green wonderland known as Khareef. While the rest of the Arabian Gulf experiences peak summer heat, Salalah enjoys crisp 22°C temperatures, gentle drizzle, flowing freshwater wadis, and roaming camel herds grazing on emerald green mountain pastures. This signature 4-day package departs directly from Dubai, available via luxury sleeper-coach bus or direct 1.5-hour flight—taking you to the cascading waterfalls of Wadi Darbat, the dramatic rock blowholes of Mughsail, the highest peaks of Jabal Samhan, and the aromatic frankincense souqs of historic Salalah.",
     "gallery": [
       "/images/destinations/salalah-meadows.jpg",
       "/images/destinations/salalah-wadi-darbat.jpg",
@@ -327,7 +327,7 @@ export const packageDetailsA: Record<string, PackageDetail> = {
       },
       {
         "day": 5,
-        "morning": "Full-day trip to Kravice Waterfalls — a 120-meter wide natural amphitheater of 25m cascading waterfalls surrounded by lush greenery.",
+        "morning": "Full-day trip to Kravice Waterfalls, a 120-meter wide natural amphitheater of 25m cascading waterfalls surrounded by lush greenery.",
         "afternoon": "Swim in the emerald pools, take a wooden boat tour under the falls, and visit the medieval fortified stone village of Počitelj.",
         "evening": "Return to Sarajevo for your final evening in Bosnia.",
         "overnight": "Overnight in Sarajevo",
@@ -432,7 +432,7 @@ export const packageDetailsA: Record<string, PackageDetail> = {
       },
       {
         "day": 5,
-        "morning": "Board the famous Eiger Express and cogwheel train to Jungfraujoch — Top of Europe (3,454m).",
+        "morning": "Board the famous Eiger Express and cogwheel train to Jungfraujoch, Top of Europe (3,454m).",
         "afternoon": "Visit the Ice Palace, Sphinx Observatory, and Alpine Sensation exhibition.",
         "evening": "Descend past Lauterbrunnen waterfalls back to Interlaken.",
         "overnight": "Overnight in Interlaken",

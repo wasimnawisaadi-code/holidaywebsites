@@ -13,7 +13,7 @@ export function ActivityCard({ a, eager = false }: { a: InboundActivity; eager?:
       >
         <img
           src={a.image}
-          alt={`${a.title} — ${a.emirate}`}
+          alt={`${a.title}, ${a.emirate}`}
           loading={eager ? "eager" : "lazy"}
           className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-106"
           onError={(e) => {
@@ -61,9 +61,7 @@ export function ActivityCard({ a, eager = false }: { a: InboundActivity; eager?:
             <span className="block font-sans text-[10px] tracking-wider text-slate-400 uppercase font-semibold">
               From
             </span>
-            <span className="font-display text-xl font-black text-[#00365F]">
-              {inboundFrom(a)}
-            </span>
+            <span className="font-display text-xl font-black text-[#00365F]">{inboundFrom(a)}</span>
           </div>
 
           <a

@@ -37,7 +37,7 @@ const FAQS = [
   },
   {
     q: "Can I change the itinerary?",
-    a: "Yes — published itineraries are starting points. Add nights, upgrade the room, drop an excursion or move the dates, and we re-quote until it is the trip you actually want.",
+    a: "Yes. Published itineraries are starting points. Add nights, upgrade the room, drop an excursion or move the dates, and we re-quote until it is the trip you actually want.",
   },
   {
     q: "Where do the flights depart from?",
@@ -47,7 +47,7 @@ const FAQS = [
 
 /** Shared so the meta description and og:description cannot drift apart. */
 const HOME_DESCRIPTION =
-  "IATA-accredited travel agency in Deira, Dubai since 2009. Worldwide holiday packages, flights, UAE tours and visas — arranged end to end by one team.";
+  "IATA-accredited travel agency in Deira, Dubai since 2009. Worldwide holiday packages, flights, UAE tours and visas, all arranged end to end by one team.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -57,7 +57,7 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: HOME_DESCRIPTION },
       {
         property: "og:title",
-        content: "Nawi Saadi Travel & Tourism — Luxury Worldwide Holidays from Dubai",
+        content: "Worldwide Holidays from Dubai | Nawi Saadi Travel",
       },
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/") }],
@@ -182,7 +182,7 @@ function PhotoBand() {
     for (const p of packages) {
       if (!p.image || seen.has(p.image)) continue;
       seen.add(p.image);
-      pool.push({ src: p.image, alt: `${p.country} — ${p.title}` });
+      pool.push({ src: p.image, alt: `${p.country}: ${p.title}` });
     }
     const half = Math.ceil(pool.length / 2);
     return { rowA: pool.slice(0, half), rowB: pool.slice(half) };
@@ -388,7 +388,7 @@ const REASONS = [
   {
     icon: ShieldCheck,
     title: "Visas handled in-house",
-    body: "Schengen, UK, USA, Japan and Umrah visas prepared, submitted and chased by our own specialists — alongside UAE tourist and transit visas we issue directly.",
+    body: "Schengen, UK, USA, Japan and Umrah visas prepared, submitted and chased by our own specialists, alongside UAE tourist and transit visas we issue directly.",
   },
   {
     icon: Headset,

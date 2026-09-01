@@ -170,7 +170,7 @@ const signOut = createServerFn({ method: "POST" }).handler(async () => {
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Executive Admin Dashboard — Nawi Saadi Holidays" },
+      { title: "Admin Dashboard | Nawi Saadi Holidays" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

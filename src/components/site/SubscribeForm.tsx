@@ -159,20 +159,12 @@ export function SubscribeForm({
       </div>
 
       {state === "error" ? (
-        <p
-          className={cn(
-            "mt-2 font-sans text-xs",
-            onDark ? "text-[#DDBE5E]" : "text-red-600",
-          )}
-        >
+        <p className={cn("mt-2 font-sans text-xs", onDark ? "text-[#DDBE5E]" : "text-red-600")}>
           That didn&apos;t go through. Check the address, or message us on WhatsApp instead.
         </p>
       ) : (
         <p
-          className={cn(
-            "mt-2 font-sans text-[11px]",
-            onDark ? "text-white/50" : "text-[#666666]",
-          )}
+          className={cn("mt-2 font-sans text-[11px]", onDark ? "text-white/50" : "text-[#666666]")}
         >
           Occasional fares and new itineraries. No spam, unsubscribe any time.
         </p>

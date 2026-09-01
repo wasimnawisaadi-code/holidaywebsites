@@ -64,8 +64,15 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
 
   const current = clips[index];
 
+  // The min-height is what actually protects the copy on a short screen. The
+  // copy block is bottom-anchored, so when the viewport is shorter than the
+  // fixed header plus the copy, the copy overflows *upward* past any padding
+  // and slides under the nav — measured at a 90px collision on 1280x600 and
+  // only 10px of clearance at 1280x720. Raising the floor from 620px to 760px
+  // means the hero is simply taller than a short window and scrolls, which is
+  // ordinary behaviour, instead of colliding.
   return (
-    <section className="relative h-[100svh] min-h-[620px] w-full overflow-hidden bg-[#04121f]">
+    <section className="relative h-[100svh] min-h-[760px] w-full overflow-hidden bg-[#04121f]">
       {/* Footage */}
       <div className="absolute inset-0">
         {clips.map((clip, i) => (
@@ -93,20 +100,29 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
       </div>
 
       {/* Copy */}
+      {/*
+        The top padding reserves the height of the fixed header (~101px at
+        sm and up, ~89px below it). Without it this block is only bottom
+        anchored, so on a short laptop — 1280x600, or 1366x768 at 125%
+        Windows scaling — the copy grew upward until the eyebrow and the
+        "Travel," headline ran underneath the logo and the nav. It measured
+        as a 90px overlap at 1280x600 and left just 10px of clearance at
+        1280x720, which is not clearance at all.
+      */}
       <div
-        className="relative flex h-full flex-col justify-end"
+        className="relative flex h-full flex-col justify-end pt-[104px] sm:pt-[116px]"
         style={{
           transform: `translate3d(0, ${scrolled * -60}px, 0)`,
           opacity: 1 - scrolled * 0.85,
           willChange: "transform, opacity",
         }}
       >
-        <div className="mx-auto w-full max-w-[1400px] px-5 pb-14 sm:px-8 sm:pb-20">
+        <div className="mx-auto w-full max-w-[1400px] px-5 pb-10 sm:px-8 sm:pb-20">
           <p
             className="rise-in font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-[#DDBE5E]"
             style={{ animationDelay: "0.14s" }}
           >
-            Dubai — worldwide holidays since {BRAND.founded}
+            Worldwide holidays since {BRAND.founded}
           </p>
 
           {/* Fluid to the viewport rather than stepped at breakpoints, so the
@@ -115,7 +131,10 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
               below, which reads as type being set rather than fading in. */}
           <h1 className="mt-5 max-w-5xl font-display leading-[0.94] text-white [font-size:clamp(3rem,9.5vw,8rem)]">
             <span className="block overflow-hidden">
-              <span className="block rise-in" style={{ animationDelay: "0.26s", ["--rise" as string]: "100%" }}>
+              <span
+                className="block rise-in"
+                style={{ animationDelay: "0.26s", ["--rise" as string]: "100%" }}
+              >
                 Travel,
               </span>
             </span>
