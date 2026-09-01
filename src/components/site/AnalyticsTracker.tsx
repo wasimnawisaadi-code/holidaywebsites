@@ -20,6 +20,24 @@ import { track, analyticsEnabled } from "@/lib/analytics";
  * still fires for a link that navigates away immediately, and it works for
  * links added later by any component.
  */
+/**
+ * Which kind of page an enquiry came from, as a value rather than a path the
+ * dashboard has to parse again.
+ */
+function pageType(path: string): string {
+  if (path === "/") return "home";
+  if (path.startsWith("/holidays/")) return "package";
+  if (path.startsWith("/countries/")) return "country";
+  if (path.startsWith("/activities/")) return "activity";
+  return path.split("/")[1] || "home";
+}
+
+/** The package, country or activity slug, when the path carries one. */
+function slugOf(path: string): string {
+  const m = /^\/(?:holidays|countries|activities)\/([^/?#]+)/.exec(path);
+  return m?.[1] ?? "";
+}
+
 export function AnalyticsTracker() {
   const pathname = useRouterState({ select: (s) => s?.location?.pathname ?? "" });
   const previous = useRef<string | null>(null);
@@ -61,14 +79,47 @@ export function AnalyticsTracker() {
       const label = (link.textContent ?? "").trim().slice(0, 80);
 
       if (href.includes("wa.me") || href.includes("whatsapp")) {
-        const textParam = href.includes("text=")
-          ? decodeURIComponent(href.split("text=")[1] ?? "")
-          : "";
+        // The prefilled message is the single most valuable thing this site
+        // records: it is the customer's own statement of what they want,
+        // captured at the moment they decide to ask. It was being read with
+        // `href.split("text=")[1]`, which swallows any parameter that happens
+        // to follow `text=` and mis-decodes a message containing an ampersand.
+        // Parsing the URL properly is both correct and shorter.
+        let intent = "";
+        let phone = "";
+        try {
+          const url = new URL(href, window.location.origin);
+          intent = url.searchParams.get("text") ?? "";
+          // wa.me/<number> — which line the enquiry was routed to.
+          phone = url.pathname.replace(/^\/+/, "").split("/")[0] ?? "";
+        } catch {
+          /* a malformed href should not lose the event */
+        }
+
+        // The message is written as "Key: value" lines by waLink() callers, so
+        // the office can be shown the enquiry as fields rather than as a wall
+        // of text they have to re-read in the dashboard.
+        const fields: Record<string, string> = {};
+        for (const line of intent.split("\n")) {
+          const at = line.indexOf(":");
+          if (at < 1) continue;
+          const key = line.slice(0, at).trim().toLowerCase();
+          const value = line.slice(at + 1).trim();
+          if (key && value && key.length < 24) fields[key] = value.slice(0, 160);
+        }
+
         track("whatsapp_click", {
           context: window.location.pathname,
           label,
-          intent: textParam,
-          href: href.slice(0, 500),
+          // Full message, not a 90-character preview. This is the payload the
+          // whole analytics table exists to capture.
+          intent: intent.slice(0, 1500),
+          fields,
+          phone,
+          // What the visitor was looking at, as structured values rather than
+          // a path to be parsed again in the dashboard.
+          page_type: pageType(window.location.pathname),
+          slug: slugOf(window.location.pathname),
           title: document.title,
         });
         return;

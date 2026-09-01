@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   Activity,
   MessageCircle,
@@ -20,6 +20,7 @@ import {
   ExternalLink,
   MessageSquare,
   Copy,
+  Trash2,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -159,6 +160,34 @@ const saveLead = createServerFn({ method: "POST" })
     if (!(await sessionFromToken(getCookie(COOKIE)))) return { ok: false as const };
     const { id, ...patch } = data;
     return { ok: await updateLead(id, patch) };
+  });
+
+/**
+ * Permanently deletes a lead. Auth is re-checked here, not assumed from the
+ * page having rendered — every server function is an independent entry point
+ * and the session cookie is the only thing that proves anything.
+ */
+const removeLead = createServerFn({ method: "POST" })
+  .validator((d: { id: number; email: string }) => {
+    const id = Number(d?.id);
+    if (!Number.isInteger(id) || id <= 0) throw new Error("A lead id is required.");
+    const email = String(d?.email ?? "")
+      .trim()
+      .slice(0, 320);
+    if (!email) throw new Error("The lead's email is required to confirm the delete.");
+    return { id, email };
+  })
+  .handler(async ({ data }) => {
+    const { deleteLead } = await import("@/lib/admin-data");
+    const { sessionFromToken } = await import("@/lib/admin-auth");
+    const { getCookie } = await import("@tanstack/react-start/server");
+    const session = await sessionFromToken(getCookie(COOKIE));
+    if (!session) return { ok: false as const };
+    const ok = await deleteLead(data.id, data.email);
+    // Deletions are the one admin action with no undo, so they leave a trace
+    // in the platform logs even though nothing else here does.
+    console.log(`[admin] ${session.email} deleted lead ${data.id} <${data.email}>: ${ok}`);
+    return { ok };
   });
 
 const signOut = createServerFn({ method: "POST" }).handler(async () => {
@@ -478,6 +507,15 @@ function LeadsManager({
   const [busy, setBusy] = useState<number | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  // Which row has its delete armed. Cleared on a timer so a half-pressed
+  // delete cannot sit waiting to catch an unrelated click minutes later.
+  const [confirming, setConfirming] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (confirming === null) return;
+    const t = setTimeout(() => setConfirming(null), 5000);
+    return () => clearTimeout(t);
+  }, [confirming]);
 
   const filtered = useMemo(() => {
     return leads.filter((l) => {
@@ -823,19 +861,60 @@ function LeadsManager({
                       </td>
 
                       {/* Actions / Expand */}
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          type="button"
-                          onClick={() => setExpanded(isExpanded ? null : l.id)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-[#E2E8F0] px-2.5 py-1 text-xs font-semibold text-[#00365F] hover:border-[#CAA42D]"
-                        >
-                          <span>{isExpanded ? "Hide" : "Details"}</span>
-                          {isExpanded ? (
-                            <ChevronUp className="size-3" />
+                      <td className="px-4 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setExpanded(isExpanded ? null : l.id)}
+                            aria-expanded={isExpanded}
+                            aria-controls={`lead-detail-${l.id}`}
+                            className="inline-flex items-center gap-1 rounded-lg border border-[#E2E8F0] px-2.5 py-1 text-xs font-semibold text-[#00365F] hover:border-[#CAA42D]"
+                          >
+                            <span>{isExpanded ? "Hide" : "Details"}</span>
+                            {isExpanded ? (
+                              <ChevronUp className="size-3" />
+                            ) : (
+                              <ChevronDown className="size-3" />
+                            )}
+                          </button>
+
+                          {/*
+                          Two-step, because there is no undo. The first click
+                          arms the button and shows the address being removed;
+                          the second commits. Arming clears itself after a few
+                          seconds so a half-pressed delete cannot sit waiting
+                          for an unrelated click later.
+                        */}
+                          {confirming === l.id ? (
+                            <button
+                              type="button"
+                              disabled={busy === l.id}
+                              onClick={async () => {
+                                setBusy(l.id);
+                                const res = await removeLead({
+                                  data: { id: l.id, email: l.email },
+                                });
+                                setBusy(null);
+                                setConfirming(null);
+                                if (res.ok) router.invalidate();
+                              }}
+                              className="inline-flex items-center gap-1 rounded-lg bg-red-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-red-700 disabled:opacity-50"
+                              title={`Permanently delete ${l.email}`}
+                            >
+                              <Trash2 className="size-3" />
+                              {busy === l.id ? "Deleting…" : "Confirm"}
+                            </button>
                           ) : (
-                            <ChevronDown className="size-3" />
+                            <button
+                              type="button"
+                              onClick={() => setConfirming(l.id)}
+                              aria-label={`Delete lead ${l.email}`}
+                              className="inline-flex items-center rounded-lg border border-[#E2E8F0] px-2 py-1 text-xs text-[#94A3B8] hover:border-red-300 hover:text-red-600"
+                            >
+                              <Trash2 className="size-3" />
+                            </button>
                           )}
-                        </button>
+                        </div>
                       </td>
                     </tr>
 
@@ -1034,33 +1113,70 @@ function WhatsAppIntentLog({
             {whatsappEvents.map((w) => {
               const intent = String(w.meta?.["intent"] ?? "");
               const context = String(w.meta?.["context"] ?? w.path ?? "General Enquiry");
+              // Parsed at capture time from the prefilled message, so the
+              // office reads an enquiry as fields rather than re-reading a
+              // paragraph. Older rows have no `fields` and fall back to the
+              // raw message below.
+              const fields = (w.meta?.["fields"] ?? {}) as Record<string, string>;
+              const fieldList = Object.entries(fields).filter(([, v]) => v);
+              const waPhone = String(w.meta?.["phone"] ?? "");
+              const slug = String(w.meta?.["slug"] ?? "");
               return (
                 <div
                   key={w.id}
                   className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 transition-all hover:border-[#CAA42D]"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E8F0] pb-2.5">
-                    <span className="font-sans text-xs font-bold text-[#00365F]">{context}</span>
+                    <span className="font-sans text-xs font-bold text-[#00365F]">
+                      {slug || context}
+                    </span>
                     <span className="font-sans text-[11px] text-[#64748B]">
                       {new Date(w.created_at).toLocaleString()}
                     </span>
                   </div>
-                  <p className="mt-2.5 font-sans text-xs leading-relaxed text-[#334155]">
-                    {intent ? (
-                      <span className="font-medium text-[#00365F]">&ldquo;{intent}&rdquo;</span>
-                    ) : (
-                      <span className="text-[#94A3B8] italic">
-                        Direct WhatsApp Floating Action Button click
-                      </span>
-                    )}
-                  </p>
+
+                  {fieldList.length ? (
+                    <dl className="mt-3 grid gap-x-5 gap-y-1.5 sm:grid-cols-2">
+                      {fieldList.map(([k, v]) => (
+                        <div key={k} className="min-w-0">
+                          <dt className="font-sans text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">
+                            {k}
+                          </dt>
+                          <dd className="font-sans text-xs text-[#00365F]">{v}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  ) : (
+                    <p className="mt-2.5 font-sans text-xs leading-relaxed text-[#334155]">
+                      {intent ? (
+                        <span className="font-medium whitespace-pre-line text-[#00365F]">
+                          {intent}
+                        </span>
+                      ) : (
+                        <span className="text-[#94A3B8] italic">
+                          Tapped the floating WhatsApp button — no prefilled message
+                        </span>
+                      )}
+                    </p>
+                  )}
+
                   <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#64748B]">
-                    <span>📱 {w.device ?? "Device Unknown"}</span>
+                    <span>{w.device ?? "device unknown"}</span>
                     <span>
-                      📍 Path: <code className="font-mono text-[#00365F]">{w.path}</code>
+                      path <code className="font-mono text-[#00365F]">{w.path}</code>
                     </span>
+                    {waPhone ? (
+                      <a
+                        href={`https://wa.me/${waPhone}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-emerald-700 hover:underline"
+                      >
+                        open this chat
+                      </a>
+                    ) : null}
                     <span>
-                      🔑 Session:{" "}
+                      session{" "}
                       <code className="font-mono text-[10px] text-[#94A3B8]">
                         {w.session_id?.slice(0, 10)}
                       </code>

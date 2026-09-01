@@ -200,13 +200,43 @@ export async function loadDashboard(): Promise<Dashboard> {
  * Moves a lead through the pipeline. Uses the service role key, so this is only
  * ever reachable from the authenticated /admin server function.
  */
+/**
+ * Permanently removes a lead.
+ *
+ * Deliberately narrow: it takes an id and an email, and deletes only when both
+ * match the same row. The admin UI already knows the address it is showing, so
+ * requiring it costs nothing there, while an id transposed by one — the way a
+ * bulk script or a mis-click goes wrong — matches nothing and deletes nothing.
+ *
+ * This uses the service role key and bypasses Row Level Security, so it is
+ * only ever reachable from the authenticated /admin server function.
+ */
+export async function deleteLead(id: number, email: string): Promise<boolean> {
+  const c = config();
+  if (!c) return false;
+  const q = `id=eq.${encodeURIComponent(String(id))}&email=eq.${encodeURIComponent(email)}`;
+  const res = await fetch(`${c.url}/rest/v1/leads?${q}`, {
+    method: "DELETE",
+    headers: {
+      apikey: c.key,
+      Authorization: `Bearer ${c.key}`,
+      Prefer: "return=representation",
+    },
+  });
+  if (!res.ok) return false;
+  // return=representation lets us confirm a row actually matched, rather than
+  // reporting success for a DELETE that touched nothing.
+  const rows = (await res.json().catch(() => [])) as unknown[];
+  return Array.isArray(rows) && rows.length > 0;
+}
+
 export async function updateLead(
   id: number,
   patch: { status?: string; notes?: string },
 ): Promise<boolean> {
   const c = config();
   if (!c) return false;
-  const res = await fetch(`${c.url}/rest/v1/leads?id=eq.${id}`, {
+  const res = await fetch(`${c.url}/rest/v1/leads?id=eq.${encodeURIComponent(String(id))}`, {
     method: "PATCH",
     headers: {
       apikey: c.key,
