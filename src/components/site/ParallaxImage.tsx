@@ -84,6 +84,14 @@ export function ParallaxImage({
         alt={alt}
         decoding="async"
         loading={priority ? "eager" : "lazy"}
+        // eager only means "do not defer this until it scrolls into view". It
+        // says nothing about where the request sits in the queue, so the hero
+        // of every PageHero route was competing on equal terms with the forty
+        // lazy card images below it. On /holidays that made a below-the-fold
+        // card the largest contentful paint at 5.3s, while detail pages —
+        // which set fetchPriority explicitly on their own hero — came in
+        // under a second. This is the same hint, applied where it was missed.
+        {...(priority ? { fetchPriority: "high" as const } : {})}
         // The extra height is what there is to move into; without it the drift
         // would expose the frame's background at the top or bottom.
         style={{ height: `${100 + overscan}%`, top: `${-overscan / 2}%` }}
