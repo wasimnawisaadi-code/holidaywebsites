@@ -90,7 +90,14 @@ export function SiteHeader() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 font-sans transition-all duration-300",
         transparent
-          ? "border-b border-white/10 bg-gradient-to-b from-black/60 to-transparent"
+          ? // No rule at all over the hero. A 1px line drawn across a photograph
+            // reads as an artefact — it slices the picture rather than
+            // separating anything from anything — and softening it to a hairline
+            // that faded at the ends only made it look like a fainter slice. The
+            // scrim carries the navigation on its own, deepened a little at the
+            // top to hold contrast now that nothing else is helping. Below the
+            // hero the header lands on paper and takes a real border again.
+            "bg-gradient-to-b from-black/70 via-black/25 to-transparent"
           : "border-b border-[#E5E5E5] bg-[#FFFFFF]/95 backdrop-blur-md",
       )}
       onMouseLeave={scheduleClose}
