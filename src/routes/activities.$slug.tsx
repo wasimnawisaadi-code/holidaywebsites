@@ -212,7 +212,14 @@ function ActivityPage() {
 
       {/* 4 high-quality images gallery */}
       <div className="mx-auto mt-8 max-w-[1400px] px-5 sm:px-8">
-        <div className="grid gap-3 lg:grid-cols-[2.2fr_1fr]">
+        {/*
+          The thumbnail rail only earns its column when there is more than one
+          photograph. Several galleries lost images in the relevance audit —
+          wrong-country pictures were removed rather than replaced with more
+          wrong ones — and a fixed two-column grid left a large hole where the
+          missing thumbnails used to sit.
+        */}
+        <div className={cn("grid gap-3", gallery.length > 1 && "lg:grid-cols-[2.2fr_1fr]")}>
           <div className="relative aspect-[16/10] overflow-hidden rounded-3xl bg-slate-100 shadow-md">
             <img
               src={gallery[shot] ?? a.image}

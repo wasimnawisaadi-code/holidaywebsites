@@ -105,7 +105,12 @@ export function SiteHeader() {
             loading="eager"
             fetchPriority="high"
             decoding="async"
-            className="h-16 w-auto sm:h-[4.75rem]"
+            // The mark sits above the wordmark, so centring the lockup by its
+            // bounding box drops the words about 20px below the nav baseline —
+            // the whole header then reads as misaligned even though the boxes
+            // line up. Trimming the height and nudging up a little aligns what
+            // the eye actually tracks, the wordmark, with the navigation.
+            className="h-[3.25rem] w-auto -translate-y-[3px] sm:h-[3.75rem]"
           />
         </Link>
 
