@@ -178,7 +178,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 1299,
-    "image": "/images/destinations/oman-salalah.jpg",
+    "image": "/images/destinations/salalah-mughsail.jpg",
     "intro": "Experience the legendary Arabian monsoon: emerald green mountains, flowing waterfalls, and cool 22°C misty mountain breezes in southern Oman.",
     "story": "Witness the miracle of the Khareef season where the desert transforms into a lush green tropical paradise with cascading waterfalls and dramatic coastal blowholes.",
     "highlights": [

@@ -1025,14 +1025,14 @@ export const countries: Country[] = [
   c({
     slug: "oman",
     gallery: [
-      "/images/destinations/oman-salalah.jpg",
       "/images/destinations/salalah-mughsail.jpg",
       "/images/destinations/salalah-wadi-darbat.jpg",
       "/images/destinations/salalah-meadows.jpg",
+      "/images/destinations/salalah-mosque.jpg",
     ],
     name: "Oman",
     region: "Asia",
-    image: "/images/destinations/oman-salalah.jpg",
+    image: "/images/destinations/salalah-mughsail.jpg",
     tagline: "Salalah in the khareef monsoon",
     blurb:
       "The Arabian monsoon turns Dhofar green: misty mountains around 22°C, seasonal waterfalls and empty beaches, a short hop from Dubai.",

@@ -49,7 +49,7 @@ const REGIONS = [
     tagline: "Khareef mist, spiritual Umrah & futuristic skylines",
     count: "4 Destinations",
     fromPrice: "1,490",
-    image: "/images/destinations/oman-salalah.jpg",
+    image: "/images/destinations/salalah-mughsail.jpg",
     slugs: ["oman", "saudi-arabia", "qatar", "bahrain"],
   },
   {

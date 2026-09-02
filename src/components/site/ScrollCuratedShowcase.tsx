@@ -23,27 +23,37 @@ const SHOWCASE_SLUGS = [
   "bali-jungle-coast",
 ];
 
+/*
+ * Deliberately shares no package with the Signature Itineraries block above.
+ *
+ * Switzerland and the Maldives were appearing three times on the homepage —
+ * once in Signature Itineraries, again here, and a third time in the explorer
+ * below — with Japan and Salalah twice. Four sections, three headings, and
+ * largely the same handful of trips, which is why the page read as saying the
+ * same thing over and over. This reel now carries destinations the visitor has
+ * not already been shown.
+ */
 const SHOWCASE_DATA = [
   {
-    slug: "swiss-alpine-dream",
-    tagline: "Glacier Express & Jungfraujoch Peak",
-    coords: "46.8182° N, 8.2275° E",
-    vibe: "Alpine Luxury",
-    bestSeason: "Year-Round",
+    slug: "jordan-petra-deadsea",
+    tagline: "The Treasury at Petra & the Dead Sea",
+    coords: "30.3285° N, 35.4444° E",
+    vibe: "Ancient & Elemental",
+    bestSeason: "Mar – May / Sep – Nov",
   },
   {
-    slug: "japan-golden-route",
-    tagline: "Shinkansen Bullet Train & Kyoto Shrines",
-    coords: "35.6762° N, 139.6503° E",
-    vibe: "Imperial & Modern",
-    bestSeason: "Mar – May / Oct – Nov",
+    slug: "vietnam-halong-hanoi",
+    tagline: "Ha Long Bay Karsts & Hanoi Old Quarter",
+    coords: "20.9101° N, 107.1839° E",
+    vibe: "Limestone & Lantern-light",
+    bestSeason: "Oct – Apr",
   },
   {
-    slug: "maldives-overwater-escape",
-    tagline: "Lagoon Seaplane & Overwater Villa",
-    coords: "3.2028° N, 73.2207° E",
-    vibe: "Private Island Paradise",
-    bestSeason: "Nov – Apr",
+    slug: "portugal-lisbon-sintra-porto",
+    tagline: "Tram 28, Pena Palace & the Douro",
+    coords: "38.7223° N, 9.1393° W",
+    vibe: "Atlantic & Tiled",
+    bestSeason: "Apr – Oct",
   },
   {
     slug: "spain-barcelona-madrid-andalusia",

@@ -67,12 +67,36 @@ const TABS = [
   },
 ] as const;
 
+/** Featured above this component on the homepage; see the note in the hook. */
+const SHOWN_ABOVE = new Set([
+  "swiss-alpine-dream",
+  "maldives-overwater-escape",
+  "japan-golden-route",
+  "cappadocia-sky-turkey",
+  "jordan-petra-deadsea",
+  "vietnam-halong-hanoi",
+  "portugal-lisbon-sintra-porto",
+  "spain-barcelona-madrid-andalusia",
+  "georgia-mountain-weekender",
+  "kenya-safari-luxury",
+  "salalah-khareef-monsoon",
+  "bali-jungle-coast",
+]);
+
 export function InteractivePackageExplorer() {
   const [activeTab, setActiveTab] = useState<string>("all");
 
+  // Slugs the homepage has already put in front of the visitor higher up the
+  // page. Showing them again here is what made four sections read as one
+  // section repeated: Switzerland and the Maldives were appearing three times
+  // between them. The explorer's job is to surface the rest of the catalogue.
   const filteredPackages = useMemo(() => {
     const currentTab = TABS.find((t) => t.id === activeTab) ?? TABS[0];
-    return packages.filter(currentTab.filter).slice(0, 6);
+    const matching = packages.filter(currentTab.filter);
+    const fresh = matching.filter((p) => !SHOWN_ABOVE.has(p.slug));
+    // If a filter is narrow enough that excluding them would leave the grid
+    // half-empty, fall back to the full set rather than show three cards.
+    return (fresh.length >= 6 ? fresh : matching).slice(0, 6);
   }, [activeTab]);
 
   return (
