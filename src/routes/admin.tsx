@@ -293,7 +293,7 @@ function SignIn({ configured }: { configured: boolean }) {
   );
 }
 
-type TabType = "overview" | "leads" | "whatsapp" | "sessions";
+type TabType = "leads" | "whatsapp" | "sessions";
 
 function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
   const router = useRouter();
@@ -330,7 +330,6 @@ function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
                 count: data.totals.whatsapp,
                 icon: MessageCircle,
               },
-              { id: "overview", label: "Analytics Overview", icon: Activity },
               {
                 id: "sessions",
                 label: "Live Visitor Feed",
@@ -435,8 +434,6 @@ function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
         {tab === "whatsapp" && (
           <WhatsAppIntentLog contexts={data.whatsappContexts} events={data.recent} />
         )}
-
-        {tab === "overview" && <AnalyticsOverview data={data} />}
 
         {tab === "sessions" && <SessionsFeed recent={data.recent} />}
       </main>
@@ -1215,28 +1212,6 @@ function WhatsAppIntentLog({
   );
 }
 
-function AnalyticsOverview({ data }: { data: Dashboard }) {
-  return (
-    <div className="mt-8 grid gap-6 lg:grid-cols-2">
-      <Panel title="Most Visited Itineraries & Pages" icon={Eye}>
-        <Bars rows={data.topPaths.map((p) => ({ label: p.path, count: p.count }))} />
-      </Panel>
-
-      <Panel title="Traffic by Device" icon={Smartphone}>
-        <Bars rows={data.byDevice.map((d) => ({ label: d.device, count: d.count }))} />
-      </Panel>
-
-      <Panel title="Traffic Referral Sources" icon={Globe}>
-        <Bars rows={data.byReferrer.map((r) => ({ label: r.referrer, count: r.count }))} />
-      </Panel>
-
-      <Panel title="Daily Visitors (Last 14 Days)" icon={Clock}>
-        <Bars rows={data.byDay.map((d) => ({ label: d.day, count: d.count }))} />
-      </Panel>
-    </div>
-  );
-}
-
 function SessionsFeed({ recent }: { recent: Dashboard["recent"] }) {
   return (
     <div className="mt-8 rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
@@ -1281,7 +1256,7 @@ function SessionsFeed({ recent }: { recent: Dashboard["recent"] }) {
                     </span>
                   </td>
                   <td className="py-3 px-4 font-mono font-semibold text-[#00365F]">{e.path}</td>
-                  <td className="py-3 px-4 text-[#64748B]">{e.device ?? "—"}</td>
+                  <td className="py-3 px-4 text-[#64748B]">{e.device ?? "â€”"}</td>
                   <td className="py-3 px-4 font-mono text-[10px] text-[#94A3B8]">
                     {e.session_id?.slice(0, 10)}
                   </td>
@@ -1300,53 +1275,17 @@ function SessionsFeed({ recent }: { recent: Dashboard["recent"] }) {
   );
 }
 
-function Panel({
-  title,
-  icon: Icon,
-  children,
-  className,
-}: {
-  title: string;
-  icon: typeof Activity;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <section
-      className={cn("rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm", className)}
-    >
-      <h2 className="flex items-center gap-2 font-display text-lg font-bold text-[#00365F]">
-        <Icon className="size-4 text-[#CAA42D]" />
-        {title}
-      </h2>
-      <div className="mt-4">{children}</div>
-    </section>
-  );
-}
-
-function Bars({ rows }: { rows: { label: string; count: number }[] }) {
-  if (!rows.length) return <p className="text-xs text-[#94A3B8]">No data recorded yet.</p>;
-  const max = Math.max(...rows.map((r) => r.count));
-  return (
-    <ul className="space-y-3">
-      {rows.map((r) => (
-        <li key={r.label}>
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="truncate font-sans text-xs font-semibold text-[#00365F]">
-              {r.label}
-            </span>
-            <span className="shrink-0 font-display text-xs font-bold text-[#64748B]">
-              {r.count.toLocaleString()}
-            </span>
-          </div>
-          <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-[#F1F5F9]">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-[#00365F] to-[#CAA42D]"
-              style={{ width: `${Math.max(3, (r.count / max) * 100)}%` }}
-            />
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
+/*
+ * AnalyticsOverview, Panel and Bars were removed with the tab they served.
+ *
+ * They drew page views, device split, referrers and a fourteen-day visitor
+ * chart from the `events` table — a small, worse version of what GA4 now does
+ * properly, with none of its segmentation and no way to compare a period.
+ * Keeping a second, weaker analytics screen inside the admin panel only
+ * invited someone to read the wrong numbers.
+ *
+ * The traffic totals are still recorded in `events` and still returned by
+ * loadDashboard(), so nothing is lost from the database — only the duplicate
+ * reporting surface is gone. Traffic questions belong in GA4; this panel is
+ * for leads.
+ */
