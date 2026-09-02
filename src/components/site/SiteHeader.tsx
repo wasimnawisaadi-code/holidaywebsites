@@ -44,7 +44,11 @@ export function SiteHeader() {
   const isLightText = transparent;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    // 12px was close enough to zero that the bar flipped from glass to solid
+    // white on the first touch of a trackpad, over a hero photograph that had
+    // barely moved. Waiting until the hero has genuinely started to travel
+    // makes the change read as a response to scrolling rather than a twitch.
+    const onScroll = () => setScrolled(window.scrollY > 90);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);

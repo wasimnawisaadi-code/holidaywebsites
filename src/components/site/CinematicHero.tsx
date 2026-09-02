@@ -110,7 +110,12 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
         1280x720, which is not clearance at all.
       */}
       <div
-        className="relative flex h-full flex-col justify-end pt-[104px] sm:pt-[116px]"
+        // The reservation has to cover the header AND the parallax lift below,
+        // not just the header. The copy rises by up to 60px as the page scrolls
+        // while the header simultaneously turns opaque, so 116px of padding put
+        // the eyebrow at 56px — underneath an 85px bar — and "WORLDWIDE
+        // HOLIDAYS SINCE 2009" was sliced in half. 85 + 60 + a little air.
+        className="relative flex h-full flex-col justify-end pt-[152px] sm:pt-[168px]"
         style={{
           transform: `translate3d(0, ${scrolled * -60}px, 0)`,
           opacity: 1 - scrolled * 0.85,
