@@ -12,9 +12,10 @@
  *
  * Gold line-art on navy collapses into a muddy triangle at 32px — the strokes
  * are thinner than a pixel and merge, and neither thickening nor sharpening
- * recovers them. Inverting it does: a navy mark on a gold tile has far more
- * contrast at the same size, and the arch survives where the gold-on-navy
- * version did not. Both colours are the brand's own, so nothing is invented.
+ * recovers them. Contrast is the only thing that helps, and the highest
+ * contrast available is the mark in navy on white: no coloured tile, just the
+ * logo. A gold tile was tried and read as a loud gold square in the tab rather
+ * than as a mark.
  *
  * Large sizes keep the mark the right way round on navy, because at 180px and
  * above there is resolution enough for the fine strokes to read properly and
@@ -27,7 +28,7 @@ import fs from "node:fs";
 
 const SRC = "src/assets/logo-ink.png";
 const NAVY = { r: 0, g: 54, b: 95, alpha: 1 }; // #00365F
-const GOLD = { r: 202, g: 164, b: 45, alpha: 1 }; // #CAA42D
+const WHITE = { r: 255, g: 255, b: 255, alpha: 1 };
 // Measured from the source: the mark occupies the top two-thirds; gold pixel
 // density falls to zero below y=213, where the wordmark begins.
 const MARK = { left: 73, top: 0, width: 291, height: 213 };
@@ -47,12 +48,12 @@ async function markIcon(size, padRatio = 0.18) {
 }
 
 /**
- * The mark inverted: navy strokes on a gold tile.
+ * The mark alone, in navy, on white. No tile colour, nothing added.
  *
- * Every gold pixel of the source becomes solid navy, everything else becomes
- * transparent, and the result sits on gold. That is what makes the arch
- * readable at favicon size — the contrast between #00365F and #CAA42D is far
- * higher than gold-on-navy, where the thin strokes simply dissolve.
+ * Every gold pixel of the source becomes solid navy and everything else
+ * becomes transparent, over a white ground. Navy on white is the highest
+ * contrast pairing available from the brand's own colours, which is the only
+ * thing that keeps a line-art mark legible at 16 pixels.
  */
 async function invertedMarkIcon(size) {
   const { data, info } = await sharp(SRC)
@@ -76,7 +77,7 @@ async function invertedMarkIcon(size) {
     out[i * 4 + 3] = isMark ? 255 : 0;
   }
 
-  const inner = Math.round(size * 0.9);
+  const inner = Math.round(size * 0.96);
   // Encode to PNG before resizing: sharp will not resize a raw buffer and
   // then hand it back without a declared output format.
   const glyph = await sharp(out, { raw: { width, height, channels: 4 } })
@@ -89,7 +90,7 @@ async function invertedMarkIcon(size) {
     .png()
     .toBuffer();
 
-  return sharp({ create: { width: size, height: size, channels: 4, background: GOLD } })
+  return sharp({ create: { width: size, height: size, channels: 4, background: WHITE } })
     .composite([{ input: glyph, gravity: "center" }])
     .png({ compressionLevel: 9 })
     .toBuffer();
@@ -121,7 +122,7 @@ function ico(pngs) {
 }
 
 const outputs = [
-  // Small: the mark inverted, which is the only version that reads here.
+  // Small: the mark alone in navy on white, which is the only version that reads here.
   ["public/favicon-32.png", await invertedMarkIcon(32)],
   // Large: the real mark, which has the resolution to carry it.
   ["public/apple-touch-icon.png", await markIcon(180, 0.16)],
