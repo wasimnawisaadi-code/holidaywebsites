@@ -10,6 +10,12 @@ export const BRAND = {
   chairman: "Mr. Shafiqullah Zazai",
   flightsSite: "https://www.nsttrip.com/",
   mainSite: "https://www.nawisaadiholidays.com/",
+  // The parent company site. This holidays site is one division of it — the
+  // parent carries flights, visa services, cargo, overflight permits and
+  // corporate travel, and is the Afghanistan-facing brand. Declared here so
+  // the relationship can be stated in the structured data and linked in the
+  // footer rather than left for a search engine to guess at.
+  parentSite: "https://www.nawisaadi.com/",
   // Build credit shown in the footer. The number is the developer's own
   // WhatsApp, deliberately separate from the agency line above so a customer
   // enquiry never lands there.

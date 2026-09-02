@@ -182,9 +182,31 @@ export function SiteFooter() {
           {/* The build credit is the linked version on the right, which uses
               BRAND_INFO.developer so the name stays in sync. A second, hardcoded
               copy used to sit here too, so the footer said it twice. */}
-          <p>
-            © {new Date().getFullYear()} {BRAND.legal}
-          </p>
+          <div className="space-y-1">
+            <p>
+              © {new Date().getFullYear()} {BRAND.legal}
+            </p>
+            {/*
+              A real link to the parent company, not just a mention. This site
+              is the holidays division; flights, visas, cargo and overflight
+              permits live on the parent. Stating the relationship in one
+              direction in the structured data and in the other with an actual
+              anchor is what tells a search engine these are one business
+              rather than two competing for the same brand name.
+            */}
+            <p className="text-[11px] text-[#888888]">
+              A division of{" "}
+              <a
+                href={BRAND_INFO.parentSite}
+                target="_blank"
+                rel="noopener"
+                className="font-medium text-[#00365F] transition-colors hover:text-[#8F7420]"
+              >
+                Nawi Saadi Travel &amp; Tourism
+              </a>{" "}
+              — flights, visas, Umrah and cargo
+            </p>
+          </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             {/* Build credit. Links to the developer's own WhatsApp, kept
                 separate from the agency line so a customer enquiry never

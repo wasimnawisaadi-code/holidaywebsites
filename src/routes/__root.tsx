@@ -231,6 +231,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             "Dubai Department of Tourism and Commerce Marketing (DTCM) approved",
           ],
           url: siteUrl(),
+          // This site is the holidays division of Nawi Saadi Travel & Tourism,
+          // not a separate company. Saying so explicitly is what stops a search
+          // engine reading two sites that share a name, a phone number and a
+          // founding year as two competing businesses — and it lets the parent's
+          // established authority count towards this one instead of against it.
+          parentOrganization: {
+            "@type": "Organization",
+            name: "Nawi Saadi Travel & Tourism",
+            url: "https://www.nawisaadi.com/",
+          },
+          sameAs: ["https://www.nawisaadi.com/"],
           logo: absoluteUrl("/og-image.jpg"),
           image: absoluteUrl(OG_IMAGE_PATH),
           priceRange: "$$-$$$",
