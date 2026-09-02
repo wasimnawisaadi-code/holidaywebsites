@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Clock, MapPin, ArrowRight } from "lucide-react";
 import { priceParts, type HolidayPackage } from "@/data/catalogue";
 import { cn } from "@/lib/utils";
+import { tileImage } from "@/lib/img";
 
 export function PackageCard({ pkg, tall }: { pkg: HolidayPackage; tall?: boolean }) {
   return (
@@ -16,6 +17,7 @@ export function PackageCard({ pkg, tall }: { pkg: HolidayPackage; tall?: boolean
       >
         <img
           src={pkg.image}
+          {...tileImage(pkg.image, "(min-width: 1024px) 420px, (min-width: 640px) 50vw, 92vw")}
           alt={`${pkg.title}, ${pkg.country} holiday package`}
           decoding="async"
           loading="lazy"

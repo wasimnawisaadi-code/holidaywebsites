@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { tileImage } from "@/lib/img";
 
 /**
  * Two rows of photographs that slide in opposite directions as the page
@@ -115,6 +116,9 @@ function Row({
               alt=""
               decoding="async"
               loading="lazy"
+              // 300px wide on a phone, 360px above it. Without this the
+              // browser has no reason not to fetch the 1600px original.
+              {...tileImage(it.src, "(min-width: 640px) 360px, 300px")}
               className="size-full object-cover"
             />
           </div>

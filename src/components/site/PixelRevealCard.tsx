@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
+import { tileImage } from "@/lib/img";
 
 /**
  * Destination card with a pixel-dissolve hover.
@@ -43,6 +44,7 @@ export function PixelRevealCard({ card, index }: { card: PixelCard; index: numbe
     >
       <img
         src={card.image}
+        {...tileImage(card.image, "(min-width: 1024px) 420px, 92vw")}
         alt={card.title}
         decoding="async"
         loading={index < 3 ? "eager" : "lazy"}

@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Compass } from "lucide-react";
+import { tileImage } from "@/lib/img";
 
 const REGIONS = [
   {
@@ -94,6 +95,7 @@ export function RegionalExplorer() {
             >
               <img
                 src={r.image}
+                {...tileImage(r.image, "(min-width: 1024px) 300px, 45vw")}
                 alt={r.name}
                 decoding="async"
                 loading="lazy"

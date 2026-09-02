@@ -1,4 +1,5 @@
 import { BRAND, discountPct, priceLabel, waLink, type Experience } from "@/data/catalogue";
+import { tileImage } from "@/lib/img";
 
 export function TourCard({ e, eager = false }: { e: Experience; eager?: boolean }) {
   const off = discountPct(e);
@@ -8,6 +9,7 @@ export function TourCard({ e, eager = false }: { e: Experience; eager?: boolean 
       <div className="relative aspect-[16/10] overflow-hidden">
         <img
           src={e.image}
+          {...tileImage(e.image, "(min-width: 1024px) 380px, (min-width: 640px) 50vw, 92vw")}
           alt={`${e.title}, ${e.emirate}`}
           decoding="async"
           loading={eager ? "eager" : "lazy"}

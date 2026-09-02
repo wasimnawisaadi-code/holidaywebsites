@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Clock, MapPin, MessageCircle, Star, ArrowRight, ShieldCheck } from "lucide-react";
 import { inboundFrom, type InboundActivity } from "@/data/inbound";
 import { waLink, BRAND } from "@/data/catalogue";
+import { tileImage } from "@/lib/img";
 
 export function ActivityCard({ a, eager = false }: { a: InboundActivity; eager?: boolean }) {
   return (
@@ -13,6 +14,7 @@ export function ActivityCard({ a, eager = false }: { a: InboundActivity; eager?:
       >
         <img
           src={a.image}
+          {...tileImage(a.image, "(min-width: 1024px) 380px, (min-width: 640px) 50vw, 92vw")}
           alt={`${a.title}, ${a.emirate}`}
           loading={eager ? "eager" : "lazy"}
           className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-106"

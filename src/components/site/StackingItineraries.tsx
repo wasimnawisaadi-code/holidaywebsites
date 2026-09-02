@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Clock, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { tileImage } from "@/lib/img";
 
 /**
  * Itinerary cards that stack as you scroll.
@@ -107,6 +108,7 @@ export function StackingItineraries({ cards }: { cards: StackCard[] }) {
               >
                 <img
                   src={c.image}
+                  {...tileImage(c.image, "(min-width: 1024px) 620px, 92vw")}
                   alt={c.title}
                   decoding="async"
                   loading={i === 0 ? "eager" : "lazy"}
