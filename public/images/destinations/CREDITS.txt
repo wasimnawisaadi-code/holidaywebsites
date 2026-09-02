@@ -164,3 +164,8 @@ brazil-copacabana.jpg
     "Forte de Copacabana panorama.jpg"
     CC BY 3.0 br — via Wikimedia Commons
     by Gabriel Heusi/Brasil2016.gov.br
+
+australia-gold-coast.jpg
+    "Aerial panorama of Surfer's Paradise.jpg"
+    CC BY-SA 4.0 — via Wikimedia Commons
+    by Bob T

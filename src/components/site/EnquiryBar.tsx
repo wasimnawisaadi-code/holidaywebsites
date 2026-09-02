@@ -133,7 +133,12 @@ export function EnquiryBar() {
 
         <button
           type="submit"
-          className="flex items-center justify-center gap-2 bg-[#CAA42D] px-8 py-5 font-sans text-sm font-bold text-[#00365F] transition-colors hover:bg-[#DDBE5E]"
+          // Brass rather than full-strength gold, with near-black type. #CAA42D on a
+          // dark bar was the loudest thing on the page; #B8912A keeps it clearly
+          // the primary action without shouting. Text is #0A1B2A because white
+          // measures 2.95:1 on this brass and brand navy 4.21:1 — both fail AA
+          // for bold body text, where this passes at 5.92:1.
+          className="flex items-center justify-center gap-2 bg-[#B8912A] px-8 py-5 font-sans text-sm font-bold text-[#0A1B2A] transition-colors hover:bg-[#CAA42D]"
         >
           <Search className="size-4" />
           <span>Find my trip</span>

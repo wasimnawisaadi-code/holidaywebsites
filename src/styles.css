@@ -410,7 +410,12 @@
  * ------------------------------------------------------------------ */
 @utility liquid-glass-navy {
   position: relative;
-  background: color-mix(in srgb, #00365f 88%, transparent);
+  /* Ink rather than brand navy, and a little more transparent. At 88% of
+     #00365F the bar read as a saturated blue slab sitting on top of the
+     photograph; #0A1B2A at 82% sits into it, which is the difference between
+     a panel and a piece of the image. The blur and the gradient ring do the
+     rest. */
+  background: color-mix(in srgb, #0a1b2a 82%, transparent);
   backdrop-filter: blur(14px) saturate(135%);
   -webkit-backdrop-filter: blur(14px) saturate(135%);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.16);

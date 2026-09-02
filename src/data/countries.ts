@@ -896,7 +896,7 @@ export const countries: Country[] = [
     slug: "australia",
     gallery: [
       "/images/destinations/australia-01.jpg",
-      "/images/destinations/australia-03.jpg",
+      "/images/destinations/australia-gold-coast.jpg",
       "/images/destinations/australia-g03.jpg",
       "/images/destinations/australia-p04.jpg",
     ],
