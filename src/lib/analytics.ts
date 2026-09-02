@@ -100,8 +100,53 @@ function referrerOrigin(): string | null {
   }
 }
 
+/**
+ * Events that represent someone actually trying to buy something.
+ *
+ * These are the ones worth importing into Google Ads as conversions. The rest
+ * — scroll depth, offer dismissals, page views of a country page — are useful
+ * for understanding behaviour and useless as a bidding signal.
+ */
+const CONVERSIONS = new Set<EventType>([
+  "whatsapp_click",
+  "phone_click",
+  "email_click",
+  "cta_click",
+  "offer_cta",
+]);
+
+/**
+ * Mirrors an event into GA4.
+ *
+ * Everything this file records went to Supabase and stopped there. GA4 was
+ * receiving page_view and nothing else, which meant Google Ads had no
+ * conversion to optimise towards — the campaign could see clicks and never
+ * learn which of them turned into an enquiry.
+ *
+ * Wrapped and guarded: gtag is absent when the tag is blocked or has not
+ * loaded yet, and analytics must never be the reason a page breaks.
+ */
+function toGa(type: EventType, meta: Record<string, unknown>): void {
+  try {
+    const g = (window as unknown as { gtag?: (...a: unknown[]) => void }).gtag;
+    if (typeof g !== "function") return;
+    g("event", type, {
+      ...meta,
+      // Marks the events worth importing as conversions, so they can be found
+      // in GA4 without knowing this list by heart.
+      is_conversion: CONVERSIONS.has(type),
+    });
+  } catch {
+    /* never let measurement break the page */
+  }
+}
+
 export function track(type: EventType, meta: Record<string, unknown> = {}): void {
   if (typeof window === "undefined") return;
+
+  // GA4 first, and independently of Supabase: the two have different failure
+  // modes and one being unavailable must not silence the other.
+  toGa(type, meta);
   if (!URL_BASE || !ANON_KEY || disabled) return;
 
   try {

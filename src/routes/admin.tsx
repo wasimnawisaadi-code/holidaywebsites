@@ -312,9 +312,10 @@ function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
               <h1 className="font-display text-xl font-bold text-[#00365F]">
                 Nawi Saadi Operations
               </h1>
+              {/* The strapline read "Live Production Management · shared-password",
+                  which is noise and also announced the auth method on screen. */}
               <p className="font-sans text-[11px] text-[#666666]">
-                Live Production Management ·{" "}
-                {who ? <span className="font-medium text-[#00365F]">{who}</span> : "Admin"}
+                {who && who !== "shared-password" ? who : "Signed in"}
               </p>
             </div>
           </div>
@@ -393,38 +394,33 @@ function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
 
       {/* Main Content Area */}
       <main className="mx-auto max-w-[1500px] px-5 pt-8 sm:px-8">
-        {/* KPI Banner */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {/*
+          Three numbers, not five.
+          Unique visitors, page views and total interactions were on this row —
+          none of them tell anyone in the office what to do next, and they were
+          crowding out the one number that does. They still exist, under
+          Analytics Overview, which is where a traffic figure belongs.
+          What leads is what is waiting: leads nobody has contacted yet.
+        */}
+        <div className="grid gap-4 sm:grid-cols-3">
           <KpiCard
             icon={Mail}
-            label="Total Customer Leads"
-            value={data.leads.length}
-            note="Subscribers & Enquiries"
+            label="Waiting for a reply"
+            value={data.leads.filter((l) => l.status === "new").length}
+            note="Leads nobody has contacted yet"
             accent
           />
           <KpiCard
             icon={MessageCircle}
-            label="WhatsApp Enquiries"
+            label="WhatsApp enquiries"
             value={data.totals.whatsapp}
-            note="Direct chats initiated"
+            note="Chats opened from the site"
           />
           <KpiCard
             icon={Users}
-            label="Unique Visitors"
-            value={data.totals.sessions}
-            note="Tracked browser sessions"
-          />
-          <KpiCard
-            icon={Eye}
-            label="Page Views"
-            value={data.totals.pageViews}
-            note="Destination & tour views"
-          />
-          <KpiCard
-            icon={Activity}
-            label="Total Interactions"
-            value={data.totals.events}
-            note="Button clicks & browsing"
+            label="All leads"
+            value={data.leads.length}
+            note="Everything ever submitted"
           />
         </div>
 
@@ -625,11 +621,9 @@ function LeadsManager({
       {/* Title & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#F1F5F9] pb-6">
         <div>
-          <h2 className="font-display text-2xl font-bold text-[#00365F]">
-            Customer Inquiries & Subscribers Pipeline
-          </h2>
+          <h2 className="font-display text-2xl font-bold text-[#00365F]">Leads</h2>
           <p className="mt-1 font-sans text-xs text-[#64748B]">
-            Showing {filtered.length} of {leads.length} recorded submissions
+            {filtered.length} of {leads.length}
           </p>
         </div>
 
@@ -710,10 +704,10 @@ function LeadsManager({
           <table className="w-full min-w-[900px] border-collapse font-sans text-xs">
             <thead>
               <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-left text-[#64748B]">
-                <th className="rounded-l-xl py-3 px-4 font-bold">Received</th>
-                <th className="py-3 px-4 font-bold">Customer Contact</th>
-                <th className="py-3 px-4 font-bold">Lead Source</th>
-                <th className="py-3 px-4 font-bold">Trip / Context</th>
+                <th className="rounded-l-xl py-3 px-4 font-bold">When</th>
+                <th className="py-3 px-4 font-bold">Contact</th>
+                <th className="py-3 px-4 font-bold">Source</th>
+                <th className="py-3 px-4 font-bold">Trip</th>
                 <th className="py-3 px-4 font-bold">Status</th>
                 <th className="rounded-r-xl py-3 px-4 text-right font-bold">Actions</th>
               </tr>
