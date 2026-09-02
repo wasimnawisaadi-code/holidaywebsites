@@ -69,7 +69,7 @@ function PlanPage() {
           </>
         }
         intro="Four quick choices and we'll shortlist journeys and experiences. Suggestions are indicative. Availability and final pricing are always confirmed by our team before booking."
-        image="/images/destinations/georgia-gergeti.jpg"
+        image="/images/destinations/georgia-gergeti.webp"
         imageAlt="Mountain church on a Georgia itinerary"
       />
 

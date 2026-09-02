@@ -123,9 +123,7 @@ function ContactPage() {
 
         {recorded ? (
           <>
-            <h1 className="text-display mt-6 text-4xl sm:text-5xl">
-              Thank you — request received.
-            </h1>
+            <h1 className="text-display mt-6 text-4xl sm:text-5xl">Thank you. Request received.</h1>
             <p className="mt-4 text-muted-foreground">
               Your reference is <span className="text-accent">{ref}</span>
               {selectedPkg ? (

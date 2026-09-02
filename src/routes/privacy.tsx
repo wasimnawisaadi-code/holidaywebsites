@@ -41,7 +41,7 @@ function PrivacyPage() {
         eyebrow="Legal"
         title="Privacy policy"
         intro="What we collect when you enquire, why we hold it, and how to have it removed."
-        image="/images/destinations/hero-switzerland.jpg"
+        image="/images/destinations/hero-switzerland.webp"
         imageAlt="Alpine valley"
       />
 

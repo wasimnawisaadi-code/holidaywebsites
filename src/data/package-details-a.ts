@@ -4,10 +4,10 @@ export const packageDetailsA: Record<string, PackageDetail> = {
   "baku-wonders": {
     "overview": "Fly out of Dubai into the dazzling land of fire on the shores of the Caspian Sea. Azerbaijan seamlessly blends millennia-old Silk Road caravanserais with futuristic fluid architecture designed by Zaha Hadid. This popular 4-day itinerary gives you the best of both worlds: two nights immersing yourself in the cobblestone charm of Baku's UNESCO-listed Old City and its glowing Flame Towers, followed by a scenic mountain drive into the lush Caucasian alpine valleys of Gabala. Ride the Tufandag Mountain cable car above pine forests, witness mysterious prehistoric rock art and bubbling mud volcanoes at Gobustan, and savor authentic grilled kebabs and plov in historic teahouses.",
     "gallery": [
-      "/images/destinations/baku-flame-towers.jpg",
-      "/images/destinations/baku-maiden-tower.jpg",
-      "/images/destinations/baku-heydar-aliyev.jpg",
-      "/images/destinations/baku-gobustan.jpg"
+      "/images/destinations/baku-flame-towers.webp",
+      "/images/destinations/baku-maiden-tower.webp",
+      "/images/destinations/baku-heydar-aliyev.webp",
+      "/images/destinations/baku-gobustan.webp"
     ],
     "dayBlocks": [
       {
@@ -100,9 +100,9 @@ export const packageDetailsA: Record<string, PackageDetail> = {
   "salalah-khareef-monsoon": {
     "overview": "Every summer between July and September, an extraordinary natural phenomenon transforms the southern Dhofar region of Oman into a lush, mist-shrouded green wonderland known as Khareef. While the rest of the Arabian Gulf experiences peak summer heat, Salalah enjoys crisp 22°C temperatures, gentle drizzle, flowing freshwater wadis, and roaming camel herds grazing on emerald green mountain pastures. This signature 4-day package departs directly from Dubai, available via luxury sleeper-coach bus or direct 1.5-hour flight, taking you to the cascading waterfalls of Wadi Darbat, the dramatic rock blowholes of Mughsail, the highest peaks of Jabal Samhan, and the aromatic frankincense souqs of historic Salalah.",
     "gallery": [
-      "/images/destinations/salalah-wadi-darbat.jpg",
-      "/images/destinations/salalah-meadows.jpg",
-      "/images/destinations/salalah-mosque.jpg"
+      "/images/destinations/salalah-wadi-darbat.webp",
+      "/images/destinations/salalah-meadows.webp",
+      "/images/destinations/salalah-mosque.webp"
     ],
     "dayBlocks": [
       {
@@ -189,10 +189,10 @@ export const packageDetailsA: Record<string, PackageDetail> = {
   "umrah-17-nights": {
     "overview": "Nawi Saadi Travel & Tourism has arranged blessed Umrah journeys for over 15 years with accredited Saudi Ministry of Hajj & Umrah licensing and dedicated offices in Jeddah and Kabul. This comprehensive 17-night pilgrimage package is meticulously organized to give you abundant time for worship, prayer in the Holy Mosques, Tahajjud, and reflection without rushing. Spend 10 spiritual nights in Makkah performing Umrah and Tawaf, followed by 7 serene nights in Madinah paying respects at the Rawdah of Prophet Muhammad (PBUH). Travel seamlessly between the holy cities aboard the state-of-the-art Haramain High-Speed bullet train, and visit historical Islamic heritage sites with knowledgeable scholars.",
     "gallery": [
-      "/images/destinations/umrah-quba.jpg",
-      "/images/destinations/umrah-haram.jpg",
-      "/images/destinations/umrah-clock-tower.jpg",
-      "/images/destinations/saudi-arabia-p04.jpg"
+      "/images/destinations/umrah-quba.webp",
+      "/images/destinations/umrah-haram.webp",
+      "/images/destinations/umrah-clock-tower.webp",
+      "/images/destinations/saudi-arabia-p04.webp"
     ],
     "dayBlocks": [
       {
@@ -286,10 +286,10 @@ export const packageDetailsA: Record<string, PackageDetail> = {
   "bosnian-delight": {
     "overview": "Bosnia and Herzegovina is one of Europe's most enchanting and budget-friendly treasures. Nestled amidst the Dinaric Alps, it features crystal-clear emerald rivers, dramatic limestone canyons, cascading waterfalls, and a rich cultural fusion where East meets West. This signature 6-day journey from Dubai takes you through the cobblestone alleys and copper bazaars of Sarajevo, across the legendary Ottoman stone bridge of Mostar, to the serene 16th-century cliffside Dervish monastery of Blagaj, and the breathtaking turquoise cascades of Kravice Waterfalls.",
     "gallery": [
-      "/images/destinations/bosnia-stari-most.jpg",
-      "/images/destinations/bosnia-sarajevo.jpg",
-      "/images/destinations/bosnia-kravice.jpg",
-      "/images/destinations/bosnia-blagaj.jpg"
+      "/images/destinations/bosnia-stari-most.webp",
+      "/images/destinations/bosnia-sarajevo.webp",
+      "/images/destinations/bosnia-kravice.webp",
+      "/images/destinations/bosnia-blagaj.webp"
     ],
     "dayBlocks": [
       {
@@ -391,10 +391,10 @@ export const packageDetailsA: Record<string, PackageDetail> = {
   "swiss-alpine-dream": {
     "overview": "Fly out of Dubai into a week that trades desert horizons for glacier peaks and lakeside villages. This is a gently paced journey built around Switzerland's rail network, so there is no self-driving and very little waiting around, just panoramic windows, cable cars and postcard towns strung together with ease. It suits couples on a honeymoon, families wanting a first taste of snow, and anyone who prefers scenery to sightseeing checklists. Days open with breakfast by a lake and close with sunset over the Alps, punctuated by two headline excursions, Jungfraujoch and Mount Titlis.",
     "gallery": [
-      "/images/destinations/swiss-lauterbrunnen.jpg",
-      "/images/destinations/swiss-jungfraujoch.jpg",
-      "/images/destinations/swiss-lucerne.jpg",
-      "/images/destinations/swiss-matterhorn.jpg"
+      "/images/destinations/swiss-lauterbrunnen.webp",
+      "/images/destinations/swiss-jungfraujoch.webp",
+      "/images/destinations/swiss-lucerne.webp",
+      "/images/destinations/swiss-matterhorn.webp"
     ],
     "dayBlocks": [
       {
@@ -501,10 +501,10 @@ export const packageDetailsA: Record<string, PackageDetail> = {
   "maldives-overwater-escape": {
     "overview": "A four-hour direct hop from Dubai lands you in an overwater paradise ringed by azure lagoons. Designed for honeymooners and couples seeking ultimate privacy, this escape features luxury overwater villas with direct ocean access, house reef snorkeling with sea turtles, and private sunset sandbank dining.",
     "gallery": [
-      "/images/destinations/maldives-island.jpg",
-      "/images/destinations/maldives-villas.jpg",
-      "/images/destinations/maldives-lagoon.jpg",
-      "/images/destinations/maldives-male.jpg"
+      "/images/destinations/maldives-island.webp",
+      "/images/destinations/maldives-villas.webp",
+      "/images/destinations/maldives-lagoon.webp",
+      "/images/destinations/maldives-male.webp"
     ],
     "dayBlocks": [
       {
@@ -593,9 +593,9 @@ export const packageDetailsA: Record<string, PackageDetail> = {
   "georgia-mountain-weekender": {
     "overview": "The favorite short-haul mountain getaway from Dubai: 4 days of cobblestone Tbilisi heritage, thermal sulfur baths, Georgian wine cellars, and a 4x4 mountain ascent along the Georgian Military Highway to Gergeti Trinity Church beneath Mount Kazbek.",
     "gallery": [
-      "/images/destinations/georgia-tbilisi-old.jpg",
-      "/images/destinations/georgia-gergeti.jpg",
-      "/images/destinations/georgia-signagi.jpg",
+      "/images/destinations/georgia-tbilisi-old.webp",
+      "/images/destinations/georgia-gergeti.webp",
+      "/images/destinations/georgia-signagi.webp",
       "/images/destinations/georgia-ananuri.jpg"
     ],
     "dayBlocks": [

@@ -4,10 +4,10 @@ export const packageDetailsB: Record<string, PackageDetail> = {
   "cappadocia-sky-turkey": {
     "overview": "A dreamlike combination of imperial Byzantine and Ottoman grandeur in Istanbul with the surreal volcanic landscapes, luxury cave suites, and sunrise hot air balloon flights in Cappadocia.",
     "gallery": [
-      "/images/destinations/turkey-balloons.jpg",
-      "/images/destinations/turkey-chimneys.jpg",
-      "/images/destinations/turkey-hagia-sophia.jpg",
-      "/images/destinations/turkey-bosphorus.jpg"
+      "/images/destinations/turkey-balloons.webp",
+      "/images/destinations/turkey-chimneys.webp",
+      "/images/destinations/turkey-hagia-sophia.webp",
+      "/images/destinations/turkey-bosphorus.webp"
     ],
     "dayBlocks": [
       {
@@ -94,10 +94,10 @@ export const packageDetailsB: Record<string, PackageDetail> = {
   "bali-jungle-coast": {
     "overview": "Bali remains one of the world's most romantic and rejuvenating island escapes. Direct flights from Dubai take you into a lush tropical sanctuary where mist rises over emerald rice terraces, ancient stone temples sit beside sacred rivers, and vibrant beach sunsets paint the Indian Ocean. This signature 6-day itinerary splits your stay between a private luxury pool villa nestled in Ubud's rainforest and an oceanfront lifestyle resort in chic Seminyak, including a full-day speedboat excursion to Nusa Penida's iconic T-Rex cliff.",
     "gallery": [
-      "/images/destinations/bali-bratan.jpg",
-      "/images/destinations/bali-tegallalang.jpg",
-      "/images/destinations/bali-tanah-lot.jpg",
-      "/images/destinations/bali-nusa-penida.jpg"
+      "/images/destinations/bali-bratan.webp",
+      "/images/destinations/bali-tegallalang.webp",
+      "/images/destinations/bali-tanah-lot.webp",
+      "/images/destinations/bali-nusa-penida.webp"
     ],
     "dayBlocks": [
       {
@@ -191,10 +191,10 @@ export const packageDetailsB: Record<string, PackageDetail> = {
   "japan-golden-route": {
     "overview": "Japan is a captivating blend of cutting-edge ultra-modern innovation and ancient spiritual heritage. Fly direct from Dubai to Tokyo and journey along the legendary Golden Route across the main island of Honshu. Ride the 320 km/h Shinkansen bullet train past snow-capped Mount Fuji, soak in therapeutic volcanic Onsen hot springs in Hakone, walk through Kyoto's 10,000 crimson Torii gates at Fushimi Inari, feed sacred bowing deer in Nara, and feast on sizzling takoyaki in Osaka's neon Dotonbori district.",
     "gallery": [
-      "/images/destinations/japan-chureito.jpg",
-      "/images/destinations/japan-fushimi.jpg",
-      "/images/destinations/japan-shibuya.jpg",
-      "/images/destinations/japan-osaka-castle.jpg"
+      "/images/destinations/japan-chureito.webp",
+      "/images/destinations/japan-fushimi.webp",
+      "/images/destinations/japan-shibuya.webp",
+      "/images/destinations/japan-osaka-castle.webp"
     ],
     "dayBlocks": [
       {
@@ -305,10 +305,10 @@ export const packageDetailsB: Record<string, PackageDetail> = {
   "paris-french-riviera": {
     "overview": "Experience the quintessential European journey that pairs the iconic art, fashion, and culinary heritage of Paris with the turquoise waters and celebrity glamour of the French Riviera. This 7-day vacation starts with 4 nights in central Paris, featuring guided access to the Eiffel Tower, Louvre, and the opulent Palace of Versailles, followed by an exhilarating 320 km/h TGV train ride down to the Mediterranean coast for 2 nights overlooking the azure bay of Nice and the prince's palace in Monaco.",
     "gallery": [
-      "/images/destinations/france-eiffel.jpg",
-      "/images/destinations/france-louvre.jpg",
-      "/images/destinations/france-nice.jpg",
-      "/images/destinations/france-monaco.jpg"
+      "/images/destinations/france-eiffel.webp",
+      "/images/destinations/france-louvre.webp",
+      "/images/destinations/france-nice.webp",
+      "/images/destinations/france-monaco.webp"
     ],
     "dayBlocks": [
       {
@@ -412,10 +412,10 @@ export const packageDetailsB: Record<string, PackageDetail> = {
   "italy-classic-grand-tour": {
     "overview": "Italy is an open-air museum of unmatched art, architecture, and gastronomy. Fly direct from Dubai to Rome and embark on a seamless first-class rail journey linking three of the world's most storied cities: Rome, the eternal imperial capital; Florence, the cradle of the Renaissance; and Venice, the floating jewel of the Adriatic Sea. Experience skip-the-line access to the Colosseum and Vatican, savor authentic Neapolitan pizza and handmade gelato, and enjoy private gondola rides through Venice's historic waterways.",
     "gallery": [
-      "/images/destinations/italy-colosseum.jpg",
-      "/images/destinations/italy-florence.jpg",
+      "/images/destinations/italy-colosseum.webp",
+      "/images/destinations/italy-florence.webp",
       "/images/destinations/italy-venice.jpg",
-      "/images/destinations/italy-trevi.jpg"
+      "/images/destinations/italy-trevi.webp"
     ],
     "dayBlocks": [
       {
@@ -520,10 +520,10 @@ export const packageDetailsB: Record<string, PackageDetail> = {
   "greece-santorini-athens": {
     "overview": "Greece is the timeless meeting point of Western civilization and sublime Mediterranean beauty. This signature 6-day package from Dubai takes you to the legendary ruins of ancient Athens, visiting the Acropolis, Parthenon, and the neoclassical alleys of Plaka, before cruising across the azure Aegean Sea to the volcanic island of Santorini. Stay in a luxury cliffside resort perched on the caldera rim, sail past volcanic hot springs on a private catamaran, and witness the world's most celebrated golden sunset in Oia.",
     "gallery": [
-      "/images/destinations/greece-oia.jpg",
-      "/images/destinations/greece-parthenon.jpg",
-      "/images/destinations/greece-caldera.jpg",
-      "/images/destinations/greece-mykonos.jpg"
+      "/images/destinations/greece-oia.webp",
+      "/images/destinations/greece-parthenon.webp",
+      "/images/destinations/greece-caldera.webp",
+      "/images/destinations/greece-mykonos.webp"
     ],
     "dayBlocks": [
       {
@@ -617,10 +617,10 @@ export const packageDetailsB: Record<string, PackageDetail> = {
   "egypt-pharaohs-nile": {
     "overview": "Egypt is the cradle of ancient civilization. Fly just 3.5 hours from Dubai to Cairo and experience the monumental wonders of the Pharaohs. Begin with 2 nights in Cairo marveling at the Pyramids of Giza, the Great Sphinx, and the treasures of Tutankhamun, before flying south to Aswan to board a 5-star luxury Nile cruiser. Sail past date-palm riverbanks and ancient sandstone temples to Kom Ombo, Edfu, and the awe-inspiring tombs of the Valley of the Kings and Karnak Temple in Luxor.",
     "gallery": [
-      "/images/destinations/egypt-sphinx.jpg",
-      "/images/destinations/egypt-pyramids.jpg",
-      "/images/destinations/egypt-karnak.jpg",
-      "/images/destinations/egypt-abu-simbel.jpg"
+      "/images/destinations/egypt-sphinx.webp",
+      "/images/destinations/egypt-pyramids.webp",
+      "/images/destinations/egypt-karnak.webp",
+      "/images/destinations/egypt-abu-simbel.webp"
     ],
     "dayBlocks": [
       {

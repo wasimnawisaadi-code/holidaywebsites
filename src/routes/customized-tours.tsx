@@ -180,7 +180,7 @@ function CustomizedToursPage() {
           </>
         }
         intro="No fixed departures. Give us your destinations, dates and how you like to travel, and a travel manager in Deira builds the itinerary around you."
-        image="/images/destinations/maldives-villas.jpg"
+        image="/images/destinations/maldives-villas.webp"
         imageAlt="Overwater villas on a tailor-made Maldives itinerary"
       />
 

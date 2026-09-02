@@ -1075,7 +1075,7 @@ function LeadDetail({ lead }: { lead: Lead }) {
           ) : null}
           {state === "error" ? (
             <span className="font-sans text-xs font-semibold text-red-600">
-              Could not save — try again.
+              Could not save. Try again.
             </span>
           ) : null}
         </div>
@@ -1151,7 +1151,7 @@ function WhatsAppIntentLog({
                         </span>
                       ) : (
                         <span className="text-[#94A3B8] italic">
-                          Tapped the floating WhatsApp button — no prefilled message
+                          Tapped the floating WhatsApp button, no prefilled message
                         </span>
                       )}
                     </p>

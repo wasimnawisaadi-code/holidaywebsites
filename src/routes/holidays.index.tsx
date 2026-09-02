@@ -114,7 +114,7 @@ function HolidaysPage() {
           </>
         }
         intro="Every itinerary is built by our own consultants and backed by IATA ticketing, verified 4★ and 5★ central hotels, private transfers and full visa assistance from Deira."
-        image="/images/destinations/swiss-lauterbrunnen.jpg"
+        image="/images/destinations/swiss-lauterbrunnen.webp"
         imageAlt="Alpine valley on a Nawi Saadi Switzerland itinerary"
         stats={[
           { value: String(packages.length), label: "Packages" },

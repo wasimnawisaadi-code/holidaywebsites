@@ -260,7 +260,7 @@ function AboutPage() {
         <div className="rounded-3xl border border-primary/25 p-10 text-center">
           <h2 className="text-display text-4xl sm:text-5xl">Let's plan your next journey.</h2>
           <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
-            Flights, visas, hotels, tours or a full holiday — one team handles all of it.
+            Flights, visas, hotels, tours or a full holiday. One team handles all of it.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <a

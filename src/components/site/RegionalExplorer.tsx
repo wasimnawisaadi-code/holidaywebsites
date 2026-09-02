@@ -7,7 +7,7 @@ const REGIONS = [
     tagline: "Alps, Mediterranean coast & imperial capitals",
     count: "15 Destinations",
     fromPrice: "3,890",
-    image: "/images/destinations/hero-switzerland.jpg",
+    image: "/images/destinations/hero-switzerland.webp",
     slugs: [
       "switzerland",
       "france",
@@ -24,7 +24,7 @@ const REGIONS = [
     tagline: "Cherry blossoms, tropical islands & ancient temples",
     count: "12 Destinations",
     fromPrice: "2,490",
-    image: "/images/destinations/hero-japan.jpg",
+    image: "/images/destinations/hero-japan.webp",
     slugs: [
       "japan",
       "indonesia",
@@ -41,7 +41,7 @@ const REGIONS = [
     tagline: "Silk Road cities, cave towns & mountain valleys",
     count: "7 Destinations",
     fromPrice: "1,899",
-    image: "/images/destinations/georgia-tbilisi.jpg",
+    image: "/images/destinations/georgia-tbilisi.webp",
     slugs: ["georgia", "azerbaijan", "armenia", "kazakhstan", "uzbekistan", "turkey"],
   },
   {
@@ -49,7 +49,7 @@ const REGIONS = [
     tagline: "Khareef mist, spiritual Umrah & futuristic skylines",
     count: "4 Destinations",
     fromPrice: "1,490",
-    image: "/images/destinations/salalah-mughsail.jpg",
+    image: "/images/destinations/salalah-mughsail.webp",
     slugs: ["oman", "saudi-arabia", "qatar", "bahrain"],
   },
   {
@@ -57,7 +57,7 @@ const REGIONS = [
     tagline: "Big-5 game drives, coral atolls & pyramid wonders",
     count: "6 Destinations",
     fromPrice: "4,790",
-    image: "/images/destinations/kenya-01.jpg",
+    image: "/images/destinations/kenya-01.webp",
     slugs: ["kenya", "tanzania", "south-africa", "mauritius", "seychelles", "egypt", "morocco"],
   },
 ];

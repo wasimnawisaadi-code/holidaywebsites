@@ -103,7 +103,7 @@ export function SubscribeForm({
         )}
       >
         <Check className="size-4 shrink-0 text-[#CAA42D]" />
-        <span>Thank you — we&apos;ll send you our best fares.</span>
+        <span>Thank you. We&apos;ll send you our best fares.</span>
       </div>
     );
   }

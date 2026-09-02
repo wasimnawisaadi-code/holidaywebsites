@@ -237,8 +237,8 @@ export function SiteFooter() {
                 className="font-medium text-[#00365F] transition-colors hover:text-[#8F7420]"
               >
                 Nawi Saadi Travel &amp; Tourism
-              </a>{" "}
-              — flights, visas, Umrah and cargo
+              </a>
+              : flights, visas, Umrah and cargo
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">

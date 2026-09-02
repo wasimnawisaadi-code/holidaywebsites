@@ -42,7 +42,7 @@ function TermsPage() {
         eyebrow="Legal"
         title="Terms &amp; booking conditions"
         intro="How quotes, payment, changes, cancellations and visas work when you book with us."
-        image="/images/destinations/maldives-villas.jpg"
+        image="/images/destinations/maldives-villas.webp"
         imageAlt="Overwater villas"
       />
 

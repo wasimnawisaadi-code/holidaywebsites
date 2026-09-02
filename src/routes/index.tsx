@@ -161,7 +161,7 @@ function Hero() {
     },
     {
       src: "/videos/girl-travel-1.mp4",
-      poster: "/images/destinations/hero-switzerland.jpg",
+      poster: "/images/destinations/hero-switzerland.webp",
       place: "Arriving Worldwide",
     },
   ];
@@ -523,7 +523,7 @@ function Faq() {
             Common questions
           </h2>
           <p className="mt-4 font-sans text-sm leading-relaxed text-[#666666]">
-            Anything not covered here, ask us directly — a consultant answers, not a bot.
+            Anything not covered here, ask us directly and a consultant answers, not a bot.
           </p>
         </div>
 

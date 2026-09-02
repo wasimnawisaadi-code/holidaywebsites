@@ -73,7 +73,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 1899,
-    "image": "/images/destinations/azerbaijan-baku.jpg",
+    "image": "/images/destinations/azerbaijan-baku.webp",
     "intro": "Just 3 hours from Dubai: futuristic architecture meets ancient UNESCO Silk Road stone walls, Caspian Sea promenades, and alpine cable cars.",
     "story": "Explore the UNESCO-listed Icherisheher Old City, marvel at the illuminated Flame Towers, and take a day trip to Gabala's snow-capped mountains and Tufandag cable car.",
     "highlights": [
@@ -178,7 +178,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 1299,
-    "image": "/images/destinations/salalah-mughsail.jpg",
+    "image": "/images/destinations/salalah-mughsail.webp",
     "intro": "Experience the legendary Arabian monsoon: emerald green mountains, flowing waterfalls, and cool 22°C misty mountain breezes in southern Oman.",
     "story": "Witness the miracle of the Khareef season where the desert transforms into a lush green tropical paradise with cascading waterfalls and dramatic coastal blowholes.",
     "highlights": [
@@ -281,7 +281,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 3499,
-    "image": "/images/destinations/umrah-clock-tower.jpg",
+    "image": "/images/destinations/umrah-clock-tower.webp",
     "intro": "Complete spiritual fulfillment: 10 nights in Makkah near Masjid Al Haram and 7 nights in Madinah near the Prophet's Mosque with Haramain High-Speed Train.",
     "story": "Perform Umrah with complete peace of mind. Our dedicated religious guides handle your visa, luxury hotel bookings steps from the Haram, Ziyarat tours, and 24/7 ground assistance.",
     "highlights": [
@@ -393,7 +393,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 2899,
-    "image": "/images/destinations/bosnia-mostar.jpg",
+    "image": "/images/destinations/bosnia-mostar.webp",
     "intro": "Turquoise rivers, Ottoman stone bridges, lush green valleys, and emerald waterfalls in the heart of the Balkans, just 5 hours from Dubai.",
     "story": "Explore Sarajevo's historic Baščaršija bazaar, watch daring divers leap from Mostar's UNESCO Old Bridge, and relax at the majestic Kravice Waterfalls.",
     "highlights": [
@@ -519,7 +519,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 5499,
-    "image": "/images/destinations/swiss-matterhorn.jpg",
+    "image": "/images/destinations/swiss-matterhorn.webp",
     "intro": "Seven days across turquoise lakes, glacier peaks and postcard villages, travelling on Switzerland's world-famous scenic rail network.",
     "story": "Wake up to lake mist in Lucerne, ascend above the clouds to Jungfraujoch (Top of Europe), and watch the Alps glide past panoramic train windows.",
     "highlights": [
@@ -657,7 +657,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 4499,
-    "image": "/images/destinations/hero-maldives.jpg",
+    "image": "/images/destinations/hero-maldives.webp",
     "intro": "The definitive tropical honeymoon: private overwater villa with direct ocean staircase, house reef snorkeling, and seaplane transfers.",
     "story": "Four hours direct from Dubai lands you in an overwater villa over crystal lagoons. Snorkel with sea turtles and dine under the stars on a private sandbank.",
     "highlights": [
@@ -768,7 +768,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 2500,
-    "image": "/images/destinations/georgia-tbilisi.jpg",
+    "image": "/images/destinations/georgia-tbilisi.webp",
     "intro": "Just 3.5 hours from Dubai: sulfur bathhouses, cobblestone alleys, and 4x4 mountain drives to the iconic Gergeti Trinity Church.",
     "story": "Drive the Georgian Military Highway past turquoise reservoirs and snow-dusted Caucasus peaks before enjoying authentic khinkali and Georgian wine cellars.",
     "highlights": [
@@ -868,7 +868,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 2699,
-    "image": "/images/destinations/turkey-balloons.jpg",
+    "image": "/images/destinations/turkey-balloons.webp",
     "intro": "Imperial Ottoman palaces and sunset Bosphorus cruising in Istanbul, paired with cave hotel suites and sunrise hot air balloons in Cappadocia.",
     "story": "Stand beneath the monumental domes of Hagia Sophia, browse the Grand Bazaar, and take flight in a hot air balloon over fairy chimney valleys.",
     "highlights": [
@@ -982,7 +982,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 2499,
-    "image": "/images/destinations/hero-bali.jpg",
+    "image": "/images/destinations/hero-bali.webp",
     "intro": "Private pool villas in Ubud's emerald jungle, floating breakfasts, Nusa Penida island speedboat tours, and beach clubs in Seminyak.",
     "story": "Soak in the spiritual charm of Bali: giant jungle swings, sacred monkey forests, clifftop sunsets at Uluwatu, and white sand coral lagoons.",
     "highlights": [
@@ -1110,7 +1110,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 7899,
-    "image": "/images/destinations/hero-japan.jpg",
+    "image": "/images/destinations/hero-japan.webp",
     "intro": "Experience the ultimate Japan journey: neon-lit Tokyo, majestic Mt. Fuji, Shinkansen bullet trains, and Kyoto's thousand vermilion shrines.",
     "story": "From futuristic Shibuya crossings and tea ceremonies to peaceful bamboo groves in Arashiyama and Osaka's vibrant street food stalls.",
     "highlights": [
@@ -1263,7 +1263,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 5299,
-    "image": "/images/destinations/france-eiffel.jpg",
+    "image": "/images/destinations/france-eiffel.webp",
     "intro": "Classic European romance: 4 nights exploring Parisian monuments and Seine dinner cruises, followed by 3 days soaking up Côte d'Azur glamour in Nice & Monaco.",
     "story": "Ascend the Eiffel Tower, gaze upon the Mona Lisa at the Louvre, stroll the Champs-Élysées, and ride the high-speed TGV train to the sun-kissed beaches of the French Riviera.",
     "highlights": [
@@ -1402,7 +1402,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 4999,
-    "image": "/images/destinations/hero-italy.jpg",
+    "image": "/images/destinations/hero-italy.webp",
     "intro": "The ultimate Italian masterpiece: 2 nights in imperial Rome, 2 nights in Renaissance Florence & Tuscany, and 2 romantic nights on the canals of Venice.",
     "story": "Toss a coin into the Trevi Fountain, marvel at Michelangelo's Sistine Chapel, gaze at the Leaning Tower of Pisa, and glide down the Grand Canal in a traditional gondola.",
     "highlights": [
@@ -1544,7 +1544,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 4699,
-    "image": "/images/destinations/greece-oia.jpg",
+    "image": "/images/destinations/greece-oia.webp",
     "intro": "Whitewashed cliffside villas, cobalt-blue domes, and world-famous Aegean sunsets: 2 nights in historic Athens and 3 romantic nights in Santorini.",
     "story": "Stand before the Parthenon in Athens, board a luxury high-speed ferry across the Aegean Sea, and watch the sunset from your cliffside jacuzzi in Oia.",
     "highlights": [
@@ -1671,7 +1671,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 2799,
-    "image": "/images/destinations/egypt-pyramids.jpg",
+    "image": "/images/destinations/egypt-pyramids.webp",
     "intro": "Step into 5,000 years of living history: Great Pyramids of Giza and Sphinx, followed by a 3-night 5-star full-board Nile River luxury cruise between Aswan and Luxor.",
     "story": "Stand in awe before the Great Pyramid of Khufu, sail the legendary Nile on a 5-star cruise ship, explore the Valley of the Kings, and walk through Karnak Temple.",
     "highlights": [
@@ -1796,7 +1796,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Adventure", "Luxury", "Family"],
     "priceStatus": "from",
     "priceFrom": 4999,
-    "image": "/images/destinations/kenya-01.jpg",
+    "image": "/images/destinations/kenya-01.webp",
     "intro": "Witness the world's most thrilling wildlife spectacle in the Masai Mara, followed by pristine white-sand relaxation on the Indian Ocean coast at Diani Beach.",
     "story": "Track lions, leopards, elephants and cheetahs in custom 4x4 pop-top safari cruisers with expert spotters, stay at luxury tented lodges along the Mara River, and unwind in tropical beach bliss.",
     "highlights": [
@@ -1919,7 +1919,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Beach", "Family", "Honeymoon"],
     "priceStatus": "from",
     "priceFrom": 2799,
-    "image": "/images/destinations/thailand-islands-bangkok-01.jpg",
+    "image": "/images/destinations/thailand-islands-bangkok-01.webp",
     "intro": "Turquoise lagoons, dramatic limestone sea karst cliffs, luxury island resorts, and the sparkling temples and street food of vibrant Bangkok.",
     "story": "Cruise the Andaman Sea by luxury speedboat to Maya Bay, kayak emerald sea caves in Phang Nga, relax in Krabi's tranquil bays, and shop the world-class megamalls of Bangkok.",
     "highlights": [
@@ -2050,7 +2050,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "City Escape", "Family"],
     "priceStatus": "from",
     "priceFrom": 5699,
-    "image": "/images/destinations/united-kingdom-01.jpg",
+    "image": "/images/destinations/united-kingdom-01.webp",
     "intro": "From the iconic landmarks of London and Buckingham Palace to the misty castles, ancient glens, and monster legends of the Scottish Highlands.",
     "story": "Explore the Tower of London and Big Ben, ride the high-speed LNER train to medieval Edinburgh, and drive through Glencoe's dramatic peaks to Loch Ness.",
     "highlights": [
@@ -2181,7 +2181,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "Cruises", "Adventure"],
     "priceStatus": "from",
     "priceFrom": 2999,
-    "image": "/images/destinations/vietnam-halong-bay.jpg",
+    "image": "/images/destinations/vietnam-halong-bay.webp",
     "intro": "Glide past thousands of limestone emerald karsts in Halong Bay aboard a 5-star boutique cruise, and immerse yourself in Hanoi's rich French-colonial culture.",
     "story": "Wake up to morning Tai Chi on Halong Bay's sundeck, kayak through luminous sea grottos, explore Ninh Binh's inland river caves, and savor authentic Vietnamese pho and egg coffee.",
     "highlights": [
@@ -2301,7 +2301,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "Honeymoon", "City Escape"],
     "priceStatus": "from",
     "priceFrom": 4899,
-    "image": "/images/destinations/austria-01.jpg",
+    "image": "/images/destinations/austria-01.webp",
     "intro": "Imperial Habsburg palaces, Mozart's classical melodies in Salzburg, and the postcard-perfect fairytale alpine village of Hallstatt.",
     "story": "Tour the grand imperial chambers of Schönbrunn Palace, stroll Vienna's historic Ringstrasse, ride scenic trains through the Alps to Salzburg, and gaze at Hallstatt's wooden chalets reflected in crystal waters.",
     "highlights": [
@@ -2407,7 +2407,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Weekend Escape", "Cultural", "City Escape"],
     "priceStatus": "from",
     "priceFrom": 2499,
-    "image": "/images/destinations/czech-republic-01.jpg",
+    "image": "/images/destinations/czech-republic-01.webp",
     "intro": "The City of a Hundred Spires: gothic towers, romantic cobblestone alleys over Charles Bridge, and UNESCO medieval fairytale castles.",
     "story": "Walk across the 14th-century Charles Bridge, watch the Astronomical Clock strike the hour, tour the colossal Prague Castle complex, and take a day trip to the enchanting medieval town of Český Krumlov.",
     "highlights": [
@@ -2501,7 +2501,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "Adventure", "Luxury"],
     "priceStatus": "from",
     "priceFrom": 3699,
-    "image": "/images/destinations/morocco-marrakech-sahara-01.jpg",
+    "image": "/images/destinations/morocco-marrakech-sahara-01.webp",
     "intro": "Exotic spice souks of Marrakech, dramatic snow-tipped Atlas mountain passes, ancient mudbrick kasbahs, and a magical night under the Sahara stars.",
     "story": "Wander through Marrakech's Jardin Majorelle, drive the Tizi n'Tichka pass to the Gladiator fortress of Ait Ben Haddou, and ride camels across golden Erg Chebbi dunes to a luxury glamping tent with private bath.",
     "highlights": [
@@ -2738,7 +2738,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["City Escape", "Family", "Shopping"],
     "priceStatus": "from",
     "priceFrom": 3499,
-    "image": "/images/destinations/singapore-01.jpg",
+    "image": "/images/destinations/singapore-01.webp",
     "intro": "The Lion City meets the Malaysian capital: futuristic Supertrees, Sentosa cable cars, Petronas Twin Towers, and vibrant night food markets.",
     "story": "Experience two world-class Southeast Asian metropolises: gaze at the Avatar-like Gardens by the Bay, ride cable cars over Sentosa Island, cross the border via scenic express coach, and stand before the rainbow steps of Batu Caves.",
     "highlights": [
@@ -2856,7 +2856,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "City Escape", "Shopping"],
     "priceStatus": "from",
     "priceFrom": 4699,
-    "image": "/images/destinations/south-korea-seoul.jpg",
+    "image": "/images/destinations/south-korea-seoul.webp",
     "intro": "Royal Joseon Dynasty palaces, Hanbok traditional costume experiences, cutting-edge K-pop shopping in Myeongdong, and the volcanic UNESCO nature of Jeju Island.",
     "story": "Step back in time at Gyeongbokgung Palace, stroll beneath golden ginkgo trees on romantic Nami Island, fly to subtropical Jeju Island to explore volcanic craters and waterfalls, and indulge in sizzling Korean BBQ.",
     "highlights": [
@@ -2977,7 +2977,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "Adventure", "Luxury"],
     "priceStatus": "from",
     "priceFrom": 3299,
-    "image": "/images/destinations/jordan-petra.jpg",
+    "image": "/images/destinations/jordan-petra.webp",
     "intro": "Walk through the mystical Siq canyon into the rose-red stone facades of Petra, sleep in a glass geodesic dome under the starry skies of Wadi Rum, and float effortlessly on the mineral-rich Dead Sea.",
     "story": "Jordan blends biblical antiquity, colossal Roman ruins, and Martian desert landscapes. Begin with the colonnaded avenues of ancient Jerash, behold the 2,000-year-old carved facade of Petra's Al-Khazneh Treasury by candlelight, race across red dunes in a 4x4 Bedouin jeep, and unwind at a 5-star Dead Sea luxury wellness resort.",
     "highlights": [
@@ -3084,7 +3084,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Mountain", "Cultural", "Budget Friendly"],
     "priceStatus": "from",
     "priceFrom": 1899,
-    "image": "/images/destinations/armenia-yerevan-ararat.jpg",
+    "image": "/images/destinations/armenia-yerevan-ararat.webp",
     "intro": "The world's first Christian nation: rose-volcanic tuff architecture, cliffside UNESCO monasteries, biblical views of Mount Ararat, and high-altitude azure lakes.",
     "story": "Nestled in the southern Caucasus highlands just 3 hours direct flight from Dubai, Armenia offers crisp alpine air, ancient Greco-Roman and medieval stone architecture, warm Caucasian hospitality, and mouthwatering grilled khorovats cuisine.",
     "highlights": [
@@ -3274,7 +3274,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Cultural", "Historical", "Luxury"],
     "priceStatus": "from",
     "priceFrom": 2699,
-    "image": "/images/destinations/uzbekistan-registan.jpg",
+    "image": "/images/destinations/uzbekistan-registan.webp",
     "intro": "The jewel of Islamic architecture: azure majolica tile mosaics, soaring turquoise domes, Timurid mausoleums, and ancient Silk Road caravanserais.",
     "story": "Walk in the footsteps of Marco Polo, Alexander the Great, and Amir Timur (Tamerlane). Ride the high-speed Afrosiyob bullet train through the Kyzylkum desert, gaze up at the colossal blue-tiled madrasahs of Registan Square, and bargain for hand-woven silk and carpets in the covered trading domes of Bukhara.",
     "highlights": [
@@ -3382,7 +3382,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Safari", "Beach", "Luxury"],
     "priceStatus": "from",
     "priceFrom": 5499,
-    "image": "/images/destinations/tanzania-serengeti.jpg",
+    "image": "/images/destinations/tanzania-serengeti.webp",
     "intro": "The ultimate African bush-and-beach expedition: witness the Great Migration in the Serengeti, descend into the lost world of Ngorongoro, and relax on Zanzibar's white sand lagoons.",
     "story": "Fly direct from Dubai to Tanzania. Embark on private 4x4 pop-top safaris tracking lions, cheetahs, elephants, and rhinos across boundless savannah plains. Then board a scenic bush plane to the exotic spice island of Zanzibar for barefoot luxury, turquoise ocean waters, and fresh lobster barbecue.",
     "highlights": [
@@ -3501,7 +3501,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Beach", "Luxury", "Honeymoon"],
     "priceStatus": "from",
     "priceFrom": 5899,
-    "image": "/images/destinations/seychelles-04.jpg",
+    "image": "/images/destinations/seychelles-04.webp",
     "intro": "The Garden of Eden: sculpted prehistoric pink granite boulders, endemic giant tortoises, Coco de Mer double coconut palms, and crystal-clear turquoise lagoons.",
     "story": "Located just 4.5 hours direct flight from Dubai, the Seychelles archipelago represents the pinnacle of private island luxury. Stay in a 5-star beachfront suite on Mahé, take the Cat Cocos ferry to Praslin's UNESCO jungle, and cycle past giant tortoises to the world's most photographed beach on La Digue.",
     "highlights": [
@@ -3610,7 +3610,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["City Escape", "Cultural", "Romantic"],
     "priceStatus": "from",
     "priceFrom": 2799,
-    "image": "/images/destinations/hungary-01.jpg",
+    "image": "/images/destinations/hungary-01.webp",
     "intro": "The Queen of the Danube: Neo-Gothic parliament spires glowing on the river, fairytale fairytale turrets at Fisherman's Bastion, and steaming outdoor mineral thermal baths.",
     "story": "Split by the majestic Danube River into historic hilly Buda and vibrant Pest, Budapest is one of Central Europe's most enchanting and affordable royal capitals. Soak in the neo-baroque outdoor pools of Széchenyi, cruise past the illuminated Hungarian Parliament at night, and savor warm chimney cakes and goulash.",
     "highlights": [
@@ -3705,7 +3705,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["City Escape", "Beach", "Nature"],
     "priceStatus": "from",
     "priceFrom": 6899,
-    "image": "/images/destinations/australia-01.jpg",
+    "image": "/images/destinations/australia-01.webp",
     "intro": "The best of Down Under: sail past the Sydney Opera House, gaze at the eucalyptus-hazed Blue Mountains, and soak up sunshine on the golden surf beaches of Queensland.",
     "story": "From the world's most recognizable harbour to ancient rainforests and world-class theme parks, Australia offers an unforgettable luxury journey. Walk the dramatic cliffs of Bondi, meet koalas and kangaroos up close, and enjoy beachfront resort dining on the Gold Coast.",
     "highlights": [
@@ -3836,7 +3836,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["Mountain", "Nature", "Adventure"],
     "priceStatus": "from",
     "priceFrom": 2299,
-    "image": "/images/destinations/kyrgyzstan-03.jpg",
+    "image": "/images/destinations/kyrgyzstan-03.webp",
     "intro": "The Switzerland of Central Asia: towering snow peaks, alpine pine forests, nomadic yurt traditions, and the world's second-largest high-altitude saline lake.",
     "story": "Just 4 hours flight from Dubai, Kyrgyzstan is an untouched paradise of soaring 7,000m peaks, glacier-fed alpine rivers, and ancient nomadic heritage. Hike beneath colossal glaciers in Ala Archa, sleep by the turquoise shores of Issyk-Kul Lake, and witness golden eagle hunting demonstrations.",
     "highlights": [
@@ -3931,7 +3931,7 @@ export const packages: HolidayPackage[] = [
     "styles": ["City Escape", "Family", "Theme Park"],
     "priceStatus": "from",
     "priceFrom": 3899,
-    "image": "/images/destinations/hong-kong-skyline.jpg",
+    "image": "/images/destinations/hong-kong-skyline.webp",
     "intro": "The dazzling Fragrant Harbour: futuristic neon skylines, historic double-decker trams, magical World of Frozen at Disneyland, and Portuguese heritage in Macau.",
     "story": "Ride the historic Peak Tram to the highest point on Hong Kong Island, sail aboard the vintage Star Ferry across Victoria Harbour, spend a day of pure magic at Hong Kong Disneyland, and take the high-speed turbojet ferry to Macau to see the UNESCO Ruins of St. Paul's and world-class resort casinos.",
     "highlights": [
@@ -4044,7 +4044,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 6890,
-    "image": "/images/destinations/finland-northern-lights.jpg",
+    "image": "/images/destinations/finland-northern-lights.webp",
     "intro": "Experience the ultimate winter wonderland in Finnish Lapland: chase the dancing Aurora Borealis, sleep under the stars in a heated glass igloo, and meet Santa Claus at the Arctic Circle.",
     "story": "From Helsinki's elegant design quarter to the snow-covered pine forests of Rovaniemi, embark on an unforgettable Arctic expedition featuring husky sledding, reindeer safaris, and nightly Northern Lights hunts.",
     "highlights": [
@@ -4175,7 +4175,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 2850,
-    "image": "/images/destinations/malaysia-g01.jpg",
+    "image": "/images/destinations/malaysia-g01.webp",
     "intro": "The best of dynamic Southeast Asia: sparkling Petronas Twin Towers, colorful Batu Caves rainbow steps, and tropical beach relaxation on the UNESCO island of Langkawi.",
     "story": "Explore world-class shopping in Bukit Bintang, take the high-altitude cable car up Genting Highlands, and fly to Langkawi for white-sand beaches, mangrove eagle feeding, and luxury island resorts.",
     "highlights": [
@@ -4302,7 +4302,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 2490,
-    "image": "/images/destinations/nepal-machapuchare.jpg",
+    "image": "/images/destinations/nepal-machapuchare.webp",
     "intro": "Stand in awe before the roof of the world: medieval UNESCO heritage squares in Kathmandu, tranquil boat rides on Pokhara's Phewa Lake, and golden Himalayan sunrise over the Annapurna range.",
     "story": "Discover ancient Buddhist stupas spun with prayer wheels in Kathmandu, then travel to the lakeside haven of Pokhara where snow-capped Machapuchare (Fishtail) reflects on calm mountain waters.",
     "highlights": [
@@ -4429,7 +4429,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 4950,
-    "image": "/images/destinations/china-01.jpg",
+    "image": "/images/destinations/china-01.webp",
     "intro": "Walk along the legendary Great Wall of China, discover imperial imperial dynasties in Beijing's Forbidden City, and witness futuristic neon skylines in Shanghai.",
     "story": "Journey through 5,000 years of civilization: from the crimson gates of the Imperial Palace and imperial Summer Palace lakes in Beijing to a high-speed bullet train ride into the neon futuristic metropolis of Shanghai.",
     "highlights": [
@@ -4567,7 +4567,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 5490,
-    "image": "/images/destinations/south-africa-02.jpg",
+    "image": "/images/destinations/south-africa-02.webp",
     "intro": "Experience the ultimate African adventure: ascend Table Mountain, visit playful African penguins at Boulders Beach, and track the legendary Big-5 on luxury private game reserve safaris.",
     "story": "From the dramatic Atlantic coastline of Cape Town and Cape Point to open-top 4x4 safari drives in malaria-free private game reserves, discover South Africa's jaw-dropping wildlife and natural wonders.",
     "highlights": [
@@ -4708,7 +4708,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 6990,
-    "image": "/images/destinations/brazil-christ-redeemer.jpg",
+    "image": "/images/destinations/brazil-christ-redeemer.webp",
     "intro": "Experience the vibrant samba rhythm of Rio de Janeiro, stand at the feet of Christ the Redeemer on Corcovado, and feel the thundering mist of Iguazu Falls.",
     "story": "Soak in the sun on famous Copacabana and Ipanema beaches, ride cable cars up Sugarloaf Mountain, and fly to the tropical rainforest border to witness Iguazu Falls, the world's most immense waterfall system.",
     "highlights": [
@@ -4848,7 +4848,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 7490,
-    "image": "/images/destinations/argentina-perito-moreno.jpg",
+    "image": "/images/destinations/argentina-perito-moreno.webp",
     "intro": "The Paris of South America meets wild Patagonia: passionate tango in Buenos Aires, calving icebergs at Perito Moreno Glacier, and the majesty of Iguazu Waterfalls.",
     "story": "Explore European boulevards and colorful La Boca in Buenos Aires, journey deep into the Patagonian wilderness to walk in front of massive blue ice walls, and experience the thundering spray of Iguazu.",
     "highlights": [
@@ -5000,7 +5000,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 6450,
-    "image": "/images/destinations/united-states-01.jpg",
+    "image": "/images/destinations/united-states-01.webp",
     "intro": "The definitive American dream holiday: dazzling neon in Times Square, Empire State Building views, Statue of Liberty cruise, Central Park, and the roaring power of Niagara Falls.",
     "story": "Experience the pulse of New York City from luxury Manhattan hotels, cruise past Lady Liberty, stroll Fifth Avenue, and take a quick flight or scenic express to the wonder of Niagara Falls with the Maid of the Mist boat tour.",
     "highlights": [
@@ -5141,7 +5141,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 1990,
-    "image": "/images/destinations/serbia-kalemegdan.jpg",
+    "image": "/images/destinations/serbia-kalemegdan.webp",
     "intro": "Just 5 hours direct from Dubai: explore the majestic Kalemegdan Fortress overlooking the confluence of the Danube and Sava rivers, grand Orthodox temples, and vibrant café culture.",
     "story": "Discover the crossroads of Central Europe and the Balkans in Belgrade: from the colossal Church of Saint Sava and bohemian Skadarlija cobblestone alleys to the Austro-Hungarian fortresses of Novi Sad.",
     "highlights": [
@@ -5257,7 +5257,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 4890,
-    "image": "/images/destinations/spain-sagrada-familia.jpg",
+    "image": "/images/destinations/spain-sagrada-familia.webp",
     "intro": "Experience the passion of Spain: Antoni Gaudí's breathtaking Sagrada Família in Barcelona, the regal grandeur of Madrid's Royal Palace, and passionate flamenco in Seville.",
     "story": "From the sunny Mediterranean beaches and Gothic Quarter of Barcelona to high-speed rail travel across the plains into imperial Madrid and historic Andalusia.",
     "highlights": [
@@ -5395,7 +5395,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 4990,
-    "image": "/images/destinations/germany-neuschwanstein.jpg",
+    "image": "/images/destinations/germany-neuschwanstein.webp",
     "intro": "Step into a real-life fairytale: King Ludwig's majestic Neuschwanstein Castle in the Bavarian Alps, Munich's historic Marienplatz, and the iconic landmarks of Berlin.",
     "story": "Explore Bavaria's alpine lakes, tour world-famous BMW Welt in Munich, take an ICE high-speed train to Berlin, and walk through the historic Brandenburg Gate.",
     "highlights": [
@@ -5521,7 +5521,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 3890,
-    "image": "/images/destinations/netherlands-amsterdam.jpg",
+    "image": "/images/destinations/netherlands-amsterdam.webp",
     "intro": "Cruise along UNESCO-listed Amsterdam canal rings, cycle past rainbow tulip fields, and taste artisan gouda cheese beside working 18th-century Dutch windmills.",
     "story": "Explore iconic 17th-century gabled canal houses, experience world-famous art at the Rijksmuseum and Van Gogh Museum, and take scenic day trips to Keukenhof Gardens and seaside Volendam.",
     "highlights": [
@@ -5635,7 +5635,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 4190,
-    "image": "/images/destinations/portugal-belem-tower.jpg",
+    "image": "/images/destinations/portugal-belem-tower.webp",
     "intro": "Sun-drenched Atlantic charm: vintage yellow trams clattering up Lisbon's hills, the pastel-colored fantasy of Sintra's Pena Palace, and riverside wine cellars in Porto.",
     "story": "Explore ancient Moorish quarters in Lisbon, taste authentic warm Pastéis de Belém custard tarts, take the Alfa Pendular express train to Porto, and cruise beneath the double-deck iron bridges of the Douro River.",
     "highlights": [
@@ -5765,7 +5765,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 4790,
-    "image": "/images/destinations/mauritius-le-morne.jpg",
+    "image": "/images/destinations/mauritius-le-morne.webp",
     "intro": "Crystal turquoise lagoons, powder-white beaches framed by emerald volcanic peaks, and world-renowned 5-star tropical resort hospitality.",
     "story": "Relax in luxury beachfront resorts nestled beneath UNESCO Le Morne Brabant mountain, catamaran across sparkling reefs to Île aux Cerfs, and discover the rainbow sands of Chamarel Seven Coloured Earths.",
     "highlights": [
@@ -5891,7 +5891,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 1690,
-    "image": "/images/destinations/qatar-doha-skyline.jpg",
+    "image": "/images/destinations/qatar-doha-skyline.webp",
     "intro": "Just 1 hour flight from Dubai: dazzling futuristic architecture along West Bay, fragrant spice alleys in Souq Waqif, and world-class cultural museums by the Arabian Gulf.",
     "story": "Experience the ultimate luxury Arabian city break: take a sunset wooden dhow cruise along the Corniche, explore the I.M. Pei-designed Museum of Islamic Art, and dine at the Pearl-Qatar marina.",
     "highlights": [
@@ -5990,7 +5990,7 @@ export const packages: HolidayPackage[] = [
     ],
     "priceStatus": "from",
     "priceFrom": 1490,
-    "image": "/images/destinations/bahrain-manama-skyline.jpg",
+    "image": "/images/destinations/bahrain-manama-skyline.webp",
     "intro": "Just 1 hour flight from UAE: explore ancient Dilmun civilizations, UNESCO Portuguese forts overlooking turquoise seas, and vibrant pearl souqs in the Kingdom of Bahrain.",
     "story": "Discover the island of two seas: tour the grand Al Fateh Mosque, walk along the battlements of Qal'at al-Bahrain fort at sunset, and taste authentic warm Bahraini halwa in historic Muharraq.",
     "highlights": [
@@ -6118,13 +6118,13 @@ export const experiences: Experience[] = [
   { slug: "lotus-mega-yacht", title: "Lotus Mega Yacht 5-Star Dinner Cruise", emirate: "Dubai", category: "Cruise", duration: "2–4 Hours", audience: ["Families", "Couples"], priceStatus: "from", priceFrom: 249, badge: "Must Try", instantConfirm: true, image: "/images/inbound/lotus-royale-dhow-cruise/img-1.webp", overview: "240ft superyacht with onboard pool, live DJ, and 5-star international buffet dinner." },
   { slug: "hot-air-balloon-desert", title: "Desert Hot Air Balloon Sunrise & Falconry", emirate: "Dubai", category: "Adventure", duration: "Half Day", audience: ["Adults", "Couples"], priceStatus: "from", priceFrom: 990, badge: "Must Try", instantConfirm: true, image: "/images/inbound/dubai-hot-air/img-1.webp", overview: "Pre-dawn flight 4,000ft over dunes, in-flight falconry show and gourmet desert breakfast." },
   { slug: "aquaventure-waterpark", title: "Atlantis Aquaventure Waterpark World", emirate: "Dubai", category: "Theme Park", duration: "Full Day", audience: ["Families", "Children"], priceStatus: "from", priceFrom: 325, badge: "Must Try", instantConfirm: true, image: "/images/inbound/atlantis-aqua-water-park/img-1.webp", overview: "105 record-breaking waterslides, private white sand beach and marine habitats." },
-  { slug: "museum-of-the-future", title: "Museum of The Future Entry Ticket", emirate: "Dubai", category: "Attraction", duration: "2–4 Hours", audience: ["Adults", "Families"], priceStatus: "from", priceFrom: 159, badge: "Must Try", instantConfirm: true, image: "/images/inbound/museum-of-the-future/img-1.jpg", overview: "Journey 50 years into the future inside the world's most beautiful building." },
+  { slug: "museum-of-the-future", title: "Museum of The Future Entry Ticket", emirate: "Dubai", category: "Attraction", duration: "2–4 Hours", audience: ["Adults", "Families"], priceStatus: "from", priceFrom: 159, badge: "Must Try", instantConfirm: true, image: "/images/inbound/museum-of-the-future/img-1.webp", overview: "Journey 50 years into the future inside the world's most beautiful building." },
   { slug: "global-village", title: "Global Village Dubai Season Entry Ticket", emirate: "Dubai", category: "Attraction", duration: "Half Day", audience: ["Families", "Children", "Groups"], priceStatus: "from", priceFrom: 25, badge: "Best Value", instantConfirm: true, image: "/images/inbound/global-village/img-1.webp", overview: "90+ country pavilions, street food, live cultural shows and carnival rides." },
-  { slug: "the-view-palm", title: "The View at The Palm (Level 52)", emirate: "Dubai", category: "Attraction", duration: "1–2 Hours", audience: ["Families", "Couples"], priceStatus: "from", priceFrom: 105, wasPrice: 125, badge: "Must Try", instantConfirm: true, image: "/images/inbound/view-at-the-top-of-the-palm/img-1.jpg", overview: "360° views of Palm Jumeirah from Level 52, 240m above the island." },
+  { slug: "the-view-palm", title: "The View at The Palm (Level 52)", emirate: "Dubai", category: "Attraction", duration: "1–2 Hours", audience: ["Families", "Couples"], priceStatus: "from", priceFrom: 105, wasPrice: 125, badge: "Must Try", instantConfirm: true, image: "/images/inbound/view-at-the-top-of-the-palm/img-1.webp", overview: "360° views of Palm Jumeirah from Level 52, 240m above the island." },
   { slug: "ski-dubai-snow-park", title: "Ski Dubai Snow Park & Slope", emirate: "Dubai", category: "Theme Park", duration: "2–4 Hours", audience: ["Families", "Children"], priceStatus: "from", priceFrom: 220, badge: "Popular", instantConfirm: true, image: "/images/inbound/ski-dubai/img-1.jpg", overview: "Real snow all year: toboggan runs, penguin encounters and full winter gear included." },
-  { slug: "img-worlds", title: "IMG Worlds of Adventure Mega Indoor Park", emirate: "Dubai", category: "Theme Park", duration: "Full Day", audience: ["Families", "Children", "Groups"], priceStatus: "from", priceFrom: 245, wasPrice: 345, badge: "Must Try", instantConfirm: true, image: "/images/inbound/img-world-of-adventure/img-1.jpg", overview: "World's largest indoor theme park, home to Marvel, Cartoon Network and the Velociraptor coaster." },
+  { slug: "img-worlds", title: "IMG Worlds of Adventure Mega Indoor Park", emirate: "Dubai", category: "Theme Park", duration: "Full Day", audience: ["Families", "Children", "Groups"], priceStatus: "from", priceFrom: 245, wasPrice: 345, badge: "Must Try", instantConfirm: true, image: "/images/inbound/img-world-of-adventure/img-1.webp", overview: "World's largest indoor theme park, home to Marvel, Cartoon Network and the Velociraptor coaster." },
   { slug: "ferrari-world", title: "Ferrari World Abu Dhabi (Yas Island)", emirate: "Abu Dhabi", category: "Theme Park", duration: "Full Day", audience: ["Families", "Groups", "Adults"], priceStatus: "from", priceFrom: 345, badge: "Must Try", instantConfirm: true, image: "/images/inbound/ferrari-world/img-1.webp", overview: "Formula Rossa 240km/h fastest rollercoaster, Flying Aces and 40 Ferrari rides." },
-  { slug: "louvre-abu-dhabi", title: "Louvre Abu Dhabi Universal Museum", emirate: "Abu Dhabi", category: "Culture", duration: "2–4 Hours", audience: ["Adults", "Families"], priceStatus: "from", priceFrom: 65, badge: "Popular", instantConfirm: true, image: "/images/inbound/louvre-museum-abu-dhabi/img-1.jpg", overview: "Jean Nouvel's rain-of-light floating dome and 12 world-class galleries." }
+  { slug: "louvre-abu-dhabi", title: "Louvre Abu Dhabi Universal Museum", emirate: "Abu Dhabi", category: "Culture", duration: "2–4 Hours", audience: ["Adults", "Families"], priceStatus: "from", priceFrom: 65, badge: "Popular", instantConfirm: true, image: "/images/inbound/louvre-museum-abu-dhabi/img-1.webp", overview: "Jean Nouvel's rain-of-light floating dome and 12 world-class galleries." }
 ];
 
 export const emirates = [
