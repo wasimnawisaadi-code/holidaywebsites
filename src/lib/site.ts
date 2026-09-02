@@ -107,3 +107,27 @@ export function gtmId(): string | null {
   const id = env?.["GTM_ID"] ?? GTM_CONTAINER;
   return id && id.trim() ? id.trim() : null;
 }
+
+/**
+ * Google Analytics 4.
+ *
+ * The container above has been on the site from the start, but GA4 reported
+ * "No data received from your website yet" — because a GTM container only
+ * fires the tags configured inside it, and no GA4 tag had been added to this
+ * one. An empty container loads happily and measures nothing.
+ *
+ * Rather than depend on someone remembering to wire a tag up in the GTM
+ * console, the measurement ID is loaded directly. There is no double-counting
+ * risk while GTM has no GA4 tag of its own; if one is added there later, unset
+ * GA_MEASUREMENT_ID here rather than running both.
+ *
+ * The ID is public — it is visible in the page source of every site using
+ * GA4 — so it is committed, with an env override for a staging property.
+ */
+const GA_MEASUREMENT_ID = "G-T2BBPWLYTJ";
+
+export function gaId(): string | null {
+  const env = typeof process !== "undefined" ? process.env : undefined;
+  const id = env?.["GA_MEASUREMENT_ID"] ?? GA_MEASUREMENT_ID;
+  return id && id.trim() ? id.trim() : null;
+}

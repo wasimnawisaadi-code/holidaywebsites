@@ -312,7 +312,7 @@ function PackagePage() {
               Photo {shot + 1} of {gallery.length}
             </div>
           </div>
-          <div className="grid grid-cols-4 gap-3 lg:grid-cols-2">
+          <div className="grid auto-rows-min content-start grid-cols-4 gap-3 lg:grid-cols-2">
             {gallery.slice(0, 4).map((g, i) => (
               <button
                 key={`${g}-${i}`}

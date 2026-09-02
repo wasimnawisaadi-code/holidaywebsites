@@ -8,12 +8,17 @@
  * 32 pixels, where the wordmark is an illegible smudge. There was also no
  * apple-touch-icon, so an iOS home-screen bookmark fell back to a screenshot.
  *
- * Two glyphs, chosen by size. The architectural mark is fine gold line-art:
- * magnified at 32px it collapses into a muddy triangle, because the strokes
- * are thinner than a pixel and merge. So the small sizes — the browser tab,
- * the bookmark row, the address-bar dropdown — get an "NS" monogram in the
- * brand serif, which holds at 16px, and the large sizes get the real mark,
- * which has the room to read. This is the ordinary way brands ship favicons.
+ * Two treatments of the same mark, chosen by size.
+ *
+ * Gold line-art on navy collapses into a muddy triangle at 32px — the strokes
+ * are thinner than a pixel and merge, and neither thickening nor sharpening
+ * recovers them. Inverting it does: a navy mark on a gold tile has far more
+ * contrast at the same size, and the arch survives where the gold-on-navy
+ * version did not. Both colours are the brand's own, so nothing is invented.
+ *
+ * Large sizes keep the mark the right way round on navy, because at 180px and
+ * above there is resolution enough for the fine strokes to read properly and
+ * that is the logo as it is actually drawn.
  *
  *   node scripts/generate-icons.mjs
  */
@@ -22,6 +27,7 @@ import fs from "node:fs";
 
 const SRC = "src/assets/logo-ink.png";
 const NAVY = { r: 0, g: 54, b: 95, alpha: 1 }; // #00365F
+const GOLD = { r: 202, g: 164, b: 45, alpha: 1 }; // #CAA42D
 // Measured from the source: the mark occupies the top two-thirds; gold pixel
 // density falls to zero below y=213, where the wordmark begins.
 const MARK = { left: 73, top: 0, width: 291, height: 213 };
@@ -41,22 +47,52 @@ async function markIcon(size, padRatio = 0.18) {
 }
 
 /**
- * "NS" in a serif close to the site's Playfair display face.
+ * The mark inverted: navy strokes on a gold tile.
  *
- * Rendered at 8x and downsampled rather than drawn at the target size, so the
- * letterforms get proper antialiasing instead of the hinting mush a 16px
- * render produces.
+ * Every gold pixel of the source becomes solid navy, everything else becomes
+ * transparent, and the result sits on gold. That is what makes the arch
+ * readable at favicon size — the contrast between #00365F and #CAA42D is far
+ * higher than gold-on-navy, where the thin strokes simply dissolve.
  */
-async function monogramIcon(size) {
-  const big = 256;
-  const svg = Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${big}" height="${big}">` +
-      `<rect width="${big}" height="${big}" fill="#00365F"/>` +
-      `<text x="${big / 2}" y="${big / 2}" font-family="Georgia, 'Times New Roman', serif" ` +
-      `font-size="150" font-weight="700" fill="#CAA42D" text-anchor="middle" ` +
-      `dominant-baseline="central">NS</text></svg>`,
-  );
-  return sharp(svg).resize(size, size).png({ compressionLevel: 9 }).toBuffer();
+async function invertedMarkIcon(size) {
+  const { data, info } = await sharp(SRC)
+    .extract(MARK)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const { width, height, channels } = info;
+
+  const out = Buffer.alloc(width * height * 4);
+  for (let i = 0; i < width * height; i++) {
+    const r = data[i * channels];
+    const g = data[i * channels + 1];
+    const b = data[i * channels + 2];
+    const a = data[i * channels + 3];
+    // The same gold test used to find the mark's bounding box.
+    const isMark = a > 40 && r > 110 && g > 80 && r - b > 45;
+    out[i * 4] = 0;
+    out[i * 4 + 1] = 54;
+    out[i * 4 + 2] = 95;
+    out[i * 4 + 3] = isMark ? 255 : 0;
+  }
+
+  const inner = Math.round(size * 0.9);
+  // Encode to PNG before resizing: sharp will not resize a raw buffer and
+  // then hand it back without a declared output format.
+  const glyph = await sharp(out, { raw: { width, height, channels: 4 } })
+    .png()
+    .resize(inner, inner, {
+      fit: "contain",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+      kernel: "lanczos3",
+    })
+    .png()
+    .toBuffer();
+
+  return sharp({ create: { width: size, height: size, channels: 4, background: GOLD } })
+    .composite([{ input: glyph, gravity: "center" }])
+    .png({ compressionLevel: 9 })
+    .toBuffer();
 }
 
 /** Minimal ICO container. The format accepts PNG payloads directly. */
@@ -85,8 +121,8 @@ function ico(pngs) {
 }
 
 const outputs = [
-  // Small: monogram, because the mark does not survive here.
-  ["public/favicon-32.png", await monogramIcon(32)],
+  // Small: the mark inverted, which is the only version that reads here.
+  ["public/favicon-32.png", await invertedMarkIcon(32)],
   // Large: the real mark, which has the resolution to carry it.
   ["public/apple-touch-icon.png", await markIcon(180, 0.16)],
   ["public/icon-192.png", await markIcon(192, 0.18)],
@@ -98,9 +134,9 @@ for (const [path, buf] of outputs) {
 }
 
 const icoBuf = ico([
-  { size: 16, data: await monogramIcon(16) },
-  { size: 32, data: await monogramIcon(32) },
-  { size: 48, data: await monogramIcon(48) },
+  { size: 16, data: await invertedMarkIcon(16) },
+  { size: 32, data: await invertedMarkIcon(32) },
+  { size: 48, data: await invertedMarkIcon(48) },
 ]);
 fs.writeFileSync("public/favicon.ico", icoBuf);
 console.log(

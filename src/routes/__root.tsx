@@ -24,6 +24,7 @@ import {
   verificationMeta,
   analyticsScript,
   gtmId,
+  gaId,
 } from "@/lib/site";
 
 /**
@@ -198,6 +199,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
                 `j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=` +
                 `'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);` +
                 `})(window,document,'script','dataLayer','${gtmId()}');`,
+            },
+          ]
+        : []),
+      // Google Analytics 4. gtag.js is loaded async, then configured inline —
+      // the inline call has to run after the library defines dataLayer, which
+      // is why these are two entries rather than one.
+      ...(gaId()
+        ? [
+            { src: `https://www.googletagmanager.com/gtag/js?id=${gaId()}`, async: true },
+            {
+              children:
+                `window.dataLayer=window.dataLayer||[];` +
+                `function gtag(){dataLayer.push(arguments);}` +
+                `gtag('js',new Date());` +
+                `gtag('config','${gaId()}');`,
             },
           ]
         : []),
