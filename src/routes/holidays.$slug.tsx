@@ -643,6 +643,7 @@ function PackagePage() {
                     <button
                       type="button"
                       onClick={() => setAdults(Math.max(1, adults - 1))}
+                      aria-label="One fewer adult"
                       className="size-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100"
                     >
                       <Minus className="size-3" />
@@ -651,6 +652,7 @@ function PackagePage() {
                     <button
                       type="button"
                       onClick={() => setAdults(adults + 1)}
+                      aria-label="One more adult"
                       className="size-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100"
                     >
                       <Plus className="size-3" />
@@ -667,6 +669,7 @@ function PackagePage() {
                     <button
                       type="button"
                       onClick={() => setChildren(Math.max(0, children - 1))}
+                      aria-label="One fewer child"
                       className="size-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100"
                     >
                       <Minus className="size-3" />
@@ -675,6 +678,7 @@ function PackagePage() {
                     <button
                       type="button"
                       onClick={() => setChildren(children + 1)}
+                      aria-label="One more child"
                       className="size-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100"
                     >
                       <Plus className="size-3" />

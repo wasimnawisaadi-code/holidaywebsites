@@ -814,12 +814,18 @@ function LeadsManager({
                             {l.path ?? "Direct"}
                           </div>
                         )}
+                        {/* The last two emoji in the product. A calendar and
+                            a pair of silhouettes rendered differently on every
+                            operating system and said less than the word does. */}
                         {dates ? (
-                          <div className="text-[11px] text-[#64748B]">📅 {dates}</div>
+                          <div className="text-[11px] text-[#64748B]">
+                            <span className="text-[#94A3B8]">Dates</span> {dates}
+                          </div>
                         ) : null}
                         {travellers ? (
                           <div className="text-[11px] text-[#64748B]">
-                            👥 {travellers} {budget ? `· AED ${budget}` : ""}
+                            <span className="text-[#94A3B8]">Travellers</span> {travellers}
+                            {budget ? ` · AED ${budget}` : ""}
                           </div>
                         ) : null}
                       </td>

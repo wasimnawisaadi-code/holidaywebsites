@@ -98,7 +98,7 @@ export const packageDetailsA: Record<string, PackageDetail> = {
     ]
   },
   "salalah-khareef-monsoon": {
-    "overview": "Every summer between July and September, an extraordinary natural phenomenon transforms the southern Dhofar region of Oman into a lush, mist-shrouded green wonderland known as Khareef. While the rest of the Arabian Gulf experiences peak summer heat, Salalah enjoys crisp 22°C temperatures, gentle drizzle, flowing freshwater wadis, and roaming camel herds grazing on emerald green mountain pastures. This signature 4-day package departs directly from Dubai, available via luxury sleeper-coach bus or direct 1.5-hour flight—taking you to the cascading waterfalls of Wadi Darbat, the dramatic rock blowholes of Mughsail, the highest peaks of Jabal Samhan, and the aromatic frankincense souqs of historic Salalah.",
+    "overview": "Every summer between July and September, an extraordinary natural phenomenon transforms the southern Dhofar region of Oman into a lush, mist-shrouded green wonderland known as Khareef. While the rest of the Arabian Gulf experiences peak summer heat, Salalah enjoys crisp 22°C temperatures, gentle drizzle, flowing freshwater wadis, and roaming camel herds grazing on emerald green mountain pastures. This signature 4-day package departs directly from Dubai, available via luxury sleeper-coach bus or direct 1.5-hour flight, taking you to the cascading waterfalls of Wadi Darbat, the dramatic rock blowholes of Mughsail, the highest peaks of Jabal Samhan, and the aromatic frankincense souqs of historic Salalah.",
     "gallery": [
       "/images/destinations/salalah-wadi-darbat.jpg",
       "/images/destinations/salalah-meadows.jpg",
