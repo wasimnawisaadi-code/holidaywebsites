@@ -479,7 +479,9 @@ function ContactClose() {
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <Magnet padding={70} strength={4}>
               <a
-                href={waLink("Hi Nawi Saadi, I'd like help planning a holiday.")}
+                href={waLink(
+                  "Hi Nawi Saadi, I'd like to talk to a consultant about a holiday from Dubai.",
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl bg-[#CAA42D] px-8 py-4 font-sans text-sm font-bold text-[#00365F] transition-colors hover:bg-[#DDBE5E]"

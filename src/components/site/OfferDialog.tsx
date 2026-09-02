@@ -251,7 +251,9 @@ export function OfferDialog() {
               <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <a
-              href={waLink(`Hi Nawi Saadi, I'd like a quote for the ${pkg.title}.`)}
+              href={waLink(
+                `Hi Nawi Saadi, I saw your offer on the ${pkg.title}. Could you send me dates and the final price?`,
+              )}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => dismiss("cta")}

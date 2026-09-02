@@ -88,7 +88,9 @@ export function SiteFooter() {
           </div>
           <div className="lg:justify-self-end">
             <a
-              href={waLink("Hi Nawi Saadi, I'd like help planning a holiday.")}
+              href={waLink(
+                "Hi Nawi Saadi, I'd like to speak to a consultant about a holiday from Dubai.",
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#00365F] px-7 py-3.5 font-sans text-sm font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F]"

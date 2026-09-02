@@ -767,7 +767,7 @@ export const packages: HolidayPackage[] = [
       "Cultural"
     ],
     "priceStatus": "from",
-    "priceFrom": 1899,
+    "priceFrom": 2500,
     "image": "/images/destinations/georgia-tbilisi.jpg",
     "intro": "Just 3.5 hours from Dubai: sulfur bathhouses, cobblestone alleys, and 4x4 mountain drives to the iconic Gergeti Trinity Church.",
     "story": "Drive the Georgian Military Highway past turquoise reservoirs and snow-dusted Caucasus peaks before enjoying authentic khinkali and Georgian wine cellars.",

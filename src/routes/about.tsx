@@ -264,7 +264,9 @@ function AboutPage() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <a
-              href={waLink(`Hi ${BRAND.short}, I'd like help planning a trip.`)}
+              href={waLink(
+                `Hi ${BRAND.short}, I'd like to speak to one of your consultants about a trip.`,
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"

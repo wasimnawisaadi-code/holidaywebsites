@@ -176,7 +176,9 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
             <div className="pop-in" style={{ animationDelay: "0.86s" }}>
               <Magnet padding={70} strength={4}>
                 <a
-                  href={waLink("Hi Nawi Saadi, I'd like help planning a holiday package.")}
+                  href={waLink(
+                    "Hi Nawi Saadi, I'm planning a holiday from Dubai and would like some options. Where do you suggest for my budget?",
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="liquid-glass inline-flex items-center gap-2 rounded-sm px-8 py-4 font-sans text-sm font-semibold text-white transition-colors hover:bg-white/15"

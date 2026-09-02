@@ -60,7 +60,7 @@ export const countries: Country[] = [
     blurb:
       "Boulevards, museums and long lunches, with easy add-ons to Nice, Disneyland Paris and the Loire Valley.",
     nights: "5–8 nights",
-    fromAed: 4799,
+    fromAed: 5299,
     highlights: [
       "Eiffel Tower summit",
       "Louvre & Seine cruise",
@@ -109,7 +109,7 @@ export const countries: Country[] = [
     tagline: "London, Scotland and the countryside",
     blurb: "Museums, West End nights and green hills a train ride away.",
     nights: "5–8 nights",
-    fromAed: 5299,
+    fromAed: 5699,
     highlights: [
       "London Eye & Thames",
       "Warner Bros Studio Tour",
@@ -177,7 +177,7 @@ export const countries: Country[] = [
     tagline: "Vienna palaces and alpine lakes",
     blurb: "Imperial Vienna paired with Hallstatt and Salzburg's mountain scenery.",
     nights: "5–7 nights",
-    fromAed: 4299,
+    fromAed: 4899,
     highlights: [
       "Schönbrunn Palace",
       "Hallstatt lake village",
@@ -278,7 +278,7 @@ export const countries: Country[] = [
     blurb:
       "Bullet trains between Tokyo's neon and Kyoto's temple gardens, in cherry blossom or autumn colour.",
     nights: "6–9 nights",
-    fromAed: 6499,
+    fromAed: 7899,
     highlights: [
       "Tokyo & Shibuya",
       "Mount Fuji day trip",
@@ -326,7 +326,7 @@ export const countries: Country[] = [
     tagline: "Family city break, done perfectly",
     blurb: "Gardens by the Bay, Sentosa theme parks and a skyline built for photographs.",
     nights: "4–5 nights",
-    fromAed: 3299,
+    fromAed: 3499,
     highlights: [
       "Universal Studios Sentosa",
       "Gardens by the Bay",
@@ -350,7 +350,7 @@ export const countries: Country[] = [
     tagline: "Kuala Lumpur and Langkawi",
     blurb: "City towers, rainforest cable cars and cheap island time.",
     nights: "5–7 nights",
-    fromAed: 2699,
+    fromAed: 2850,
     highlights: ["Petronas Towers", "Batu Caves", "Langkawi Sky Bridge", "Genting Highlands"],
     bestTime: "December – April",
     visa: "Visa-free / eVisa depending on passport",
@@ -369,7 +369,7 @@ export const countries: Country[] = [
     tagline: "Bangkok buzz, island calm",
     blurb: "Street food nights in Bangkok then longtail boats around Krabi and Phuket.",
     nights: "5–8 nights",
-    fromAed: 2499,
+    fromAed: 2799,
     highlights: [
       "Phi Phi islands",
       "James Bond Island",
@@ -457,7 +457,7 @@ export const countries: Country[] = [
     blurb:
       "Snow-capped Himalayan peaks, ancient pagoda squares in Kathmandu, and serene Pokhara lakeside walks.",
     nights: "5–8 nights",
-    fromAed: 1899,
+    fromAed: 2490,
     highlights: [
       "Kathmandu Durbar Square",
       "Pokhara Phewa Lake",
@@ -711,7 +711,7 @@ export const countries: Country[] = [
     blurb:
       "Powder-soft white beaches, iconic granite boulders at Anse Source d'Argent, and pristine coral reefs in the Indian Ocean.",
     nights: "4–7 nights",
-    fromAed: 4899,
+    fromAed: 5899,
     highlights: [
       "Anse Source d'Argent on La Digue",
       "Vallée de Mai UNESCO prehistoric palm forest",
@@ -762,7 +762,7 @@ export const countries: Country[] = [
     tagline: "Caucasus mountains and wine valleys",
     blurb: "Tbilisi's sulphur baths, Kazbegi peaks and the world's oldest wine region.",
     nights: "4–6 nights",
-    fromAed: 1599,
+    fromAed: 2500,
     highlights: [
       "Tbilisi old town",
       "Kazbegi & Gergeti church",
@@ -810,7 +810,7 @@ export const countries: Country[] = [
     tagline: "Monasteries and mountain roads",
     blurb: "Ancient monasteries, Lake Sevan and a very short flight from Dubai.",
     nights: "4–5 nights",
-    fromAed: 1799,
+    fromAed: 1899,
     highlights: ["Yerevan Cascade", "Geghard Monastery", "Lake Sevan", "Garni Temple"],
     bestTime: "May – October",
     visa: "Visa-free / eVisa",
@@ -1091,7 +1091,7 @@ export const countries: Country[] = [
     blurb:
       "Marvel at Gaudí's soaring Sagrada Família in Barcelona, explore the majestic Royal Palace of Madrid, and experience fiery Flamenco in Seville.",
     nights: "5–8 nights",
-    fromAed: 4499,
+    fromAed: 4890,
     highlights: [
       "Sagrada Família & Park Güell",
       "Madrid Royal Palace & Prado Museum",
@@ -1122,7 +1122,7 @@ export const countries: Country[] = [
     blurb:
       "Step inside the fairytale Neuschwanstein Castle nestled in the Bavarian Alps, explore Munich's Marienplatz, and discover Berlin's iconic Brandenburg Gate.",
     nights: "5–7 nights",
-    fromAed: 4699,
+    fromAed: 4990,
     highlights: [
       "Neuschwanstein Fairytale Castle",
       "Munich Marienplatz & BMW Welt",

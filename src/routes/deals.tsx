@@ -139,7 +139,7 @@ function DealsPage() {
               <div className="mt-6 flex flex-wrap items-center justify-center lg:justify-start gap-4">
                 <a
                   href={waLink(
-                    "Hi Nawi Saadi, I would like to book a special deal package on WhatsApp.",
+                    "Hi Nawi Saadi, I saw the deals on your website. Which of them are still available?",
                   )}
                   target="_blank"
                   rel="noopener noreferrer"

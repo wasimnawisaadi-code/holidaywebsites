@@ -193,7 +193,9 @@ function ContactPage() {
               label: "WhatsApp",
               value: BRAND.phone,
               note: "Fastest reply, usually minutes",
-              href: waLink(`Hi ${BRAND.short}, I'd like help planning a trip.`),
+              href: waLink(
+                `Hi ${BRAND.short}, I'd rather message than fill in the form. Can you help me plan a trip?`,
+              ),
               external: true,
             },
             {

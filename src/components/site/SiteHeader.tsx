@@ -168,7 +168,9 @@ export function SiteHeader() {
             {BRAND.phone}
           </a>
           <a
-            href={waLink("Hi Nawi Saadi, I'd like to enquire about a holiday package.")}
+            href={waLink(
+              "Hi Nawi Saadi, I'm browsing your holiday packages. Could someone help me choose?",
+            )}
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
@@ -329,7 +331,9 @@ export function SiteHeader() {
               {BRAND.phone}
             </a>
             <a
-              href={waLink("Hi Nawi Saadi, I'd like to enquire about a holiday package.")}
+              href={waLink(
+                "Hi Nawi Saadi, I'm browsing your holiday packages. Could someone help me choose?",
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 rounded-sm bg-[#00365F] py-3.5 text-sm font-semibold text-white"

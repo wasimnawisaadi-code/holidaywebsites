@@ -113,7 +113,7 @@ function CountryPage() {
   );
 
   const enquiry = waLink(
-    `Hi ${BRAND.short}, I'd like to book a tailor-made ${country.name} holiday package . Please share available departure cities, dates, hotel categories, and custom rates.`,
+    `Hi ${BRAND.short}, I'm interested in a ${country.name} holiday. Could you send me departure dates from Dubai, hotel options and a price?`,
   );
 
   return (
