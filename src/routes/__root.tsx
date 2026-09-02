@@ -257,7 +257,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             name: "Nawi Saadi Travel & Tourism",
             url: "https://www.nawisaadi.com/",
           },
-          sameAs: ["https://www.nawisaadi.com/"],
+          // sameAs is how a search engine confirms that this site, the parent
+          // company and these social accounts are one organisation rather than
+          // several with a similar name. It is also what lets a verified
+          // profile's own signals count towards the site.
+          sameAs: [
+            "https://www.nawisaadi.com/",
+            BRAND.social.instagram,
+            BRAND.social.facebook,
+            BRAND.social.tiktok,
+          ],
           logo: absoluteUrl("/og-image.jpg"),
           image: absoluteUrl(OG_IMAGE_PATH),
           priceRange: "$$-$$$",

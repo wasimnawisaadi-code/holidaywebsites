@@ -16,6 +16,13 @@ import { offices, BRAND as BRAND_INFO } from "@/data/catalogue-brand";
  * accreditation copy that the page above already carries.
  */
 
+/** Official profiles, ordered by how much the agency actually posts on each. */
+const SOCIALS = [
+  { label: "Instagram", href: BRAND_INFO.social.instagram },
+  { label: "Facebook", href: BRAND_INFO.social.facebook },
+  { label: "TikTok", href: BRAND_INFO.social.tiktok },
+] as const;
+
 const COLUMNS = [
   {
     heading: "Holidays",
@@ -124,6 +131,31 @@ export function SiteFooter() {
                 <Mail className="size-4 text-[#CAA42D]" />
                 {BRAND.email}
               </a>
+            </div>
+
+            {/*
+              Real links, not icons for decoration. A customer deciding whether
+              a travel agency is worth trusting will look for its social
+              accounts before filling in a form, and search engines use the
+              same three URLs in the agency's `sameAs` list to confirm the site
+              and the profiles are one organisation. Written as text rather
+              than brand glyphs so there is nothing to load and nothing to
+              misrender, and labelled for screen readers because "Instagram"
+              alone does not say whose.
+            */}
+            <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+              {SOCIALS.map((sc) => (
+                <a
+                  key={sc.label}
+                  href={sc.href}
+                  target="_blank"
+                  rel="noopener noreferrer me"
+                  aria-label={`${BRAND.short} on ${sc.label}`}
+                  className="font-sans text-xs font-semibold text-[#00365F] underline-offset-4 transition-colors hover:text-[#8F7420] hover:underline"
+                >
+                  {sc.label}
+                </a>
+              ))}
             </div>
           </div>
 

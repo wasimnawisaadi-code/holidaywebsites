@@ -16,6 +16,20 @@ export const BRAND = {
   // the relationship can be stated in the structured data and linked in the
   // footer rather than left for a search engine to guess at.
   parentSite: "https://www.nawisaadi.com/",
+  /**
+   * Official social profiles.
+   *
+   * These are not decoration. Search engines use them to confirm that a
+   * website and a set of social accounts are the same organisation — the
+   * agency's `sameAs` list is the single strongest signal for that — and a
+   * customer deciding whether a travel agency is real will look for them
+   * before they will fill in a form.
+   */
+  social: {
+    instagram: "https://www.instagram.com/nawisaadi.travelandtourism.llc/",
+    facebook: "https://www.facebook.com/nsttrip2022/",
+    tiktok: "https://www.tiktok.com/@nawisaadi_llc",
+  },
   // Build credit shown in the footer. The number is the developer's own
   // WhatsApp, deliberately separate from the agency line above so a customer
   // enquiry never lands there.
