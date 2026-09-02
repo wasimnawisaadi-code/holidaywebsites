@@ -70,6 +70,37 @@ export function AnalyticsTracker() {
 
     const onClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
+
+      // Buttons and dropdowns were producing nothing at all. Across the site
+      // that is a hundred-odd controls — the mega-menu triggers, every
+      // package and activity filter, the gallery thumbnails, the mobile menu,
+      // the planner sliders — so a visitor could filter, browse and compare
+      // for ten minutes and leave no trace of any of it.
+      //
+      // They are recorded as one event with the label as a parameter, rather
+      // than as a hundred event types. GA4 charges attention, not money, for
+      // event types: a hundred of them makes the Events report unreadable and
+      // buys nothing that a `label` dimension does not already give.
+      const btn = target?.closest?.("button") as HTMLButtonElement | null;
+      if (btn) {
+        // A submit button's outcome is already reported by the form's own
+        // handler — recording the press as well would double-count it.
+        if (btn.getAttribute("type") !== "submit") {
+          const label =
+            (btn.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 60) ||
+            btn.getAttribute("aria-label") ||
+            btn.getAttribute("title") ||
+            "unlabelled";
+          track("ui_click", {
+            label,
+            page_type: pageType(window.location.pathname),
+            slug: slugOf(window.location.pathname),
+            path: window.location.pathname,
+          });
+        }
+        return;
+      }
+
       const link = target?.closest?.("a[href]") as HTMLAnchorElement | null;
       if (!link) return;
 
@@ -137,9 +168,29 @@ export function AnalyticsTracker() {
       }
     };
 
+    // Dropdowns fire `change`, not `click`, so the handler above never saw
+    // them. These are the package, activity and destination filters — what a
+    // visitor filters for is a statement of what they want.
+    const onChange = (e: Event) => {
+      const el = e.target as HTMLElement | null;
+      if (!el || (el.tagName !== "SELECT" && el.tagName !== "INPUT")) return;
+      const input = el as HTMLInputElement | HTMLSelectElement;
+      if (el.tagName === "INPUT" && (input as HTMLInputElement).type !== "range") return;
+      track("filter_change", {
+        control: input.id || input.getAttribute("aria-label") || input.name || "unnamed",
+        value: String(input.value ?? "").slice(0, 60),
+        page_type: pageType(window.location.pathname),
+        path: window.location.pathname,
+      });
+    };
+
     // Capture phase: a link that unloads the page still reports first.
     document.addEventListener("click", onClick, { capture: true });
-    return () => document.removeEventListener("click", onClick, { capture: true });
+    document.addEventListener("change", onChange, { capture: true });
+    return () => {
+      document.removeEventListener("click", onClick, { capture: true });
+      document.removeEventListener("change", onChange, { capture: true });
+    };
   }, []);
 
   // ---- scroll depth -----------------------------------------------------

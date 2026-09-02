@@ -49,7 +49,11 @@ export type EventType =
   | "activity_view"
   | "outbound_click"
   | "scroll_depth"
-  | "cta_click";
+  | "cta_click"
+  // Everything a visitor presses or filters that is not a link. One event
+  // with a label, not a hundred event types.
+  | "ui_click"
+  | "filter_change";
 
 function sessionId(): string {
   try {
