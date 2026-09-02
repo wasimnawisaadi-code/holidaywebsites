@@ -3,6 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle, X, Clock, MapPin } from "lucide-react";
 import { packages, priceParts, waLink } from "@/data/catalogue";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics";
 
 /**
  * Offer dialog.
@@ -60,9 +61,22 @@ export function OfferDialog() {
 
   const pkg = packages.find((p) => p.slug === FEATURED_SLUG);
 
-  const dismiss = useCallback(() => {
+  /**
+   * Closes the dialog and records how.
+   *
+   * offer_shown, offer_dismissed and offer_cta were all declared as event
+   * types and none of them ever fired — including offer_cta, which is a
+   * conversion. So the offer dialog interrupted every visitor on the site and
+   * produced no evidence of whether it was worth doing.
+   *
+   * `via` separates the outcomes: a visitor who took the offer and one who
+   * closed it are the whole question, and both used to call this same
+   * function with nothing to tell them apart.
+   */
+  const dismiss = useCallback((via: "close" | "cta" = "close") => {
     setOpen(false);
     markSeen();
+    track(via === "cta" ? "offer_cta" : "offer_dismissed", { slug: FEATURED_SLUG, via });
     if (restoreTo.current instanceof HTMLElement) restoreTo.current.focus();
   }, []);
 
@@ -80,6 +94,7 @@ export function OfferDialog() {
       if (done) return;
       done = true;
       setOpen(true);
+      track("offer_shown", { slug: FEATURED_SLUG });
     };
 
     const timer = window.setTimeout(show, DELAY_MS);
@@ -151,7 +166,7 @@ export function OfferDialog() {
       <button
         type="button"
         aria-label="Close offer"
-        onClick={dismiss}
+        onClick={() => dismiss()}
         className="absolute inset-0 cursor-default bg-[#00365F]/70 backdrop-blur-sm"
       />
 
@@ -166,7 +181,7 @@ export function OfferDialog() {
         <button
           ref={closeRef}
           type="button"
-          onClick={dismiss}
+          onClick={() => dismiss()}
           aria-label="Close"
           className="absolute right-3 top-3 z-10 flex size-9 items-center justify-center rounded-full bg-white/90 text-[#00365F] shadow-sm transition-colors hover:bg-[#CAA42D] hover:text-white"
         >
@@ -229,7 +244,7 @@ export function OfferDialog() {
             <Link
               to="/holidays/$slug"
               params={{ slug: pkg.slug }}
-              onClick={dismiss}
+              onClick={() => dismiss("cta")}
               className="group inline-flex items-center gap-2 rounded-xl bg-[#00365F] px-5 py-3 font-sans text-sm font-bold text-white transition-colors hover:bg-[#CAA42D] hover:text-[#00365F]"
             >
               <span>See the itinerary</span>
@@ -239,7 +254,7 @@ export function OfferDialog() {
               href={waLink(`Hi Nawi Saadi, I'd like a quote for the ${pkg.title}.`)}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={dismiss}
+              onClick={() => dismiss("cta")}
               className="inline-flex items-center gap-2 rounded-xl border border-[#E5E5E5] px-5 py-3 font-sans text-sm font-semibold text-[#00365F] transition-colors hover:border-[#CAA42D] hover:bg-[#CAA42D]/10"
             >
               <MessageCircle className="size-4 text-[#CAA42D]" />
@@ -249,7 +264,7 @@ export function OfferDialog() {
 
           <button
             type="button"
-            onClick={dismiss}
+            onClick={() => dismiss()}
             className="mt-4 self-start font-sans text-xs text-[#666666] underline underline-offset-4 transition-colors hover:text-[#00365F]"
           >
             No thanks

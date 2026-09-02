@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { MapPin, Users, CalendarDays, Search } from "lucide-react";
 import { countries } from "@/data/countries";
 import { packages, waLink } from "@/data/catalogue";
+import { track } from "@/lib/analytics";
 
 /**
  * Enquiry bar, overlapping the foot of the hero.
@@ -59,6 +60,20 @@ export function EnquiryBar() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // The homepage search is the first thing a visitor touches and what they
+    // type is the clearest statement of intent on the whole site. It was
+    // declared as an event type and never actually recorded, so none of it
+    // was reaching either the database or GA4.
+    track("enquiry_search", {
+      destination: destination || "any",
+      month: month || "flexible",
+      travellers: travellers || "unspecified",
+      // Whether the search matched a real destination page or fell through
+      // to WhatsApp — the two are very different outcomes.
+      matched: Boolean(destinations.find((d) => d.name === destination)),
+    });
+
     const match = destinations.find((d) => d.name === destination);
     if (match) {
       navigate({ to: "/countries/$slug", params: { slug: match.slug } });
