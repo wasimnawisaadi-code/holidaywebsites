@@ -1,13 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Compass, ShieldCheck, Sparkles } from "lucide-react";
-import heroDubai from "@/assets/hero-dubai.jpg";
+import heroDubai from "@/assets/hero-dubai.webp";
+import heroDubaiSm from "@/assets/hero-dubai-sm.webp";
 import { activitiesLite as inboundActivities } from "@/data/generated/activities-lite";
 import { ActivityBrowser } from "@/components/site/ActivityBrowser";
 import { Depth } from "@/components/site/Parallax";
 import { GoldParticleField } from "@/components/3d/GoldParticleField";
 import { ThreeDCard } from "@/components/3d/ThreeDCard";
 import { absoluteUrl } from "@/lib/site";
-import { tileImage } from "@/lib/img";
 
 const pool = inboundActivities.filter((e) => e.emirate === "Dubai" || e.emirate === "Hatta");
 
@@ -50,11 +50,13 @@ function DubaiPage() {
           height={1088}
           loading="eager"
           fetchPriority="high"
-          // Full-bleed backdrop behind a scrim. 55vw on a phone is 430
-          // device pixels at DPR 2, which lands on the 720px variant
-          // instead of the 1600px original — the difference between a
-          // 45KB and a 158KB file on the critical path.
-          {...tileImage(heroDubai, "(max-width: 768px) 55vw, 100vw")}
+          // Bundled imports, so tileImage cannot help: it only knows the
+          // /images/destinations paths. Both sizes are imported and the
+          // srcset built by hand. 55vw is 430 device pixels on a DPR-2
+          // phone, which lands on the 720px file: 37KB instead of 201KB
+          // for a backdrop sitting behind a scrim.
+          srcSet={`${heroDubaiSm} 720w, ${heroDubai} 1600w`}
+          sizes="(max-width: 768px) 55vw, 100vw"
           decoding="async"
           className="kenburns absolute inset-0 size-full object-cover"
         />

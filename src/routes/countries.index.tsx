@@ -6,7 +6,7 @@ const countriesByRegion = (region: (typeof countryRegions)[number]) =>
 import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { TiltCard } from "@/components/site/Parallax";
-import hero from "@/assets/dest-europe.jpg";
+import hero from "@/assets/dest-europe.webp";
 import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/countries/")({

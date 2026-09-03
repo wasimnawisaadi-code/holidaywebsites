@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { BadgeCheck, Check, Clock, Mail, MapPin, MessageCircle, Phone, Send } from "lucide-react";
-import heroDubai from "@/assets/hero-dubai.jpg";
+import heroDubai from "@/assets/hero-dubai.webp";
 import { BRAND, offices, waLink } from "@/data/catalogue-brand";
 import { packagesLite as packages } from "@/data/generated/packages-lite";
 import { Reveal } from "@/components/site/Reveal";

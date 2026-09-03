@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowUpRight, Compass, MapPin, Sparkles } from "lucide-react";
-import marina from "@/assets/dubai-marina.jpg";
+import marina from "@/assets/dubai-marina.webp";
+import marinaSm from "@/assets/dubai-marina-sm.webp";
 import { emirates } from "@/data/catalogue-meta";
 import { activitiesLite as inboundActivities } from "@/data/generated/activities-lite";
 import { ActivityBrowser } from "@/components/site/ActivityBrowser";
@@ -10,7 +11,6 @@ import { GoldParticleField } from "@/components/3d/GoldParticleField";
 import { ThreeDCard } from "@/components/3d/ThreeDCard";
 import { cn } from "@/lib/utils";
 import { absoluteUrl } from "@/lib/site";
-import { tileImage } from "@/lib/img";
 
 const beyond = emirates.filter((e) => e.name !== "Dubai" && e.name !== "Hatta");
 const pool = inboundActivities.filter((e) => e.emirate !== "Dubai" && e.emirate !== "Hatta");
@@ -52,11 +52,13 @@ function UaePage() {
           height={1000}
           loading="eager"
           fetchPriority="high"
-          // Full-bleed backdrop behind a scrim. 55vw on a phone is 430
-          // device pixels at DPR 2, which lands on the 720px variant
-          // instead of the 1600px original — the difference between a
-          // 45KB and a 158KB file on the critical path.
-          {...tileImage(marina, "(max-width: 768px) 55vw, 100vw")}
+          // Bundled imports, so tileImage cannot help: it only knows the
+          // /images/destinations paths. Both sizes are imported and the
+          // srcset built by hand. 55vw is 430 device pixels on a DPR-2
+          // phone, which lands on the 720px file: 37KB instead of 201KB
+          // for a backdrop sitting behind a scrim.
+          srcSet={`${marinaSm} 720w, ${marina} 1600w`}
+          sizes="(max-width: 768px) 55vw, 100vw"
           decoding="async"
           className="absolute inset-0 size-full object-cover"
         />
