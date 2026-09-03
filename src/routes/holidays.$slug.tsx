@@ -33,6 +33,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
 import { packageTitle, metaDescription } from "@/lib/seo";
 import { absoluteUrl, siteUrl } from "@/lib/site";
+import { tileImage } from "@/lib/img";
 
 export const Route = createFileRoute("/holidays/$slug")({
   /**
@@ -326,6 +327,7 @@ function PackagePage() {
               height={1000}
               loading="lazy"
               decoding="async"
+              {...tileImage(gallery[shot] ?? pkg.image, "(min-width: 1024px) 900px, 100vw")}
               className="size-full object-cover transition-all duration-500"
             />
             <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
@@ -351,6 +353,9 @@ function PackagePage() {
                   alt=""
                   decoding="async"
                   loading="lazy"
+                  // A thumbnail four across. It was pulling the 1600px original
+                  // — 247KB where a 65KB file sits beside it.
+                  {...tileImage(g, "(min-width: 1024px) 180px, 22vw")}
                   className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <span className="absolute top-2 left-2 flex size-5 items-center justify-center rounded-full bg-black/50 text-[10px] font-bold text-white backdrop-blur-xs">

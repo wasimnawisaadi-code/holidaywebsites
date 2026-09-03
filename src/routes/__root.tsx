@@ -196,7 +196,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               children:
                 `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':` +
                 `new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],` +
-                `j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=` +
+                `j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;` +
+                // Low priority, not deferred. The container still starts
+                // loading immediately and dataLayer still queues, but the
+                // browser stops giving it the same share of a slow
+                // connection as the hero image. Measured on /holidays: the
+                // LCP image began at 363ms and did not finish until 5594ms,
+                // with gtm.js and gtag.js occupying the link either side of
+                // it. Nothing about what is tracked changes.
+                `j.fetchPriority='low';j.src=` +
                 `'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);` +
                 `})(window,document,'script','dataLayer','${gtmId()}');`,
             },
@@ -207,7 +215,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // is why these are two entries rather than one.
       ...(gaId()
         ? [
-            { src: `https://www.googletagmanager.com/gtag/js?id=${gaId()}`, async: true },
+            {
+              src: `https://www.googletagmanager.com/gtag/js?id=${gaId()}`,
+              async: true,
+              // See the note on the GTM snippet above: async already keeps
+              // this off the parser, but it was still competing for bandwidth
+              // with the image the visitor is actually waiting to see.
+              fetchPriority: "low" as const,
+            },
             {
               children:
                 `window.dataLayer=window.dataLayer||[];` +
