@@ -7,6 +7,7 @@ import { Depth } from "@/components/site/Parallax";
 import { GoldParticleField } from "@/components/3d/GoldParticleField";
 import { ThreeDCard } from "@/components/3d/ThreeDCard";
 import { absoluteUrl } from "@/lib/site";
+import { tileImage } from "@/lib/img";
 
 const pool = inboundActivities.filter((e) => e.emirate === "Dubai" || e.emirate === "Hatta");
 
@@ -49,6 +50,11 @@ function DubaiPage() {
           height={1088}
           loading="eager"
           fetchPriority="high"
+          // Full-bleed backdrop behind a scrim. 55vw on a phone is 430
+          // device pixels at DPR 2, which lands on the 720px variant
+          // instead of the 1600px original — the difference between a
+          // 45KB and a 158KB file on the critical path.
+          {...tileImage(heroDubai, "(max-width: 768px) 55vw, 100vw")}
           decoding="async"
           className="kenburns absolute inset-0 size-full object-cover"
         />

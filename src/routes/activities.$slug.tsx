@@ -24,6 +24,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
 import { activityTitle, metaDescription } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
+import { tileImage } from "@/lib/img";
 
 export const Route = createFileRoute("/activities/$slug")({
   /**
@@ -242,6 +243,8 @@ function ActivityPage() {
               height={1000}
               loading="eager"
               fetchPriority="high"
+              // See the note in holidays.$slug: 55vw lands on the 720px file.
+              {...tileImage(gallery[shot] ?? a.image, "(max-width: 768px) 55vw, 100vw")}
               decoding="async"
               className="size-full object-cover transition-all duration-500"
             />

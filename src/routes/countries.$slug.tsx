@@ -23,6 +23,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
 import { metaDescription } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
+import { tileImage } from "@/lib/img";
 
 export const Route = createFileRoute("/countries/$slug")({
   /**
@@ -143,6 +144,11 @@ function CountryPage() {
           height={1000}
           loading="eager"
           fetchPriority="high"
+          // Full-bleed backdrop behind a scrim. 55vw on a phone is 430
+          // device pixels at DPR 2, which lands on the 720px variant
+          // instead of the 1600px original — the difference between a
+          // 45KB and a 158KB file on the critical path.
+          {...tileImage(country.image, "(max-width: 768px) 55vw, 100vw")}
           decoding="async"
           className="size-full scale-105 object-cover brightness-75 transition-transform duration-1000"
         />
@@ -336,8 +342,8 @@ function CountryPage() {
             </h3>
             <p className="mt-3 max-w-2xl mx-auto text-sm text-slate-600 leading-relaxed">
               We design private custom holidays to {country.name} every week. Choose your departure
-              date, duration, preferred hotel stars, and private guided excursions, and our Dubai team
-              handles everything end-to-end.
+              date, duration, preferred hotel stars, and private guided excursions, and our Dubai
+              team handles everything end-to-end.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <a

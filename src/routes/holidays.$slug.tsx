@@ -266,6 +266,11 @@ function PackagePage() {
           loading="eager"
           fetchPriority="high"
           decoding="async"
+          // Full-bleed backdrop behind a scrim. 55vw on a phone is 430
+          // device pixels at DPR 2, which lands on the 720px variant
+          // instead of the 1600px original — the difference between a
+          // 45KB and a 158KB file on the critical path.
+          {...tileImage(pkg.image, "(max-width: 768px) 55vw, 100vw")}
           className="kenburns absolute inset-0 size-full scale-105 object-cover brightness-75"
         />
         <div className="night-fade absolute inset-0 bg-gradient-to-t from-[#00365F] via-[#00365F]/40 to-transparent" />
