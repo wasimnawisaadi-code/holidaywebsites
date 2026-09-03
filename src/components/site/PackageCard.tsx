@@ -1,10 +1,24 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, MapPin, ArrowRight } from "lucide-react";
-import { priceParts, type HolidayPackage } from "@/data/catalogue";
+import { priceParts, type HolidayPackage } from "@/data/catalogue-meta";
+
+/**
+ * Exactly the fields this card renders.
+ *
+ * It used to take a whole HolidayPackage, which meant every list view had to
+ * hold full packages — itineraries, inclusions and all — to satisfy the type,
+ * even though the card shows a title, a country and a price. A full package
+ * still satisfies this, so detail pages pass one unchanged.
+ */
+export type PackageCardData = Pick<
+  HolidayPackage,
+  "slug" | "title" | "destination" | "country" | "days" | "nights" | "image" | "priceStatus"
+> &
+  Partial<Pick<HolidayPackage, "priceFrom" | "isNew" | "seasonal">>;
 import { cn } from "@/lib/utils";
 import { tileImage } from "@/lib/img";
 
-export function PackageCard({ pkg, tall }: { pkg: HolidayPackage; tall?: boolean }) {
+export function PackageCard({ pkg, tall }: { pkg: PackageCardData; tall?: boolean }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:border-amber-400">
       <Link

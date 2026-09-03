@@ -16,7 +16,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { WhatsAppFab } from "@/components/site/WhatsAppFab";
 import { OfferDialog } from "@/components/site/OfferDialog";
 import { AnalyticsTracker } from "@/components/site/AnalyticsTracker";
-import { BRAND } from "@/data/catalogue";
+import { BRAND } from "@/data/catalogue-brand";
 import {
   absoluteUrl,
   siteUrl,

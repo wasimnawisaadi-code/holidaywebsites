@@ -12,8 +12,14 @@ import {
   Percent,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { BRAND, packages, waLink } from "@/data/catalogue";
-import { inboundActivities, inboundUnder100 } from "@/data/inbound";
+import { BRAND, waLink } from "@/data/catalogue-brand";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
+import { activitiesLite as inboundActivities } from "@/data/generated/activities-lite";
+// Recomputed from the card-level list rather than imported, so /deals does not
+// pull every activity overview and FAQ into the bundle for one price filter.
+const inboundUnder100 = inboundActivities.filter(
+  (a) => typeof a.fromPrice === "number" && a.fromPrice < 100,
+);
 import { Reveal } from "@/components/site/Reveal";
 import { ActivityCard } from "@/components/site/ActivityCard";
 import { PackageCard } from "@/components/site/PackageCard";

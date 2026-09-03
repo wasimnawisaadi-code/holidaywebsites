@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Sparkles } from "lucide-react";
-import { packages, experiences, travelStyles, type TravelStyle } from "@/data/catalogue";
+import { experiences } from "@/data/experiences";
+import { travelStyles, type TravelStyle } from "@/data/catalogue-meta";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
 import { PageHero } from "@/components/site/PageHero";
 import { PackageCard } from "@/components/site/PackageCard";
 import { cn } from "@/lib/utils";
@@ -123,7 +125,7 @@ function PlanPage() {
 
           <label className="mt-7 block">
             <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#6B6355] uppercase">
-              Travellers — {travellers}
+              Travellers &middot; {travellers}
             </span>
             <input
               type="range"
@@ -137,7 +139,7 @@ function PlanPage() {
 
           <label className="mt-5 block">
             <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#6B6355] uppercase">
-              Nights — {nights}
+              Nights &middot; {nights}
             </span>
             <input
               type="range"

@@ -2,60 +2,21 @@ import { BRAND, credentials, offices, serviceLines, waLink } from "./catalogue-b
 export { BRAND, credentials, offices, serviceLines, waLink };
 export type { Office } from "./catalogue-brand";
 
-export type TravelStyle =
-  | "Family"
-  | "Honeymoon"
-  | "Romantic"
-  | "Luxury"
-  | "Adventure"
-  | "Beach"
-  | "City Escape"
-  | "Cultural"
-  | "Historical"
-  | "Nature"
-  | "Mountain"
-  | "Safari"
-  | "Theme Park"
-  | "Shopping"
-  | "Northern Lights"
-  | "Cruises"
-  | "Weekend Escape"
-  | "Budget Friendly";
-
-export type PriceStatus = "from" | "on-request";
-
-export type ItineraryDay = {
-  day: number;
-  title: string;
-  summary: string;
-  activities: string[];
-  meals: string;
-  transport: string;
-};
-
-export type HolidayPackage = {
-  slug: string;
-  title: string;
-  destination: string;
-  country: string;
-  region: "International" | "UAE";
-  days: number;
-  nights: number;
-  styles: TravelStyle[];
-  priceStatus: PriceStatus;
-  priceFrom?: number;
-  image: string;
-  intro: string;
-  story: string;
-  highlights: string[];
-  itinerary: ItineraryDay[];
-  inclusions: string[];
-  exclusions: string[];
-  route: string[];
-  featured?: boolean;
-  seasonal?: string;
-  isNew?: boolean;
-};
+/*
+ * The types and the small helpers moved to ./catalogue-meta.
+ *
+ * They were defined here, next to 250KB of package data. __root.tsx, SiteHeader,
+ * SiteFooter and WhatsAppFab all import a helper or a type from this module, and
+ * that forced the bundler to put the entire catalogue in the chunk every route
+ * loads. Source-map attribution put 245KB of this file in the entry chunk,
+ * which someone reading /privacy downloaded and parsed for nothing.
+ *
+ * Re-exported here so nothing that already imports from @/data/catalogue breaks;
+ * modules that need only a helper should import ./catalogue-meta directly, and
+ * list views should use ./generated/packages-lite.
+ */
+import type { Experience, HolidayPackage, PriceStatus } from "./catalogue-meta";
+export * from "./catalogue-meta";
 
 export const packages: HolidayPackage[] = [
   {
@@ -97,7 +58,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Direct 3-hour flight from Dubai DXB to Heydar...",
+        "title": "Day 1: Direct 3-hour flight from Dubai DXB to Heydar...",
         "summary": "Check into your hotel, freshen up, and take a leisurely orientation walk along Nizami Stre",
         "activities": [
           "Direct 3-hour flight from Dubai DXB to Heydar Aliyev International Airport in Baku. VIP meet-and-greet at arrivals and private transfer to your central 4-star hotel.",
@@ -109,7 +70,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Guided walking tour of Icherisheher (Old City...",
+        "title": "Day 2: Guided walking tour of Icherisheher (Old City...",
         "summary": "Visit the world-renowned Heydar Aliyev Center for photo opportunities of its flowing curve",
         "activities": [
           "Guided walking tour of Icherisheher (Old City), visiting the 12th-century Maiden Tower, Palace of the Shirvanshahs, and ancient stone caravanserais.",
@@ -121,7 +82,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Depart on a full-day guided excursion to Gaba...",
+        "title": "Day 3: Depart on a full-day guided excursion to Gaba...",
         "summary": "Ride all 4 lines of the Tufandag Mountain Cable Car up to 1,920 meters for breathtaking Ca",
         "activities": [
           "Depart on a full-day guided excursion to Gabala in the Caucasus Mountains, passing scenic pine valleys and Nohur Lake.",
@@ -133,7 +94,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Excursion to Gobustan National Park to explor...",
+        "title": "Day 4: Excursion to Gobustan National Park to explor...",
         "summary": "Visit Ateshgah Fire Temple and Yanar Dag (Burning Mountain natural gas flame) before priva",
         "activities": [
           "Excursion to Gobustan National Park to explore 40,000-year-old prehistoric rock carvings and the active bubbling mud volcanoes.",
@@ -202,7 +163,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Depart Dubai early morning aboard our luxury ...",
+        "title": "Day 1: Depart Dubai early morning aboard our luxury ...",
         "summary": "Scenic arrival into the misty green hills of Salalah. Check into your hotel and refresh.",
         "activities": [
           "Depart Dubai early morning aboard our luxury air-conditioned executive coach (or fly direct DXB–SLL on flydubai/SalamAir). Smooth border crossing into Oman.",
@@ -214,7 +175,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Guided excursion to eastern Dhofar: visit the...",
+        "title": "Day 2: Guided excursion to eastern Dhofar: visit the...",
         "summary": "Drive up the mountain pass to Mirbat and Taqah Castle; witness the dramatic view from Taqa",
         "activities": [
           "Guided excursion to eastern Dhofar: visit the breathtaking Wadi Darbat with emerald-green lagoons, boat rides, and cascading waterfalls.",
@@ -226,7 +187,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Tour western Salalah: travel along the dramat...",
+        "title": "Day 3: Tour western Salalah: travel along the dramat...",
         "summary": "Ascend the zig-zag mountain road of Sarfait towards the Yemen border with panoramic views ",
         "activities": [
           "Tour western Salalah: travel along the dramatic coastal highway to Mughsail Beach and witness the natural Marneef Cave and water blowholes.",
@@ -238,7 +199,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Visit Sultan Qaboos Grand Mosque in Salalah a...",
+        "title": "Day 4: Visit Sultan Qaboos Grand Mosque in Salalah a...",
         "summary": "Board return executive coach or transfer to Salalah Airport for flight back to Dubai.",
         "activities": [
           "Visit Sultan Qaboos Grand Mosque in Salalah and Ayn Athum seasonal waterfall for final photography.",
@@ -303,7 +264,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Depart Dubai on direct flight to Jeddah King ...",
+        "title": "Day 1: Depart Dubai on direct flight to Jeddah King ...",
         "summary": "VIP airport reception and private transfer to your hotel in Makkah Al Mukarramah. Check in",
         "activities": [
           "Depart Dubai on direct flight to Jeddah King Abdulaziz International Airport (or executive luxury Umrah coach). Enter Ihram with guidance.",
@@ -315,7 +276,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Fajr prayers at Masjid Al Haram, followed by ...",
+        "title": "Day 2: Fajr prayers at Masjid Al Haram, followed by ...",
         "summary": "Spiritual lecture on the virtues of Tawaf and Quran recitation in the Haram.",
         "activities": [
           "Fajr prayers at Masjid Al Haram, followed by breakfast and rest.",
@@ -327,7 +288,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Makkah Ziyarat Tour: visit Jabal Al Noor (Cav...",
+        "title": "Day 3: Makkah Ziyarat Tour: visit Jabal Al Noor (Cav...",
         "summary": "Return to Masjid Al Haram for Dhuhr and Asr prayers.",
         "activities": [
           "Makkah Ziyarat Tour: visit Jabal Al Noor (Cave of Hira), Jabal Thawr, Mina, Muzdalifah, and Mount Arafat (Jabal Al Rahmah).",
@@ -339,7 +300,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 11,
-        "title": "Day 11 — Perform Farewell Tawaf (Tawaf Al-Wada) in Mak...",
+        "title": "Day 11: Perform Farewell Tawaf (Tawaf Al-Wada) in Mak...",
         "summary": "Ride the 300 km/h Haramain High-Speed Bullet Train through the desert to the illuminated c",
         "activities": [
           "Perform Farewell Tawaf (Tawaf Al-Wada) in Makkah, hotel checkout, and transfer to Makkah Haramain Train Station.",
@@ -351,7 +312,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 18,
-        "title": "Day 18 — Final prayers and Salam at Al Masjid An Nabaw...",
+        "title": "Day 18: Final prayers and Salam at Al Masjid An Nabaw...",
         "summary": "Board direct flight back to Dubai International Airport (DXB).",
         "activities": [
           "Final prayers and Salam at Al Masjid An Nabawi, hotel check-out, and private transfer to Prince Mohammad Bin Abdulaziz Airport in Madinah.",
@@ -417,7 +378,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Fly direct from Dubai (DXB) to Sarajevo Inter...",
+        "title": "Day 1: Fly direct from Dubai (DXB) to Sarajevo Inter...",
         "summary": "Transfer to your 4★ central Sarajevo hotel, check in, and enjoy a traditional Bosnian coff",
         "activities": [
           "Fly direct from Dubai (DXB) to Sarajevo International Airport (SJJ). Meet private English-speaking chauffeur at arrivals.",
@@ -429,7 +390,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Guided tour of Sarajevo: Latin Bridge, Gazi H...",
+        "title": "Day 2: Guided tour of Sarajevo: Latin Bridge, Gazi H...",
         "summary": "Visit Vrelo Bosne, the lush natural springs of the River Bosna, with horse-drawn carriage ",
         "activities": [
           "Guided tour of Sarajevo: Latin Bridge, Gazi Husrev-beg Mosque, Sahat Kula Clock Tower, and the Tunnel of Hope museum.",
@@ -441,7 +402,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Scenic drive through the Neretva river canyon...",
+        "title": "Day 3: Scenic drive through the Neretva river canyon...",
         "summary": "Continue to Jablanica for famous spit-roasted lamb by the river before driving to sunny Mo",
         "activities": [
           "Scenic drive through the Neretva river canyon to Konjic; visit the 6-arch Ottoman Stone Bridge and Tito's subterranean nuclear bunker.",
@@ -453,7 +414,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Tour Mostar's UNESCO-listed Old Bridge (Stari...",
+        "title": "Day 4: Tour Mostar's UNESCO-listed Old Bridge (Stari...",
         "summary": "Visit Blagaj Tekke, the 600-year-old Dervish monastery built into a 200m vertical cliff at",
         "activities": [
           "Tour Mostar's UNESCO-listed Old Bridge (Stari Most), Koski Mehmed Pasha Mosque, and Turkish House (Kajtaz).",
@@ -465,7 +426,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Full-day trip to Kravice Waterfalls — a 120-m...",
+        "title": "Day 5: Full-day trip to Kravice Waterfalls, a 120-m...",
         "summary": "Swim in the emerald pools, take a wooden boat tour under the falls, and visit the medieval",
         "activities": [
           "Full-day trip to Kravice Waterfalls, a 120-meter wide natural amphitheater of 25m cascading waterfalls surrounded by lush greenery.",
@@ -477,7 +438,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Breakfast, free time for souvenir copper shop...",
+        "title": "Day 6: Breakfast, free time for souvenir copper shop...",
         "summary": "Board direct return flight to Dubai DXB.",
         "activities": [
           "Breakfast, free time for souvenir copper shopping in Baščaršija, and private transfer to Sarajevo Airport.",
@@ -542,7 +503,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Land in Zurich from Dubai, meet private chauf...",
+        "title": "Day 1: Land in Zurich from Dubai, meet private chauf...",
         "summary": "Check into 4★/5★ hotel, relax, and take a stroll along the Limmat river promenade.",
         "activities": [
           "Land in Zurich from Dubai, meet private chauffeur at arrivals for VIP transfer to central hotel.",
@@ -554,7 +515,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Scenic train to Lucerne, walk the 14th-centur...",
+        "title": "Day 2: Scenic train to Lucerne, walk the 14th-centur...",
         "summary": "Explore cobblestone alleys and board a luxury catamaran cruise on Lake Lucerne.",
         "activities": [
           "Scenic train to Lucerne, walk the 14th-century wooden Chapel Bridge and Lion Monument.",
@@ -566,7 +527,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Ascend Mount Titlis aboard the world's first ...",
+        "title": "Day 3: Ascend Mount Titlis aboard the world's first ...",
         "summary": "Walk across the Titlis Cliff Walk and explore the Glacier Ice Cave.",
         "activities": [
           "Ascend Mount Titlis aboard the world's first revolving Rotair cable car through alpine clouds.",
@@ -578,7 +539,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Board the GoldenPass panoramic train toward I...",
+        "title": "Day 4: Board the GoldenPass panoramic train toward I...",
         "summary": "Stroll the Höheweg promenade with views of the Jungfrau massif.",
         "activities": [
           "Board the GoldenPass panoramic train toward Interlaken between Lakes Thun and Brienz.",
@@ -590,7 +551,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Board the famous Eiger Express and cogwheel t...",
+        "title": "Day 5: Board the famous Eiger Express and cogwheel t...",
         "summary": "Visit the Ice Palace, Sphinx Observatory, and Alpine Sensation exhibition.",
         "activities": [
           "Board the famous Eiger Express and cogwheel train to Jungfraujoch, Top of Europe (3,454m).",
@@ -602,7 +563,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Scenic train ride to Geneva along Lake Geneva...",
+        "title": "Day 6: Scenic train ride to Geneva along Lake Geneva...",
         "summary": "Guided tour of Geneva: Jet d'Eau, Flower Clock, and United Nations headquarters.",
         "activities": [
           "Scenic train ride to Geneva along Lake Geneva with views of Lavaux terraced vineyards.",
@@ -614,7 +575,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Enjoy Swiss breakfast, hotel check-out assist...",
+        "title": "Day 7: Enjoy Swiss breakfast, hotel check-out assist...",
         "summary": "Board direct Emirates / Swiss flight back to Dubai International Airport.",
         "activities": [
           "Enjoy Swiss breakfast, hotel check-out assistance, and private transfer to Geneva Airport.",
@@ -678,7 +639,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive at Malé Velana Airport, met by resort ...",
+        "title": "Day 1: Arrive at Malé Velana Airport, met by resort ...",
         "summary": "Check into private Overwater Villa with glass floor panels and direct sea ladder.",
         "activities": [
           "Arrive at Malé Velana Airport, met by resort host, board scenic seaplane/speedboat to resort island.",
@@ -690,7 +651,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Floating champagne breakfast served in your p...",
+        "title": "Day 2: Floating champagne breakfast served in your p...",
         "summary": "Guided house-reef snorkeling safari spotting manta rays and coral gardens.",
         "activities": [
           "Floating champagne breakfast served in your private villa infinity pool.",
@@ -702,7 +663,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Leisure morning on white-sand beach; complime...",
+        "title": "Day 3: Leisure morning on white-sand beach; complime...",
         "summary": "Couples relaxing aromatherapy massage at the overwater glass-floor spa.",
         "activities": [
           "Leisure morning on white-sand beach; complimentary paddleboarding and kayaking.",
@@ -714,7 +675,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Speedboat excursion to a secluded private san...",
+        "title": "Day 4: Speedboat excursion to a secluded private san...",
         "summary": "Private gourmet sandbank picnic lunch and swimming in untouched turquoise water.",
         "activities": [
           "Speedboat excursion to a secluded private sandbank in the open ocean.",
@@ -726,7 +687,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Final breakfast overlooking the lagoon, souve...",
+        "title": "Day 5: Final breakfast overlooking the lagoon, souve...",
         "summary": "Seaplane transfer back to Malé for your direct evening flight to Dubai.",
         "activities": [
           "Final breakfast overlooking the lagoon, souvenir shopping at resort boutique.",
@@ -790,7 +751,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Direct 3.5h flight from Dubai to Tbilisi, mee...",
+        "title": "Day 1: Direct 3.5h flight from Dubai to Tbilisi, mee...",
         "summary": "Stroll along Rustaveli Avenue and ride the aerial cable car up to Narikala Fortress.",
         "activities": [
           "Direct 3.5h flight from Dubai to Tbilisi, meet private driver for transfer to Old Town hotel.",
@@ -802,7 +763,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Guided walking tour through Old Tbilisi's car...",
+        "title": "Day 2: Guided walking tour through Old Tbilisi's car...",
         "summary": "Excursion to Mtskheta (UNESCO ancient capital) and Jvari Monastery overlooking the river c",
         "activities": [
           "Guided walking tour through Old Tbilisi's carved wooden balconies, Bridge of Peace, and Clock Tower.",
@@ -814,7 +775,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Drive the Georgian Military Highway into the ...",
+        "title": "Day 3: Drive the Georgian Military Highway into the ...",
         "summary": "Gudauri Friendship Monument viewpoint; switch into 4x4 Land Cruisers to climb to Gergeti T",
         "activities": [
           "Drive the Georgian Military Highway into the high Caucasus, stopping at Ananuri Fortress.",
@@ -826,7 +787,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Leisure morning for mountain photography and ...",
+        "title": "Day 4: Leisure morning for mountain photography and ...",
         "summary": "Private transfer to Tbilisi International Airport for evening flight back to Dubai.",
         "activities": [
           "Leisure morning for mountain photography and souvenir shopping at Dry Bridge flea market.",
@@ -890,7 +851,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Fly direct from Dubai to Istanbul, VIP privat...",
+        "title": "Day 1: Fly direct from Dubai to Istanbul, VIP privat...",
         "summary": "Check in and take an afternoon walk to the Hippodrome and German Fountain.",
         "activities": [
           "Fly direct from Dubai to Istanbul, VIP private airport transfer to Sultanahmet hotel.",
@@ -902,7 +863,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Guided tour inside Hagia Sophia, Blue Mosque,...",
+        "title": "Day 2: Guided tour inside Hagia Sophia, Blue Mosque,...",
         "summary": "Tour Topkapi Palace and explore the 4,000 shops of the Grand Bazaar and Spice Market.",
         "activities": [
           "Guided tour inside Hagia Sophia, Blue Mosque, and the subterranean Basilica Cistern.",
@@ -914,7 +875,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Short domestic flight to Cappadocia, transfer...",
+        "title": "Day 3: Short domestic flight to Cappadocia, transfer...",
         "summary": "Explore Göreme Open-Air Museum's rock-cut fresco churches and Uchisar Castle viewpoint.",
         "activities": [
           "Short domestic flight to Cappadocia, transfer to authentic luxury Stone Cave Hotel in Göreme.",
@@ -926,7 +887,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Pre-dawn pickup for 1-hour Sunrise Hot Air Ba...",
+        "title": "Day 4: Pre-dawn pickup for 1-hour Sunrise Hot Air Ba...",
         "summary": "Explore the ancient multi-level Derinkuyu Underground City and Avanos pottery workshop.",
         "activities": [
           "Pre-dawn pickup for 1-hour Sunrise Hot Air Balloon Flight over fairy chimneys with champagne toast.",
@@ -938,7 +899,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Turkish breakfast buffet on cave terrace, tra...",
+        "title": "Day 5: Turkish breakfast buffet on cave terrace, tra...",
         "summary": "Connect to your return flight to Dubai DXB.",
         "activities": [
           "Turkish breakfast buffet on cave terrace, transfer to airport for domestic flight to Istanbul.",
@@ -1007,7 +968,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive at Ngurah Rai International Airport (D...",
+        "title": "Day 1: Arrive at Ngurah Rai International Airport (D...",
         "summary": "Check into your private luxury pool villa surrounded by tropical palm trees. Welcome tropi",
         "activities": [
           "Arrive at Ngurah Rai International Airport (DPS) in Bali from Dubai. Private VIP flower-garland welcome and transfer to Ubud.",
@@ -1019,7 +980,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Floating breakfast served in your private inf...",
+        "title": "Day 2: Floating breakfast served in your private inf...",
         "summary": "Experience the famous Bali Jungle Swing and visit the sacred monkey forest sanctuary in ce",
         "activities": [
           "Floating breakfast served in your private infinity pool followed by a visit to Tegallalang emerald rice terraces.",
@@ -1031,7 +992,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Early morning executive speedboat transfer fr...",
+        "title": "Day 3: Early morning executive speedboat transfer fr...",
         "summary": "Tour iconic Kelingking Beach (T-Rex cliff), Angel's Billabong natural infinity pool, and B",
         "activities": [
           "Early morning executive speedboat transfer from Sanur Harbour to the breathtaking island of Nusa Penida.",
@@ -1043,7 +1004,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Relax on Seminyak beach, enjoy poolside caban...",
+        "title": "Day 4: Relax on Seminyak beach, enjoy poolside caban...",
         "summary": "Scenic coastal drive to Uluwatu Temple perched on a 70-meter limestone cliff above crashin",
         "activities": [
           "Relax on Seminyak beach, enjoy poolside cabana cocktails or optional traditional Balinese massage.",
@@ -1055,7 +1016,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Leisure morning for boutique shopping along S...",
+        "title": "Day 5: Leisure morning for boutique shopping along S...",
         "summary": "Visit Tanah Lot water temple standing proudly on an offshore sea rock.",
         "activities": [
           "Leisure morning for boutique shopping along Seminyak Square and beach club relaxation at Potato Head or Café del Mar.",
@@ -1067,7 +1028,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Breakfast buffet, hotel check-out assistance,...",
+        "title": "Day 6: Breakfast buffet, hotel check-out assistance,...",
         "summary": "Board Emirates direct flight back to Dubai DXB.",
         "activities": [
           "Breakfast buffet, hotel check-out assistance, and private transfer to Denpasar Airport.",
@@ -1135,7 +1096,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Direct flight from Dubai (DXB) to Tokyo Haned...",
+        "title": "Day 1: Direct flight from Dubai (DXB) to Tokyo Haned...",
         "summary": "Check into 4★/5★ central hotel (Shinjuku/Ginza), relax, and stroll the illuminated streets",
         "activities": [
           "Direct flight from Dubai (DXB) to Tokyo Haneda/Narita. Meet private English-speaking airport host and transfer to central Tokyo hotel.",
@@ -1147,7 +1108,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Guided tour of ancient Senso-ji Temple in Asa...",
+        "title": "Day 2: Guided tour of ancient Senso-ji Temple in Asa...",
         "summary": "Visit digital art museum teamLab Planets and cross the famous Shibuya Scramble Crossing; a",
         "activities": [
           "Guided tour of ancient Senso-ji Temple in Asakusa and stroll Nakamise shopping street.",
@@ -1159,7 +1120,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Depart Tokyo towards Mount Fuji; ascend to Mt...",
+        "title": "Day 3: Depart Tokyo towards Mount Fuji; ascend to Mt...",
         "summary": "Cruise across volcanic Lake Ashi on a pirate ship and ride the Hakone Ropeway cable car ov",
         "activities": [
           "Depart Tokyo towards Mount Fuji; ascend to Mt. Fuji 5th Station (2,300m) for panoramic views.",
@@ -1171,7 +1132,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Board the world-famous Shinkansen (Bullet Tra...",
+        "title": "Day 4: Board the world-famous Shinkansen (Bullet Tra...",
         "summary": "Walk through the thousands of vermilion torii gates at Fushimi Inari Shrine and visit Kiyo",
         "activities": [
           "Board the world-famous Shinkansen (Bullet Train) from Odawara to the ancient imperial capital of Kyoto (2 hours).",
@@ -1183,7 +1144,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Visit the shimmering Kinkaku-ji (Golden Pavil...",
+        "title": "Day 5: Visit the shimmering Kinkaku-ji (Golden Pavil...",
         "summary": "Wander through the towering Arashiyama Bamboo Grove and cross the historic Togetsukyo Brid",
         "activities": [
           "Visit the shimmering Kinkaku-ji (Golden Pavilion) and meditate in Ryoan-ji Zen rock garden.",
@@ -1195,7 +1156,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Short train excursion to Nara Park; interact ...",
+        "title": "Day 6: Short train excursion to Nara Park; interact ...",
         "summary": "Transfer to dynamic Osaka; check into hotel and visit Osaka Castle park.",
         "activities": [
           "Short train excursion to Nara Park; interact with over 1,000 friendly sacred bowing deer and visit Todai-ji Great Buddha temple.",
@@ -1207,7 +1168,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Free day for shopping in Shinsaibashi or opti...",
+        "title": "Day 7: Free day for shopping in Shinsaibashi or opti...",
         "summary": "Visit Umeda Sky Building Floating Garden Observatory for 360° views over Osaka Bay.",
         "activities": [
           "Free day for shopping in Shinsaibashi or optional day tour to Universal Studios Japan (Super Nintendo World).",
@@ -1219,7 +1180,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 8,
-        "title": "Day 8 — Breakfast, hotel check-out, and private trans...",
+        "title": "Day 8: Breakfast, hotel check-out, and private trans...",
         "summary": "Board direct return flight to Dubai DXB.",
         "activities": [
           "Breakfast, hotel check-out, and private transfer to Kansai International Airport (KIX) or Tokyo Haneda.",
@@ -1286,7 +1247,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Fly direct DXB to Paris Charles de Gaulle (CD...",
+        "title": "Day 1: Fly direct DXB to Paris Charles de Gaulle (CD...",
         "summary": "Check into central 4★ Opera/Louvre boutique hotel, freshen up, and stroll along Boulevard ",
         "activities": [
           "Fly direct DXB to Paris Charles de Gaulle (CDG). Meet private Mercedes chauffeur at arrivals for hotel transfer.",
@@ -1298,7 +1259,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Priority Eiffel Tower summit ascent with pano...",
+        "title": "Day 2: Priority Eiffel Tower summit ascent with pano...",
         "summary": "Guided walking tour through the Louvre Museum (Mona Lisa, Venus de Milo) and Tuileries Gar",
         "activities": [
           "Priority Eiffel Tower summit ascent with panoramic vistas over the Parisian rooftops.",
@@ -1310,7 +1271,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Half-day excursion to the Palace of Versaille...",
+        "title": "Day 3: Half-day excursion to the Palace of Versaille...",
         "summary": "Explore Montmartre artists' square and the white domes of Sacré-Cœur basilica.",
         "activities": [
           "Half-day excursion to the Palace of Versailles; tour the Hall of Mirrors and royal fountains.",
@@ -1322,7 +1283,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Board First-Class TGV High Speed Train from P...",
+        "title": "Day 4: Board First-Class TGV High Speed Train from P...",
         "summary": "Check into seaside hotel on the Promenade des Anglais; relax on pebble beaches overlooking",
         "activities": [
           "Board First-Class TGV High Speed Train from Paris Gare de Lyon to Nice-Ville (5 hours).",
@@ -1334,7 +1295,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Scenic coastal drive along the Moyenne Cornic...",
+        "title": "Day 5: Scenic coastal drive along the Moyenne Cornic...",
         "summary": "Tour the Principality of Monaco, Prince's Palace, Formula 1 Grand Prix circuit, and Monte ",
         "activities": [
           "Scenic coastal drive along the Moyenne Corniche to Èze cliffside medieval village and perfume factory.",
@@ -1346,7 +1307,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Leisure morning for shopping on Avenue Jean M...",
+        "title": "Day 6: Leisure morning for shopping on Avenue Jean M...",
         "summary": "Explore Castle Hill (Colline du Château) for the iconic postcard view of Nice bay.",
         "activities": [
           "Leisure morning for shopping on Avenue Jean Médecin or beach club relaxation in Nice.",
@@ -1358,7 +1319,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Breakfast, hotel check-out, and private airpo...",
+        "title": "Day 7: Breakfast, hotel check-out, and private airpo...",
         "summary": "Board Emirates direct flight back to Dubai DXB.",
         "activities": [
           "Breakfast, hotel check-out, and private airport transfer to Nice Côte d'Azur Airport (NCE).",
@@ -1426,7 +1387,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Fly direct DXB to Rome Fiumicino (FCO). VIP p...",
+        "title": "Day 1: Fly direct DXB to Rome Fiumicino (FCO). VIP p...",
         "summary": "Check into 4★ central hotel near Piazza Navona; relax with authentic Italian espresso.",
         "activities": [
           "Fly direct DXB to Rome Fiumicino (FCO). VIP private Mercedes transfer to central Rome hotel.",
@@ -1438,7 +1399,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Skip-the-line guided tour inside the Colosseu...",
+        "title": "Day 2: Skip-the-line guided tour inside the Colosseu...",
         "summary": "Visit Vatican City: St. Peter's Basilica, Vatican Museums, and Michelangelo's Sistine Chap",
         "activities": [
           "Skip-the-line guided tour inside the Colosseum, Roman Forum, and Palatine Hill.",
@@ -1450,7 +1411,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Board the 300 km/h Frecciarossa high-speed bu...",
+        "title": "Day 3: Board the 300 km/h Frecciarossa high-speed bu...",
         "summary": "Guided tour of Florence: Santa Maria del Fiore Duomo, Giotto's Bell Tower, and Ponte Vecch",
         "activities": [
           "Board the 300 km/h Frecciarossa high-speed bullet train from Rome Termini to Florence Santa Maria Novella (1.5 hours).",
@@ -1462,7 +1423,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Half-day Tuscan excursion to the famous Mirac...",
+        "title": "Day 4: Half-day Tuscan excursion to the famous Mirac...",
         "summary": "Visit a traditional Tuscan olive grove and farm for olive oil tasting.",
         "activities": [
           "Half-day Tuscan excursion to the famous Miracle Square to photograph the Leaning Tower of Pisa.",
@@ -1474,7 +1435,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — High-speed Frecciarossa train from Florence t...",
+        "title": "Day 5: High-speed Frecciarossa train from Florence t...",
         "summary": "Private water taxi transfer down the Grand Canal to your historic canal-side hotel in Veni",
         "activities": [
           "High-speed Frecciarossa train from Florence to Venice Santa Lucia railway station (2 hours).",
@@ -1486,7 +1447,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Guided tour of St. Mark's Square (Piazza San ...",
+        "title": "Day 6: Guided tour of St. Mark's Square (Piazza San ...",
         "summary": "Boat excursion to Murano island for glassblowing demonstration and colorful Burano lace vi",
         "activities": [
           "Guided tour of St. Mark's Square (Piazza San Marco), St. Mark's Basilica, and Doge's Palace.",
@@ -1498,7 +1459,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Breakfast overlooking the canal, hotel check-...",
+        "title": "Day 7: Breakfast overlooking the canal, hotel check-...",
         "summary": "Board direct Emirates return flight to Dubai DXB.",
         "activities": [
           "Breakfast overlooking the canal, hotel check-out, and private water taxi to Venice Marco Polo Airport (VCE).",
@@ -1568,7 +1529,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Direct flight from Dubai DXB to Athens Intern...",
+        "title": "Day 1: Direct flight from Dubai DXB to Athens Intern...",
         "summary": "Check into 4★ boutique hotel near Syntagma Square; stroll through Monastiraki flea market.",
         "activities": [
           "Direct flight from Dubai DXB to Athens International Airport (ATH). Meet private chauffeur and transfer to central Athens hotel.",
@@ -1580,7 +1541,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Skip-the-line guided walking tour of the Acro...",
+        "title": "Day 2: Skip-the-line guided walking tour of the Acro...",
         "summary": "Explore the modern Acropolis Museum and wander the charming cobblestone streets of Plaka.",
         "activities": [
           "Skip-the-line guided walking tour of the Acropolis, Parthenon, Temple of Athena Nike, and Theater of Dionysus.",
@@ -1592,7 +1553,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Private transfer to Piraeus Port; board the h...",
+        "title": "Day 3: Private transfer to Piraeus Port; board the h...",
         "summary": "Breathtaking arrival into Santorini Athinios Port; private luxury transfer up the cliffsid",
         "activities": [
           "Private transfer to Piraeus Port; board the high-speed Seajets ferry across the Aegean Sea to Santorini (4.5 hours).",
@@ -1604,7 +1565,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Leisure morning exploring the whitewashed ped...",
+        "title": "Day 4: Leisure morning exploring the whitewashed ped...",
         "summary": "Board a 5-hour Sunset Catamaran Cruise: swim in volcanic Nea Kameni hot springs, snorkel a",
         "activities": [
           "Leisure morning exploring the whitewashed pedestrian alleys, blue-domed churches, and boutiques of Fira and Imerovigli.",
@@ -1616,7 +1577,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Visit the prehistoric Akrotiri archaeological...",
+        "title": "Day 5: Visit the prehistoric Akrotiri archaeological...",
         "summary": "Drive to the northern village of Oia; take postcard photos of the 3 blue domes and windmil",
         "activities": [
           "Visit the prehistoric Akrotiri archaeological site and relax on the volcanic Perissa Black Sand Beach.",
@@ -1628,7 +1589,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Greek champagne breakfast overlooking the cal...",
+        "title": "Day 6: Greek champagne breakfast overlooking the cal...",
         "summary": "Private transfer to Santorini Airport (JTR) for short flight connection to Dubai.",
         "activities": [
           "Greek champagne breakfast overlooking the caldera, souvenir shopping, and hotel checkout.",
@@ -1696,7 +1657,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Direct 3.5h flight DXB to Cairo International...",
+        "title": "Day 1: Direct 3.5h flight DXB to Cairo International...",
         "summary": "Check in and relax by the pool overlooking the Giza plateau.",
         "activities": [
           "Direct 3.5h flight DXB to Cairo International Airport (CAI). VIP airport meet and assistance, private transfer to 5★ Pyramids-view hotel.",
@@ -1708,7 +1669,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Guided tour of the Great Pyramids of Giza (Kh...",
+        "title": "Day 2: Guided tour of the Great Pyramids of Giza (Kh...",
         "summary": "Visit the Grand Egyptian Museum (GEM) and National Museum of Egyptian Civilization (NMEC).",
         "activities": [
           "Guided tour of the Great Pyramids of Giza (Khufu, Khafre, Menkaure), the Great Sphinx, and Valley Temple with optional camel ride.",
@@ -1720,7 +1681,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Domestic flight Cairo to Aswan; board 5★ Luxu...",
+        "title": "Day 3: Domestic flight Cairo to Aswan; board 5★ Luxu...",
         "summary": "Tour the Aswan High Dam, Unfinished Obelisk, and take a motorboat to the island Temple of ",
         "activities": [
           "Domestic flight Cairo to Aswan; board 5★ Luxury Nile Cruise ship and check into outside river-view cabin.",
@@ -1732,7 +1693,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Sail to Kom Ombo; guided tour of the unique d...",
+        "title": "Day 4: Sail to Kom Ombo; guided tour of the unique d...",
         "summary": "Sail through the Nile valley to Edfu; horse-and-carriage ride to the remarkably preserved ",
         "activities": [
           "Sail to Kom Ombo; guided tour of the unique dual Temple of Sobek the crocodile god and Horus.",
@@ -1744,7 +1705,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Arrive in Luxor: cross to the West Bank to ex...",
+        "title": "Day 5: Arrive in Luxor: cross to the West Bank to ex...",
         "summary": "Tour the East Bank: monumental Karnak Temple complex and Luxor Temple on the riverfront.",
         "activities": [
           "Arrive in Luxor: cross to the West Bank to explore the Valley of the Kings (royal tombs), Temple of Queen Hatshepsut, and Colossi of Memnon.",
@@ -1756,7 +1717,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Optional sunrise Hot Air Balloon flight over ...",
+        "title": "Day 6: Optional sunrise Hot Air Balloon flight over ...",
         "summary": "Private transfer to Luxor Airport for domestic flight to Cairo and connection back to Duba",
         "activities": [
           "Optional sunrise Hot Air Balloon flight over Luxor temples; cruise checkout.",
@@ -1814,7 +1775,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Fly Dubai to Nairobi & Scenic Drive to Masai Mara",
+        "title": "Day 1: Fly Dubai to Nairobi & Scenic Drive to Masai Mara",
         "summary": "Arrive in Nairobi, meet your private safari guide and travel through the Great Rift Valley to your luxury Mara camp.",
         "activities": [
           "Direct flight from Dubai DXB to Jomo Kenyatta International Airport (NBO) in Nairobi.",
@@ -1827,7 +1788,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Full Day Big-5 Safari in Masai Mara Reserve",
+        "title": "Day 2: Full Day Big-5 Safari in Masai Mara Reserve",
         "summary": "Full day deep game drive across the savannah with bush picnic lunch near the hippo pools.",
         "activities": [
           "Early morning game drive at golden hour when predators are most active.",
@@ -1841,7 +1802,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Maasai Village Cultural Visit & Mara Wildlife",
+        "title": "Day 3: Maasai Village Cultural Visit & Mara Wildlife",
         "summary": "Experience the culture of the Maasai tribe and enjoy an afternoon specialized game drive.",
         "activities": [
           "Morning visit to an authentic Maasai Boma village to learn ancient traditions, beadwork, and jumping rituals.",
@@ -1854,7 +1815,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Bush Flight to Tropical Diani Beach",
+        "title": "Day 4: Bush Flight to Tropical Diani Beach",
         "summary": "Fly from the savannah directly to the warm turquoise waters of the Indian Ocean.",
         "activities": [
           "Sunrise breakfast overlooking the savannah, then transfer to the bush airstrip.",
@@ -1867,7 +1828,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Diani Beach Leisure & Snorkeling Lagoon Tour",
+        "title": "Day 5: Diani Beach Leisure & Snorkeling Lagoon Tour",
         "summary": "Relax on Africa's finest white sand beach or embark on a traditional dhow coral reef cruise.",
         "activities": [
           "Full day at leisure on Diani's world-renowned powder-white sands.",
@@ -1879,7 +1840,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Mombasa Departure to Dubai",
+        "title": "Day 6: Mombasa Departure to Dubai",
         "summary": "Final morning swim and tropical breakfast before transfer to Mombasa airport.",
         "activities": [
           "Morning beach walk and buffet breakfast.",
@@ -1937,7 +1898,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Phuket & Check-in to Beach Resort",
+        "title": "Day 1: Arrive in Phuket & Check-in to Beach Resort",
         "summary": "Land in tropical Phuket, private transfer to your 5-star resort in Patong/Kata Beach.",
         "activities": [
           "Direct flight from Dubai DXB to Phuket International Airport (HKT).",
@@ -1949,7 +1910,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Phi Phi Islands & Maya Bay VIP Speedboat Tour",
+        "title": "Day 2: Phi Phi Islands & Maya Bay VIP Speedboat Tour",
         "summary": "Full-day premium island hopping tour with snorkeling in crystal clear waters.",
         "activities": [
           "Board luxury speedboat to Phi Phi Don and Phi Phi Leh.",
@@ -1962,7 +1923,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Scenic Transfer to Krabi & Sunset Beach Walk",
+        "title": "Day 3: Scenic Transfer to Krabi & Sunset Beach Walk",
         "summary": "Travel by private vehicle or ferry to Krabi's dramatic limestone cliff coastline.",
         "activities": [
           "Scenic transfer from Phuket to Ao Nang / Railay Beach, Krabi.",
@@ -1974,7 +1935,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Krabi 4 Islands & Phra Nang Cave Lagoon",
+        "title": "Day 4: Krabi 4 Islands & Phra Nang Cave Lagoon",
         "summary": "Discover pristine sandbars connecting islands at low tide and holy cave shrines.",
         "activities": [
           "Tour Tup Island, Mor Island, Chicken Island, and Poda Island.",
@@ -1986,7 +1947,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Fly to Bangkok & Chao Phraya Dinner Cruise",
+        "title": "Day 5: Fly to Bangkok & Chao Phraya Dinner Cruise",
         "summary": "Short domestic flight to Thailand's vibrant capital for skyline dining.",
         "activities": [
           "Morning transfer to Krabi Airport; fly to Bangkok (BKK).",
@@ -1998,7 +1959,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Bangkok Grand Palace & Shopping Extravaganza",
+        "title": "Day 6: Bangkok Grand Palace & Shopping Extravaganza",
         "summary": "Marvel at golden temples and shop at ICONSIAM, Siam Paragon, and CentralWorld.",
         "activities": [
           "Guided tour of the Royal Grand Palace and the Temple of the Emerald Buddha (Wat Phra Kaew).",
@@ -2010,7 +1971,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Departure from Bangkok to Dubai",
+        "title": "Day 7: Departure from Bangkok to Dubai",
         "summary": "Final Thai massage or souvenir shopping before direct flight home to Dubai.",
         "activities": [
           "Breakfast at hotel; leisure time for last-minute shopping.",
@@ -2068,7 +2029,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in London & West End Exploration",
+        "title": "Day 1: Arrive in London & West End Exploration",
         "summary": "Touchdown in London Heathrow, private chauffeur transfer to your central hotel.",
         "activities": [
           "Flight from Dubai DXB to London Heathrow (LHR).",
@@ -2080,7 +2041,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — London Royalty, Westminster & Tower of London",
+        "title": "Day 2: London Royalty, Westminster & Tower of London",
         "summary": "Iconic landmarks day covering Buckingham Palace, Thames cruise, and Crown Jewels.",
         "activities": [
           "Witness Changing of the Guard at Buckingham Palace.",
@@ -2092,7 +2053,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Windsor Castle & Shopping on Oxford Street",
+        "title": "Day 3: Windsor Castle & Shopping on Oxford Street",
         "summary": "Morning trip to the world's oldest occupied castle, afternoon luxury shopping.",
         "activities": [
           "Excursion to Royal Windsor Castle, St George's Chapel, and State Apartments.",
@@ -2104,7 +2065,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — High-Speed Scenic Train to Edinburgh, Scotland",
+        "title": "Day 4: High-Speed Scenic Train to Edinburgh, Scotland",
         "summary": "Travel north along the east coast to the medieval Scottish capital.",
         "activities": [
           "Board high-speed train from King's Cross to Edinburgh Waverley.",
@@ -2116,7 +2077,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Edinburgh Castle & Underground Vaults",
+        "title": "Day 5: Edinburgh Castle & Underground Vaults",
         "summary": "Tour Scotland's most famous fortress and learn eerie historic tales.",
         "activities": [
           "Morning tour of Edinburgh Castle perched atop volcanic Castle Rock.",
@@ -2128,7 +2089,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Full Day Scottish Highlands & Loch Ness Tour",
+        "title": "Day 6: Full Day Scottish Highlands & Loch Ness Tour",
         "summary": "Witness Glencoe's epic mountain valleys and cruise Loch Ness.",
         "activities": [
           "Drive past Stirling Castle into the heart of the dramatic Scottish Highlands.",
@@ -2141,7 +2102,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Edinburgh / London Departure to Dubai",
+        "title": "Day 7: Edinburgh / London Departure to Dubai",
         "summary": "Final Scottish shortbread shopping and private airport transfer for flight home.",
         "activities": [
           "Breakfast and free time for souvenir shopping on George Street.",
@@ -2199,7 +2160,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Hanoi & French Quarter Orientation",
+        "title": "Day 1: Arrive in Hanoi & French Quarter Orientation",
         "summary": "Land in Vietnam's millennium-old capital, private transfer to luxury hotel.",
         "activities": [
           "Direct flight from Dubai DXB to Noi Bai International Airport (HAN) in Hanoi.",
@@ -2211,7 +2172,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Hanoi City Heritage & Water Puppet Show",
+        "title": "Day 2: Hanoi City Heritage & Water Puppet Show",
         "summary": "Explore iconic historical landmarks, temples, and authentic Vietnamese cuisine.",
         "activities": [
           "Visit the Ho Chi Minh Mausoleum complex, One Pillar Pagoda, and Temple of Literature (Vietnam's first university).",
@@ -2223,7 +2184,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Luxury Limousine to Halong Bay & Board 5★ Cruise",
+        "title": "Day 3: Luxury Limousine to Halong Bay & Board 5★ Cruise",
         "summary": "Board your 5-star cruise ship and sail into the heart of the UNESCO World Heritage Bay.",
         "activities": [
           "Executive limousine transfer through the Red River Delta to Halong Bay marina.",
@@ -2237,7 +2198,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Sunrise Tai Chi, Surprise Cave & Return to Hanoi",
+        "title": "Day 4: Sunrise Tai Chi, Surprise Cave & Return to Hanoi",
         "summary": "Morning Tai Chi on sundeck, explore gigantic illuminated cave, cruise back to port.",
         "activities": [
           "Sunrise Tai Chi session on the sun deck as morning mist drifts across the karsts.",
@@ -2250,7 +2211,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Ninh Binh & Trang An UNESCO Grotto Boat Ride",
+        "title": "Day 5: Ninh Binh & Trang An UNESCO Grotto Boat Ride",
         "summary": "Discover 'Halong Bay on Land' with towering limestone peaks rising out of rice paddies.",
         "activities": [
           "Travel to Ninh Binh province; visit monumental Bai Dinh Pagoda complex.",
@@ -2262,7 +2223,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Souvenir Shopping & Hanoi Departure to Dubai",
+        "title": "Day 6: Souvenir Shopping & Hanoi Departure to Dubai",
         "summary": "Final shopping for silk, coffee, and lacquerware before direct flight home.",
         "activities": [
           "Morning leisure walk and shopping at Dong Xuan market.",
@@ -2319,7 +2280,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Vienna & Ringstrasse Evening Stroll",
+        "title": "Day 1: Arrive in Vienna & Ringstrasse Evening Stroll",
         "summary": "Land in Austria's imperial capital, private airport transfer to luxury hotel.",
         "activities": [
           "Direct flight from Dubai DXB to Vienna International Airport (VIE).",
@@ -2331,7 +2292,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Schönbrunn Imperial Palace & Viennese Coffee Culture",
+        "title": "Day 2: Schönbrunn Imperial Palace & Viennese Coffee Culture",
         "summary": "Explore royal Habsburg history and indulge in famous Sachertorte cake.",
         "activities": [
           "Grand tour of Schönbrunn Palace's opulent imperial staterooms and Gloriette gardens.",
@@ -2343,7 +2304,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — First-Class Railjet to Mozart's Salzburg",
+        "title": "Day 3: First-Class Railjet to Mozart's Salzburg",
         "summary": "Scenic high-speed train journey across Austria to the baroque city of Salzburg.",
         "activities": [
           "Board Austrian Railjet train through lush green rolling hills and mountains to Salzburg.",
@@ -2355,7 +2316,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Fairytale Hallstatt Lake & Alpine Skywalk",
+        "title": "Day 4: Fairytale Hallstatt Lake & Alpine Skywalk",
         "summary": "Excursion to Austria's most picturesque alpine village nestled beside a glacial lake.",
         "activities": [
           "Scenic drive through the Salzkammergut Lake District to Hallstatt.",
@@ -2368,7 +2329,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Salzburg / Vienna Departure to Dubai",
+        "title": "Day 5: Salzburg / Vienna Departure to Dubai",
         "summary": "Final morning souvenir shopping for Mozartkugeln chocolates before flight home.",
         "activities": [
           "Breakfast and morning leisure in Salzburg.",
@@ -2424,7 +2385,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Prague & Old Town Square Evening",
+        "title": "Day 1: Arrive in Prague & Old Town Square Evening",
         "summary": "Land in Prague, private transfer to boutique hotel, evening Astronomical Clock show.",
         "activities": [
           "Direct flight from Dubai DXB to Václav Havel Airport Prague (PRG).",
@@ -2436,7 +2397,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Prague Castle, Charles Bridge & Vltava Jazz Cruise",
+        "title": "Day 2: Prague Castle, Charles Bridge & Vltava Jazz Cruise",
         "summary": "Comprehensive guided tour of the castle, gothic bridge, and river dinner cruise.",
         "activities": [
           "Cross the iconic statue-lined Charles Bridge early before crowds.",
@@ -2449,7 +2410,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Full-Day Český Krumlov Medieval Excursion",
+        "title": "Day 3: Full-Day Český Krumlov Medieval Excursion",
         "summary": "Travel to southern Bohemia's UNESCO fairytale river-bend castle town.",
         "activities": [
           "Scenic coach drive through Bohemian countryside to Český Krumlov.",
@@ -2462,7 +2423,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Bohemian Crystal Shopping & Flight to Dubai",
+        "title": "Day 4: Bohemian Crystal Shopping & Flight to Dubai",
         "summary": "Final morning for crystal souvenirs before airport transfer.",
         "activities": [
           "Breakfast at hotel; shop for famous Bohemian crystal and garnet jewelry on Wenceslas Square.",
@@ -2519,7 +2480,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Marrakech & Jemaa el-Fna Square",
+        "title": "Day 1: Arrive in Marrakech & Jemaa el-Fna Square",
         "summary": "Arrive in Marrakech, check into a traditional luxury riad with central courtyard.",
         "activities": [
           "Flight from Dubai DXB to Marrakech Menara Airport (RAK).",
@@ -2531,7 +2492,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Marrakech Palaces, Majorelle Garden & Souks",
+        "title": "Day 2: Marrakech Palaces, Majorelle Garden & Souks",
         "summary": "Explore Yves Saint Laurent's garden, opulent palaces, and labyrinthine artisan souks.",
         "activities": [
           "Visit the vibrant cobalt blue Jardin Majorelle and the Berber Culture Museum.",
@@ -2543,7 +2504,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Cross High Atlas Mountains to Ait Ben Haddou & Dades",
+        "title": "Day 3: Cross High Atlas Mountains to Ait Ben Haddou & Dades",
         "summary": "Ascend the 2,260m Tizi n'Tichka pass to ancient cinematic mudbrick fortresses.",
         "activities": [
           "Drive over the spectacular High Atlas Mountains with panoramic summit stops.",
@@ -2555,7 +2516,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Todra Gorge & Sahara Dunes Luxury Glamping",
+        "title": "Day 4: Todra Gorge & Sahara Dunes Luxury Glamping",
         "summary": "Walk beneath 300m Todra canyon walls and ride camels into the golden Erg Chebbi dunes.",
         "activities": [
           "Walk through the towering rock canyon of Todra Gorge.",
@@ -2568,7 +2529,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Sunrise over Sahara & Return to Marrakech",
+        "title": "Day 5: Sunrise over Sahara & Return to Marrakech",
         "summary": "Watch sunrise over the sea of sand, 4x4 drive back through Ouarzazate to Marrakech.",
         "activities": [
           "Climb the crest of the dunes to witness a glorious golden Sahara sunrise.",
@@ -2581,7 +2542,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Departure from Marrakech to Dubai",
+        "title": "Day 6: Departure from Marrakech to Dubai",
         "summary": "Final Moroccan breakfast and private airport transfer for flight home.",
         "activities": [
           "Breakfast at the Riad; leisure time for last-minute souvenir purchases.",
@@ -2638,7 +2599,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Colombo & Travel to Sigiriya",
+        "title": "Day 1: Arrive in Colombo & Travel to Sigiriya",
         "summary": "Arrive at Bandaranaike Airport, meet your private chauffeur-guide, travel to cultural triangle.",
         "activities": [
           "Direct 4-hour flight from Dubai DXB to Colombo Bandaranaike Airport (CMB).",
@@ -2650,7 +2611,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Climb Sigiriya Lion Rock & Dambulla Cave Temple",
+        "title": "Day 2: Climb Sigiriya Lion Rock & Dambulla Cave Temple",
         "summary": "Ascend the iconic sky citadel and explore 2,000-year-old painted cave monasteries.",
         "activities": [
           "Early morning climb up Sigiriya Lion Rock Fortress to view the palace ruins and 5th-century frescoes.",
@@ -2662,7 +2623,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Legendary Blue Train Ride to Alpine Ella",
+        "title": "Day 3: Legendary Blue Train Ride to Alpine Ella",
         "summary": "Board the world's most scenic train ride winding through tea carpets and mountain viaducts.",
         "activities": [
           "Visit a working Ceylon tea factory and tea plantation in Nuwara Eliya (Little England).",
@@ -2674,7 +2635,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Ravana Falls & Yala Leopard Jeep Safari",
+        "title": "Day 4: Ravana Falls & Yala Leopard Jeep Safari",
         "summary": "Descend to the southern coastal wilderness for an adrenaline-filled wildlife safari.",
         "activities": [
           "Visit cascading Ravana Waterfall for photography.",
@@ -2686,7 +2647,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Galle Dutch Fort & Bentota Beach",
+        "title": "Day 5: Galle Dutch Fort & Bentota Beach",
         "summary": "Travel along the golden southern coast, explore 17th-century colonial ramparts.",
         "activities": [
           "Drive along the southern coastline; visit UNESCO-listed Galle Dutch Fort with lighthouse and cobblestone boutiques.",
@@ -2698,7 +2659,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Colombo City Tour & Departure to Dubai",
+        "title": "Day 6: Colombo City Tour & Departure to Dubai",
         "summary": "Brief city highlights of Colombo before direct flight back to Dubai.",
         "activities": [
           "Orientation tour of Colombo: Independence Square, Gangaramaya Temple, and Galle Face Green.",
@@ -2756,7 +2717,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Singapore & Marina Bay Evening Light Show",
+        "title": "Day 1: Arrive in Singapore & Marina Bay Evening Light Show",
         "summary": "Land at award-winning Changi Airport, private transfer to luxury hotel, Spectra water show.",
         "activities": [
           "Direct flight from Dubai DXB to Singapore Changi Airport (SIN).",
@@ -2768,7 +2729,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Gardens by the Bay & Sentosa Island Cable Car",
+        "title": "Day 2: Gardens by the Bay & Sentosa Island Cable Car",
         "summary": "Futuristic botanical domes, sky bridges, and tropical island entertainment.",
         "activities": [
           "Visit Gardens by the Bay Cloud Forest misty waterfall and Flower Dome.",
@@ -2780,7 +2741,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Singapore City Heritage & Cross Border to Kuala Lumpur",
+        "title": "Day 3: Singapore City Heritage & Cross Border to Kuala Lumpur",
         "summary": "Chinatown and Little India highlights, then scenic luxury coach to Malaysia.",
         "activities": [
           "Morning tour of Merlion Park, Chinatown Heritage Centre, and Little India.",
@@ -2792,7 +2753,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Petronas Twin Towers & KL City Exploration",
+        "title": "Day 4: Petronas Twin Towers & KL City Exploration",
         "summary": "Ascend the iconic twin towers and sample street gastronomy at Jalan Alor.",
         "activities": [
           "Visit Petronas Twin Towers Skybridge (41st floor) and 86th floor observation deck.",
@@ -2804,7 +2765,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Batu Caves Rainbow Stairway & Genting Highlands",
+        "title": "Day 5: Batu Caves Rainbow Stairway & Genting Highlands",
         "summary": "Climb the colorful 272 steps at Batu Caves and ride the mountain skyway gondola.",
         "activities": [
           "Visit the monumental golden Lord Murugan statue and 272 colorful steps of Batu Caves.",
@@ -2816,7 +2777,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Shopping at Pavilion KL & Flight to Dubai",
+        "title": "Day 6: Shopping at Pavilion KL & Flight to Dubai",
         "summary": "Duty-free luxury shopping at Bukit Bintang before airport transfer.",
         "activities": [
           "Breakfast at hotel; luxury shopping at Pavilion Mall and Suria KLCC.",
@@ -2874,7 +2835,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Seoul & Myeongdong Night Street Food",
+        "title": "Day 1: Arrive in Seoul & Myeongdong Night Street Food",
         "summary": "Land at Incheon Airport, private transfer to luxury hotel, vibrant street food walk.",
         "activities": [
           "Direct flight from Dubai DXB to Seoul Incheon International Airport (ICN).",
@@ -2886,7 +2847,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Gyeongbokgung Palace & Bukchon Hanok Village",
+        "title": "Day 2: Gyeongbokgung Palace & Bukchon Hanok Village",
         "summary": "Wear authentic Hanbok costumes, explore royal Joseon palaces and traditional wooden alleys.",
         "activities": [
           "Dress in authentic Hanbok costumes and explore Gyeongbokgung Palace, viewing the Royal Guard Changing Ceremony.",
@@ -2899,7 +2860,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Scenic Excursion to Nami Island & Garden of Morning Calm",
+        "title": "Day 3: Scenic Excursion to Nami Island & Garden of Morning Calm",
         "summary": "Ferry to picturesque tree-lined Nami Island and French cultural alpine village.",
         "activities": [
           "Ferry ride to romantic Nami Island, famous for its towering redwood and ginkgo tree avenues.",
@@ -2911,7 +2872,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Fly to Subtropical Jeju Island & Sunrise Peak",
+        "title": "Day 4: Fly to Subtropical Jeju Island & Sunrise Peak",
         "summary": "Short domestic flight to Korea's premier volcanic island and UNESCO wonder.",
         "activities": [
           "Morning transfer to Gimpo Airport; fly to Jeju International Airport (CJU).",
@@ -2924,7 +2885,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Jeju Waterfalls, Lava Tubes & Green Tea Plantation",
+        "title": "Day 5: Jeju Waterfalls, Lava Tubes & Green Tea Plantation",
         "summary": "Discover cascading waterfalls, ancient volcanic cave tubes, and Osulloc tea fields.",
         "activities": [
           "Walk through Manjanggul Cave, one of the world's finest natural lava tube systems.",
@@ -2937,7 +2898,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Souvenir Shopping & Departure to Dubai",
+        "title": "Day 6: Souvenir Shopping & Departure to Dubai",
         "summary": "Final Korean ginseng and confectionery shopping before direct flight home.",
         "activities": [
           "Breakfast at hotel; duty-free shopping at Lotte Department Store.",
@@ -2996,7 +2957,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Amman & Ancient Roman Jerash",
+        "title": "Day 1: Arrive in Amman & Ancient Roman Jerash",
         "summary": "Land at Queen Alia Airport, visit the Pompeii of the East in Jerash, check into Amman hotel.",
         "activities": [
           "Direct flight from Dubai DXB to Amman Queen Alia International Airport (AMM).",
@@ -3008,7 +2969,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Kings' Highway to the Rose-Red City of Petra",
+        "title": "Day 2: Kings' Highway to the Rose-Red City of Petra",
         "summary": "Drive along scenic biblical King's Highway, visit Madaba mosaics and Mount Nebo, arrive in Petra.",
         "activities": [
           "Visit Mount Nebo overlooking the Promised Land and the ancient Byzantine mosaic map in Madaba.",
@@ -3020,7 +2981,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Petra Exploration & Wadi Rum Star Dome Glamping",
+        "title": "Day 3: Petra Exploration & Wadi Rum Star Dome Glamping",
         "summary": "Enter the iconic Siq canyon, stand before the Treasury, and journey to the red sands of Wadi Rum.",
         "activities": [
           "Guided morning exploration of Petra: the Siq gorge, the monumental Treasury (Al-Khazneh), the Amphitheatre, and the Street of Facades.",
@@ -3033,7 +2994,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Wadi Rum Sunrise to the Dead Sea Luxury Resort",
+        "title": "Day 4: Wadi Rum Sunrise to the Dead Sea Luxury Resort",
         "summary": "Watch sunrise over red sandstone mountains, descend to the lowest point on Earth, float on the Dead Sea.",
         "activities": [
           "Sunrise camel ride or tea over desert dunes.",
@@ -3045,7 +3006,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Dead Sea Relaxation & Flight to Dubai",
+        "title": "Day 5: Dead Sea Relaxation & Flight to Dubai",
         "summary": "Morning leisure at the spa before airport transfer.",
         "activities": [
           "Breakfast overlooking the serene sea; morning infinity pool and beach access.",
@@ -3102,7 +3063,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Yerevan & Cascade Complex Sunset",
+        "title": "Day 1: Arrive in Yerevan & Cascade Complex Sunset",
         "summary": "Short 3-hour direct flight from Dubai, private transfer to hotel, walking tour of central Yerevan.",
         "activities": [
           "Fly direct from Dubai DXB or Sharjah SHJ to Yerevan Zvartnots Airport (EVN).",
@@ -3115,7 +3076,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Garni Greco-Roman Temple, Geghard Monastery & Lavash Baking",
+        "title": "Day 2: Garni Greco-Roman Temple, Geghard Monastery & Lavash Baking",
         "summary": "Classical colonnades, cliffside medieval caves, and traditional underground clay oven bread baking.",
         "activities": [
           "Drive through picturesque mountain passes to the 1st-century Hellenistic Temple of Garni.",
@@ -3128,7 +3089,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Lake Sevan Turquoise Waters & Tsaghkadzor Alpine Ropeway",
+        "title": "Day 3: Lake Sevan Turquoise Waters & Tsaghkadzor Alpine Ropeway",
         "summary": "Ascend to one of the world's highest freshwater lakes and ride mountain chairlifts.",
         "activities": [
           "Drive to Lake Sevan, known as the 'Emerald of Armenia' at 1,900m altitude.",
@@ -3141,7 +3102,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Vernissage Art Souvenir Market & Return to Dubai",
+        "title": "Day 4: Vernissage Art Souvenir Market & Return to Dubai",
         "summary": "Shop for handmade silver, rugs, and dried fruits before short flight back.",
         "activities": [
           "Morning shopping at the famous Vernissage open-air flea market and GUM food hall for dried peaches and walnuts.",
@@ -3197,7 +3158,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Almaty & Kok Tobe Hill Cable Car",
+        "title": "Day 1: Arrive in Almaty & Kok Tobe Hill Cable Car",
         "summary": "Direct flight from Dubai, private transfer, cable car to scenic hill overlook.",
         "activities": [
           "Direct flight from Dubai DXB to Almaty International Airport (ALA).",
@@ -3209,7 +3170,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Medeu High-Altitude Gorge & Shymbulak Alpine Resort",
+        "title": "Day 2: Medeu High-Altitude Gorge & Shymbulak Alpine Resort",
         "summary": "Glacial valleys, world-famous ice speed skating rink, and alpine cable car to 3,200m peak.",
         "activities": [
           "Drive to Medeu gorge and view the colossal Olympic high-altitude sports complex.",
@@ -3222,7 +3183,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Full-Day Expedition to Charyn Canyon Valley of Castles",
+        "title": "Day 3: Full-Day Expedition to Charyn Canyon Valley of Castles",
         "summary": "Journey across the steppe to the 80-million-year-old red sandstone canyon gorge.",
         "activities": [
           "Morning drive through scenic Kazakh steppe towards the Chinese border.",
@@ -3235,7 +3196,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Green Bazaar Gastronomy & Return to Dubai",
+        "title": "Day 4: Green Bazaar Gastronomy & Return to Dubai",
         "summary": "Sample dried apples, mountain honey, and horse-meat delicacies before flight.",
         "activities": [
           "Visit the colorful Green Bazaar to taste dried mountain fruit, nuts, honey, and local cheese.",
@@ -3292,7 +3253,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Tashkent & High-Speed Train to Samarkand",
+        "title": "Day 1: Arrive in Tashkent & High-Speed Train to Samarkand",
         "summary": "Direct flight from Dubai, private transfer to bullet train, arrive in legendary Samarkand.",
         "activities": [
           "Direct flight from Dubai DXB to Tashkent International Airport (TAS).",
@@ -3304,7 +3265,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Samarkand: Registan Square, Gur-e-Amir & Shah-i-Zinda",
+        "title": "Day 2: Samarkand: Registan Square, Gur-e-Amir & Shah-i-Zinda",
         "summary": "Full day discovering the pinnacle of Timurid Islamic architecture and azure necropolises.",
         "activities": [
           "Guided tour of Registan Square: Ulugh Beg, Sher-Dor, and Tilya-Kori Madrasahs.",
@@ -3317,7 +3278,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Bullet Train to Sacred Bukhara & Lyabi-Hauz",
+        "title": "Day 3: Bullet Train to Sacred Bukhara & Lyabi-Hauz",
         "summary": "Journey to Central Asia's holiest city with over 140 preserved medieval monuments.",
         "activities": [
           "Board high-speed train to Bukhara (1.5 hours).",
@@ -3330,7 +3291,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Bukhara Ark Citadel & Return Bullet Train to Tashkent",
+        "title": "Day 4: Bukhara Ark Citadel & Return Bullet Train to Tashkent",
         "summary": "Explore the massive mudbrick Fortress of the Emirs before returning to the capital.",
         "activities": [
           "Visit the massive 5th-century Ark Citadel, once a city within a city.",
@@ -3343,7 +3304,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Tashkent Metro Architecture, Chorsu Bazaar & Flight to Dubai",
+        "title": "Day 5: Tashkent Metro Architecture, Chorsu Bazaar & Flight to Dubai",
         "summary": "Ride the world's most ornate underground metro palaces before afternoon flight.",
         "activities": [
           "Ride the Tashkent Metro, viewing USSR-era chandelier and marble subway stations.",
@@ -3400,7 +3361,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Fly from Dubai to Kilimanjaro & Serengeti Plains",
+        "title": "Day 1: Fly from Dubai to Kilimanjaro & Serengeti Plains",
         "summary": "Direct flight, met by private safari ranger, game drive into central Serengeti.",
         "activities": [
           "Fly direct from Dubai DXB to Kilimanjaro Airport (JRO).",
@@ -3413,7 +3374,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Full Day Big-5 Serengeti Game Drive",
+        "title": "Day 2: Full Day Big-5 Serengeti Game Drive",
         "summary": "Sunrise to sunset tracking prides of lions, leopards in acacia trees, and vast wildebeest herds.",
         "activities": [
           "Early morning sunrise game drive when predators are most active.",
@@ -3426,7 +3387,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Ngorongoro Volcanic Crater Lost World Safari",
+        "title": "Day 3: Ngorongoro Volcanic Crater Lost World Safari",
         "summary": "Descend 600 meters into the crater floor teeming with over 25,000 large mammals.",
         "activities": [
           "Descend into Ngorongoro Crater, a natural sanctuary for black rhinos, flamingos, and giant tuskers.",
@@ -3439,7 +3400,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Zanzibar Turquoise Beach Relaxation & Dhow Sunset Cruise",
+        "title": "Day 4: Zanzibar Turquoise Beach Relaxation & Dhow Sunset Cruise",
         "summary": "Powder-soft white sands, crystal-clear warm waters, and traditional wooden sailing dhow.",
         "activities": [
           "Full day at leisure: swim in coral lagoons, sunbathe on non-tidal Nungwi beach, or indulge in beachfront spa.",
@@ -3450,7 +3411,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Stone Town UNESCO Heritage & Spice Farm Tour",
+        "title": "Day 5: Stone Town UNESCO Heritage & Spice Farm Tour",
         "summary": "Carved wooden doors, aromatic clove plantations, and Swahili coastal culture.",
         "activities": [
           "Guided tour of an organic spice farm tasting fresh vanilla, cinnamon, cloves, and nutmeg.",
@@ -3462,7 +3423,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Zanzibar to Dubai Direct Flight",
+        "title": "Day 6: Zanzibar to Dubai Direct Flight",
         "summary": "Final morning beach walk before direct flight home.",
         "activities": [
           "Breakfast overlooking the Indian Ocean.",
@@ -3519,7 +3480,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Mahé & Oceanfront Resort Check-In",
+        "title": "Day 1: Arrive in Mahé & Oceanfront Resort Check-In",
         "summary": "Direct flight from Dubai, private executive transfer to 5★ resort, tropical sunset.",
         "activities": [
           "Direct flight from Dubai DXB to Seychelles International Airport (SEZ) on Emirates.",
@@ -3531,7 +3492,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Mahé Island Tour: Victoria Clock Tower & Tea Plantation",
+        "title": "Day 2: Mahé Island Tour: Victoria Clock Tower & Tea Plantation",
         "summary": "Discover the miniature colonial capital, spice markets, and mountain viewpoints.",
         "activities": [
           "Guided morning tour of Victoria: Sir Selwyn Selwyn-Clarke market and Little Ben Clock Tower.",
@@ -3544,7 +3505,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Catamaran Island Cruise: Praslin & Vallée de Mai",
+        "title": "Day 3: Catamaran Island Cruise: Praslin & Vallée de Mai",
         "summary": "High-speed catamaran to Praslin, discover the prehistoric Coco de Mer forest.",
         "activities": [
           "Board high-speed Cat Cocos ferry or catamaran to Praslin Island (1 hour).",
@@ -3557,7 +3518,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — La Digue Island: Bicycle Tour & Anse Source d'Argent",
+        "title": "Day 4: La Digue Island: Bicycle Tour & Anse Source d'Argent",
         "summary": "Step back in time on La Digue; bicycle past vanilla plantations and iconic granite boulders.",
         "activities": [
           "Short ferry to relaxed La Digue Island where bicycles and ox-carts replace cars.",
@@ -3570,7 +3531,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Creole Souvenirs & Flight Back to Dubai",
+        "title": "Day 5: Creole Souvenirs & Flight Back to Dubai",
         "summary": "Final morning beach dip and tropical fruit breakfast before flight.",
         "activities": [
           "Champagne breakfast overlooking the ocean.",
@@ -3628,7 +3589,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Budapest & Danube Evening Illuminated Cruise",
+        "title": "Day 1: Arrive in Budapest & Danube Evening Illuminated Cruise",
         "summary": "Direct flight from Dubai, private transfer to hotel, breathtaking night cruise.",
         "activities": [
           "Direct flight from Dubai DXB to Budapest Ferenc Liszt International Airport (BUD).",
@@ -3640,7 +3601,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Buda Castle Hill, Fisherman's Bastion & Matthias Church",
+        "title": "Day 2: Buda Castle Hill, Fisherman's Bastion & Matthias Church",
         "summary": "Explore the medieval royal quarter and panoramic viewpoints over the Danube.",
         "activities": [
           "Ride the historic 1870 Castle Hill Funicular up to Buda Castle.",
@@ -3653,7 +3614,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Széchenyi Thermal Baths & Hero's Square",
+        "title": "Day 3: Széchenyi Thermal Baths & Hero's Square",
         "summary": "Relax in Europe's largest medical bath complex fed by natural hot thermal springs.",
         "activities": [
           "Morning visit to Heroes' Square and Vajdahunyad Castle in City Park.",
@@ -3665,7 +3626,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Great Market Hall Souvenirs & Flight to Dubai",
+        "title": "Day 4: Great Market Hall Souvenirs & Flight to Dubai",
         "summary": "Sample chimney cakes and artisan paprika before departure.",
         "activities": [
           "Explore the Great Market Hall, Budapest's largest 3-story indoor market hall.",
@@ -3723,7 +3684,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Sydney & Circular Quay Sunset",
+        "title": "Day 1: Arrive in Sydney & Circular Quay Sunset",
         "summary": "Fly from Dubai, private transfer to harbour hotel, stroll along the Opera House promenade.",
         "activities": [
           "Direct flight from Dubai DXB to Sydney Kingsford Smith Airport (SYD) on Emirates.",
@@ -3735,7 +3696,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Sydney Harbour Cruise & Bondi Beach Coastal Walk",
+        "title": "Day 2: Sydney Harbour Cruise & Bondi Beach Coastal Walk",
         "summary": "Catamaran cruise on the world's finest natural harbour and famous golden surf beaches.",
         "activities": [
           "Morning catamaran cruise on Sydney Harbour with 2-course seafood lunch.",
@@ -3747,7 +3708,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Blue Mountains World Heritage & Wildlife Sanctuary",
+        "title": "Day 3: Blue Mountains World Heritage & Wildlife Sanctuary",
         "summary": "Ancient eucalyptus valleys, the Three Sisters rock formation, and cuddly koalas.",
         "activities": [
           "Scenic drive into the UNESCO Blue Mountains National Park.",
@@ -3760,7 +3721,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Fly to Queensland's Gold Coast & Surfers Paradise",
+        "title": "Day 4: Fly to Queensland's Gold Coast & Surfers Paradise",
         "summary": "Short domestic flight to the sunshine state; check into 5★ beachfront resort.",
         "activities": [
           "Morning transfer to Sydney Airport; fly to Gold Coast Airport (OOL).",
@@ -3772,7 +3733,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Tamborine Mountain Rainforest & Glow Worm Caves",
+        "title": "Day 5: Tamborine Mountain Rainforest & Glow Worm Caves",
         "summary": "Explore lush subtropical rainforest canopies and boutique mountain galleries.",
         "activities": [
           "Day trip to Mount Tamborine rainforest hinterland.",
@@ -3785,7 +3746,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Gold Coast Beach Day or Theme Park Adventure",
+        "title": "Day 6: Gold Coast Beach Day or Theme Park Adventure",
         "summary": "Relax on miles of golden sandy beach or experience Warner Bros. Movie World.",
         "activities": [
           "Full leisure day: sunbathe, surf, or opt for a day pass to Warner Bros. Movie World or Sea World.",
@@ -3796,7 +3757,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Departure from Brisbane / Gold Coast to Dubai",
+        "title": "Day 7: Departure from Brisbane / Gold Coast to Dubai",
         "summary": "Final morning Australian coffee before direct flight back to the Emirates.",
         "activities": [
           "Breakfast overlooking the rolling surf.",
@@ -3854,7 +3815,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Bishkek & Ala Archa Alpine Canyon",
+        "title": "Day 1: Arrive in Bishkek & Ala Archa Alpine Canyon",
         "summary": "Fly from Dubai, private transfer, mountain gorge hike beneath snow peaks.",
         "activities": [
           "Direct flight from Dubai DXB to Bishkek Manas International Airport (FRU) on flydubai.",
@@ -3867,7 +3828,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Silk Road Burana Tower to Lake Issyk-Kul",
+        "title": "Day 2: Silk Road Burana Tower to Lake Issyk-Kul",
         "summary": "Ancient minarets on the Silk Road, then journey to the 'Warm Lake' surrounded by mountains.",
         "activities": [
           "Drive east to the 10th-century Burana Tower minaret and field of Balbals (ancient stone statues).",
@@ -3879,7 +3840,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Issyk-Kul Boat Cruise & Golden Eagle Hunting",
+        "title": "Day 3: Issyk-Kul Boat Cruise & Golden Eagle Hunting",
         "summary": "Scenic boat cruise on the deep blue lake, then nomad eagle hunting show.",
         "activities": [
           "Morning 1-hour boat cruise on Lake Issyk-Kul with panoramic views of snow-capped peaks.",
@@ -3892,7 +3853,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Osh Bazaar Souvenirs & Flight to Dubai",
+        "title": "Day 4: Osh Bazaar Souvenirs & Flight to Dubai",
         "summary": "Explore central Ala-Too Square and shop for felt carpets and honey before flight.",
         "activities": [
           "Morning walk through Ala-Too Square, Oak Park, and the Philharmonic Hall.",
@@ -3949,7 +3910,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrive in Hong Kong & Symphony of Lights Show",
+        "title": "Day 1: Arrive in Hong Kong & Symphony of Lights Show",
         "summary": "Direct flight from Dubai, private transfer to hotel, evening harbour light show.",
         "activities": [
           "Direct flight from Dubai DXB to Hong Kong International Airport (HKG) on Emirates/Cathay Pacific.",
@@ -3961,7 +3922,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Victoria Peak Tram, Star Ferry & Central Dim Sum",
+        "title": "Day 2: Victoria Peak Tram, Star Ferry & Central Dim Sum",
         "summary": "Ride the historic 1888 Peak Tram, cross the harbour by vintage ferry, and savor dim sum.",
         "activities": [
           "Board the green Peak Tram up to Victoria Peak and Sky Terrace 428 for 360-degree city and harbour vistas.",
@@ -3974,7 +3935,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Hong Kong Disneyland Magical Adventure",
+        "title": "Day 3: Hong Kong Disneyland Magical Adventure",
         "summary": "A full day of fantasy rides, Disney character parades, and the Castle fireworks show.",
         "activities": [
           "Private transfer to Hong Kong Disneyland on Lantau Island.",
@@ -3987,7 +3948,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Full-Day Macau Day Trip via TurboJET Ferry",
+        "title": "Day 4: Full-Day Macau Day Trip via TurboJET Ferry",
         "summary": "Catamaran across the Pearl River Delta to Portuguese-influenced Macau.",
         "activities": [
           "Board the high-speed TurboJET ferry to Macau (55 minutes).",
@@ -4000,7 +3961,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Ladies' Market Souvenirs & Departure to Dubai",
+        "title": "Day 5: Ladies' Market Souvenirs & Departure to Dubai",
         "summary": "Duty-free electronics and fashion shopping before direct flight home.",
         "activities": [
           "Breakfast at hotel; morning shopping at Harbour City or Mong Kok street markets.",
@@ -4085,7 +4046,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Helsinki & Capital City Highlights",
+        "title": "Day 1: Arrival in Helsinki & Capital City Highlights",
         "summary": "Arrive at Helsinki Airport, private transfer to luxury downtown hotel, orientation walk.",
         "activities": [
           "Arrive at Helsinki Airport (HEL) from Dubai. Meet your private driver and transfer to your luxury central hotel.",
@@ -4097,7 +4058,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Flight to Lapland (Rovaniemi) & Santa Claus Village",
+        "title": "Day 2: Flight to Lapland (Rovaniemi) & Santa Claus Village",
         "summary": "Fly to Rovaniemi, cross the official Arctic Circle, and meet Santa Claus.",
         "activities": [
           "Morning flight from Helsinki to Rovaniemi, the official hometown of Santa Claus.",
@@ -4110,7 +4071,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Husky Dog Sledding & Snowmobile Arctic Safari",
+        "title": "Day 3: Husky Dog Sledding & Snowmobile Arctic Safari",
         "summary": "Mushing your own husky team across snow forests and snowmobiling on frozen lakes.",
         "activities": [
           "Visit an authentic Lappish husky kennel and meet enthusiastic Siberian huskies.",
@@ -4123,7 +4084,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Reindeer Sleigh, Sámi Heritage & Glass Igloo Check-in",
+        "title": "Day 4: Reindeer Sleigh, Sámi Heritage & Glass Igloo Check-in",
         "summary": "Reindeer farm visit, Sámi folklore storytelling, and sleeping in a 360° heated glass igloo.",
         "activities": [
           "Visit a heritage reindeer farm: learn lasso throwing and glide gracefully in a traditional wooden reindeer sleigh.",
@@ -4136,7 +4097,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Arctic Snowshoe Trek & Return Flight to Helsinki",
+        "title": "Day 5: Arctic Snowshoe Trek & Return Flight to Helsinki",
         "summary": "Snowshoe nature walk, flight back to Helsinki for shopping and leisure.",
         "activities": [
           "Morning snowshoe trek through silent snow-draped taiga forests with panoramic fell viewpoints.",
@@ -4148,7 +4109,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Departure from Helsinki to UAE",
+        "title": "Day 6: Departure from Helsinki to UAE",
         "summary": "Free morning for souvenir shopping before VIP transfer to airport.",
         "activities": [
           "Leisurely breakfast and last-minute shopping for Finnish design, Fazer chocolates, and Arctic souvenirs.",
@@ -4214,7 +4175,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Kuala Lumpur & Bukit Bintang Nightlife",
+        "title": "Day 1: Arrival in Kuala Lumpur & Bukit Bintang Nightlife",
         "summary": "Arrive at KLIA, private transfer to 5★ central hotel, evening food street tour.",
         "activities": [
           "Arrival at Kuala Lumpur International Airport (KLIA). VIP airport pickup and transfer to your 5-star hotel in central KLCC.",
@@ -4226,7 +4187,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Petronas Skybridge, Batu Caves & Genting Highlands",
+        "title": "Day 2: Petronas Skybridge, Batu Caves & Genting Highlands",
         "summary": "Petronas Towers, colorful Batu Caves, and Awana SkyWay to Genting.",
         "activities": [
           "Ascend the Petronas Twin Towers SkyBridge connecting the dual towers and the 86th floor viewing deck.",
@@ -4238,7 +4199,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Flight to Tropical Langkawi & Sunset Beach",
+        "title": "Day 3: Flight to Tropical Langkawi & Sunset Beach",
         "summary": "Fly to Langkawi Island, check in to beachfront luxury resort, relax by Andaman Sea.",
         "activities": [
           "Transfer to airport for a short 50-minute scenic flight to Langkawi Island.",
@@ -4251,7 +4212,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Kilim Geopark Mangrove Safari & Eagle Watching",
+        "title": "Day 4: Kilim Geopark Mangrove Safari & Eagle Watching",
         "summary": "Boat cruise through limestone karst mangroves, bat caves, and Brahminy kite feeding.",
         "activities": [
           "Private boat cruise through the UNESCO Kilim Karst Geoforest Park.",
@@ -4264,7 +4225,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Langkawi SkyCab, Curved SkyBridge & Oriental Village",
+        "title": "Day 5: Langkawi SkyCab, Curved SkyBridge & Oriental Village",
         "summary": "Ride the steepest cable car in the world and walk across the curved mountain suspension bridge.",
         "activities": [
           "Ride the Langkawi SkyCab up Mount Machinchang for jaw-dropping 360° views stretching to Thailand.",
@@ -4276,7 +4237,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Langkawi Departure / Return Connection",
+        "title": "Day 6: Langkawi Departure / Return Connection",
         "summary": "Leisurely breakfast, checkout, and private transfer to airport for departure.",
         "activities": [
           "Enjoy a final morning swim in the Andaman Sea and a hearty tropical breakfast.",
@@ -4342,7 +4303,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Kathmandu Valley & Thamel Bazaar",
+        "title": "Day 1: Arrival in Kathmandu Valley & Thamel Bazaar",
         "summary": "Arrive at Tribhuvan Airport, private transfer to hotel, explore lively Thamel.",
         "activities": [
           "Arrive at Tribhuvan International Airport in Kathmandu (4h direct flight from UAE). Warm garland welcome and transfer to hotel.",
@@ -4354,7 +4315,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Kathmandu UNESCO Wonders: Boudhanath & Swayambhunath",
+        "title": "Day 2: Kathmandu UNESCO Wonders: Boudhanath & Swayambhunath",
         "summary": "Visit the massive white dome of Boudhanath Stupa and hilltop Monkey Temple.",
         "activities": [
           "Visit Boudhanath Stupa, one of the world's largest spherical stupas, surrounded by Tibetan monasteries and prayer flags.",
@@ -4366,7 +4327,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Journey to Pokhara & Phewa Lake Sunset",
+        "title": "Day 3: Journey to Pokhara & Phewa Lake Sunset",
         "summary": "Scenic journey to lakeside Pokhara, boat ride on Phewa Lake beneath Machapuchare.",
         "activities": [
           "Travel to Pokhara along scenic river valleys and lush terraced hillsides.",
@@ -4378,7 +4339,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Sarangkot Annapurna Sunrise & Pokhara Sights",
+        "title": "Day 4: Sarangkot Annapurna Sunrise & Pokhara Sights",
         "summary": "Golden dawn over Annapurna I & II, Davis Falls, and World Peace Pagoda.",
         "activities": [
           "Early morning drive to Sarangkot hilltop (1,600m) to witness the sunrise turning the Annapurna, Dhaulagiri, and Machapuchare peaks molten gold.",
@@ -4390,7 +4351,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Return to Kathmandu & Nagarkot Everest View",
+        "title": "Day 5: Return to Kathmandu & Nagarkot Everest View",
         "summary": "Travel to Nagarkot mountain ridge for panoramic sunset views across the Himalayas.",
         "activities": [
           "Return journey to Kathmandu Valley and continue up to the scenic ridge resort of Nagarkot (2,175m).",
@@ -4402,7 +4363,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Nagarkot Sunrise & Flight to UAE",
+        "title": "Day 6: Nagarkot Sunrise & Flight to UAE",
         "summary": "Final mountain sunrise, Bhaktapur ancient city tour, transfer to airport.",
         "activities": [
           "Watch dawn break across the snow-capped Himalayan peaks directly from your hotel terrace.",
@@ -4469,7 +4430,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Beijing Capital",
+        "title": "Day 1: Arrival in Beijing Capital",
         "summary": "Arrive in Beijing, private transfer to 5★ luxury hotel in Wangfujing.",
         "activities": [
           "Arrive at Beijing Capital (PEK) or Daxing (PKX) Airport. VIP greeting and transfer to your 5-star hotel in central Beijing.",
@@ -4480,7 +4441,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Forbidden City, Tiananmen Square & Temple of Heaven",
+        "title": "Day 2: Forbidden City, Tiananmen Square & Temple of Heaven",
         "summary": "Step through imperial gates into the Forbidden City and Temple of Heaven.",
         "activities": [
           "Walk across Tiananmen Square and pass through the Meridian Gate into the Forbidden City (Palace Museum).",
@@ -4493,7 +4454,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — The Great Wall of China (Mutianyu Section) & Summer Palace",
+        "title": "Day 3: The Great Wall of China (Mutianyu Section) & Summer Palace",
         "summary": "Stand atop the Great Wall of China with cable car access and visit Summer Palace.",
         "activities": [
           "Drive to the picturesque Mutianyu section of the Great Wall surrounded by pine forests.",
@@ -4505,7 +4466,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — High-Speed Bullet Train to Shanghai & The Bund",
+        "title": "Day 4: High-Speed Bullet Train to Shanghai & The Bund",
         "summary": "Ride the 350 km/h bullet train to Shanghai, evening walk along The Bund.",
         "activities": [
           "Board the high-speed Fuxing Bullet Train from Beijing to Shanghai in First Class comfort (approx. 4.5 hours).",
@@ -4517,7 +4478,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Yu Garden, Shanghai Tower Observation Deck & River Cruise",
+        "title": "Day 5: Yu Garden, Shanghai Tower Observation Deck & River Cruise",
         "summary": "Traditional Yu Garden, tallest skyscraper views, and Huangpu river cruise.",
         "activities": [
           "Visit the classical Ming-dynasty Yu Garden and bustling Old Town bazaar.",
@@ -4529,7 +4490,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — French Concession, Nanjing Road & Xintiandi",
+        "title": "Day 6: French Concession, Nanjing Road & Xintiandi",
         "summary": "Tree-lined French Concession boutiques, Nanjing Road shopping, and fine dining.",
         "activities": [
           "Stroll through the tree-lined avenues of the historic French Concession and artsy Tianzifang alleys.",
@@ -4541,7 +4502,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Shanghai Maglev Experience & Flight to UAE",
+        "title": "Day 7: Shanghai Maglev Experience & Flight to UAE",
         "summary": "Checkout, optional 431 km/h Maglev magnetic train ride to Pudong Airport, flight home.",
         "activities": [
           "Enjoy a leisurely breakfast and hotel checkout.",
@@ -4607,7 +4568,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Cape Town & V&A Waterfront",
+        "title": "Day 1: Arrival in Cape Town & V&A Waterfront",
         "summary": "Arrive at Cape Town International Airport, private transfer to V&A Waterfront hotel.",
         "activities": [
           "Arrive at Cape Town Airport (CPT). Meet your private chauffeur and transfer to your luxury hotel located on the V&A Waterfront.",
@@ -4619,7 +4580,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Table Mountain Cableway & Historic City Tour",
+        "title": "Day 2: Table Mountain Cableway & Historic City Tour",
         "summary": "Ascend Table Mountain summit, visit colorful Bo-Kaap and Company's Garden.",
         "activities": [
           "Take the rotating aerial cable car up Table Mountain for panoramic 360° views of the city, ocean, and Twelve Apostles peaks.",
@@ -4631,7 +4592,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Cape Peninsula, Chapman's Peak & Boulders Penguins",
+        "title": "Day 3: Cape Peninsula, Chapman's Peak & Boulders Penguins",
         "summary": "Drive world's most scenic coastal road to Cape Point and visit African penguins.",
         "activities": [
           "Drive along the dramatic cliffs of Chapman's Peak Drive overlooking Hout Bay.",
@@ -4643,7 +4604,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Transfer to Private Big-5 Safari Lodge & Afternoon Game Drive",
+        "title": "Day 4: Transfer to Private Big-5 Safari Lodge & Afternoon Game Drive",
         "summary": "Travel to luxury private game reserve, check in to safari lodge, afternoon game drive.",
         "activities": [
           "Private scenic transfer to a premier 5-star private game reserve lodge.",
@@ -4656,7 +4617,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Dawn & Twilight Big-5 Game Drives",
+        "title": "Day 5: Dawn & Twilight Big-5 Game Drives",
         "summary": "Sunrise safari drive, relaxing midday pool time, and afternoon predator tracking.",
         "activities": [
           "Early morning tea/coffee before departing on a sunrise game drive as nocturnal predators are active and plains game graze.",
@@ -4669,7 +4630,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Morning Bush Safari & Return to Cape Town",
+        "title": "Day 6: Morning Bush Safari & Return to Cape Town",
         "summary": "Final morning game drive, scenic transfer back to Cape Town for leisure evening.",
         "activities": [
           "Final dawn game drive for last-chance wildlife sightings and birdwatching.",
@@ -4681,7 +4642,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Departure from Cape Town to UAE",
+        "title": "Day 7: Departure from Cape Town to UAE",
         "summary": "Breakfast, checkout, and private transfer to Cape Town Airport for flight home.",
         "activities": [
           "Enjoy a relaxed morning breakfast overlooking Table Bay.",
@@ -4748,7 +4709,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Marvelous Rio de Janeiro",
+        "title": "Day 1: Arrival in Marvelous Rio de Janeiro",
         "summary": "Arrive at Galeão Airport, private transfer to Copacabana beachfront hotel.",
         "activities": [
           "Arrive at Rio de Janeiro International Airport (GIG). Warm greeting by your private guide and transfer to your 5-star beachfront hotel in Copacabana.",
@@ -4760,7 +4721,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Christ the Redeemer on Corcovado & Tijuca National Park",
+        "title": "Day 2: Christ the Redeemer on Corcovado & Tijuca National Park",
         "summary": "Cogwheel train to Christ the Redeemer, Selarón Steps, and Santa Teresa.",
         "activities": [
           "Board the historic Corcovado Cogwheel Train climbing through the lush Tijuca Atlantic Rainforest to the peak of Corcovado Mountain (710m).",
@@ -4773,7 +4734,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Sugarloaf Mountain Cable Car & Ipanema Beach",
+        "title": "Day 3: Sugarloaf Mountain Cable Car & Ipanema Beach",
         "summary": "Cable car up Sugarloaf Mountain, Maracanã Stadium photo stop, Ipanema sunset.",
         "activities": [
           "Ride the two-stage glass-walled cable cars up to Morro da Urca and the summit of Sugarloaf Mountain (Pão de Açúcar).",
@@ -4785,7 +4746,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Flight to Iguazu Falls & Brazilian Panoramic Boardwalk",
+        "title": "Day 4: Flight to Iguazu Falls & Brazilian Panoramic Boardwalk",
         "summary": "Fly to Foz do Iguaçu, walk the panoramic Brazilian falls walkway.",
         "activities": [
           "Private transfer to airport and flight to Foz do Iguaçu.",
@@ -4798,7 +4759,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Full Day Argentine Side of Iguazu & Devil's Throat",
+        "title": "Day 5: Full Day Argentine Side of Iguazu & Devil's Throat",
         "summary": "Cross to Argentine side, ride eco-train, and walk right above Devil's Throat.",
         "activities": [
           "Cross the border for an immersive full-day tour of the Argentine side of Iguazu National Park.",
@@ -4810,7 +4771,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Parque das Aves Bird Park & Return Flight to Rio",
+        "title": "Day 6: Parque das Aves Bird Park & Return Flight to Rio",
         "summary": "Walk-in tropical aviaries with toucans and macaws, fly back to Rio.",
         "activities": [
           "Visit the world-renowned Parque das Aves bird sanctuary to walk inside massive aviaries with scarlet macaws, flamingos, and toucans.",
@@ -4822,7 +4783,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Departure from Rio de Janeiro to UAE",
+        "title": "Day 7: Departure from Rio de Janeiro to UAE",
         "summary": "Last morning beach walk, hotel checkout, and VIP airport transfer.",
         "activities": [
           "Leisurely morning for beachside relaxation and tropical fruit breakfast.",
@@ -4888,7 +4849,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Buenos Aires 'Paris of the South'",
+        "title": "Day 1: Arrival in Buenos Aires 'Paris of the South'",
         "summary": "Arrive at Ezeiza Airport, private transfer to luxury hotel in Recoleta.",
         "activities": [
           "Arrive at Ezeiza International Airport (EZE). Meet your private driver and transfer to your 5-star hotel in the refined Recoleta district.",
@@ -4900,7 +4861,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Buenos Aires City Discovery & Evening Tango Show",
+        "title": "Day 2: Buenos Aires City Discovery & Evening Tango Show",
         "summary": "Plaza de Mayo, colorful La Boca, San Telmo, and VIP Tango dinner show.",
         "activities": [
           "Visit Plaza de Mayo, the Casa Rosada (Presidential Palace), and the Metropolitan Cathedral.",
@@ -4913,7 +4874,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Flight to Patagonia (El Calafate) & Lake Argentino",
+        "title": "Day 3: Flight to Patagonia (El Calafate) & Lake Argentino",
         "summary": "Fly to El Calafate in southern Patagonia, check in to lakeview lodge.",
         "activities": [
           "Transfer to airport for flight south to El Calafate in Santa Cruz, Patagonia.",
@@ -4925,7 +4886,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Perito Moreno Glacier Catwalks & Boat Safari",
+        "title": "Day 4: Perito Moreno Glacier Catwalks & Boat Safari",
         "summary": "Full day at UNESCO Perito Moreno Glacier, boat cruise along 60m ice walls.",
         "activities": [
           "Full-day excursion to Los Glaciares National Park to witness the colossal Perito Moreno Glacier.",
@@ -4937,7 +4898,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Flight from Patagonia to Iguazu Tropical Rainforest",
+        "title": "Day 5: Flight from Patagonia to Iguazu Tropical Rainforest",
         "summary": "Fly to subtropical Puerto Iguazú, relax in rainforest eco-resort.",
         "activities": [
           "Morning transfer to El Calafate Airport for flight to Puerto Iguazú via Buenos Aires.",
@@ -4949,7 +4910,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Full Day Argentine Iguazu Falls & Devil's Throat",
+        "title": "Day 6: Full Day Argentine Iguazu Falls & Devil's Throat",
         "summary": "Upper and Lower waterfall circuits, Ecological Jungle Train, and Devil's Throat.",
         "activities": [
           "Full-day guided exploration of the Argentine side of Iguazu National Park.",
@@ -4962,7 +4923,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Brazilian Side Panoramic Tour & Return to Buenos Aires",
+        "title": "Day 7: Brazilian Side Panoramic Tour & Return to Buenos Aires",
         "summary": "Panoramic Brazilian waterfall views, flight back to Buenos Aires.",
         "activities": [
           "Morning half-day tour of the Brazilian side of the falls for the ultimate wide-angle postcard panorama.",
@@ -4974,7 +4935,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 8,
-        "title": "Day 8 — Departure from Buenos Aires to UAE",
+        "title": "Day 8: Departure from Buenos Aires to UAE",
         "summary": "Free morning for leather goods and alfajores shopping, private airport transfer.",
         "activities": [
           "Leisurely morning for shopping in Palermo Soho or visiting Galerías Pacífico.",
@@ -5040,7 +5001,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in New York City & Times Square",
+        "title": "Day 1: Arrival in New York City & Times Square",
         "summary": "Arrive at JFK/Newark Airport, private limousine/SUV transfer to Manhattan hotel.",
         "activities": [
           "Arrive at JFK or Newark Airport from Dubai. Meet your private chauffeur for transfer into Midtown Manhattan.",
@@ -5052,7 +5013,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Statue of Liberty, Wall Street & 9/11 Memorial",
+        "title": "Day 2: Statue of Liberty, Wall Street & 9/11 Memorial",
         "summary": "Ferry to Lady Liberty, Financial District, and World Trade Center.",
         "activities": [
           "Take the morning ferry from Battery Park to Liberty Island for up-close views of the Statue of Liberty.",
@@ -5065,7 +5026,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Central Park, Museum Mile & Empire State Building",
+        "title": "Day 3: Central Park, Museum Mile & Empire State Building",
         "summary": "Stroll Central Park, visit Fifth Avenue, and ascend Empire State Building at night.",
         "activities": [
           "Guided morning walking tour of Central Park: Bethesda Fountain, Bow Bridge, and Strawberry Fields.",
@@ -5077,7 +5038,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Niagara Falls Day Excursion & Maid of the Mist",
+        "title": "Day 4: Niagara Falls Day Excursion & Maid of the Mist",
         "summary": "Day trip to Niagara Falls, Maid of the Mist boat ride right into Horseshoe Falls spray.",
         "activities": [
           "Early morning departure for your Niagara Falls adventure.",
@@ -5090,7 +5051,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — High Line, Chelsea Market, Soho & Brooklyn Bridge",
+        "title": "Day 5: High Line, Chelsea Market, Soho & Brooklyn Bridge",
         "summary": "Walk the elevated High Line park, food tasting in Chelsea, and sunset on Brooklyn Bridge.",
         "activities": [
           "Walk the High Line elevated railway park from Hudson Yards to the Meatpacking District.",
@@ -5103,7 +5064,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Rockefeller Center, Summit One Vanderbilt & Broadway",
+        "title": "Day 6: Rockefeller Center, Summit One Vanderbilt & Broadway",
         "summary": "Summit One Vanderbilt immersive mirrors, shopping, and optional evening Broadway show.",
         "activities": [
           "Visit Summit One Vanderbilt for mind-bending mirrored multi-sensory views over Midtown.",
@@ -5115,7 +5076,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Departure from New York to UAE",
+        "title": "Day 7: Departure from New York to UAE",
         "summary": "Morning at leisure, hotel checkout, and private airport transfer.",
         "activities": [
           "Enjoy a classic New York bagel breakfast and morning coffee in Bryant Park.",
@@ -5181,7 +5142,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Direct Flight from Dubai to Belgrade & Knez Mihailova",
+        "title": "Day 1: Direct Flight from Dubai to Belgrade & Knez Mihailova",
         "summary": "Arrive at Nikola Tesla Airport, private transfer to 5★ hotel, orientation walk.",
         "activities": [
           "Direct 5-hour flight from Dubai DXB to Belgrade Nikola Tesla Airport (BEG). VIP meet-and-greet and private transfer to your central 5-star hotel.",
@@ -5193,7 +5154,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Belgrade Fortress, Saint Sava & Rivers Confluence",
+        "title": "Day 2: Belgrade Fortress, Saint Sava & Rivers Confluence",
         "summary": "Kalemegdan fortress panoramic views, Saint Sava golden crypt, and Danube cruise.",
         "activities": [
           "Explore the sprawling Kalemegdan Fortress perched on a 125-meter-high cliff where the Sava and Danube rivers meet.",
@@ -5206,7 +5167,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Day Excursion to Novi Sad & Petrovaradin Fortress",
+        "title": "Day 3: Day Excursion to Novi Sad & Petrovaradin Fortress",
         "summary": "Austro-Hungarian charm in Novi Sad, Gibraltar on the Danube, and Sremski Karlovci wine.",
         "activities": [
           "Scenic 1-hour drive north through the Vojvodina plains to the Baroque town of Sremski Karlovci for Bermet wine tasting.",
@@ -5218,7 +5179,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Royal Palaces, Zemun & Danube Waterfront",
+        "title": "Day 4: Royal Palaces, Zemun & Danube Waterfront",
         "summary": "Explore historic Zemun, Gardoš Tower views, and riverside dining.",
         "activities": [
           "Visit the picturesque old town of Zemun on the Danube with its narrow streets and Habsburg architecture.",
@@ -5231,7 +5192,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Departure from Belgrade to UAE",
+        "title": "Day 5: Departure from Belgrade to UAE",
         "summary": "Morning souvenir shopping, hotel checkout, and private airport transfer.",
         "activities": [
           "Leisurely breakfast and time for last-minute shopping for Serbian honey, artisan ceramics, and delicacies.",
@@ -5296,7 +5257,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Vibrant Barcelona & Las Ramblas",
+        "title": "Day 1: Arrival in Vibrant Barcelona & Las Ramblas",
         "summary": "Arrive at El Prat Airport, private transfer to 5★ central hotel, Gothic Quarter walk.",
         "activities": [
           "Arrive at Barcelona El Prat Airport (BCN). Meet your private driver and transfer to your luxury hotel near Plaça de Catalunya.",
@@ -5308,7 +5269,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Gaudí Masterpieces: Sagrada Família & Park Güell",
+        "title": "Day 2: Gaudí Masterpieces: Sagrada Família & Park Güell",
         "summary": "Step inside Sagrada Família stone forest of light, and explore Park Güell mosaics.",
         "activities": [
           "Visit Antoni Gaudí's magnum opus, the Basílica de la Sagrada Família, admiring its soaring tree-like columns and stained-glass spectrum.",
@@ -5320,7 +5281,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — High-Speed AVE Train to Royal Madrid & Gran Vía",
+        "title": "Day 3: High-Speed AVE Train to Royal Madrid & Gran Vía",
         "summary": "Ride the 300km/h AVE bullet train to Madrid, check in, explore Gran Vía and Puerta del Sol.",
         "activities": [
           "Board the high-speed AVE train to Madrid Atocha Station in under 2.5 hours.",
@@ -5332,7 +5293,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Madrid Royal Palace & World-Famous Prado Museum",
+        "title": "Day 4: Madrid Royal Palace & World-Famous Prado Museum",
         "summary": "Tour the opulent Royal Palace of Madrid and masterworks in the Prado Museum.",
         "activities": [
           "Guided tour of the Royal Palace of Madrid (Palacio Real), exploring the Throne Room, Royal Armoury, and Sabatini Gardens.",
@@ -5344,7 +5305,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — AVE Train to Seville & Authentic Flamenco Show",
+        "title": "Day 5: AVE Train to Seville & Authentic Flamenco Show",
         "summary": "Travel to Andalusian Seville, visit Plaza de España, evening passionate flamenco.",
         "activities": [
           "Morning AVE train journey south into Andalusia to sun-drenched Seville.",
@@ -5357,7 +5318,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Seville Royal Alcázar & Return to Barcelona",
+        "title": "Day 6: Seville Royal Alcázar & Return to Barcelona",
         "summary": "Moorish arches at Real Alcázar, Seville Cathedral, evening AVE train back.",
         "activities": [
           "Tour the UNESCO Real Alcázar palace with its intricate Moorish tiles and lush orange courtyards.",
@@ -5369,7 +5330,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 7,
-        "title": "Day 7 — Departure from Barcelona to UAE",
+        "title": "Day 7: Departure from Barcelona to UAE",
         "summary": "Breakfast, beach walk or shopping, private transfer to El Prat Airport.",
         "activities": [
           "Leisurely breakfast and time for last-minute shopping along Passeig de Gràcia.",
@@ -5433,7 +5394,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Munich & Marienplatz",
+        "title": "Day 1: Arrival in Munich & Marienplatz",
         "summary": "Arrive at Munich Airport, private transfer to hotel, explore Old Town.",
         "activities": [
           "Arrive at Munich Franz Josef Strauss Airport (MUC). VIP pickup and transfer to your 5-star hotel in central Munich.",
@@ -5445,7 +5406,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Day Excursion to Neuschwanstein Fairytale Castle",
+        "title": "Day 2: Day Excursion to Neuschwanstein Fairytale Castle",
         "summary": "Full day tour to Bavarian Alps and fairytale Neuschwanstein Castle.",
         "activities": [
           "Scenic morning drive through the Bavarian Alps to the village of Hohenschwangau.",
@@ -5458,7 +5419,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Munich BMW Welt, Nymphenburg Palace & English Garden",
+        "title": "Day 3: Munich BMW Welt, Nymphenburg Palace & English Garden",
         "summary": "BMW Welt showcase, Nymphenburg Baroque palace, and English Garden.",
         "activities": [
           "Visit BMW Welt and Museum exploring cutting-edge German automotive engineering.",
@@ -5470,7 +5431,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — High-Speed ICE Train to Berlin & Brandenburg Gate",
+        "title": "Day 4: High-Speed ICE Train to Berlin & Brandenburg Gate",
         "summary": "300km/h ICE train to Berlin, Brandenburg Gate sunset, Unter den Linden.",
         "activities": [
           "Board the sleek German ICE bullet train slicing north through Thuringia to Berlin Hauptbahnhof (approx. 4 hours).",
@@ -5483,7 +5444,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Berlin Wall Memorial, Museum Island & Spree Cruise",
+        "title": "Day 5: Berlin Wall Memorial, Museum Island & Spree Cruise",
         "summary": "East Side Gallery open-air wall art, Museum Island, and Spree river boat tour.",
         "activities": [
           "Visit the East Side Gallery, a preserved 1.3km section of the Berlin Wall painted with historic murals.",
@@ -5495,7 +5456,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Departure from Berlin to UAE",
+        "title": "Day 6: Departure from Berlin to UAE",
         "summary": "Morning shopping at KaDeWe department store, private transfer to Berlin Airport.",
         "activities": [
           "Enjoy a leisurely breakfast and browse Europe's largest luxury department store, KaDeWe.",
@@ -5561,7 +5522,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Amsterdam & Canal Cruise",
+        "title": "Day 1: Arrival in Amsterdam & Canal Cruise",
         "summary": "Arrive at Schiphol Airport, private transfer to hotel, evening private canal cruise.",
         "activities": [
           "Arrive at Amsterdam Schiphol Airport (AMS). Meet your private chauffeur and transfer to your hotel.",
@@ -5573,7 +5534,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Keukenhof Tulip Gardens & Flower Strip",
+        "title": "Day 2: Keukenhof Tulip Gardens & Flower Strip",
         "summary": "Witness 7 million blooming tulips, daffodils, and hyacinths at Keukenhof.",
         "activities": [
           "Morning drive through the Bollenstreek (flower bulb region) surrounded by endless strips of vibrant blooms.",
@@ -5585,7 +5546,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Zaanse Schans Windmills, Clog Workshop & Volendam",
+        "title": "Day 3: Zaanse Schans Windmills, Clog Workshop & Volendam",
         "summary": "Historic wooden windmills, artisan cheese tasting, and seaside fishing village.",
         "activities": [
           "Visit Zaanse Schans open-air museum: see functioning 18th-century oil, saw, and dye windmills.",
@@ -5597,7 +5558,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Rijksmuseum, Van Gogh & Jordaan District",
+        "title": "Day 4: Rijksmuseum, Van Gogh & Jordaan District",
         "summary": "Masterpieces of Dutch Golden Age, Van Gogh Museum, and boutique shopping.",
         "activities": [
           "Guided tour of the Rijksmuseum admiring Rembrandt, Vermeer's 'Milkmaid', and Golden Age treasures.",
@@ -5609,7 +5570,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Departure from Amsterdam to UAE",
+        "title": "Day 5: Departure from Amsterdam to UAE",
         "summary": "Last-minute souvenir shopping for Dutch chocolates and cheeses, airport transfer.",
         "activities": [
           "Enjoy a classic Dutch breakfast with fresh stroopwafels.",
@@ -5675,7 +5636,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Sunny Lisbon & Baixa District",
+        "title": "Day 1: Arrival in Sunny Lisbon & Baixa District",
         "summary": "Arrive at Humberto Delgado Airport, private transfer to hotel, orientation walk.",
         "activities": [
           "Arrive at Lisbon Airport (LIS). Private Mercedes pickup and transfer to your luxury hotel in Chiado or Avenida da Liberdade.",
@@ -5687,7 +5648,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Historic Alfama, Tram 28 & Belém Discoveries",
+        "title": "Day 2: Historic Alfama, Tram 28 & Belém Discoveries",
         "summary": "Ride Tram 28, visit São Jorge Castle, Belém Tower, and Jerónimos Monastery.",
         "activities": [
           "Ride the famous yellow Tram 28 up the winding cobbled hills of Alfama.",
@@ -5700,7 +5661,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Day Excursion to Sintra Fairytale Palaces & Cascais",
+        "title": "Day 3: Day Excursion to Sintra Fairytale Palaces & Cascais",
         "summary": "Pena Palace vibrant colors, Quinta da Regaleira mystery wells, and Cabo da Roca cliffs.",
         "activities": [
           "Drive to the forested hills of romantic Sintra to tour the eccentric, colorful Pena National Palace perched high on the mountain.",
@@ -5713,7 +5674,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Express Train to Porto & Historic Ribeira",
+        "title": "Day 4: Express Train to Porto & Historic Ribeira",
         "summary": "Fast train to Porto, check in, walk the Ribeira waterfront and Dom Luís I Bridge.",
         "activities": [
           "Board the comfortable Alfa Pendular express train to Porto São Bento station (famed for its 20,000 blue azulejo tiles).",
@@ -5726,7 +5687,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Douro Six Bridges Cruise & Livraria Lello",
+        "title": "Day 5: Douro Six Bridges Cruise & Livraria Lello",
         "summary": "Traditional Rabelo boat cruise on Douro, visit iconic bookstore, return to Lisbon.",
         "activities": [
           "Board a traditional wooden Rabelo boat for a scenic 50-minute Six Bridges Cruise along the Douro River.",
@@ -5738,7 +5699,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Departure from Lisbon to UAE",
+        "title": "Day 6: Departure from Lisbon to UAE",
         "summary": "Morning coffee and shopping, private transfer to Lisbon Airport.",
         "activities": [
           "Enjoy a leisurely breakfast and last-minute shopping for Portuguese cork crafts and ceramics.",
@@ -5802,7 +5763,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Arrival in Tropical Paradise Mauritius",
+        "title": "Day 1: Arrival in Tropical Paradise Mauritius",
         "summary": "Arrive at MRU Airport, private transfer to 5★ beachfront resort, sunset cocktail.",
         "activities": [
           "Arrive at Sir Seewoosagur Ramgoolam International Airport (MRU). Warm floral garland welcome and private transfer to your 5-star beachfront resort.",
@@ -5814,7 +5775,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Southwest Scenic Wonders: Chamarel & Sacred Crater Lake",
+        "title": "Day 2: Southwest Scenic Wonders: Chamarel & Sacred Crater Lake",
         "summary": "Seven Coloured Earths, Chamarel Waterfalls, and sacred Grand Bassin.",
         "activities": [
           "Drive into the lush Chamarel mountains to witness the Seven Coloured Earths, dunes of red, brown, violet, and green volcanic sands.",
@@ -5827,7 +5788,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Luxury Catamaran Cruise to Île aux Cerfs",
+        "title": "Day 3: Luxury Catamaran Cruise to Île aux Cerfs",
         "summary": "Sail crystal lagoons, snorkel colorful coral reefs, and beach BBQ on Île aux Cerfs.",
         "activities": [
           "Board a luxury sailing catamaran for a full-day cruise across the turquoise east coast lagoon.",
@@ -5840,7 +5801,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — North Island Discovery: Port Louis & Botanical Gardens",
+        "title": "Day 4: North Island Discovery: Port Louis & Botanical Gardens",
         "summary": "Port Louis Caudan Waterfront, Central Market, and giant water lilies.",
         "activities": [
           "Visit the historic capital of Port Louis: stroll the colorful umbrella alley at Le Caudan Waterfront and explore the vibrant Central Market.",
@@ -5852,7 +5813,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 5,
-        "title": "Day 5 — Beach Relaxation, Water Sports & Spa Luxury",
+        "title": "Day 5: Beach Relaxation, Water Sports & Spa Luxury",
         "summary": "Free day for paddleboarding, kayaking, luxury spa, and candlelight beach dinner.",
         "activities": [
           "Spend a relaxing day indulging in complimentary resort water sports: stand-up paddleboarding, kayaking, and glass-bottom boat coral tours.",
@@ -5864,7 +5825,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 6,
-        "title": "Day 6 — Departure from Mauritius to UAE",
+        "title": "Day 6: Departure from Mauritius to UAE",
         "summary": "Final morning beach swim, resort checkout, and private airport transfer.",
         "activities": [
           "Enjoy a relaxed tropical breakfast overlooking the turquoise lagoon.",
@@ -5928,7 +5889,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — 1-Hour Flight from Dubai to Doha & Souq Waqif",
+        "title": "Day 1: 1-Hour Flight from Dubai to Doha & Souq Waqif",
         "summary": "Arrive at Hamad Airport, private transfer to 5★ hotel, evening Souq Waqif walk.",
         "activities": [
           "Short 1-hour direct flight from Dubai DXB to Hamad International Airport in Doha. VIP meet-and-greet and private transfer to your 5-star hotel.",
@@ -5940,7 +5901,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Cultural Marvels: Museum of Islamic Art & Katara Village",
+        "title": "Day 2: Cultural Marvels: Museum of Islamic Art & Katara Village",
         "summary": "I.M. Pei Museum of Islamic Art, National Museum, and Katara amphitheater.",
         "activities": [
           "Visit the architectural masterpiece Museum of Islamic Art (MIA) standing gracefully on its own island.",
@@ -5952,7 +5913,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — The Pearl-Qatar & Sunset Corniche Dhow Cruise",
+        "title": "Day 3: The Pearl-Qatar & Sunset Corniche Dhow Cruise",
         "summary": "The Pearl-Qatar luxury marina, Lusail boulevard, and evening dhow cruise.",
         "activities": [
           "Visit The Pearl-Qatar, a man-made island featuring Mediterranean-style marinas, luxury boutiques, and Venetian canals at Qanat Quartier.",
@@ -5964,7 +5925,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Departure from Doha to UAE",
+        "title": "Day 4: Departure from Doha to UAE",
         "summary": "Morning shopping at Place Vendôme Mall, transfer to Hamad Airport.",
         "activities": [
           "Enjoy a leisurely breakfast and shop at the Parisian-inspired Place Vendôme luxury mall in Lusail.",
@@ -6027,7 +5988,7 @@ export const packages: HolidayPackage[] = [
     "itinerary": [
       {
         "day": 1,
-        "title": "Day 1 — Flight from Dubai to Manama & Bab Al Bahrain",
+        "title": "Day 1: Flight from Dubai to Manama & Bab Al Bahrain",
         "summary": "Arrive at Bahrain Airport, private transfer to 5★ hotel, explore Manama Souq.",
         "activities": [
           "Direct 1-hour flight from Dubai DXB to Bahrain International Airport (BAH). VIP meet-and-greet and private transfer to your 5-star hotel.",
@@ -6039,7 +6000,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 2,
-        "title": "Day 2 — Ancient Qal'at al-Bahrain Fort & Al Fateh Grand Mosque",
+        "title": "Day 2: Ancient Qal'at al-Bahrain Fort & Al Fateh Grand Mosque",
         "summary": "Dilmun ancient capital, UNESCO fort on the sea, and Al Fateh Mosque.",
         "activities": [
           "Visit the monumental Al Fateh Grand Mosque, admiring its marble floors and world's largest fiberglass dome.",
@@ -6051,7 +6012,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 3,
-        "title": "Day 3 — Muharraq Pearling Path, Windtowers & Bahrain Bay",
+        "title": "Day 3: Muharraq Pearling Path, Windtowers & Bahrain Bay",
         "summary": "UNESCO Pearling Path heritage houses, traditional halwa factory, and Bahrain Bay skyline.",
         "activities": [
           "Walk through the historic alleyways of Muharraq, exploring preserved 19th-century pearl merchant houses like Beit Sheikh Isa bin Ali.",
@@ -6063,7 +6024,7 @@ export const packages: HolidayPackage[] = [
       },
       {
         "day": 4,
-        "title": "Day 4 — Departure from Bahrain to UAE",
+        "title": "Day 4: Departure from Bahrain to UAE",
         "summary": "Leisurely breakfast, checkout, and private transfer to airport for flight home.",
         "activities": [
           "Enjoy a relaxed morning breakfast overlooking Manama Bay.",
@@ -6075,135 +6036,4 @@ export const packages: HolidayPackage[] = [
     ]
   }
 ];
-
-export type ExperienceCategory =
-  | "Adventure"
-  | "Family"
-  | "Luxury"
-  | "Cruise"
-  | "Attraction"
-  | "Theme Park"
-  | "Water Park"
-  | "Water Sports"
-  | "Culture"
-  | "Desert"
-  | "Sightseeing"
-  | "Combo Deal"
-  | "Dining"
-  | "Shows"
-  | "Wellness"
-  | "Shopping";
-
-export type Experience = {
-  slug: string;
-  title: string;
-  emirate: "Dubai" | "Abu Dhabi" | "Sharjah" | "Ras Al Khaimah" | "Fujairah" | "Ajman" | "Al Ain" | "Hatta";
-  category: ExperienceCategory;
-  duration: "<1 Hour" | "1–2 Hours" | "2–4 Hours" | "Half Day" | "Full Day";
-  audience: ("Adults" | "Children" | "Families" | "Couples" | "Groups")[];
-  priceStatus: PriceStatus;
-  priceFrom?: number;
-  wasPrice?: number;
-  badge?: "Must Try" | "Popular" | "Best Value" | "New";
-  instantConfirm?: boolean;
-  image: string;
-  overview: string;
-  featured?: boolean;
-};
-
-export const experiences: Experience[] = [
-  { slug: "desert-safari-evening", title: "Evening Red Dunes Desert Safari & BBQ", emirate: "Dubai", category: "Desert", duration: "Half Day", audience: ["Families", "Groups", "Couples"], priceStatus: "from", priceFrom: 165, wasPrice: 220, badge: "Must Try", instantConfirm: true, image: "/images/inbound/desert-safari-premium-red-dune-evening-desert-shows-and-dinner-at-heritage-village/img-1.avif", overview: "Dune drive, camel ride, henna, 7 live shows and a 5-star BBQ dinner under desert stars.", featured: true },
-  { slug: "burj-khalifa-levels", title: "Burj Khalifa: At The Top (Levels 124 & 125)", emirate: "Dubai", category: "Attraction", duration: "1–2 Hours", audience: ["Families", "Couples", "Adults"], priceStatus: "from", priceFrom: 179, wasPrice: 210, badge: "Must Try", instantConfirm: true, image: "/images/inbound/view-at-the-top-burj-khalifa/img-1.webp", overview: "Observation decks on levels 124 & 125, with panoramic fountain show views below.", featured: true },
-  { slug: "private-yacht-marina", title: "Private Luxury Yacht Charter Dubai Marina", emirate: "Dubai", category: "Luxury", duration: "2–4 Hours", audience: ["Couples", "Groups"], priceStatus: "from", priceFrom: 380, badge: "Popular", instantConfirm: true, image: "/images/inbound/xclusive-sharing-and-private-yacht-tours/img-1.webp", overview: "Private charter along Marina, Ain Dubai and the Palm coastline with captain and crew.", featured: true },
-  { slug: "lotus-mega-yacht", title: "Lotus Mega Yacht 5-Star Dinner Cruise", emirate: "Dubai", category: "Cruise", duration: "2–4 Hours", audience: ["Families", "Couples"], priceStatus: "from", priceFrom: 249, badge: "Must Try", instantConfirm: true, image: "/images/inbound/lotus-royale-dhow-cruise/img-1.webp", overview: "240ft superyacht with onboard pool, live DJ, and 5-star international buffet dinner." },
-  { slug: "hot-air-balloon-desert", title: "Desert Hot Air Balloon Sunrise & Falconry", emirate: "Dubai", category: "Adventure", duration: "Half Day", audience: ["Adults", "Couples"], priceStatus: "from", priceFrom: 990, badge: "Must Try", instantConfirm: true, image: "/images/inbound/dubai-hot-air/img-1.webp", overview: "Pre-dawn flight 4,000ft over dunes, in-flight falconry show and gourmet desert breakfast." },
-  { slug: "aquaventure-waterpark", title: "Atlantis Aquaventure Waterpark World", emirate: "Dubai", category: "Theme Park", duration: "Full Day", audience: ["Families", "Children"], priceStatus: "from", priceFrom: 325, badge: "Must Try", instantConfirm: true, image: "/images/inbound/atlantis-aqua-water-park/img-1.webp", overview: "105 record-breaking waterslides, private white sand beach and marine habitats." },
-  { slug: "museum-of-the-future", title: "Museum of The Future Entry Ticket", emirate: "Dubai", category: "Attraction", duration: "2–4 Hours", audience: ["Adults", "Families"], priceStatus: "from", priceFrom: 159, badge: "Must Try", instantConfirm: true, image: "/images/inbound/museum-of-the-future/img-1.webp", overview: "Journey 50 years into the future inside the world's most beautiful building." },
-  { slug: "global-village", title: "Global Village Dubai Season Entry Ticket", emirate: "Dubai", category: "Attraction", duration: "Half Day", audience: ["Families", "Children", "Groups"], priceStatus: "from", priceFrom: 25, badge: "Best Value", instantConfirm: true, image: "/images/inbound/global-village/img-1.webp", overview: "90+ country pavilions, street food, live cultural shows and carnival rides." },
-  { slug: "the-view-palm", title: "The View at The Palm (Level 52)", emirate: "Dubai", category: "Attraction", duration: "1–2 Hours", audience: ["Families", "Couples"], priceStatus: "from", priceFrom: 105, wasPrice: 125, badge: "Must Try", instantConfirm: true, image: "/images/inbound/view-at-the-top-of-the-palm/img-1.webp", overview: "360° views of Palm Jumeirah from Level 52, 240m above the island." },
-  { slug: "ski-dubai-snow-park", title: "Ski Dubai Snow Park & Slope", emirate: "Dubai", category: "Theme Park", duration: "2–4 Hours", audience: ["Families", "Children"], priceStatus: "from", priceFrom: 220, badge: "Popular", instantConfirm: true, image: "/images/inbound/ski-dubai/img-1.jpg", overview: "Real snow all year: toboggan runs, penguin encounters and full winter gear included." },
-  { slug: "img-worlds", title: "IMG Worlds of Adventure Mega Indoor Park", emirate: "Dubai", category: "Theme Park", duration: "Full Day", audience: ["Families", "Children", "Groups"], priceStatus: "from", priceFrom: 245, wasPrice: 345, badge: "Must Try", instantConfirm: true, image: "/images/inbound/img-world-of-adventure/img-1.webp", overview: "World's largest indoor theme park, home to Marvel, Cartoon Network and the Velociraptor coaster." },
-  { slug: "ferrari-world", title: "Ferrari World Abu Dhabi (Yas Island)", emirate: "Abu Dhabi", category: "Theme Park", duration: "Full Day", audience: ["Families", "Groups", "Adults"], priceStatus: "from", priceFrom: 345, badge: "Must Try", instantConfirm: true, image: "/images/inbound/ferrari-world/img-1.webp", overview: "Formula Rossa 240km/h fastest rollercoaster, Flying Aces and 40 Ferrari rides." },
-  { slug: "louvre-abu-dhabi", title: "Louvre Abu Dhabi Universal Museum", emirate: "Abu Dhabi", category: "Culture", duration: "2–4 Hours", audience: ["Adults", "Families"], priceStatus: "from", priceFrom: 65, badge: "Popular", instantConfirm: true, image: "/images/inbound/louvre-museum-abu-dhabi/img-1.webp", overview: "Jean Nouvel's rain-of-light floating dome and 12 world-class galleries." }
-];
-
-export const emirates = [
-  { name: "Dubai", blurb: "Skyline, desert and everything between.", top: "34%", left: "40%" },
-  { name: "Abu Dhabi", blurb: "Culture, capital icons and island resorts.", top: "62%", left: "22%" },
-  { name: "Sharjah", blurb: "Museums, heritage and the Blue Souk.", top: "27%", left: "47%" },
-  { name: "Ajman", blurb: "Quiet beaches minutes from the city.", top: "22%", left: "52%" },
-  { name: "Ras Al Khaimah", blurb: "Mountains, ziplines and coastline.", top: "10%", left: "63%" },
-  { name: "Fujairah", blurb: "East-coast diving and Hajar peaks.", top: "26%", left: "76%" },
-  { name: "Al Ain", blurb: "Oasis city and Jebel Hafeet.", top: "70%", left: "50%" },
-  { name: "Hatta", blurb: "Dam kayaking and mountain trails.", top: "46%", left: "62%" },
-] as const;
-
-export const travelStyles: TravelStyle[] = [
-  "Honeymoon",
-  "Romantic",
-  "Family",
-  "Luxury",
-  "Adventure",
-  "Beach",
-  "City Escape",
-  "Shopping",
-  "Cultural",
-  "Historical",
-  "Nature",
-  "Mountain",
-  "Safari",
-  "Theme Park",
-  "Northern Lights",
-  "Cruises",
-  "Weekend Escape",
-  "Budget Friendly"
-];
-
-export function priceLabel(p: { priceStatus: PriceStatus; priceFrom?: number }) {
-  return p.priceStatus === "from" && p.priceFrom ? "From AED " + p.priceFrom.toLocaleString() : "Price on Request";
-}
-
-export const experienceCategories: ExperienceCategory[] = [
-  "Attraction",
-  "Theme Park",
-  "Water Park",
-  "Desert",
-  "Adventure",
-  "Cruise",
-  "Water Sports",
-  "Sightseeing",
-  "Culture",
-  "Combo Deal",
-  "Family",
-  "Luxury",
-  "Dining",
-  "Shows",
-  "Wellness",
-  "Shopping",
-];
-
-export function discountPct(e: { priceFrom?: number; wasPrice?: number }) {
-  if (!e.priceFrom || !e.wasPrice || e.wasPrice <= e.priceFrom) return null;
-  return Math.round(((e.wasPrice - e.priceFrom) / e.wasPrice) * 100);
-}
-
-export const under100 = experiences
-  .filter((e) => e.priceStatus === "from" && (e.priceFrom ?? Infinity) < 100)
-  .sort((a, b) => (a.priceFrom ?? 0) - (b.priceFrom ?? 0));
-
-/**
- * Price split into its eyebrow and its amount.
- *
- * Cards render a small "Per person from" label above a large figure. Using
- * `priceLabel` for the figure duplicated the word — "PER PERSON FROM" sitting
- * directly above "From AED 3,499". This returns the two halves separately so a
- * card can label the row once and print the bare amount underneath.
- */
-export function priceParts(p: { priceStatus: PriceStatus; priceFrom?: number }): {
-  eyebrow: string;
-  amount: string;
-} {
-  return p.priceStatus === "from" && p.priceFrom
-    ? { eyebrow: "Per person from", amount: "AED " + p.priceFrom.toLocaleString() }
-    : { eyebrow: "Tailored quote", amount: "Price on request" };
-}
+export { experiences, under100 } from "./experiences";

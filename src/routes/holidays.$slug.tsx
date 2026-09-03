@@ -22,7 +22,10 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { BRAND, packages, priceLabel, waLink } from "@/data/catalogue";
+import { BRAND, waLink } from "@/data/catalogue-brand";
+import { priceLabel } from "@/data/catalogue-meta";
+// The one route that genuinely needs the full packages, itineraries and all.
+import { packages } from "@/data/catalogue";
 import { countries } from "@/data/countries";
 import { packageDetail } from "@/data/package-details";
 import { PackageCard } from "@/components/site/PackageCard";
@@ -32,7 +35,24 @@ import { packageTitle, metaDescription } from "@/lib/seo";
 import { absoluteUrl, siteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/holidays/$slug")({
-  loader: ({ params }) => {
+  /**
+   * The heavy data is imported here, inside the loader, deliberately.
+   *
+   * A route's `component` is code-split but its `loader` is not — the router
+   * has to be able to run it before deciding what to render, so anything the
+   * loader references at module scope lands in the chunk that loads on every
+   * page. That is how 245KB of holiday catalogue, 106KB of activities and 33KB
+   * of countries ended up in the entry bundle of /privacy.
+   *
+   * An async loader with a dynamic import gives the router the same data at the
+   * same moment, but the bundler can now put it in a chunk fetched only when
+   * someone actually opens this route.
+   */
+  loader: async ({ params }) => {
+    const [{ packages }, { packageDetail }] = await Promise.all([
+      import("@/data/catalogue"),
+      import("@/data/package-details"),
+    ]);
     const pkg = packages.find((p) => p.slug === params.slug);
     if (!pkg) throw notFound();
     return { pkg, detail: packageDetail(params.slug) };

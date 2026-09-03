@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle, Phone } from "lucide-react";
 import { Magnet } from "@/components/site/Magnet";
-import { BRAND, waLink } from "@/data/catalogue";
+import { BRAND, waLink } from "@/data/catalogue-brand";
 import { clamp, prefersReducedMotion } from "@/lib/scroll";
 
 /**

@@ -3,7 +3,7 @@ import { Check, Mail, MapPin, MessageCircle, Phone, Quote } from "lucide-react";
 import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { CredentialGrid } from "@/components/site/Credentials";
-import { BRAND, offices, serviceLines, waLink } from "@/data/catalogue";
+import { BRAND, offices, serviceLines, waLink } from "@/data/catalogue-brand";
 import { absoluteUrl, siteUrl } from "@/lib/site";
 
 const title = "About Nawi Saadi | IATA Travel Agency in Dubai";
@@ -78,7 +78,7 @@ function AboutPage() {
         eyebrow="About us"
         title={
           <>
-            Travel, tourism, aviation and cargo &mdash;{" "}
+            Travel, tourism, aviation and cargo,{" "}
             <span className="italic text-[#DDBE5E]">trusted since 2009</span>
           </>
         }
@@ -127,7 +127,7 @@ function AboutPage() {
                 <strong className="text-foreground">
                   approved by the Dubai Department of Tourism and Commerce Marketing (DTCM)
                 </strong>{" "}
-                — strengthening our position as a trusted partner for international flight booking,
+                , strengthening our position as a trusted partner for international flight booking,
                 airline ticketing, tourism solutions, aviation support, ground handling coordination
                 and airport assistance.
               </p>
@@ -189,7 +189,7 @@ function AboutPage() {
           <p className="eyebrow mt-6">Chairman's message</p>
           <blockquote className="mt-4 max-w-4xl space-y-5 text-lg text-muted-foreground">
             <p>
-              "Travel is more than a journey — it is a connection between people, cultures,
+              "Travel is more than a journey. It is a connection between people, cultures,
               opportunities and unforgettable experiences. Since our establishment in 2009 in Kabul,
               our mission has been to deliver trust, comfort, safety and excellence in every journey
               we manage.
@@ -197,8 +197,8 @@ function AboutPage() {
             <p>
               As the General Sales Agent of flydubai in Afghanistan and an IATA-accredited travel
               agency, we proudly represent international standards of service, reliability and
-              innovation. Our greatest strength is our people — and together, we connect
-              destinations, create experiences and build the future of travel."
+              innovation. Our greatest strength is our people, and together we connect destinations,
+              create experiences and build the future of travel."
             </p>
           </blockquote>
           <p className="mt-6 font-medium">{BRAND.chairman}</p>

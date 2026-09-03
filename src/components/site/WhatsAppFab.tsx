@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { MessageCircle } from "lucide-react";
-import { BRAND, waLink } from "@/data/catalogue";
+import { BRAND, waLink } from "@/data/catalogue-brand";
 import { cn } from "@/lib/utils";
 
 /**

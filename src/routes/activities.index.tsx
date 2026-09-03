@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, X, MessageCircle, SlidersHorizontal } from "lucide-react";
-import { BRAND, waLink } from "@/data/catalogue";
-import { inboundActivities, inboundCategories, type InboundCategory } from "@/data/inbound";
+import { BRAND, waLink } from "@/data/catalogue-brand";
+import { inboundCategories, type InboundCategory } from "@/data/inbound-types";
+import { activitiesLite as inboundActivities } from "@/data/generated/activities-lite";
 import { ActivityCard } from "@/components/site/ActivityCard";
 import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";

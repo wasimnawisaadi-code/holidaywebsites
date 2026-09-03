@@ -15,7 +15,9 @@ import {
   Stamp,
 } from "lucide-react";
 import { countries } from "@/data/countries";
-import { BRAND, packages, priceLabel, waLink } from "@/data/catalogue";
+import { BRAND, waLink } from "@/data/catalogue-brand";
+import { priceLabel } from "@/data/catalogue-meta";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
 import { PackageCard } from "@/components/site/PackageCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";
@@ -23,7 +25,21 @@ import { metaDescription } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/countries/$slug")({
-  loader: ({ params }) => {
+  /**
+   * The heavy data is imported here, inside the loader, deliberately.
+   *
+   * A route's `component` is code-split but its `loader` is not — the router
+   * has to be able to run it before deciding what to render, so anything the
+   * loader references at module scope lands in the chunk that loads on every
+   * page. That is how 245KB of holiday catalogue, 106KB of activities and 33KB
+   * of countries ended up in the entry bundle of /privacy.
+   *
+   * An async loader with a dynamic import gives the router the same data at the
+   * same moment, but the bundler can now put it in a chunk fetched only when
+   * someone actually opens this route.
+   */
+  loader: async ({ params }) => {
+    const { countries } = await import("@/data/countries");
     const country = countries.find((c) => c.slug === params.slug);
     if (!country) throw notFound();
     return { country };
@@ -320,7 +336,7 @@ function CountryPage() {
             </h3>
             <p className="mt-3 max-w-2xl mx-auto text-sm text-slate-600 leading-relaxed">
               We design private custom holidays to {country.name} every week. Choose your departure
-              date, duration, preferred hotel stars, and private guided excursions — our Dubai team
+              date, duration, preferred hotel stars, and private guided excursions, and our Dubai team
               handles everything end-to-end.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">

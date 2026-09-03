@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle, X, Clock, MapPin } from "lucide-react";
-import { packages, priceParts, waLink } from "@/data/catalogue";
+import { waLink } from "@/data/catalogue-brand";
+import { priceParts } from "@/data/catalogue-meta";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 

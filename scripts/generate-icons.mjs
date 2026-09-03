@@ -1,25 +1,23 @@
 /**
  * Builds the site's icon set from the brand mark.
  *
- * The site shipped one file — a 701x479 PNG copied to favicon.ico, favicon.png
- * and logo.png, all byte-identical. Three problems with that: a PNG declared as
- * image/x-icon, a non-square source that browsers letterbox, and the full
- * lockup (mark + "NAWI SAADI" + "TRAVEL & TOURISM" + Arabic) squeezed into
- * 32 pixels, where the wordmark is an illegible smudge. There was also no
- * apple-touch-icon, so an iOS home-screen bookmark fell back to a screenshot.
+ * The site originally shipped one file — a 701x479 PNG copied to favicon.ico,
+ * favicon.png and logo.png, all byte-identical. A PNG declared as
+ * image/x-icon, a non-square source browsers letterbox, and the full lockup
+ * (mark + "NAWI SAADI" + "TRAVEL & TOURISM" + Arabic) squeezed into 32 pixels
+ * where the wordmark is a smudge.
  *
- * Two treatments of the same mark, chosen by size.
+ * The first fix recoloured the mark navy for small sizes, on the reasoning that
+ * navy-on-white is the highest-contrast pairing the brand owns. It was legible
+ * and it was wrong: the logo is gold, so the tab showed a mark nobody
+ * recognised as this company.
  *
- * Gold line-art on navy collapses into a muddy triangle at 32px — the strokes
- * are thinner than a pixel and merge, and neither thickening nor sharpening
- * recovers them. Contrast is the only thing that helps, and the highest
- * contrast available is the mark in navy on white: no coloured tile, just the
- * logo. A gold tile was tried and read as a loud gold square in the tab rather
- * than as a mark.
- *
- * Large sizes keep the mark the right way round on navy, because at 180px and
- * above there is resolution enough for the fine strokes to read properly and
- * that is the logo as it is actually drawn.
+ * What actually fixes legibility is the crop, not the colour. The full arch is
+ * 2.2:1, so fitting it into a square leaves it filling barely a third of the
+ * height — about 14 pixels of a 32 pixel icon, which is where the fine strokes
+ * disappear. The centre of the arch, the peak and its vertical bars, is nearly
+ * square. Cropped to that, the mark fills the icon and the strokes survive, in
+ * the brand's own gold.
  *
  *   node scripts/generate-icons.mjs
  */
@@ -27,69 +25,50 @@ import sharp from "sharp";
 import fs from "node:fs";
 
 const SRC = "src/assets/logo-ink.png";
-const NAVY = { r: 0, g: 54, b: 95, alpha: 1 }; // #00365F
 const WHITE = { r: 255, g: 255, b: 255, alpha: 1 };
-// Measured from the source: the mark occupies the top two-thirds; gold pixel
-// density falls to zero below y=213, where the wordmark begins.
-const MARK = { left: 73, top: 0, width: 291, height: 213 };
+const CLEAR = { r: 0, g: 0, b: 0, alpha: 0 };
 
-const mark = await sharp(SRC).extract(MARK).png().toBuffer();
-
-/** The architectural mark, centred on navy with room for icon masking. */
-async function markIcon(size, padRatio = 0.18) {
-  const inner = Math.round(size * (1 - padRatio * 2));
-  const resized = await sharp(mark)
-    .resize(inner, inner, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .toBuffer();
-  return sharp({ create: { width: size, height: size, channels: 4, background: NAVY } })
-    .composite([{ input: resized, gravity: "center" }])
-    .png({ compressionLevel: 9 })
-    .toBuffer();
-}
+const meta = await sharp(SRC).metadata();
 
 /**
- * The mark alone, in navy, on white. No tile colour, nothing added.
+ * The arch alone.
  *
- * Every gold pixel of the source becomes solid navy and everything else
- * becomes transparent, over a white ground. Navy on white is the highest
- * contrast pairing available from the brand's own colours, which is the only
- * thing that keeps a line-art mark legible at 16 pixels.
+ * The wordmark sits under it; gold pixel density falls to zero below roughly
+ * two thirds of the height, so taking the top band and trimming to content
+ * isolates the mark without hard-coding a bounding box that a redraw of the
+ * logo would invalidate.
  */
-async function invertedMarkIcon(size) {
-  const { data, info } = await sharp(SRC)
-    .extract(MARK)
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  const { width, height, channels } = info;
+const arch = await sharp(SRC)
+  .extract({ left: 0, top: 0, width: meta.width, height: Math.round(meta.height * 0.63) })
+  .trim({ threshold: 8 })
+  .png()
+  .toBuffer();
+const archMeta = await sharp(arch).metadata();
 
-  const out = Buffer.alloc(width * height * 4);
-  for (let i = 0; i < width * height; i++) {
-    const r = data[i * channels];
-    const g = data[i * channels + 1];
-    const b = data[i * channels + 2];
-    const a = data[i * channels + 3];
-    // The same gold test used to find the mark's bounding box.
-    const isMark = a > 40 && r > 110 && g > 80 && r - b > 45;
-    out[i * 4] = 0;
-    out[i * 4 + 1] = 54;
-    out[i * 4 + 2] = 95;
-    out[i * 4 + 3] = isMark ? 255 : 0;
-  }
-
-  const inner = Math.round(size * 0.96);
-  // Encode to PNG before resizing: sharp will not resize a raw buffer and
-  // then hand it back without a declared output format.
-  const glyph = await sharp(out, { raw: { width, height, channels: 4 } })
-    .png()
-    .resize(inner, inner, {
-      fit: "contain",
-      background: { r: 0, g: 0, b: 0, alpha: 0 },
-      kernel: "lanczos3",
+/** The centre of the arch: near square, so it survives being shrunk to 32px. */
+const peakWidth = Math.round(archMeta.width * 0.5);
+const peak = await sharp(
+  await sharp(arch)
+    .extract({
+      left: Math.round((archMeta.width - peakWidth) / 2),
+      top: 0,
+      width: peakWidth,
+      height: archMeta.height,
     })
     .png()
-    .toBuffer();
+    .toBuffer(),
+)
+  .trim({ threshold: 8 })
+  .png()
+  .toBuffer();
 
+/** Mark centred on white, in the brand gold, with room for icon masking. */
+async function icon(source, size, padRatio) {
+  const inner = Math.round(size * (1 - padRatio * 2));
+  const glyph = await sharp(source)
+    .resize(inner, inner, { fit: "inside", background: CLEAR, kernel: "lanczos3" })
+    .png()
+    .toBuffer();
   return sharp({ create: { width: size, height: size, channels: 4, background: WHITE } })
     .composite([{ input: glyph, gravity: "center" }])
     .png({ compressionLevel: 9 })
@@ -122,24 +101,22 @@ function ico(pngs) {
 }
 
 const outputs = [
-  // Small: the mark alone in navy on white, which is the only version that reads here.
-  ["public/favicon-32.png", await invertedMarkIcon(32)],
-  // Large: the real mark, which has the resolution to carry it.
-  ["public/apple-touch-icon.png", await markIcon(180, 0.16)],
-  ["public/icon-192.png", await markIcon(192, 0.18)],
-  ["public/icon-512.png", await markIcon(512, 0.18)],
+  // Tab icon: the peak, which is the only crop that reads at this size.
+  ["public/favicon-32.png", await icon(peak, 32, 0.05)],
+  // Home screen and PWA: room for the whole arch, so show the whole arch.
+  ["public/apple-touch-icon.png", await icon(arch, 180, 0.14)],
+  ["public/icon-192.png", await icon(arch, 192, 0.14)],
+  ["public/icon-512.png", await icon(arch, 512, 0.14)],
 ];
 for (const [path, buf] of outputs) {
   fs.writeFileSync(path, buf);
-  console.log(`${path.padEnd(32)} ${(buf.length / 1024).toFixed(1)} KB`);
+  console.log(`  ${path.padEnd(32)} ${(buf.length / 1024).toFixed(1)} KB`);
 }
 
 const icoBuf = ico([
-  { size: 16, data: await invertedMarkIcon(16) },
-  { size: 32, data: await invertedMarkIcon(32) },
-  { size: 48, data: await invertedMarkIcon(48) },
+  { size: 16, data: await icon(peak, 16, 0.03) },
+  { size: 32, data: await icon(peak, 32, 0.05) },
+  { size: 48, data: await icon(peak, 48, 0.05) },
 ]);
 fs.writeFileSync("public/favicon.ico", icoBuf);
-console.log(
-  `${"public/favicon.ico".padEnd(32)} ${(icoBuf.length / 1024).toFixed(1)} KB (16+32+48)`,
-);
+console.log(`  ${"public/favicon.ico".padEnd(32)} ${(icoBuf.length / 1024).toFixed(1)} KB`);

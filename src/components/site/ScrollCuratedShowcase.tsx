@@ -10,7 +10,8 @@ import {
   MessageCircle,
   Star,
 } from "lucide-react";
-import { packages, waLink, BRAND } from "@/data/catalogue";
+import { waLink, BRAND } from "@/data/catalogue-brand";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
 
 const SHOWCASE_SLUGS = [
   "swiss-alpine-dream",
@@ -145,8 +146,8 @@ export function ScrollCuratedShowcase() {
               Journeys Crafted for <span className="italic text-[#CAA42D]">The Discerning</span>
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-slate-300 sm:text-base">
-              Swipe or glide through our most requested worldwide escapes — complete with private
-              DXB flights, luxury hotels, chauffeured transfers, and fast-track visas.
+              Swipe or glide through our most requested worldwide escapes, complete with private DXB
+              flights, luxury hotels, chauffeured transfers, and fast-track visas.
             </p>
           </div>
 

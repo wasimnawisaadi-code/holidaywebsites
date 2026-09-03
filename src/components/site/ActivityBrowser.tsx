@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { inboundCategories, type InboundActivity, type InboundCategory } from "@/data/inbound";
+import { inboundCategories, type InboundCategory } from "@/data/inbound-types";
+import type { ActivityLite as InboundActivity } from "@/data/generated/activities-lite";
 import { ActivityCard } from "@/components/site/ActivityCard";
 import { Reveal } from "@/components/site/Reveal";
 import { cn } from "@/lib/utils";

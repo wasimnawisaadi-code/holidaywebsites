@@ -5,8 +5,10 @@ import { Menu, X, MessageCircle, ChevronDown, Phone } from "lucide-react";
 // made the wordmark render illegibly small at header height.
 import logoOnLight from "@/assets/logo-ink.webp";
 import logoOnDark from "@/assets/logo-white.webp";
-import { BRAND, packages, priceLabel, waLink } from "@/data/catalogue";
-import { countries } from "@/data/countries";
+import { BRAND, waLink } from "@/data/catalogue-brand";
+import { priceLabel } from "@/data/catalogue-meta";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
+import { countriesLite as countries } from "@/data/generated/countries-lite";
 import { cn } from "@/lib/utils";
 
 /**

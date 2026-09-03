@@ -17,7 +17,7 @@ import {
   Zap,
   X,
 } from "lucide-react";
-import { BRAND, waLink } from "@/data/catalogue";
+import { BRAND, waLink } from "@/data/catalogue-brand";
 import { inboundActivities, inboundBySlug, inboundFrom } from "@/data/inbound";
 import { ActivityCard } from "@/components/site/ActivityCard";
 import { Reveal } from "@/components/site/Reveal";
@@ -26,7 +26,21 @@ import { activityTitle, metaDescription } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/activities/$slug")({
-  loader: ({ params }) => {
+  /**
+   * The heavy data is imported here, inside the loader, deliberately.
+   *
+   * A route's `component` is code-split but its `loader` is not — the router
+   * has to be able to run it before deciding what to render, so anything the
+   * loader references at module scope lands in the chunk that loads on every
+   * page. That is how 245KB of holiday catalogue, 106KB of activities and 33KB
+   * of countries ended up in the entry bundle of /privacy.
+   *
+   * An async loader with a dynamic import gives the router the same data at the
+   * same moment, but the bundler can now put it in a chunk fetched only when
+   * someone actually opens this route.
+   */
+  loader: async ({ params }) => {
+    const { inboundBySlug } = await import("@/data/inbound");
     const activity = inboundBySlug(params.slug);
     if (!activity) throw notFound();
     return { activity };
@@ -325,7 +339,7 @@ function ActivityPage() {
                         {o.adult ? `AED ${o.adult.toLocaleString()}` : "On request"}
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap text-slate-600">
-                        {o.child ? `AED ${o.child.toLocaleString()}` : "—"}
+                        {o.child ? `AED ${o.child.toLocaleString()}` : "Not offered"}
                       </td>
                     </tr>
                   ))}
@@ -468,7 +482,7 @@ function ActivityPage() {
                 >
                   {a.options.map((opt, idx) => (
                     <option key={opt.label} value={idx}>
-                      {opt.label} — AED {opt.adult || a.fromPrice || "On Request"}
+                      {opt.label} &middot; AED {opt.adult || a.fromPrice || "On Request"}
                     </option>
                   ))}
                 </select>

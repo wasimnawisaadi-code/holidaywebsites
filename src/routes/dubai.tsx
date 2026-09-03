@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Compass, ShieldCheck, Sparkles } from "lucide-react";
 import heroDubai from "@/assets/hero-dubai.jpg";
-import { inboundActivities } from "@/data/inbound";
+import { activitiesLite as inboundActivities } from "@/data/generated/activities-lite";
 import { ActivityBrowser } from "@/components/site/ActivityBrowser";
 import { Depth } from "@/components/site/Parallax";
 import { GoldParticleField } from "@/components/3d/GoldParticleField";
@@ -65,7 +65,7 @@ function DubaiPage() {
             </h1>
             <p className="mt-4 max-w-xl text-lg text-foreground/80">
               {pool.length} verified tours, tickets and experiences across Dubai, the red dunes and
-              Hatta — {cheapest} under AED 100 with instant WhatsApp voucher confirmation.
+              Hatta. {cheapest} under AED 100 with instant WhatsApp voucher confirmation.
             </p>
           </Depth>
         </div>

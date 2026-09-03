@@ -1,4 +1,5 @@
-export type CountryRegion = "Europe" | "Asia" | "Africa" | "Eurasia" | "Australia" | "America";
+import type { CountryRegion } from "./countries-types";
+export type { CountryRegion } from "./countries-types";
 
 export type Country = {
   gallery?: string[];
@@ -1265,14 +1266,7 @@ export const countries: Country[] = [
   }),
 ];
 
-export const countryRegions: CountryRegion[] = [
-  "Europe",
-  "Asia",
-  "Africa",
-  "Eurasia",
-  "Australia",
-  "America",
-];
+export { countryRegions } from "./countries-types";
 
 export function countriesByRegion(region: CountryRegion) {
   return countries.filter((x) => x.region === region);

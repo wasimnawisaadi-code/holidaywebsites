@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Globe, ArrowRight, Sparkles, MapPin, MessageCircle } from "lucide-react";
-import { BRAND, waLink } from "@/data/catalogue";
+import { BRAND, waLink } from "@/data/catalogue-brand";
 
 export type RegionGroup = {
   region: string;

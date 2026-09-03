@@ -1,5 +1,5 @@
 import { Building2, Globe2, ShieldCheck, MessageCircle } from "lucide-react";
-import { BRAND } from "@/data/catalogue";
+import { BRAND } from "@/data/catalogue-brand";
 
 /**
  * Every figure here has to be one the agency can evidence on request.

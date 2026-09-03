@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BRAND } from "@/data/catalogue";
+import { BRAND } from "@/data/catalogue-brand";
 import { absoluteUrl } from "@/lib/site";
 import { PageHero } from "@/components/site/PageHero";
 import { LegalPage, LegalSection } from "@/components/site/LegalPage";
@@ -63,7 +63,7 @@ function PrivacyPage() {
         <LegalSection title="What we collect">
           <p>
             Only what you send us. When you submit an enquiry, use the trip planner, or start a
-            WhatsApp conversation from this site, we receive the details you choose to provide —
+            WhatsApp conversation from this site, we receive the details you choose to provide:
             typically your name, a contact number or email address, and the destinations, dates and
             traveller numbers you are asking about.
           </p>
@@ -77,7 +77,7 @@ function PrivacyPage() {
 
         <LegalSection title="Why we hold it">
           <p>
-            To answer your enquiry, prepare a quotation, and — if you go ahead — arrange the
+            To answer your enquiry, prepare a quotation, and, if you go ahead, arrange the
             flights, hotels, transfers and visas that make up your trip. We also keep a record of
             correspondence so that a consultant picking up your file can see what was already
             discussed.

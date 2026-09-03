@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { countries, countriesByRegion, countryRegions } from "@/data/countries";
+import { countryRegions } from "@/data/countries-types";
+import { countriesLite as countries } from "@/data/generated/countries-lite";
+const countriesByRegion = (region: (typeof countryRegions)[number]) =>
+  countries.filter((c) => c.region === region);
 import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { TiltCard } from "@/components/site/Parallax";

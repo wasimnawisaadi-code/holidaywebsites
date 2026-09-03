@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { BadgeCheck, Check, Clock, Mail, MapPin, MessageCircle, Phone, Send } from "lucide-react";
 import heroDubai from "@/assets/hero-dubai.jpg";
-import { BRAND, offices, packages, waLink } from "@/data/catalogue";
+import { BRAND, offices, waLink } from "@/data/catalogue-brand";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
 import { Reveal } from "@/components/site/Reveal";
 import { PageHero } from "@/components/site/PageHero";
 import { cn } from "@/lib/utils";
@@ -366,7 +367,7 @@ function ContactPage() {
                     <option value="">Not decided / custom trip</option>
                     {packages.map((p) => (
                       <option key={p.slug} value={p.slug}>
-                        {p.title} — {p.country}
+                        {p.title} &middot; {p.country}
                       </option>
                     ))}
                   </select>

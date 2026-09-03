@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { MapPin, Users, CalendarDays, Search } from "lucide-react";
-import { countries } from "@/data/countries";
-import { packages, waLink } from "@/data/catalogue";
+import { countriesLite as countries } from "@/data/generated/countries-lite";
+import { waLink } from "@/data/catalogue-brand";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
 import { track } from "@/lib/analytics";
 
 /**

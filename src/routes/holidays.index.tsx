@@ -14,7 +14,9 @@ import {
   MessageCircle,
   Star,
 } from "lucide-react";
-import { packages, travelStyles, type TravelStyle, BRAND, waLink } from "@/data/catalogue";
+import { BRAND, waLink } from "@/data/catalogue-brand";
+import { travelStyles, type TravelStyle } from "@/data/catalogue-meta";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
 import { PackageCard } from "@/components/site/PackageCard";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";

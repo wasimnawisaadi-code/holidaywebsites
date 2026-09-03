@@ -1,4 +1,5 @@
-import { BRAND, discountPct, priceLabel, waLink, type Experience } from "@/data/catalogue";
+import { BRAND, waLink } from "@/data/catalogue-brand";
+import { discountPct, priceLabel, type Experience } from "@/data/catalogue-meta";
 import { tileImage } from "@/lib/img";
 
 export function TourCard({ e, eager = false }: { e: Experience; eager?: boolean }) {

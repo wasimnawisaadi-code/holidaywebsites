@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BRAND } from "@/data/catalogue";
+import { BRAND } from "@/data/catalogue-brand";
 import { absoluteUrl } from "@/lib/site";
 import { PageHero } from "@/components/site/PageHero";
 import { LegalPage, LegalSection } from "@/components/site/LegalPage";
@@ -81,7 +81,7 @@ function TermsPage() {
         <LegalSection title="Changes and cancellations">
           <p>
             Cancellation and amendment terms are set by the airline, hotel or operator holding your
-            reservation, and they vary widely — some fares are non-refundable from the moment they
+            reservation, and they vary widely. Some fares are non-refundable from the moment they
             are ticketed, while some hotel rates allow free cancellation up to a stated date. There
             is no single policy that applies to every booking.
           </p>
@@ -118,7 +118,7 @@ function TermsPage() {
         <LegalSection title="Your responsibilities">
           <p>
             Please check that every name on a quotation matches the passport exactly before
-            ticketing — airlines charge to correct names, and some do not permit it at all. Check
+            ticketing. Airlines charge to correct names, and some do not permit it at all. Check
             your confirmed dates, times and airports on receipt and tell us immediately if anything
             is wrong.
           </p>
@@ -134,7 +134,7 @@ function TermsPage() {
 
         <LegalSection title="Complaints">
           <p>
-            If something goes wrong, contact your consultant first — most issues are resolved
+            If something goes wrong, contact your consultant first. Most issues are resolved
             fastest by the person holding your file. You can also write to{" "}
             <a className="underline" href={`mailto:${BRAND.email}`}>
               {BRAND.email}

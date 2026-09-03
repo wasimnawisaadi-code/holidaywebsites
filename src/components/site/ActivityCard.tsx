@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, MapPin, MessageCircle, Star, ArrowRight, ShieldCheck } from "lucide-react";
-import { inboundFrom, type InboundActivity } from "@/data/inbound";
-import { waLink, BRAND } from "@/data/catalogue";
+import { activityFrom as inboundFrom, type ActivityLite } from "@/data/generated/activities-lite";
+import { waLink, BRAND } from "@/data/catalogue-brand";
 import { tileImage } from "@/lib/img";
 
-export function ActivityCard({ a, eager = false }: { a: InboundActivity; eager?: boolean }) {
+export function ActivityCard({ a, eager = false }: { a: ActivityLite; eager?: boolean }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:border-amber-400">
       <Link

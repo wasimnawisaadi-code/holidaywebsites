@@ -1,5 +1,5 @@
 import { Award, BadgeCheck, Building2, Globe2, Plane, Users } from "lucide-react";
-import { credentials } from "@/data/catalogue";
+import { credentials } from "@/data/catalogue-brand";
 import { Reveal } from "@/components/site/Reveal";
 
 const icons = [BadgeCheck, Plane, Award, Globe2, Users, Building2];

@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { countries } from "@/data/countries";
-import { packages } from "@/data/catalogue";
-import { inboundActivities } from "@/data/inbound";
+import { countriesLite as countries } from "@/data/generated/countries-lite";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
+import { activitiesLite as inboundActivities } from "@/data/generated/activities-lite";
 
 // Resolved from SITE_URL / Vercel env, falling back to the production domain.
 // This shipped as an empty string, which emitted sitemap entries no crawler

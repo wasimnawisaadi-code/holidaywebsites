@@ -1,9 +1,9 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Phone, Mail, MapPin, MessageCircle, ArrowRight } from "lucide-react";
+import { Phone, Mail, MapPin, MessageCircle, ArrowRight, BadgeCheck } from "lucide-react";
 import logoImg from "@/assets/logo-ink.webp";
 import { HorizonSilhouette } from "@/components/site/HorizonSilhouette";
 import { SubscribeForm } from "@/components/site/SubscribeForm";
-import { BRAND, waLink } from "@/data/catalogue";
+import { BRAND, credentials, waLink } from "@/data/catalogue-brand";
 import { offices, BRAND as BRAND_INFO } from "@/data/catalogue-brand";
 
 /**
@@ -211,6 +211,35 @@ export function SiteFooter() {
             ))}
         </div>
 
+        {/*
+          Accreditations, from the same `credentials` data the About page
+          renders. The footer is where someone checks whether an agency is real
+          before they send money, and it was the one place on the site that
+          said nothing about it.
+        */}
+        <div className="border-t border-[#E5E5E5] py-8">
+          <p className="font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-[#7A641B]">
+            Accredited &amp; Licensed
+          </p>
+          <ul className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-3">
+            {credentials.map((c) => (
+              <li
+                key={c.code}
+                title={c.body}
+                className="flex items-center gap-2 rounded-full border border-[#E0DAC9] bg-white px-3.5 py-2"
+              >
+                {/* A mark, not the code. "IATA" reads as a badge; "3" and "50+"
+                    on their own read as a typo, and the title already carries
+                    the number. */}
+                <BadgeCheck className="size-3.5 shrink-0 text-[#7A641B]" aria-hidden="true" />
+                <span className="font-sans text-[11px] font-medium leading-none text-[#00365F]">
+                  {c.title}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         {/* Legal line */}
         <div className="flex flex-col items-start justify-between gap-3 border-t border-[#E5E5E5] py-7 font-sans text-xs text-[#666666] sm:flex-row sm:items-center">
           {/* The build credit is the linked version on the right, which uses
@@ -219,26 +248,6 @@ export function SiteFooter() {
           <div className="space-y-1">
             <p>
               © {new Date().getFullYear()} {BRAND.legal}
-            </p>
-            {/*
-              A real link to the parent company, not just a mention. This site
-              is the holidays division; flights, visas, cargo and overflight
-              permits live on the parent. Stating the relationship in one
-              direction in the structured data and in the other with an actual
-              anchor is what tells a search engine these are one business
-              rather than two competing for the same brand name.
-            */}
-            <p className="text-[11px] text-[#6E6E6E]">
-              A division of{" "}
-              <a
-                href={BRAND_INFO.parentSite}
-                target="_blank"
-                rel="noopener"
-                className="font-medium text-[#00365F] transition-colors hover:text-[#7A641B]"
-              >
-                Nawi Saadi Travel &amp; Tourism
-              </a>
-              : flights, visas, Umrah and cargo
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">

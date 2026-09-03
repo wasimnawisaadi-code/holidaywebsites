@@ -9,9 +9,11 @@ import {
   ShieldCheck,
   Headset,
 } from "lucide-react";
-import { BRAND, packages, priceParts, waLink } from "@/data/catalogue";
-import { countries } from "@/data/countries";
-import { inboundActivities } from "@/data/inbound";
+import { BRAND, waLink } from "@/data/catalogue-brand";
+import { priceParts } from "@/data/catalogue-meta";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
+import { countriesLite as countries } from "@/data/generated/countries-lite";
+import { activitiesLite as inboundActivities } from "@/data/generated/activities-lite";
 import { offices } from "@/data/catalogue-brand";
 import { CinematicHero, type HeroClip } from "@/components/site/CinematicHero";
 import { EnquiryBar } from "@/components/site/EnquiryBar";
@@ -467,7 +469,7 @@ function ContactClose() {
           </div>
 
           <h2 className="mt-6 font-display leading-[1.06] text-white [font-size:clamp(2rem,4.6vw,3.6rem)]">
-            Tell us the country and the dates &mdash; we&apos;ll do{" "}
+            Tell us the country and the dates. We&apos;ll do{" "}
             <span className="italic text-[#DDBE5E]">the rest</span>
           </h2>
 

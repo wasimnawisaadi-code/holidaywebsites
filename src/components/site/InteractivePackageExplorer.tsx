@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { Clock, MapPin, MessageCircle, ArrowRight, Sparkles } from "lucide-react";
-import { packages, waLink, BRAND } from "@/data/catalogue";
+import { waLink, BRAND } from "@/data/catalogue-brand";
+import { packagesLite as packages } from "@/data/generated/packages-lite";
 import { cn } from "@/lib/utils";
 
 // Labels carry no emoji. A row of pills prefixed with a sparkle, a mountain,
