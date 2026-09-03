@@ -6,8 +6,19 @@
 import { chromium } from "playwright";
 import sharp from "sharp";
 
-const ROUTES = ["/", "/holidays", "/countries", "/activities", "/deals",
-                "/customized-tours", "/about", "/contact", "/plan", "/uae", "/dubai"];
+const ROUTES = [
+  "/",
+  "/holidays",
+  "/countries",
+  "/activities",
+  "/deals",
+  "/customized-tours",
+  "/about",
+  "/contact",
+  "/plan",
+  "/uae",
+  "/dubai",
+];
 const b = await chromium.launch();
 const p = await b.newPage({ viewport: { width: 1400, height: 880 } });
 
@@ -22,9 +33,13 @@ for (const route of ROUTES) {
     await p.evaluate((v) => scrollTo(0, v), y);
     await p.waitForTimeout(700);
     const buf = await p.screenshot();
-    const { data } = await sharp(buf).resize(40, 26, { fit: "fill" }).removeAlpha()
-      .raw().toBuffer({ resolveWithObject: true });
-    let lum = 0, n = 0;
+    const { data } = await sharp(buf)
+      .resize(40, 26, { fit: "fill" })
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    let lum = 0,
+      n = 0;
     for (let k = 0; k < data.length; k += 3) {
       lum += 0.2126 * data[k] + 0.7152 * data[k + 1] + 0.0722 * data[k + 2];
       n++;

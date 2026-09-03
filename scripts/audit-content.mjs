@@ -71,8 +71,10 @@ console.log(`  hot-linked (remote)   ${countries.filter((c) => remote(c.image)).
 // was never replaced.
 console.log("\nIMAGE REUSE ACROSS DIFFERENT COUNTRIES");
 const byImage = new Map();
-for (const p of [...packages.map((p) => ({ ...p, kind: "pkg" })),
-                 ...countries.map((c) => ({ country: c.name, slug: c.slug, image: c.image, kind: "country" }))]) {
+for (const p of [
+  ...packages.map((p) => ({ ...p, kind: "pkg" })),
+  ...countries.map((c) => ({ country: c.name, slug: c.slug, image: c.image, kind: "country" })),
+]) {
   if (!byImage.has(p.image)) byImage.set(p.image, []);
   byImage.get(p.image).push(p);
 }

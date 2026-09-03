@@ -48,9 +48,7 @@ const IMAGE = /\.(jpe?g|png|webp|avif)$/i;
 const collect = (p) => {
   const st = fs.statSync(p);
   if (st.isFile()) return IMAGE.test(p) ? [p] : [];
-  return fs
-    .readdirSync(p)
-    .flatMap((f) => collect(path.join(p, f)));
+  return fs.readdirSync(p).flatMap((f) => collect(path.join(p, f)));
 };
 
 const files = collect(target);
@@ -72,7 +70,11 @@ let bytesIn = 0;
 let bytesOut = 0;
 
 for (const file of files) {
-  const name = path.basename(file).replace(IMAGE, ".jpg").toLowerCase().replace(/[^a-z0-9.-]+/g, "-");
+  const name = path
+    .basename(file)
+    .replace(IMAGE, ".jpg")
+    .toLowerCase()
+    .replace(/[^a-z0-9.-]+/g, "-");
   const objectPath = `${PREFIX}/${name}`;
 
   try {
@@ -143,4 +145,6 @@ for (const file of files) {
 const mb = (n) => (n / 1048576).toFixed(1) + "MB";
 console.log(`\nuploaded ${ok}, failed ${failed}`);
 console.log(`source ${mb(bytesIn)} -> stored ${mb(bytesOut)}`);
-console.log(`public URL pattern: ${URL_BASE}/storage/v1/object/public/${BUCKET}/${PREFIX}/<name>.jpg`);
+console.log(
+  `public URL pattern: ${URL_BASE}/storage/v1/object/public/${BUCKET}/${PREFIX}/<name>.jpg`,
+);

@@ -31,8 +31,7 @@ const data = await page.evaluate(() => {
     map.set(key, (map.get(key) || 0) + weight);
   };
 
-  const transparent = (c) =>
-    !c || c === "transparent" || /rgba\(\s*0,\s*0,\s*0,\s*0\s*\)/.test(c);
+  const transparent = (c) => !c || c === "transparent" || /rgba\(\s*0,\s*0,\s*0,\s*0\s*\)/.test(c);
 
   for (const el of document.querySelectorAll("*")) {
     const r = el.getBoundingClientRect();
@@ -56,7 +55,10 @@ const data = await page.evaluate(() => {
   }
 
   const top = (map, n) =>
-    [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([k, v]) => ({ value: k, score: Math.round(v) }));
+    [...map.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, n)
+      .map(([k, v]) => ({ value: k, score: Math.round(v) }));
 
   return {
     title: document.title,

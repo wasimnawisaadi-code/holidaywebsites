@@ -42,10 +42,12 @@ async function auditPackages() {
     const country = /"country":\s*"([^"]+)"/.exec(b)?.[1] || "";
     const city = /"city":\s*"([^"]+)"/.exec(b)?.[1] || "";
     const image = /"image":\s*"([^"]+)"/.exec(b)?.[1] || "";
-    
+
     const meta = await getImageMeta(image);
     list.push({ id, slug, title, country, city, image, meta });
-    console.log(`[PKG] ${slug.padEnd(30)} | ${country.padEnd(16)} | ${meta.exists ? `${meta.width}x${meta.height} (${meta.sizeKb}KB)` : "MISSING!"} | img: ${image}`);
+    console.log(
+      `[PKG] ${slug.padEnd(30)} | ${country.padEnd(16)} | ${meta.exists ? `${meta.width}x${meta.height} (${meta.sizeKb}KB)` : "MISSING!"} | img: ${image}`,
+    );
   }
   return list;
 }
@@ -62,14 +64,18 @@ async function auditCountries() {
     const name = /\n\s*name:\s*"([^"]+)"/.exec(b)?.[1] || "";
     const image = /\n\s*image:\s*\n?\s*"([^"]+)"/.exec(b)?.[1] || "";
     const galleryMatch = /gallery:\s*\[([\s\S]*?)\]/.exec(b);
-    const gallery = galleryMatch ? [...galleryMatch[1].matchAll(/"([^"]+)"/g)].map(m => m[1]) : [];
-    
+    const gallery = galleryMatch
+      ? [...galleryMatch[1].matchAll(/"([^"]+)"/g)].map((m) => m[1])
+      : [];
+
     const heroMeta = await getImageMeta(image);
-    const galleryMeta = await Promise.all(gallery.map(g => getImageMeta(g)));
-    
+    const galleryMeta = await Promise.all(gallery.map((g) => getImageMeta(g)));
+
     list.push({ slug, name, image, heroMeta, gallery, galleryMeta });
-    const missingCount = [heroMeta, ...galleryMeta].filter(m => !m.exists).length;
-    console.log(`[CTRY] ${slug.padEnd(25)} | Hero: ${heroMeta.exists ? `${heroMeta.width}x${heroMeta.height}` : "MISSING"} | Gal: ${gallery.length} imgs (${missingCount} missing) | Lead: ${image}`);
+    const missingCount = [heroMeta, ...galleryMeta].filter((m) => !m.exists).length;
+    console.log(
+      `[CTRY] ${slug.padEnd(25)} | Hero: ${heroMeta.exists ? `${heroMeta.width}x${heroMeta.height}` : "MISSING"} | Gal: ${gallery.length} imgs (${missingCount} missing) | Lead: ${image}`,
+    );
   }
   return list;
 }
@@ -78,7 +84,7 @@ async function auditInbound() {
   console.log("\n==================== 3. INBOUND (DUBAI/UAE TOURS & TICKETS) ====================");
   if (fs.existsSync("src/data/inbound-tickets.ts")) {
     const tickets = fs.readFileSync("src/data/inbound-tickets.ts", "utf8");
-    const imgMatches = [...tickets.matchAll(/image:\s*"([^"]+)"/g)].map(m => m[1]);
+    const imgMatches = [...tickets.matchAll(/image:\s*"([^"]+)"/g)].map((m) => m[1]);
     console.log(`Inbound tickets total images referenced: ${imgMatches.length}`);
     let missing = 0;
     for (const img of imgMatches) {
@@ -90,10 +96,10 @@ async function auditInbound() {
     }
     console.log(`  Tickets missing images: ${missing}`);
   }
-  
+
   if (fs.existsSync("src/data/inbound-tours.ts")) {
     const tours = fs.readFileSync("src/data/inbound-tours.ts", "utf8");
-    const imgMatches = [...tours.matchAll(/image:\s*"([^"]+)"/g)].map(m => m[1]);
+    const imgMatches = [...tours.matchAll(/image:\s*"([^"]+)"/g)].map((m) => m[1]);
     console.log(`Inbound tours total images referenced: ${imgMatches.length}`);
     let missing = 0;
     for (const img of imgMatches) {

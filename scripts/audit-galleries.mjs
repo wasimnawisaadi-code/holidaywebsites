@@ -57,7 +57,9 @@ for (const [img, countries] of clashes) {
   const file = img.split("/").pop() ?? img;
   // The filename carries the country it was first filed under, which is the
   // best available hint at where it actually belongs.
-  const named = file.replace(/-\d+\.(jpg|jpeg|png|webp)$/i, "").replace(/\.(jpg|jpeg|png|webp)$/i, "");
+  const named = file
+    .replace(/-\d+\.(jpg|jpeg|png|webp)$/i, "")
+    .replace(/\.(jpg|jpeg|png|webp)$/i, "");
   console.log(`${file}`);
   console.log(`    used by : ${[...countries].join(", ")}`);
   console.log(`    named   : ${named}`);

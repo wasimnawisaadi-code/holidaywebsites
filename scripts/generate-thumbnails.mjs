@@ -17,23 +17,29 @@ import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
 
-const WIDTH = 720;             // 360px slot at devicePixelRatio 2
+const WIDTH = 720; // 360px slot at devicePixelRatio 2
 const DIR = "public/images/destinations";
 
-const files = fs.readdirSync(DIR).filter((f) => /\.(webp|jpe?g|png)$/i.test(f) && !f.includes("-sm."));
-let before = 0, after = 0, made = 0;
+const files = fs
+  .readdirSync(DIR)
+  .filter((f) => /\.(webp|jpe?g|png)$/i.test(f) && !f.includes("-sm."));
+let before = 0,
+  after = 0,
+  made = 0;
 
 for (const f of files) {
   const src = path.join(DIR, f);
   const dest = path.join(DIR, f.replace(/\.(webp|jpe?g|png)$/i, "-sm.webp"));
   try {
     const meta = await sharp(src).metadata();
-    if ((meta.width ?? 0) <= WIDTH) continue;   // already small enough
+    if ((meta.width ?? 0) <= WIDTH) continue; // already small enough
     await sharp(src).resize({ width: WIDTH }).webp({ quality: 78, effort: 5 }).toFile(dest);
     before += fs.statSync(src).size;
     after += fs.statSync(dest).size;
     made++;
-  } catch { /* a file that will not decode is left alone */ }
+  } catch {
+    /* a file that will not decode is left alone */
+  }
 }
 
 console.log(`  ${made} thumbnails written at ${WIDTH}px`);

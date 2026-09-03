@@ -31,45 +31,72 @@ const UA = "NawiSaadiSiteBuild/1.0 (wasimnawisaadi@gmail.com)";
 const TARGET_GALLERY = 4;
 
 const slugify = (s) =>
-  s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 /** Landmarks to search Commons for, when a country needs more photographs. */
 const SEARCH_TERMS = {
-  switzerland: "Matterhorn Zermatt", austria: "Hallstatt Austria village",
-  nepal: "Annapurna Himalaya Nepal", kyrgyzstan: "Song Kol lake Kyrgyzstan",
-  tanzania: "Serengeti Tanzania Kilimanjaro", kazakhstan: "Charyn Canyon Kazakhstan",
-  argentina: "Perito Moreno glacier Argentina", indonesia: "Tanah Lot Bali temple",
-  malaysia: "Petronas Towers Kuala Lumpur", thailand: "Wat Arun Bangkok temple",
-  kenya: "Maasai Mara Kenya wildlife", australia: "Sydney Opera House harbour",
-  singapore: "Gardens by the Bay Singapore", vietnam: "Ha Long Bay Vietnam",
-  china: "Great Wall of China Badaling", "south-korea": "Gyeongbokgung Palace Seoul",
-  "hong-kong": "Victoria Harbour Hong Kong skyline", serbia: "Belgrade Kalemegdan fortress",
-  georgia: "Gergeti Trinity Church Georgia", azerbaijan: "Flame Towers Baku",
-  armenia: "Tatev monastery Armenia", "sri-lanka": "Sigiriya rock Sri Lanka",
-  brazil: "Christ the Redeemer Rio", maldives: "Maldives overwater bungalow atoll",
-  seychelles: "Anse Source d'Argent Seychelles", italy: "Venice Grand Canal",
-  greece: "Santorini Oia sunset", "czech-republic": "Prague Charles Bridge",
-  hungary: "Budapest Parliament Danube", turkey: "Cappadocia balloons Turkey",
-  japan: "Fushimi Inari Kyoto torii", france: "Eiffel Tower Paris",
-  egypt: "Pyramids of Giza Sphinx", morocco: "Marrakech Jemaa el-Fnaa",
-  jordan: "Petra Treasury Jordan", "united-kingdom": "Edinburgh Castle Scotland",
-  uzbekistan: "Registan Samarkand", oman: "Wadi Shab Oman",
-  "bosnia-and-herzegovina": "Stari Most Mostar", "saudi-arabia": "Masjid al-Haram Mecca",
-  qatar: "Doha skyline Corniche", bahrain: "Bahrain World Trade Center",
+  switzerland: "Matterhorn Zermatt",
+  austria: "Hallstatt Austria village",
+  nepal: "Annapurna Himalaya Nepal",
+  kyrgyzstan: "Song Kol lake Kyrgyzstan",
+  tanzania: "Serengeti Tanzania Kilimanjaro",
+  kazakhstan: "Charyn Canyon Kazakhstan",
+  argentina: "Perito Moreno glacier Argentina",
+  indonesia: "Tanah Lot Bali temple",
+  malaysia: "Petronas Towers Kuala Lumpur",
+  thailand: "Wat Arun Bangkok temple",
+  kenya: "Maasai Mara Kenya wildlife",
+  australia: "Sydney Opera House harbour",
+  singapore: "Gardens by the Bay Singapore",
+  vietnam: "Ha Long Bay Vietnam",
+  china: "Great Wall of China Badaling",
+  "south-korea": "Gyeongbokgung Palace Seoul",
+  "hong-kong": "Victoria Harbour Hong Kong skyline",
+  serbia: "Belgrade Kalemegdan fortress",
+  georgia: "Gergeti Trinity Church Georgia",
+  azerbaijan: "Flame Towers Baku",
+  armenia: "Tatev monastery Armenia",
+  "sri-lanka": "Sigiriya rock Sri Lanka",
+  brazil: "Christ the Redeemer Rio",
+  maldives: "Maldives overwater bungalow atoll",
+  seychelles: "Anse Source d'Argent Seychelles",
+  italy: "Venice Grand Canal",
+  greece: "Santorini Oia sunset",
+  "czech-republic": "Prague Charles Bridge",
+  hungary: "Budapest Parliament Danube",
+  turkey: "Cappadocia balloons Turkey",
+  japan: "Fushimi Inari Kyoto torii",
+  france: "Eiffel Tower Paris",
+  egypt: "Pyramids of Giza Sphinx",
+  morocco: "Marrakech Jemaa el-Fnaa",
+  jordan: "Petra Treasury Jordan",
+  "united-kingdom": "Edinburgh Castle Scotland",
+  uzbekistan: "Registan Samarkand",
+  oman: "Wadi Shab Oman",
+  "bosnia-and-herzegovina": "Stari Most Mostar",
+  "saudi-arabia": "Masjid al-Haram Mecca",
+  qatar: "Doha skyline Corniche",
+  bahrain: "Bahrain World Trade Center",
   mauritius: "Le Morne Brabant Mauritius",
 };
 
 const text = fs.readFileSync(FILE, "utf8");
 const blocks = text.split("c({");
 
-const records = blocks.slice(1).map((block, i) => {
-  const slug = /slug:\s*"([^"]+)"/.exec(block)?.[1];
-  const name = /\n\s*name:\s*"([^"]+)"/.exec(block)?.[1];
-  const hero = /\n\s*image:\s*\n?\s*"([^"]+)"/.exec(block)?.[1];
-  const gm = /gallery:\s*\[([\s\S]*?)\]/.exec(block);
-  const gallery = gm ? [...gm[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]) : [];
-  return { i, slug, name, hero, gallery, hasGallery: Boolean(gm) };
-}).filter((r) => r.slug && r.name);
+const records = blocks
+  .slice(1)
+  .map((block, i) => {
+    const slug = /slug:\s*"([^"]+)"/.exec(block)?.[1];
+    const name = /\n\s*name:\s*"([^"]+)"/.exec(block)?.[1];
+    const hero = /\n\s*image:\s*\n?\s*"([^"]+)"/.exec(block)?.[1];
+    const gm = /gallery:\s*\[([\s\S]*?)\]/.exec(block);
+    const gallery = gm ? [...gm[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]) : [];
+    return { i, slug, name, hero, gallery, hasGallery: Boolean(gm) };
+  })
+  .filter((r) => r.slug && r.name);
 
 /** Does this file plausibly depict this country? */
 const owns = (slug, img) => {
@@ -81,7 +108,14 @@ const owns = (slug, img) => {
     "bosnia-and-herzegovina": ["bosnia", "mostar", "stari-most", "kravice", "blagaj", "sarajevo"],
     "saudi-arabia": ["umrah", "haram", "nabawi", "quba", "madinah", "makkah"],
     oman: ["oman", "salalah", "mughsail", "darbat"],
-    switzerland: ["swiss", "hero-switzerland", "jungfraujoch", "lauterbrunnen", "lucerne", "matterhorn"],
+    switzerland: [
+      "swiss",
+      "hero-switzerland",
+      "jungfraujoch",
+      "lauterbrunnen",
+      "lucerne",
+      "matterhorn",
+    ],
     azerbaijan: ["baku", "azerbaijan"],
     georgia: ["georgia", "tbilisi", "gergeti", "ananuri", "signagi"],
     indonesia: ["bali", "hero-bali", "indonesia"],
@@ -107,7 +141,9 @@ for (const r of records) {
 }
 
 const dropped = records.reduce(
-  (n, r) => n + [r.hero, ...r.gallery].filter(Boolean).length - (kept.get(r.slug)?.length ?? 0), 0);
+  (n, r) => n + [r.hero, ...r.gallery].filter(Boolean).length - (kept.get(r.slug)?.length ?? 0),
+  0,
+);
 
 console.log(`countries              ${records.length}`);
 console.log(`images dropped         ${dropped} (did not depict that country)`);
@@ -175,8 +211,7 @@ for (let bi = 1; bi < blocks.length; bi++) {
     const hero = /\n\s*image:\s*\n?\s*"([^"]+)"/.exec(block)?.[1];
     // Hero first, then the rest, so the lead photograph stays the lead.
     const ordered = [...new Set([hero, ...list].filter(Boolean))];
-    const rendered =
-      "gallery: [\n" + ordered.map((g) => `      "${g}",`).join("\n") + "\n    ]";
+    const rendered = "gallery: [\n" + ordered.map((g) => `      "${g}",`).join("\n") + "\n    ]";
     block = /gallery:\s*\[[\s\S]*?\]/.test(block)
       ? block.replace(/gallery:\s*\[[\s\S]*?\]/, rendered)
       : block.replace(/(slug:\s*"[^"]+",\n)/, `$1    ${rendered},\n`);

@@ -57,7 +57,7 @@ const applied = [];
 
 for (const t of TARGETS) {
   const dest = `${OUT}/${t.file}`;
-  const before = fs.existsSync(dest) ? (await sharp(dest).metadata()).width ?? 0 : 0;
+  const before = fs.existsSync(dest) ? ((await sharp(dest).metadata()).width ?? 0) : 0;
 
   let done = false;
   for (const url of t.candidates) {

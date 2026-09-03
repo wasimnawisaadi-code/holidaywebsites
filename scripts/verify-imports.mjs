@@ -15,7 +15,10 @@ import path from "node:path";
 const DIRS = ["src/routes", "src/components/site", "src/components/3d"];
 
 const files = DIRS.filter((d) => fs.existsSync(d)).flatMap((d) =>
-  fs.readdirSync(d).filter((f) => f.endsWith(".tsx")).map((f) => path.join(d, f)),
+  fs
+    .readdirSync(d)
+    .filter((f) => f.endsWith(".tsx"))
+    .map((f) => path.join(d, f)),
 );
 
 let problems = 0;

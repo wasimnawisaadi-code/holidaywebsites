@@ -23,41 +23,77 @@ const TARGET = 4;
 const PACE_MS = 900;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const slugify = (s) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 const SEARCH = {
-  switzerland: "Matterhorn Zermatt Switzerland", austria: "Hallstatt Austria village lake",
-  nepal: "Annapurna Himalaya Nepal mountains", kyrgyzstan: "Song Kul lake Kyrgyzstan",
-  tanzania: "Serengeti Tanzania savanna", kazakhstan: "Charyn Canyon Kazakhstan",
-  argentina: "Perito Moreno glacier Argentina", indonesia: "Tanah Lot temple Bali",
-  malaysia: "Petronas Towers Kuala Lumpur", thailand: "Wat Arun Bangkok",
-  kenya: "Maasai Mara Kenya savanna", australia: "Sydney Opera House",
-  singapore: "Gardens by the Bay Singapore", vietnam: "Ha Long Bay Vietnam",
-  china: "Great Wall of China", "south-korea": "Gyeongbokgung Palace Seoul",
-  "hong-kong": "Victoria Harbour Hong Kong", serbia: "Belgrade fortress Serbia",
-  georgia: "Gergeti Trinity Church Kazbegi", azerbaijan: "Flame Towers Baku",
-  armenia: "Tatev monastery Armenia", "sri-lanka": "Sigiriya Sri Lanka",
-  brazil: "Christ the Redeemer Rio de Janeiro", maldives: "Maldives atoll aerial",
-  seychelles: "Anse Source d'Argent Seychelles", italy: "Venice Grand Canal Italy",
-  greece: "Santorini Oia Greece", "czech-republic": "Charles Bridge Prague",
-  hungary: "Hungarian Parliament Building Budapest", turkey: "Cappadocia Turkey",
-  japan: "Fushimi Inari Kyoto", france: "Eiffel Tower Paris",
-  egypt: "Great Sphinx of Giza", morocco: "Jemaa el-Fnaa Marrakesh",
-  jordan: "Al Khazneh Petra Jordan", "united-kingdom": "Edinburgh Castle",
-  uzbekistan: "Registan Samarkand", oman: "Wadi Shab Oman",
-  "bosnia-and-herzegovina": "Stari Most Mostar", "saudi-arabia": "Great Mosque of Mecca",
-  qatar: "Doha Corniche Qatar", bahrain: "Bahrain World Trade Center Manama",
-  mauritius: "Le Morne Brabant Mauritius", "south-africa": "Table Mountain Cape Town",
-  "united-states-of-america": "Grand Canyon Arizona", spain: "Sagrada Familia Barcelona",
-  portugal: "Belem Tower Lisbon", netherlands: "Amsterdam canal houses",
-  germany: "Neuschwanstein Castle Bavaria", russia: "Saint Basil's Cathedral Moscow",
+  switzerland: "Matterhorn Zermatt Switzerland",
+  austria: "Hallstatt Austria village lake",
+  nepal: "Annapurna Himalaya Nepal mountains",
+  kyrgyzstan: "Song Kul lake Kyrgyzstan",
+  tanzania: "Serengeti Tanzania savanna",
+  kazakhstan: "Charyn Canyon Kazakhstan",
+  argentina: "Perito Moreno glacier Argentina",
+  indonesia: "Tanah Lot temple Bali",
+  malaysia: "Petronas Towers Kuala Lumpur",
+  thailand: "Wat Arun Bangkok",
+  kenya: "Maasai Mara Kenya savanna",
+  australia: "Sydney Opera House",
+  singapore: "Gardens by the Bay Singapore",
+  vietnam: "Ha Long Bay Vietnam",
+  china: "Great Wall of China",
+  "south-korea": "Gyeongbokgung Palace Seoul",
+  "hong-kong": "Victoria Harbour Hong Kong",
+  serbia: "Belgrade fortress Serbia",
+  georgia: "Gergeti Trinity Church Kazbegi",
+  azerbaijan: "Flame Towers Baku",
+  armenia: "Tatev monastery Armenia",
+  "sri-lanka": "Sigiriya Sri Lanka",
+  brazil: "Christ the Redeemer Rio de Janeiro",
+  maldives: "Maldives atoll aerial",
+  seychelles: "Anse Source d'Argent Seychelles",
+  italy: "Venice Grand Canal Italy",
+  greece: "Santorini Oia Greece",
+  "czech-republic": "Charles Bridge Prague",
+  hungary: "Hungarian Parliament Building Budapest",
+  turkey: "Cappadocia Turkey",
+  japan: "Fushimi Inari Kyoto",
+  france: "Eiffel Tower Paris",
+  egypt: "Great Sphinx of Giza",
+  morocco: "Jemaa el-Fnaa Marrakesh",
+  jordan: "Al Khazneh Petra Jordan",
+  "united-kingdom": "Edinburgh Castle",
+  uzbekistan: "Registan Samarkand",
+  oman: "Wadi Shab Oman",
+  "bosnia-and-herzegovina": "Stari Most Mostar",
+  "saudi-arabia": "Great Mosque of Mecca",
+  qatar: "Doha Corniche Qatar",
+  bahrain: "Bahrain World Trade Center Manama",
+  mauritius: "Le Morne Brabant Mauritius",
+  "south-africa": "Table Mountain Cape Town",
+  "united-states-of-america": "Grand Canyon Arizona",
+  spain: "Sagrada Familia Barcelona",
+  portugal: "Belem Tower Lisbon",
+  netherlands: "Amsterdam canal houses",
+  germany: "Neuschwanstein Castle Bavaria",
+  russia: "Saint Basil's Cathedral Moscow",
 };
 
 const ALIAS = {
   "bosnia-and-herzegovina": ["bosnia", "mostar", "stari-most", "kravice", "blagaj", "sarajevo"],
   "saudi-arabia": ["umrah", "haram", "nabawi", "quba"],
   oman: ["oman", "salalah", "mughsail", "darbat"],
-  switzerland: ["swiss", "hero-switzerland", "jungfraujoch", "lauterbrunnen", "lucerne", "matterhorn"],
+  switzerland: [
+    "swiss",
+    "hero-switzerland",
+    "jungfraujoch",
+    "lauterbrunnen",
+    "lucerne",
+    "matterhorn",
+  ],
   azerbaijan: ["baku", "azerbaijan"],
   georgia: ["georgia", "tbilisi", "gergeti", "ananuri", "signagi"],
   indonesia: ["bali", "hero-bali", "indonesia"],
@@ -105,15 +141,18 @@ async function commonsSearch(query) {
 const text = fs.readFileSync(FILE, "utf8");
 const blocks = text.split("c({");
 
-const records = blocks.slice(1).map((b) => ({
-  slug: /slug:\s*"([^"]+)"/.exec(b)?.[1],
-  name: /\n\s*name:\s*"([^"]+)"/.exec(b)?.[1],
-  hero: /\n\s*image:\s*\n?\s*"([^"]+)"/.exec(b)?.[1],
-  gallery: (() => {
-    const g = /gallery:\s*\[([\s\S]*?)\]/.exec(b);
-    return g ? [...g[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]) : [];
-  })(),
-})).filter((r) => r.slug);
+const records = blocks
+  .slice(1)
+  .map((b) => ({
+    slug: /slug:\s*"([^"]+)"/.exec(b)?.[1],
+    name: /\n\s*name:\s*"([^"]+)"/.exec(b)?.[1],
+    hero: /\n\s*image:\s*\n?\s*"([^"]+)"/.exec(b)?.[1],
+    gallery: (() => {
+      const g = /gallery:\s*\[([\s\S]*?)\]/.exec(b);
+      return g ? [...g[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]) : [];
+    })(),
+  }))
+  .filter((r) => r.slug);
 
 const resolved = new Map();
 let heroesFixed = 0;
@@ -151,7 +190,9 @@ for (const r of records) {
   if (heroWrong && mine.length) heroesFixed++;
   if (!mine.length) stillShort.push(r.name);
   resolved.set(r.slug, mine);
-  console.log(`  ${(r.name ?? r.slug).padEnd(26)} ${mine.length} image(s)${heroWrong && mine.length ? "  [hero replaced]" : ""}`);
+  console.log(
+    `  ${(r.name ?? r.slug).padEnd(26)} ${mine.length} image(s)${heroWrong && mine.length ? "  [hero replaced]" : ""}`,
+  );
 }
 
 // Rewrite: hero becomes the first owned image, gallery is the owned set.

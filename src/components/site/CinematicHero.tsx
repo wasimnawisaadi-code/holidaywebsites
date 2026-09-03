@@ -20,11 +20,65 @@ import { clamp, prefersReducedMotion } from "@/lib/scroll";
 
 export type HeroClip = { src: string; poster: string; place: string };
 
+/**
+ * Whether this visitor should be sent 2.5MB of decorative footage at all.
+ *
+ * The clips are `muted` and `aria-hidden` — they carry no information. The
+ * poster is the hero, and on PageSpeed's throttled 4G profile the video was
+ * competing with it for bandwidth and pushing LCP past six seconds.
+ *
+ * Save-Data is an explicit request not to be charged for this. A connection
+ * reporting 2g or slow-2g cannot afford it either, and reduced-motion means
+ * the visitor asked for less movement, not more.
+ */
+function wantsVideo(): boolean {
+  if (prefersReducedMotion()) return false;
+  const c = (
+    navigator as unknown as {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }
+  ).connection;
+  if (c?.saveData) return false;
+  if (c?.effectiveType === "2g" || c?.effectiveType === "slow-2g") return false;
+  return true;
+}
+
+/** 854x480 behind a heavy scrim on a phone, 1280x720 on anything larger. */
+function sourceFor(src: string): string {
+  if (typeof window === "undefined") return src;
+  return window.innerWidth < 768 ? src.replace(/\.mp4$/, "-sm.mp4") : src;
+}
+
 export function CinematicHero({ clips }: { clips: HeroClip[] }) {
   const [index, setIndex] = useState(0);
   const [scrolled, setScrolled] = useState(0);
   const frame = useRef(0);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+
+  /**
+   * The video src is empty until this turns on.
+   *
+   * Nothing about the hero needs the footage to be there at first paint: the
+   * poster fills the same box and is what LCP measures. Holding the video back
+   * until the page has loaded takes it off the critical path entirely, so the
+   * headline and the poster get the whole connection to themselves.
+   */
+  const [videoSrcs, setVideoSrcs] = useState<string[]>([]);
+  useEffect(() => {
+    if (!wantsVideo()) return;
+    const start = () => setVideoSrcs(clips.map((c) => sourceFor(c.src)));
+    // `load` has already fired if we mounted late; requestIdleCallback then
+    // waits for the main thread to be free rather than adding to the jam.
+    const idle = (
+      window as unknown as {
+        requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+      }
+    ).requestIdleCallback;
+    const kick = () => (idle ? idle(start, { timeout: 2500 }) : window.setTimeout(start, 900));
+    if (document.readyState === "complete") kick();
+    else window.addEventListener("load", kick, { once: true });
+    return () => window.removeEventListener("load", kick);
+  }, [clips]);
 
   // Advance on the clip's own `ended` event rather than a fixed timer, so the
   // cut always lands at the end of the footage regardless of its duration.
@@ -32,7 +86,7 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
   const single = clips.length === 1;
 
   useEffect(() => {
-    if (!clips.length) return;
+    if (!clips.length || !videoSrcs.length) return;
     const el = videoRefs.current[index];
     if (!el) return;
     el.currentTime = 0;
@@ -42,7 +96,7 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
     const next = () => setIndex((i) => (i + 1) % clips.length);
     el.addEventListener("ended", next);
     return () => el.removeEventListener("ended", next);
-  }, [index, clips.length, single]);
+  }, [index, clips.length, single, videoSrcs.length]);
 
   // Gentle rise on the copy as the hero scrolls away.
   useEffect(() => {
@@ -81,11 +135,14 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
             ref={(el) => {
               videoRefs.current[i] = el;
             }}
-            src={clip.src}
+            {...(videoSrcs[i] ? { src: videoSrcs[i] } : {})}
             poster={clip.poster}
             muted
             playsInline
-            preload={i === 0 ? "auto" : "metadata"}
+            // "none", not "auto". The first clip used to preload in full, which
+            // on a throttled connection meant 2.6MB downloading in parallel
+            // with the poster that LCP actually measures.
+            preload="none"
             aria-hidden="true"
             className={
               "absolute inset-0 size-full object-cover transition-opacity duration-[1200ms] ease-out " +
