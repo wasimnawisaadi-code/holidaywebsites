@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Menu, X, MessageCircle, ChevronDown, Phone } from "lucide-react";
 // Whitespace-trimmed marks. The originals carry ~35% baked-in padding, which
 // made the wordmark render illegibly small at header height.
-import logoOnLight from "@/assets/logo-ink.png";
-import logoOnDark from "@/assets/logo-white.png";
+import logoOnLight from "@/assets/logo-ink.webp";
+import logoOnDark from "@/assets/logo-white.webp";
 import { BRAND, packages, priceLabel, waLink } from "@/data/catalogue";
 import { countries } from "@/data/countries";
 import { cn } from "@/lib/utils";

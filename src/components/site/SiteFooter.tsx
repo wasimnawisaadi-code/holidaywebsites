@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Phone, Mail, MapPin, MessageCircle, ArrowRight } from "lucide-react";
-import logoImg from "@/assets/logo-ink.png";
+import logoImg from "@/assets/logo-ink.webp";
 import { HorizonSilhouette } from "@/components/site/HorizonSilhouette";
 import { SubscribeForm } from "@/components/site/SubscribeForm";
 import { BRAND, waLink } from "@/data/catalogue";
