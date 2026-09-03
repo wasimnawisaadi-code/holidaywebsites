@@ -81,29 +81,29 @@
      site read cold. Foreground/card/popover text is now #353844-family
      warm charcoal; --primary is still the brand navy, so buttons and
      focus rings keep the brand colour where it earns its place. */
-  --background: #FFFFFF;
+  --background: #ffffff;
   --foreground: #353844;
   --ink: #353844;
-  --surface: #FFFFFF;
-  --surface-2: #F8F8F8;
+  --surface: #ffffff;
+  --surface-2: #f8f8f8;
 
-  --card: #FFFFFF;
+  --card: #ffffff;
   --card-foreground: #353844;
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.235 0.008 60);
 
   /* #00365F */
-  --primary: #00365F;
+  --primary: #00365f;
   --primary-foreground: oklch(0.985 0.006 85);
   --sand: oklch(0.86 0.05 84);
   --verde: oklch(0.46 0.052 168);
 
-  --secondary: #F8F8F8;
+  --secondary: #f8f8f8;
   --secondary-foreground: oklch(0.235 0.008 60);
-  --muted: #F8F8F8;
+  --muted: #f8f8f8;
   --muted-foreground: #666666;
   /* #CAA42D */
-  --accent: #CAA42D;
+  --accent: #caa42d;
   /*
    * The brand gold as TEXT.
    *
@@ -113,17 +113,17 @@
    * the same hue taken down to 5.73:1 on white, for anything a person has
    * to actually read on a light ground.
    */
-  --accent-ink: #7A641B;
+  --accent-ink: #7a641b;
   --accent-foreground: oklch(0.238 0.042 250);
   --destructive: oklch(0.505 0.155 27);
   --destructive-foreground: oklch(0.985 0.006 85);
 
-  --gold: #CAA42D;
+  --gold: #caa42d;
   --color-gold: var(--gold);
 
   --border: oklch(0.42 0.018 70 / 22%);
   --input: oklch(0.42 0.018 70 / 26%);
-  --ring: #CAA42D;
+  --ring: #caa42d;
 
   --chart-1: oklch(0.315 0.079 258);
   --chart-2: oklch(0.72 0.115 82);
@@ -335,7 +335,6 @@
   border-color: rgba(212, 175, 55, 0.4);
   box-shadow: 0 0 20px -3px rgba(212, 175, 55, 0.25);
 }
-
 
 /* ------------------------------------------------------------------ *
  * Canonical surface tones — reference only, not live utility classes.
