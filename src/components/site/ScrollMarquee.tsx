@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { tileImage } from "@/lib/img";
 
@@ -29,6 +29,36 @@ export function ScrollMarquee({
   const hostRef = useRef<HTMLDivElement>(null);
   const aRef = useRef<HTMLDivElement>(null);
   const bRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Whether the strip is close enough to be worth downloading.
+   *
+   * These are decorative photographs well below the fold. Left to
+   * loading="lazy" alone they began fetching about two seconds into a
+   * throttled load and were still arriving at eight, taking bandwidth from
+   * the hero image that decides LCP. A generous rootMargin means they are
+   * still ready before anyone scrolls to them.
+   */
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    if (typeof IntersectionObserver !== "function") {
+      setReady(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setReady(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "120% 0px" },
+    );
+    io.observe(host);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -87,8 +117,8 @@ export function ScrollMarquee({
   return (
     <div ref={hostRef} className={cn("overflow-hidden", className)} aria-hidden="true">
       <div className="flex flex-col gap-3">
-        <Row innerRef={aRef} items={rowA} />
-        <Row innerRef={bRef} items={rowB} />
+        <Row innerRef={aRef} items={rowA} ready={ready} />
+        <Row innerRef={bRef} items={rowB} ready={ready} />
       </div>
     </div>
   );
@@ -97,9 +127,11 @@ export function ScrollMarquee({
 function Row({
   items,
   innerRef,
+  ready,
 }: {
   items: MarqueeItem[];
   innerRef: React.RefObject<HTMLDivElement | null>;
+  ready: boolean;
 }) {
   // Doubled so the strip can wrap without a visible seam.
   const doubled = [...items, ...items];
@@ -111,16 +143,27 @@ function Row({
             key={`${it.src}-${i}`}
             className="h-[190px] w-[300px] shrink-0 overflow-hidden rounded-2xl bg-[#F8F8F8] sm:h-[230px] sm:w-[360px]"
           >
-            <img
-              src={it.src}
-              alt=""
-              decoding="async"
-              loading="lazy"
-              // 300px wide on a phone, 360px above it. Without this the
-              // browser has no reason not to fetch the 1600px original.
-              {...tileImage(it.src, "(min-width: 640px) 360px, 300px")}
-              className="size-full object-cover"
-            />
+            {/*
+              Held back until the strip is near the viewport.
+
+              loading="lazy" was not enough: on a slow connection Chrome's
+              lazy threshold is generous, so these began downloading around
+              two seconds in and were still finishing at eight, competing for
+              bandwidth with the hero image the LCP measures. Nothing here is
+              above the fold, so none of it is worth that.
+            */}
+            {ready ? (
+              <img
+                src={it.src}
+                alt=""
+                decoding="async"
+                loading="lazy"
+                // 300px wide on a phone, 360px above it. Without this the
+                // browser has no reason not to fetch the 1600px original.
+                {...tileImage(it.src, "(min-width: 640px) 360px, 300px")}
+                className="size-full object-cover"
+              />
+            ) : null}
           </div>
         ))}
       </div>

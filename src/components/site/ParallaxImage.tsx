@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { tileImage } from "@/lib/img";
 
 /**
  * An image that drifts inside its own frame as the page scrolls.
@@ -92,6 +93,20 @@ export function ParallaxImage({
         // which set fetchPriority explicitly on their own hero — came in
         // under a second. This is the same hint, applied where it was missed.
         {...(priority ? { fetchPriority: "high" as const } : {})}
+        /*
+         * Offer the 720px variant to phones.
+         *
+         * This had fetchPriority but no srcset, so a 390px phone downloaded
+         * the 1600px original — 157KB where a 45KB file exists beside it. It
+         * was the largest contentful paint on /holidays at 7.6s.
+         *
+         * 720px is declared for small screens rather than 100vw because this
+         * image sits behind a scrim at 60-70% opacity with the headline over
+         * it. There is no detail to resolve, and asking a phone on 4G for four
+         * times the bytes to render it delays the only thing on the page a
+         * visitor is waiting for.
+         */
+        {...tileImage(src, "(max-width: 768px) 720px, 100vw")}
         // The extra height is what there is to move into; without it the drift
         // would expose the frame's background at the top or bottom.
         style={{ height: `${100 + overscan}%`, top: `${-overscan / 2}%` }}

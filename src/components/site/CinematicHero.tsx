@@ -136,7 +136,16 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
               videoRefs.current[i] = el;
             }}
             {...(videoSrcs[i] ? { src: videoSrcs[i] } : {})}
-            poster={clip.poster}
+            // Only the clip on screen gets a poster.
+            //
+            // A <video poster> is fetched immediately regardless of `preload`,
+            // so both posters were downloading on first paint — 337KB, of
+            // which one is behind an opacity-0 layer nobody can see. On a
+            // throttled phone that half was competing for bandwidth with the
+            // half the LCP actually measures. The second clip gets its poster
+            // once the footage has been allowed to load, which is well after
+            // anything that matters to first paint.
+            {...(i === index || videoSrcs.length ? { poster: clip.poster } : {})}
             muted
             playsInline
             // "none", not "auto". The first clip used to preload in full, which
