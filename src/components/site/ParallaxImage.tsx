@@ -100,13 +100,20 @@ export function ParallaxImage({
          * the 1600px original — 157KB where a 45KB file exists beside it. It
          * was the largest contentful paint on /holidays at 7.6s.
          *
-         * 720px is declared for small screens rather than 100vw because this
-         * image sits behind a scrim at 60-70% opacity with the headline over
-         * it. There is no detail to resolve, and asking a phone on 4G for four
-         * times the bytes to render it delays the only thing on the page a
-         * visitor is waiting for.
+         * The phone figure has to account for device pixel ratio, which the
+         * first attempt at this missed: declaring 720px on a DPR-2 handset
+         * asks for 1440 device pixels, so the browser went on picking the
+         * 1600w candidate and nothing changed. 55vw of a 390px screen is 215
+         * CSS pixels, 430 device pixels, which lands on the 720w file.
+         *
+         * Under-declaring is deliberate here rather than sloppy. This image is
+         * a backdrop behind a scrim at 60-70% opacity with the headline over
+         * it; at 720px across a 390px screen it is still nearly two device
+         * pixels per CSS pixel. Measured on a throttled phone, the 1600w file
+         * shared the connection with the entry bundle and the tag scripts and
+         * took 5.3 seconds to arrive — for detail that the scrim hides.
          */
-        {...tileImage(src, "(max-width: 768px) 720px, 100vw")}
+        {...tileImage(src, "(max-width: 768px) 55vw, 100vw")}
         // The extra height is what there is to move into; without it the drift
         // would expose the frame's background at the top or bottom.
         style={{ height: `${100 + overscan}%`, top: `${-overscan / 2}%` }}
