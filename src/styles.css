@@ -37,6 +37,7 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
@@ -103,6 +104,16 @@
   --muted-foreground: #666666;
   /* #CAA42D */
   --accent: #CAA42D;
+  /*
+   * The brand gold as TEXT.
+   *
+   * #CAA42D is 2.37:1 on white. It is a fine surface and a fine icon, and
+   * an unreadable body colour — but `text-accent` made no distinction, so
+   * headings, prices and phone numbers were all being set in it. This is
+   * the same hue taken down to 5.73:1 on white, for anything a person has
+   * to actually read on a light ground.
+   */
+  --accent-ink: #7A641B;
   --accent-foreground: oklch(0.238 0.042 250);
   --destructive: oklch(0.505 0.155 27);
   --destructive-foreground: oklch(0.985 0.006 85);
@@ -159,6 +170,7 @@
   --muted: oklch(0.29 0.05 250);
   --muted-foreground: oklch(0.785 0.018 250);
   --accent: oklch(0.775 0.125 84);
+  --accent-ink: oklch(0.775 0.125 84);
   --accent-foreground: oklch(0.185 0.052 250);
   --border: oklch(1 0 0 / 14%);
   --input: oklch(1 0 0 / 16%);

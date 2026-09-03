@@ -498,19 +498,19 @@ function PackagePage() {
             <Section id="accommodation" title="Accommodation &amp; Hotel Tier">
               <div className="grid gap-4 rounded-3xl bg-slate-50 p-6 border border-slate-200 sm:grid-cols-3">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
                     Hotel Category
                   </p>
                   <p className="mt-1 font-bold text-[#00365F]">{detail.accommodation.category}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
                     Room Type
                   </p>
                   <p className="mt-1 font-bold text-[#00365F]">{detail.accommodation.roomType}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
                     Meal Plan
                   </p>
                   <p className="mt-1 font-bold text-[#00365F]">{detail.accommodation.mealPlan}</p>
@@ -541,7 +541,10 @@ function PackagePage() {
           ) : null}
 
           <Section id="route" title="Journey Route">
-            <div className="no-scrollbar flex items-center gap-3 overflow-x-auto rounded-3xl bg-slate-50 p-6 border border-slate-200">
+            <div
+              tabIndex={0}
+              className="no-scrollbar flex items-center gap-3 overflow-x-auto rounded-3xl bg-slate-50 p-6 border border-slate-200"
+            >
               {pkg.route.map((r, i) => (
                 <div key={r} className="flex shrink-0 items-center gap-3">
                   <span className="rounded-full border border-[#00365F]/30 bg-white px-4 py-2 text-xs font-bold text-[#00365F] shadow-sm">
@@ -591,11 +594,11 @@ function PackagePage() {
         </div>
 
         {/* Interactive Booking Calculator Sidebar */}
-        <aside className="lg:sticky lg:top-28 lg:h-fit lg:pt-16">
+        <div className="lg:sticky lg:top-28 lg:h-fit lg:pt-16">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
                   Total Calculation
                 </p>
                 <p className="text-2xl font-extrabold text-[#00365F] mt-1">
@@ -637,7 +640,7 @@ function PackagePage() {
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-700">Adults</span>
-                    <span className="text-xs font-semibold text-slate-400">12+ yrs</span>
+                    <span className="text-xs font-semibold text-slate-600">12+ yrs</span>
                   </div>
                   <div className="mt-2 flex items-center justify-between">
                     <button
@@ -663,7 +666,7 @@ function PackagePage() {
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-700">Children</span>
-                    <span className="text-xs font-semibold text-slate-400">2-11 yrs</span>
+                    <span className="text-xs font-semibold text-slate-600">2-11 yrs</span>
                   </div>
                   <div className="mt-2 flex items-center justify-between">
                     <button
@@ -722,7 +725,7 @@ function PackagePage() {
               </li>
             </ul>
           </div>
-        </aside>
+        </div>
       </div>
 
       {/* Related Journeys */}

@@ -76,7 +76,7 @@ function PlanPage() {
       <section className="mx-auto mt-12 grid max-w-[1400px] gap-8 px-5 sm:px-8 lg:grid-cols-[420px_1fr]">
         <div className="h-fit border border-[#ded7c9] bg-[#FFFFFF] p-7 lg:sticky lg:top-28">
           <fieldset>
-            <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+            <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#6B6355] uppercase">
               Where to
             </legend>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -99,7 +99,7 @@ function PlanPage() {
           </fieldset>
 
           <fieldset className="mt-7">
-            <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+            <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#6B6355] uppercase">
               Travel style
             </legend>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -122,7 +122,7 @@ function PlanPage() {
           </fieldset>
 
           <label className="mt-7 block">
-            <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+            <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#6B6355] uppercase">
               Travellers — {travellers}
             </span>
             <input
@@ -136,7 +136,7 @@ function PlanPage() {
           </label>
 
           <label className="mt-5 block">
-            <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+            <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#6B6355] uppercase">
               Nights — {nights}
             </span>
             <input
@@ -158,7 +158,7 @@ function PlanPage() {
         </div>
 
         <div>
-          <div className="flex items-center gap-2 font-sans text-sm text-[#8b8378]">
+          <div className="flex items-center gap-2 font-sans text-sm text-[#6B6355]">
             <Sparkles className="size-4 text-[#7A641B]" aria-hidden />
             Suggested for {travellers} {travellers === 1 ? "traveller" : "travellers"} · {nights}{" "}
             nights · {style}
@@ -176,7 +176,7 @@ function PlanPage() {
             {suggestedExperiences.map((e) => (
               <li key={e.slug} className="border border-[#e3ded4] bg-white p-5">
                 <p className="font-display text-lg font-medium">{e.title}</p>
-                <p className="mt-1 font-sans text-sm text-[#8b8378]">
+                <p className="mt-1 font-sans text-sm text-[#6B6355]">
                   {e.emirate} · {e.duration}
                 </p>
               </li>

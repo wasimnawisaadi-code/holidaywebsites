@@ -84,6 +84,22 @@ export function analyticsEnabled(): boolean {
 }
 
 /**
+ * Whether any destination is listening — Supabase, GA4, or both.
+ *
+ * `analyticsEnabled()` answers a narrower question: is Supabase configured and
+ * still answering. Event listeners must not be gated on that. GA4 is a wholly
+ * separate pipe with its own failure modes, and it is the one Google Ads reads
+ * conversions from; if a single 503 from Supabase flipped `disabled` before the
+ * listeners mounted, the site stopped reporting conversions to Ads for reasons
+ * that had nothing to do with Google.
+ */
+export function trackingActive(): boolean {
+  if (typeof window === "undefined") return false;
+  if (analyticsEnabled()) return true;
+  return typeof (window as unknown as { gtag?: unknown }).gtag === "function";
+}
+
+/**
  * Referring origin only — never the full URL, which would carry the visitor's
  * search terms.
  *
@@ -130,12 +146,64 @@ const CONVERSIONS = new Set<EventType>([
  * Wrapped and guarded: gtag is absent when the tag is blocked or has not
  * loaded yet, and analytics must never be the reason a page breaks.
  */
+/**
+ * GA4's limits, which it enforces silently.
+ *
+ * A parameter value over 100 characters is truncated, a nested object is
+ * dropped outright, and only 25 parameters survive per event. Nothing is
+ * logged, nothing errors: the data simply is not there when you go looking for
+ * it weeks later.
+ *
+ * This bit us on `whatsapp_click`, the one event the whole system exists to
+ * record. `fields` — the enquiry parsed into "budget", "dates", "travellers" —
+ * is an object, so GA4 discarded it entirely, and `intent` runs to 206
+ * characters on the homepage alone, so GA4 kept the first 100 and cut the rest
+ * mid-sentence. Supabase had the full record the whole time; GA4, which is
+ * what Google Ads actually bids on, had a fragment.
+ */
+const GA_MAX_VALUE = 100;
+const GA_MAX_PARAMS = 25;
+
+/**
+ * Flattens one level of nesting and trims every value to what GA4 will keep.
+ *
+ * `{ fields: { budget: "8000" } }` becomes `{ fields_budget: "8000" }`, which
+ * survives the trip and is queryable as a dimension. Numbers and booleans are
+ * passed through untouched: GA4 handles those natively and turning them into
+ * strings would lose the ability to sum or average them.
+ */
+function forGa(meta: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  const put = (key: string, value: unknown): void => {
+    if (Object.keys(out).length >= GA_MAX_PARAMS) return;
+    if (value === null || value === undefined || value === "") return;
+    if (typeof value === "number" || typeof value === "boolean") {
+      out[key.slice(0, 40)] = value;
+      return;
+    }
+    out[key.slice(0, 40)] = String(value).slice(0, GA_MAX_VALUE);
+  };
+
+  for (const [key, value] of Object.entries(meta)) {
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      for (const [sub, subValue] of Object.entries(value as Record<string, unknown>)) {
+        put(`${key}_${sub}`, subValue);
+      }
+    } else if (Array.isArray(value)) {
+      put(key, value.join(", "));
+    } else {
+      put(key, value);
+    }
+  }
+  return out;
+}
+
 function toGa(type: EventType, meta: Record<string, unknown>): void {
   try {
     const g = (window as unknown as { gtag?: (...a: unknown[]) => void }).gtag;
     if (typeof g !== "function") return;
     g("event", type, {
-      ...meta,
+      ...forGa(meta),
       // Marks the events worth importing as conversions, so they can be found
       // in GA4 without knowing this list by heart.
       is_conversion: CONVERSIONS.has(type),

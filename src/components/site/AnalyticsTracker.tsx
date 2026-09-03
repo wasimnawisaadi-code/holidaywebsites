@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useRouterState } from "@tanstack/react-router";
-import { track, analyticsEnabled } from "@/lib/analytics";
+import { track, analyticsEnabled, trackingActive } from "@/lib/analytics";
 
 /**
  * Site-wide event capture. Renders nothing.
@@ -66,10 +66,20 @@ export function AnalyticsTracker() {
 
   // ---- delegated click capture -----------------------------------------
   useEffect(() => {
-    if (!analyticsEnabled()) return;
+    // trackingActive(), not analyticsEnabled(): GA4 is a separate pipe and is
+    // the one Google Ads reads conversions from. Supabase being unconfigured or
+    // briefly unavailable must not stop conversions reaching Ads.
+    if (!trackingActive()) return;
 
     const onClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
+
+      // A middle click opens the link in a background tab. It fires `auxclick`,
+      // never `click`, so every enquiry opened that way was invisible — and on
+      // desktop that is a habit, not an edge case. Buttons cannot be
+      // middle-activated, so only the link branch below applies.
+      if (e.type === "auxclick" && e.button !== 1) return;
+      const isAux = e.type === "auxclick";
 
       // Buttons and dropdowns were producing nothing at all. Across the site
       // that is a hundred-odd controls — the mega-menu triggers, every
@@ -81,7 +91,7 @@ export function AnalyticsTracker() {
       // than as a hundred event types. GA4 charges attention, not money, for
       // event types: a hundred of them makes the Events report unreadable and
       // buys nothing that a `label` dimension does not already give.
-      const btn = target?.closest?.("button") as HTMLButtonElement | null;
+      const btn = isAux ? null : (target?.closest?.("button") as HTMLButtonElement | null);
       if (btn) {
         // A submit button's outcome is already reported by the form's own
         // handler — recording the press as well would double-count it.
@@ -142,6 +152,10 @@ export function AnalyticsTracker() {
         track("whatsapp_click", {
           context: window.location.pathname,
           label,
+          // Distinguishes a middle-click-into-a-new-tab from a normal one, so a
+          // sudden shift in either is legible rather than looking like a change
+          // in demand.
+          open_kind: isAux ? "new_tab" : "click",
           // Full message, not a 90-character preview. This is the payload the
           // whole analytics table exists to capture.
           intent: intent.slice(0, 1500),
@@ -186,9 +200,11 @@ export function AnalyticsTracker() {
 
     // Capture phase: a link that unloads the page still reports first.
     document.addEventListener("click", onClick, { capture: true });
+    document.addEventListener("auxclick", onClick, { capture: true });
     document.addEventListener("change", onChange, { capture: true });
     return () => {
       document.removeEventListener("click", onClick, { capture: true });
+      document.removeEventListener("auxclick", onClick, { capture: true });
       document.removeEventListener("change", onChange, { capture: true });
     };
   }, []);

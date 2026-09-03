@@ -60,7 +60,7 @@ export function PackageCard({ pkg, tall }: { pkg: HolidayPackage; tall?: boolean
 
         <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
           <div>
-            <span className="block font-sans text-[10px] tracking-wider text-slate-400 uppercase font-semibold">
+            <span className="block font-sans text-[10px] tracking-wider text-slate-600 uppercase font-semibold">
               {priceParts(pkg).eyebrow}
             </span>
             <span className="font-display text-xl font-black text-[#00365F]">

@@ -82,13 +82,22 @@ export function ActivityBrowser({
             No activities match that search. Try another keyword or category.
           </p>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {list.map((a, i) => (
-              <Reveal key={a.slug} delay={Math.min(i, 8) * 60}>
-                <ActivityCard a={a} eager={i < 4} />
-              </Reveal>
-            ))}
-          </div>
+          <>
+            {/* ActivityCard renders an <h3>; without this the page jumps
+                straight from its <h1> to those, which is a broken outline for
+                anyone navigating by heading. */}
+            <h2 className="mb-6 font-sans text-sm font-bold text-slate-700">
+              Showing <span className="font-extrabold text-[#00365F]">{list.length}</span> Tickets
+              &amp; Experiences
+            </h2>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {list.map((a, i) => (
+                <Reveal key={a.slug} delay={Math.min(i, 8) * 60}>
+                  <ActivityCard a={a} eager={i < 4} />
+                </Reveal>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

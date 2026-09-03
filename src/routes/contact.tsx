@@ -226,7 +226,9 @@ function ContactPage() {
                   </span>
                   <span className="min-w-0">
                     <span className="eyebrow">{c.label}</span>
-                    <span className="mt-1 block truncate font-medium text-accent">{c.value}</span>
+                    <span className="mt-1 block truncate font-medium text-accent-ink">
+                      {c.value}
+                    </span>
                     <span className="mt-1 block text-xs text-muted-foreground">{c.note}</span>
                   </span>
                 </a>
@@ -273,7 +275,13 @@ function ContactPage() {
           }}
           className="glass min-w-0 rounded-3xl p-6 sm:p-8"
         >
-          <ol className="no-scrollbar flex gap-2 overflow-x-auto pb-4" aria-label="Progress">
+          <ol
+            className="no-scrollbar flex gap-2 overflow-x-auto pb-4"
+            aria-label="Progress"
+            // Scrolls horizontally and holds no focusable child, so without
+            // this a keyboard user can see the later steps and never reach them.
+            tabIndex={0}
+          >
             {steps.map((s, i) => (
               <li
                 key={s}
@@ -445,7 +453,7 @@ function ContactPage() {
           </div>
         </form>
 
-        <aside className="glass h-fit rounded-3xl p-7 lg:sticky lg:top-28">
+        <div className="glass h-fit rounded-3xl p-7 lg:sticky lg:top-28">
           <p className="eyebrow">Your enquiry so far</p>
           <dl className="mt-4 space-y-3 text-sm">
             <Row k="Trip" v={selectedPkg ? selectedPkg.title : "Custom trip"} />
@@ -488,7 +496,7 @@ function ContactPage() {
               you approve the plan
             </li>
           </ul>
-        </aside>
+        </div>
       </section>
 
       <section className="mx-auto mt-24 max-w-[1400px] px-5 sm:px-8">

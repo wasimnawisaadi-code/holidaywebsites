@@ -197,7 +197,7 @@ function CustomizedToursPage() {
             {process.map((p, i) => (
               <Reveal key={p.step} delay={i * 60}>
                 <div className="flex gap-6 py-6 sm:gap-10">
-                  <span className="font-display text-sm font-medium text-[#c2b9a8] tabular-nums">
+                  <span className="font-display text-sm font-medium text-[#6B6355] tabular-nums">
                     {p.step}
                   </span>
                   <div>
@@ -223,7 +223,7 @@ function CustomizedToursPage() {
             <h2 className="mt-3 font-display text-3xl font-medium sm:text-4xl">Design your trip</h2>
 
             <fieldset className="mt-10">
-              <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+              <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#6B6355] uppercase">
                 What kind of trip?
               </legend>
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -250,7 +250,7 @@ function CustomizedToursPage() {
                       <span className="mt-3 block font-sans text-sm font-semibold text-[#353844]">
                         {t.label}
                       </span>
-                      <span className="mt-1 block font-sans text-xs text-[#8b8378]">{t.note}</span>
+                      <span className="mt-1 block font-sans text-xs text-[#6B6355]">{t.note}</span>
                     </button>
                   );
                 })}
@@ -300,7 +300,7 @@ function CustomizedToursPage() {
             </div>
 
             <fieldset className="mt-9">
-              <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+              <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#6B6355] uppercase">
                 Pace &amp; style
               </legend>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -324,7 +324,7 @@ function CustomizedToursPage() {
             </fieldset>
 
             <fieldset className="mt-9">
-              <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+              <legend className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#6B6355] uppercase">
                 What should be included?
               </legend>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -365,7 +365,7 @@ function CustomizedToursPage() {
           </div>
 
           {/* Summary */}
-          <aside className="border border-[#ded7c9] bg-white p-7 lg:sticky lg:top-28">
+          <div className="border border-[#ded7c9] bg-white p-7 lg:sticky lg:top-28">
             <p className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#7A641B] uppercase">
               Your brief so far
             </p>
@@ -416,11 +416,11 @@ function CustomizedToursPage() {
               <ArrowRight className="size-3.5 transition-transform duration-500 group-hover:translate-x-1" />
             </Link>
 
-            <p className="mt-6 border-t border-[#e3ded4] pt-5 font-sans text-[11px] leading-relaxed text-[#8b8378]">
+            <p className="mt-6 border-t border-[#e3ded4] pt-5 font-sans text-[11px] leading-relaxed text-[#6B6355]">
               The consultation and first itinerary draft are free. IATA accredited agency, member
               #2009.
             </p>
-          </aside>
+          </div>
         </div>
       </section>
     </div>
@@ -433,7 +433,7 @@ const inputCls =
 function Labelled({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8b8378] uppercase">
+      <span className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#6B6355] uppercase">
         {label}
       </span>
       <span className="mt-2 block">{children}</span>
@@ -444,7 +444,7 @@ function Labelled({ label, children }: { label: string; children: React.ReactNod
 function Row({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex justify-between gap-4 border-b border-[#e3ded4] pb-2.5">
-      <dt className="shrink-0 font-sans text-xs text-[#8b8378]">{k}</dt>
+      <dt className="shrink-0 font-sans text-xs text-[#6B6355]">{k}</dt>
       <dd className="text-right font-sans text-xs font-medium text-[#353844]">{v}</dd>
     </div>
   );

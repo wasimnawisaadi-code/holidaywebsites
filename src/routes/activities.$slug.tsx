@@ -134,7 +134,7 @@ function Section({
   return (
     <div id={id} className="scroll-mt-28">
       <Reveal className="mt-14">
-        <h2 className="font-display text-2xl font-bold text-accent sm:text-3xl">{title}</h2>
+        <h2 className="font-display text-2xl font-bold text-accent-ink sm:text-3xl">{title}</h2>
         <div className="mt-5">{children}</div>
       </Reveal>
     </div>
@@ -181,7 +181,7 @@ function ActivityPage() {
         </Link>
 
         <div className="mt-5 flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-secondary px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+          <span className="rounded-full bg-secondary px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-accent-ink">
             {a.category}
           </span>
           {a.badge ? (
@@ -430,11 +430,11 @@ function ActivityPage() {
         </div>
 
         {/* Interactive Booking & Price Calculator Sidebar */}
-        <aside className="lg:sticky lg:top-28 lg:h-fit">
+        <div className="lg:sticky lg:top-28 lg:h-fit">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
                   Total Calculation
                 </p>
                 <p className="text-2xl font-extrabold text-[#00365F] mt-1">
@@ -479,7 +479,7 @@ function ActivityPage() {
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-700">Adults</span>
-                    <span className="text-xs font-semibold text-slate-400">12+ yrs</span>
+                    <span className="text-xs font-semibold text-slate-600">12+ yrs</span>
                   </div>
                   <div className="mt-2 flex items-center justify-between">
                     <button
@@ -505,7 +505,7 @@ function ActivityPage() {
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-700">Children</span>
-                    <span className="text-xs font-semibold text-slate-400">3-11 yrs</span>
+                    <span className="text-xs font-semibold text-slate-600">3-11 yrs</span>
                   </div>
                   <div className="mt-2 flex items-center justify-between">
                     <button
@@ -563,7 +563,7 @@ function ActivityPage() {
               </li>
             </ul>
           </div>
-        </aside>
+        </div>
       </div>
 
       {related.length > 0 ? (

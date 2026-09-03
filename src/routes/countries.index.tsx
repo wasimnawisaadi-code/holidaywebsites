@@ -31,7 +31,7 @@ export const Route = createFileRoute("/countries/")({
 
 function CountriesIndex() {
   return (
-    <main>
+    <div>
       <PageHero
         crumbs={[{ label: "Home", to: "/" }, { label: "Destinations" }]}
         eyebrow="Destinations"
@@ -80,7 +80,7 @@ function CountriesIndex() {
                       <div className="p-5">
                         <h3 className="text-lg font-semibold">{c.name}</h3>
                         <p className="mt-1 text-sm text-muted-foreground">{c.tagline}</p>
-                        <p className="mt-3 text-sm font-medium text-accent">
+                        <p className="mt-3 text-sm font-medium text-accent-ink">
                           {c.fromAed
                             ? `From AED ${c.fromAed.toLocaleString()}`
                             : "Price on request"}
@@ -95,6 +95,6 @@ function CountriesIndex() {
           </div>
         ))}
       </section>
-    </main>
+    </div>
   );
 }
