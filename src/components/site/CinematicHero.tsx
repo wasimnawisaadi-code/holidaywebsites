@@ -157,7 +157,7 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
             className="rise-in mt-6 max-w-xl font-sans text-base leading-relaxed text-white/75 sm:text-lg"
             style={{ animationDelay: "0.62s" }}
           >
-            Worldwide holiday packages arranged end to end from our Deira office — flights, hotels,
+            Worldwide holiday packages arranged end to end from our Deira office. Flights, hotels,
             transfers and visas handled by one team.
           </p>
 

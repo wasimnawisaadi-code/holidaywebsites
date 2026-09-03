@@ -98,15 +98,19 @@ for (const c of ctys) {
       add("CRITICAL", `${c.name}: missing file ${g}`);
       continue;
     }
-    const bytes = fs.statSync(disk).size;
-    // File size is not a proxy for resolution. brazil-g03.jpg is 41KB and a
-    // full 1600x1063 — it is a sunset silhouette that is mostly black, so it
-    // compresses to almost nothing. Measure the pixels instead.
-    if (bytes < 20_000)
-      add(
-        "MEDIUM",
-        `${c.name}: ${g} is only ${(bytes / 1024).toFixed(0)}KB — check it is not a placeholder`,
-      );
+    // Measure pixels, not bytes. This check flagged brazil-g03 twice on file
+    // size alone — first at 41KB as JPEG, then at 19KB once it became WebP.
+    // Both times it was a full 1600x1063 sunset silhouette that is mostly
+    // black and therefore compresses to almost nothing, and both times the
+    // warning was simply wrong. Width is the thing that actually matters.
+    try {
+      const meta = await sharp(disk).metadata();
+      if ((meta.width ?? 0) < 900) {
+        add("MEDIUM", `${c.name}: ${g} is only ${meta.width}px wide, too small for a gallery`);
+      }
+    } catch {
+      add("HIGH", `${c.name}: ${g} could not be decoded`);
+    }
   }
 }
 
