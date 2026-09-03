@@ -217,7 +217,7 @@ function CustomizedToursPage() {
       <section id="brief" className="border-t border-[#e3ded4] bg-[#FFFFFF] py-20 scroll-mt-28">
         <div className="mx-auto grid max-w-[1400px] gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_360px] lg:items-start">
           <div>
-            <p className="font-sans text-[11px] font-medium tracking-[0.24em] text-[#8F7420] uppercase">
+            <p className="font-sans text-[11px] font-medium tracking-[0.24em] text-[#7A641B] uppercase">
               Your brief
             </p>
             <h2 className="mt-3 font-display text-3xl font-medium sm:text-4xl">Design your trip</h2>
@@ -244,7 +244,7 @@ function CustomizedToursPage() {
                       )}
                     >
                       <Icon
-                        className={cn("size-5", on ? "text-[#12293f]" : "text-[#8F7420]")}
+                        className={cn("size-5", on ? "text-[#12293f]" : "text-[#7A641B]")}
                         aria-hidden
                       />
                       <span className="mt-3 block font-sans text-sm font-semibold text-[#353844]">
@@ -343,7 +343,7 @@ function CustomizedToursPage() {
                           : "border-[#ded7c9] bg-white text-[#4c4741] hover:border-[#c2b9a8]",
                       )}
                     >
-                      {on && <Check className="size-3.5 text-[#8F7420]" aria-hidden />}
+                      {on && <Check className="size-3.5 text-[#7A641B]" aria-hidden />}
                       <span>{o}</span>
                     </button>
                   );
@@ -366,7 +366,7 @@ function CustomizedToursPage() {
 
           {/* Summary */}
           <aside className="border border-[#ded7c9] bg-white p-7 lg:sticky lg:top-28">
-            <p className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#8F7420] uppercase">
+            <p className="font-sans text-[10px] font-semibold tracking-[0.16em] text-[#7A641B] uppercase">
               Your brief so far
             </p>
             <h3 className="mt-2 font-display text-xl font-medium">
@@ -410,7 +410,7 @@ function CustomizedToursPage() {
 
             <Link
               to="/contact"
-              className="group mt-3 flex items-center justify-center gap-1.5 rounded-sm border border-[#ded7c9] px-5 py-3 font-sans text-xs font-medium text-[#4c4741] transition-colors hover:border-[#8F7420] hover:text-[#8F7420]"
+              className="group mt-3 flex items-center justify-center gap-1.5 rounded-sm border border-[#ded7c9] px-5 py-3 font-sans text-xs font-medium text-[#4c4741] transition-colors hover:border-[#8F7420] hover:text-[#7A641B]"
             >
               <span>Or contact the Deira office</span>
               <ArrowRight className="size-3.5 transition-transform duration-500 group-hover:translate-x-1" />

@@ -159,7 +159,7 @@ function PlanPage() {
 
         <div>
           <div className="flex items-center gap-2 font-sans text-sm text-[#8b8378]">
-            <Sparkles className="size-4 text-[#8F7420]" aria-hidden />
+            <Sparkles className="size-4 text-[#7A641B]" aria-hidden />
             Suggested for {travellers} {travellers === 1 ? "traveller" : "travellers"} · {nights}{" "}
             nights · {style}
           </div>

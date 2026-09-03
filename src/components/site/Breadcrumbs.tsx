@@ -55,7 +55,7 @@ export function Breadcrumbs({
                   to={c.to}
                   className={cn(
                     "transition-colors",
-                    onDark ? "hover:text-[#DDBE5E]" : "hover:text-[#8F7420]",
+                    onDark ? "hover:text-[#DDBE5E]" : "hover:text-[#7A641B]",
                   )}
                 >
                   {c.label}

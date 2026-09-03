@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
  * letter as its own inline box, which breaks text selection, makes screen
  * readers announce the string letter by letter, and costs an order of
  * magnitude more nodes for a difference nobody can see at reading size. The
- * full sentence is kept in an `aria-label` and the pieces hidden from
+ * full sentence is kept in a visually hidden span and the pieces hidden from
  * assistive tech, so it is announced once, normally.
  */
 export function ScrollRevealText({ text, className }: { text: string; className?: string }) {
@@ -72,7 +72,15 @@ export function ScrollRevealText({ text, className }: { text: string; className?
   const words = text.split(" ");
 
   return (
-    <p ref={ref} className={className} aria-label={text}>
+    <p ref={ref} className={className}>
+      {/*
+        aria-label is prohibited on <p>: the element has no implicit role that
+        supports an accessible name, so assistive technology is entitled to
+        ignore it — which meant this sentence could be announced as nothing at
+        all, every word inside it being aria-hidden. A visually hidden copy of
+        the text says the same thing using nothing but HTML.
+      */}
+      <span className="sr-only">{text}</span>
       {words.map((word, i) => {
         // Each word owns a slice of the timeline, with the window widened a
         // little so neighbours overlap and the brightening travels as a wave

@@ -1204,7 +1204,7 @@ function WhatsAppIntentLog({
                 <span className="truncate font-sans text-xs font-semibold text-[#00365F]">
                   {c.context}
                 </span>
-                <span className="rounded-full bg-[#CAA42D]/20 px-2.5 py-0.5 font-display text-xs font-extrabold text-[#8F7420]">
+                <span className="rounded-full bg-[#CAA42D]/20 px-2.5 py-0.5 font-display text-xs font-extrabold text-[#7A641B]">
                   {c.count} {c.count === 1 ? "click" : "clicks"}
                 </span>
               </li>
@@ -1252,7 +1252,7 @@ function SessionsFeed({ recent }: { recent: Dashboard["recent"] }) {
                       className={cn(
                         "rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
                         e.type === "whatsapp_click"
-                          ? "bg-[#CAA42D]/20 text-[#8F7420]"
+                          ? "bg-[#CAA42D]/20 text-[#7A641B]"
                           : e.type === "page_view"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-slate-100 text-slate-700",

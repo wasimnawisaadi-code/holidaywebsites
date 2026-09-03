@@ -62,7 +62,7 @@ export function TrustMetricsBar() {
                 <div className="flex size-9 items-center justify-center rounded-xl bg-[#00365F]/10 text-[#00365F]">
                   <Icon className="size-4 text-[#CAA42D]" />
                 </div>
-                <span className="rounded-full bg-[#CAA42D]/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8F7420]">
+                <span className="rounded-full bg-[#CAA42D]/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#7A641B]">
                   {m.badge}
                 </span>
               </div>

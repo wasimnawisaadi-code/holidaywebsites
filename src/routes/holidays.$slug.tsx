@@ -385,7 +385,7 @@ function PackagePage() {
                       aria-expanded={open}
                       className="w-full text-left cursor-pointer"
                     >
-                      <span className="text-xs font-bold uppercase tracking-wider text-[#CAA42D]">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#7A641B]">
                         Day {String(d.day).padStart(2, "0")}
                       </span>
                       <span className="mt-1 block font-display text-xl font-bold text-[#00365F]">
@@ -743,7 +743,7 @@ function PackagePage() {
       <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-5 py-3.5 backdrop-blur-md lg:hidden shadow-2xl">
         <div className="min-w-0">
           <p className="truncate text-xs font-bold text-[#00365F]">{pkg.title}</p>
-          <p className="text-sm font-extrabold text-[#CAA42D]">
+          <p className="text-sm font-extrabold text-[#7A641B]">
             AED {estimatedTotal.toLocaleString()}
           </p>
         </div>

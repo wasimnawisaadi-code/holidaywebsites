@@ -121,14 +121,14 @@ export function SiteFooter() {
             <div className="mt-6 flex flex-col gap-2.5 font-sans text-sm">
               <a
                 href={`tel:${BRAND.phone.replace(/\s/g, "")}`}
-                className="flex items-center gap-2.5 font-semibold text-[#00365F] transition-colors hover:text-[#8F7420]"
+                className="flex items-center gap-2.5 font-semibold text-[#00365F] transition-colors hover:text-[#7A641B]"
               >
                 <Phone className="size-4 text-[#CAA42D]" />
                 {BRAND.phone}
               </a>
               <a
                 href={`mailto:${BRAND.email}`}
-                className="flex items-center gap-2.5 text-[#666666] transition-colors hover:text-[#8F7420]"
+                className="flex items-center gap-2.5 text-[#666666] transition-colors hover:text-[#7A641B]"
               >
                 <Mail className="size-4 text-[#CAA42D]" />
                 {BRAND.email}
@@ -153,7 +153,7 @@ export function SiteFooter() {
                   target="_blank"
                   rel="noopener noreferrer me"
                   aria-label={`${BRAND.short} on ${sc.label}`}
-                  className="font-sans text-xs font-semibold text-[#00365F] underline-offset-4 transition-colors hover:text-[#8F7420] hover:underline"
+                  className="font-sans text-xs font-semibold text-[#00365F] underline-offset-4 transition-colors hover:text-[#7A641B] hover:underline"
                 >
                   {sc.label}
                 </a>
@@ -173,7 +173,7 @@ export function SiteFooter() {
                       <Link
                         to={l.to}
                         {...("params" in l ? { params: l.params } : {})}
-                        className="font-sans text-sm text-[#666666] transition-colors hover:text-[#8F7420]"
+                        className="font-sans text-sm text-[#666666] transition-colors hover:text-[#7A641B]"
                       >
                         {l.label}
                       </Link>
@@ -228,13 +228,13 @@ export function SiteFooter() {
               anchor is what tells a search engine these are one business
               rather than two competing for the same brand name.
             */}
-            <p className="text-[11px] text-[#888888]">
+            <p className="text-[11px] text-[#6E6E6E]">
               A division of{" "}
               <a
                 href={BRAND_INFO.parentSite}
                 target="_blank"
                 rel="noopener"
-                className="font-medium text-[#00365F] transition-colors hover:text-[#8F7420]"
+                className="font-medium text-[#00365F] transition-colors hover:text-[#7A641B]"
               >
                 Nawi Saadi Travel &amp; Tourism
               </a>
@@ -249,14 +249,14 @@ export function SiteFooter() {
               href={`https://wa.me/${BRAND_INFO.developer.whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="transition-colors hover:text-[#8F7420]"
+              className="transition-colors hover:text-[#7A641B]"
             >
               Designed &amp; developed by {BRAND_INFO.developer.name}
             </a>
-            <Link to="/privacy" className="transition-colors hover:text-[#8F7420]">
+            <Link to="/privacy" className="transition-colors hover:text-[#7A641B]">
               Privacy policy
             </Link>
-            <Link to="/terms" className="transition-colors hover:text-[#8F7420]">
+            <Link to="/terms" className="transition-colors hover:text-[#7A641B]">
               Terms &amp; booking
             </Link>
             <span>IATA accredited · flydubai GSA · DTCM approved</span>

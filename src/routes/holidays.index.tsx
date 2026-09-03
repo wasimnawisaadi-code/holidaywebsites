@@ -130,7 +130,7 @@ function HolidaysPage() {
               <div>
                 <label
                   htmlFor="pkg-search"
-                  className="text-[11px] font-bold uppercase tracking-wider text-slate-300"
+                  className="text-[11px] font-bold uppercase tracking-wider text-white"
                 >
                   Search Destination or Style
                 </label>
@@ -150,7 +150,7 @@ function HolidaysPage() {
               <div>
                 <label
                   htmlFor="pkg-style"
-                  className="text-[11px] font-bold uppercase tracking-wider text-slate-300"
+                  className="text-[11px] font-bold uppercase tracking-wider text-white"
                 >
                   Travel Style
                 </label>
@@ -172,7 +172,7 @@ function HolidaysPage() {
               <div>
                 <label
                   htmlFor="pkg-duration"
-                  className="text-[11px] font-bold uppercase tracking-wider text-slate-300"
+                  className="text-[11px] font-bold uppercase tracking-wider text-white"
                 >
                   Duration
                 </label>
@@ -209,11 +209,11 @@ function HolidaysPage() {
 
       {/* Package Results Count */}
       <section className="mx-auto max-w-[1400px] px-5 sm:px-8 py-8 flex items-center justify-between border-b border-slate-200">
-        <div className="text-sm font-bold text-slate-700">
+        <h2 className="text-sm font-bold text-slate-700">
           Showing <span className="text-[#00365F] font-extrabold">{results.length}</span> Verified
           Holiday Packages
-        </div>
-        <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
+        </h2>
+        <div className="flex items-center gap-2 text-xs text-slate-600 font-semibold">
           <ShieldCheck className="size-4 text-[#CAA42D]" />
           <span>IATA accredited &middot; flydubai GSA &middot; DTCM licensed</span>
         </div>
@@ -229,7 +229,7 @@ function HolidaysPage() {
 
         {results.length === 0 && (
           <div className="col-span-full rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-sm">
-            <h3 className="text-2xl font-bold text-[#00365F]">No matching packages found</h3>
+            <h2 className="text-2xl font-bold text-[#00365F]">No matching packages found</h2>
             <p className="mt-2 text-sm text-slate-600">
               We design custom bespoke holidays everyday. Tell our Dubai travel specialists where
               you want to go.

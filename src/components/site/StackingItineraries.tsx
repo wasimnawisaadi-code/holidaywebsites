@@ -120,7 +120,7 @@ export function StackingItineraries({ cards }: { cards: StackCard[] }) {
               </Link>
 
               <div className="flex flex-col justify-center p-7 sm:p-10">
-                <span className="font-sans text-[11px] font-bold tabular-nums tracking-[0.2em] text-[#CAA42D]">
+                <span className="font-sans text-[11px] font-bold tabular-nums tracking-[0.2em] text-[#7A641B]">
                   {c.index}
                 </span>
                 <h3 className="mt-3 font-display text-[clamp(1.5rem,2.6vw,2.4rem)] leading-[1.12] text-[#00365F]">
@@ -130,24 +130,25 @@ export function StackingItineraries({ cards }: { cards: StackCard[] }) {
                   {c.intro}
                 </p>
 
+                {/*
+                  One div between <dl> and its <dt>/<dd>, not two. HTML permits
+                  a single wrapper for styling; nesting a second one puts the
+                  terms outside any list as far as a screen reader is
+                  concerned, which axe reported as 16 orphaned dt/dd elements
+                  on the homepage alone. The icon sits inside that one wrapper.
+                */}
                 <dl className="mt-7 flex flex-wrap gap-x-10 gap-y-4 border-t border-[#E5E5E5] pt-6">
                   <div className="flex items-center gap-2">
-                    <Clock className="size-4 text-[#CAA42D]" />
-                    <div>
-                      <dt className="sr-only">Duration</dt>
-                      <dd className="font-sans text-sm font-semibold text-[#00365F]">
-                        {c.days} days · {c.nights} nights
-                      </dd>
-                    </div>
+                    <Clock className="size-4 shrink-0 text-[#CAA42D]" aria-hidden="true" />
+                    <dt className="sr-only">Duration</dt>
+                    <dd className="font-sans text-sm font-semibold text-[#00365F]">
+                      {c.days} days · {c.nights} nights
+                    </dd>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin className="size-4 text-[#CAA42D]" />
-                    <div>
-                      <dt className="sr-only">Country</dt>
-                      <dd className="font-sans text-sm font-semibold text-[#00365F]">
-                        {c.country}
-                      </dd>
-                    </div>
+                    <MapPin className="size-4 shrink-0 text-[#CAA42D]" aria-hidden="true" />
+                    <dt className="sr-only">Country</dt>
+                    <dd className="font-sans text-sm font-semibold text-[#00365F]">{c.country}</dd>
                   </div>
                 </dl>
 

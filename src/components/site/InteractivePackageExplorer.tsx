@@ -166,7 +166,7 @@ export function InteractivePackageExplorer() {
                     <span className="line-clamp-1">{p.styles.slice(0, 2).join(", ")}</span>
                   </div>
 
-                  <h3 className="mt-2.5 line-clamp-2 font-display text-lg font-bold leading-snug text-[#00365F] transition-colors group-hover:text-[#8F7420]">
+                  <h3 className="mt-2.5 line-clamp-2 font-display text-lg font-bold leading-snug text-[#00365F] transition-colors group-hover:text-[#7A641B]">
                     {p.title}
                   </h3>
 

@@ -203,7 +203,7 @@ function ActivityPage() {
             {a.duration}
           </span>
           {a.instantConfirm ? (
-            <span className="inline-flex items-center gap-2 font-medium text-[#CAA42D]">
+            <span className="inline-flex items-center gap-2 font-medium text-[#7A641B]">
               <BadgeCheck className="size-4" aria-hidden /> Instant Barcode Confirmation
             </span>
           ) : null}
@@ -281,7 +281,7 @@ function ActivityPage() {
                     className="absolute -left-[31px] top-1 size-3.5 rounded-full border-2 border-[#CAA42D] bg-white"
                     aria-hidden
                   />
-                  <p className="text-xs font-bold uppercase tracking-wider text-[#CAA42D]">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#7A641B]">
                     {t.time}
                   </p>
                   <p className="mt-1 text-sm text-slate-700 font-medium">{t.detail}</p>
@@ -316,7 +316,7 @@ function ActivityPage() {
                           <span className="mt-0.5 block text-xs text-slate-500">{o.note}</span>
                         ) : null}
                         {o.unit && o.unit !== "per person" ? (
-                          <span className="mt-0.5 block text-xs text-[#CAA42D] font-semibold">
+                          <span className="mt-0.5 block text-xs text-[#7A641B] font-semibold">
                             {o.unit}
                           </span>
                         ) : null}
@@ -446,7 +446,7 @@ function ActivityPage() {
                       : "On Request"}
                 </p>
               </div>
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-[#8F7420]">
+              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-[#7A641B]">
                 Official Price
               </span>
             </div>
@@ -591,7 +591,7 @@ function ActivityPage() {
       <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-5 py-3.5 backdrop-blur-md lg:hidden shadow-2xl">
         <div className="min-w-0">
           <p className="truncate text-xs font-bold text-[#00365F]">{a.title}</p>
-          <p className="text-sm font-extrabold text-[#CAA42D]">
+          <p className="text-sm font-extrabold text-[#7A641B]">
             AED {totalPrice > 0 ? totalPrice.toLocaleString() : a.fromPrice || "On Request"}
           </p>
         </div>

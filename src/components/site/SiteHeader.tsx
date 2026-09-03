@@ -161,7 +161,7 @@ export function SiteHeader() {
               "flex items-center gap-2 text-sm font-semibold transition-colors",
               isLightText
                 ? "text-white hover:text-[#DDBE5E]"
-                : "text-[#00365F] hover:text-[#8F7420]",
+                : "text-[#00365F] hover:text-[#7A641B]",
             )}
           >
             <Phone className="size-4 text-[#CAA42D]" />
@@ -223,7 +223,7 @@ export function SiteHeader() {
                         {p.nights} nights · {p.destination.split("·")[0]?.trim()}
                       </span>
                     </span>
-                    <span className="shrink-0 font-sans text-xs text-[#8F7420]">
+                    <span className="shrink-0 font-sans text-xs text-[#7A641B]">
                       {priceLabel(p)}
                     </span>
                   </Link>
@@ -238,7 +238,7 @@ export function SiteHeader() {
               <Link
                 to="/customized-tours"
                 onClick={() => setOpenMenu(null)}
-                className="mt-4 inline-block font-sans text-sm font-semibold text-[#00365F] underline underline-offset-4 hover:text-[#8F7420]"
+                className="mt-4 inline-block font-sans text-sm font-semibold text-[#00365F] underline underline-offset-4 hover:text-[#7A641B]"
               >
                 Build a tailor-made trip
               </Link>
@@ -248,7 +248,7 @@ export function SiteHeader() {
             <Link
               to="/holidays"
               onClick={() => setOpenMenu(null)}
-              className="font-sans text-sm font-semibold text-[#00365F] hover:text-[#8F7420]"
+              className="font-sans text-sm font-semibold text-[#00365F] hover:text-[#7A641B]"
             >
               View all {packages.length} holiday packages →
             </Link>
@@ -265,7 +265,7 @@ export function SiteHeader() {
               if (!list.length) return null;
               return (
                 <div key={region} className="min-w-0">
-                  <p className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#8F7420]">
+                  <p className="font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-[#7A641B]">
                     {region}
                   </p>
                   <ul className="mt-3 space-y-1.5">
@@ -290,7 +290,7 @@ export function SiteHeader() {
             <Link
               to="/countries"
               onClick={() => setOpenMenu(null)}
-              className="font-sans text-sm font-semibold text-[#00365F] hover:text-[#8F7420]"
+              className="font-sans text-sm font-semibold text-[#00365F] hover:text-[#7A641B]"
             >
               Browse all {countries.length} destinations →
             </Link>
@@ -365,7 +365,7 @@ function NavLink({
       onMouseEnter={onHover}
       className={cn(
         "rounded-sm px-3.5 py-2 text-sm font-medium transition-colors",
-        light ? "text-white/90 hover:text-[#DDBE5E]" : "text-[#353844] hover:text-[#8F7420]",
+        light ? "text-white/90 hover:text-[#DDBE5E]" : "text-[#353844] hover:text-[#7A641B]",
       )}
     >
       {children}
@@ -394,10 +394,10 @@ function MenuTrigger({
       className={cn(
         "flex items-center gap-1.5 rounded-sm px-3.5 py-2 text-sm font-medium transition-colors",
         isOpen
-          ? "text-[#8F7420]"
+          ? "text-[#7A641B]"
           : light
             ? "text-white/90 hover:text-[#DDBE5E]"
-            : "text-[#353844] hover:text-[#8F7420]",
+            : "text-[#353844] hover:text-[#7A641B]",
       )}
     >
       {label}

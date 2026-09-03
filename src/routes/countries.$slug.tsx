@@ -247,9 +247,9 @@ function CountryPage() {
           </div>
         </div>
 
-        <aside className="lg:sticky lg:top-28 lg:self-start">
+        <div className="lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-xl">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
               Plan This Journey
             </span>
             <p className="text-display mt-2 text-3xl font-extrabold text-[#00365F]">
@@ -287,14 +287,14 @@ function CountryPage() {
               </p>
             </div>
           </div>
-        </aside>
+        </div>
       </section>
 
       {/* Linked Holiday Packages Section */}
       {related.length > 0 ? (
         <section className="mx-auto mt-20 max-w-[1400px] px-5 sm:px-8">
           <div className="border-b border-slate-200 pb-4">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-[#CAA42D]">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-[#7A641B]">
               Curated Packages
             </span>
             <h2 className="mt-1 text-3xl font-extrabold text-[#00365F] sm:text-4xl">
@@ -356,7 +356,7 @@ function CountryPage() {
           </h2>
           <Link
             to="/countries"
-            className="group inline-flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.14em] text-[#00365F] transition-colors hover:text-[#8F7420]"
+            className="group inline-flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.14em] text-[#00365F] transition-colors hover:text-[#7A641B]"
           >
             <span>All destinations</span>
             <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
@@ -386,7 +386,7 @@ function CountryPage() {
                     />
                   </div>
                   <div className="flex flex-1 flex-col p-4">
-                    <p className="font-display text-lg leading-snug text-[#00365F] transition-colors group-hover:text-[#8F7420]">
+                    <p className="font-display text-lg leading-snug text-[#00365F] transition-colors group-hover:text-[#7A641B]">
                       {c.name}
                     </p>
                     <p className="mt-1 line-clamp-2 font-sans text-xs leading-relaxed text-[#666666]">

@@ -142,7 +142,7 @@ export function RegionalDestinationsGrid() {
     <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl sm:p-10">
       <div className="flex flex-col items-start justify-between gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-center">
         <div>
-          <span className="inline-flex items-center gap-1.5 text-xs font-extrabold tracking-wider text-[#CAA42D] uppercase">
+          <span className="inline-flex items-center gap-1.5 text-xs font-extrabold tracking-wider text-[#7A641B] uppercase">
             <Globe className="size-4" /> Worldwide Travel Network
           </span>
           <h3 className="mt-1 text-2xl font-extrabold text-[#00365F] sm:text-3xl">

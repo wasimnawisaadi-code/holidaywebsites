@@ -53,7 +53,7 @@ function NotFoundComponent() {
 
       <main className="flex min-h-screen items-center justify-center bg-[#FFFFFF] px-5 py-32">
         <div className="max-w-lg text-center">
-          <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[#8F7420]">
+          <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7A641B]">
             404
           </p>
           <h1 className="mt-4 font-display text-3xl leading-tight text-[#00365F] sm:text-4xl">

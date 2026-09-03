@@ -185,7 +185,7 @@ function DealsPage() {
       <section className="mx-auto mt-16 max-w-[1400px] px-5 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#e2dcd0] pb-5">
           <div>
-            <span className="font-sans text-xs font-black tracking-[0.24em] text-[#CAA42D] uppercase">
+            <span className="font-sans text-xs font-black tracking-[0.24em] text-[#7A641B] uppercase">
               Bestseller Combos
             </span>
             <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold text-[#00365F]">
@@ -241,7 +241,7 @@ function DealsPage() {
                       </span>
                       <div className="flex items-baseline gap-1">
                         <span className="text-xs text-[#00365F] font-bold">AED</span>
-                        <span className="font-display text-xl font-black text-[#CAA42D]">
+                        <span className="font-display text-xl font-black text-[#7A641B]">
                           {combo.price}
                         </span>
                       </div>
@@ -270,7 +270,7 @@ function DealsPage() {
       <section className="mx-auto mt-24 max-w-[1400px] px-5 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#e2dcd0] pb-5">
           <div>
-            <span className="font-sans text-xs font-black tracking-[0.24em] text-[#CAA42D] uppercase">
+            <span className="font-sans text-xs font-black tracking-[0.24em] text-[#7A641B] uppercase">
               Budget Friendly
             </span>
             <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold text-[#00365F]">
@@ -298,7 +298,7 @@ function DealsPage() {
       <section className="mx-auto mt-24 max-w-[1400px] px-5 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#e2dcd0] pb-5">
           <div>
-            <span className="font-sans text-xs font-black tracking-[0.24em] text-[#CAA42D] uppercase">
+            <span className="font-sans text-xs font-black tracking-[0.24em] text-[#7A641B] uppercase">
               Best Value Escapes
             </span>
             <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold text-[#00365F]">

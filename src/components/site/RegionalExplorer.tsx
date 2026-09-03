@@ -69,12 +69,12 @@ export function RegionalExplorer() {
       <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#CAA42D]">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#7A641B]">
               <Compass className="size-4" />
               <span>Worldwide Directory</span>
             </div>
             <h2 className="mt-3 font-display text-[clamp(1.9rem,4.4vw,3.4rem)] leading-[1.08] tracking-tight text-[#00365F]">
-              Explore by <span className="italic text-[#8F7420]">Global Region</span>
+              Explore by <span className="italic text-[#7A641B]">Global Region</span>
             </h2>
           </div>
           <Link

@@ -158,7 +158,7 @@ function ActivitiesPage() {
             <button
               type="button"
               onClick={reset}
-              className="font-sans text-xs font-semibold text-[#00365F] underline underline-offset-4 hover:text-[#8F7420]"
+              className="font-sans text-xs font-semibold text-[#00365F] underline underline-offset-4 hover:text-[#7A641B]"
             >
               Clear filters
             </button>
@@ -197,13 +197,19 @@ function ActivitiesPage() {
             </div>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {list.map((a, i) => (
-              <Reveal key={a.slug} delay={Math.min(i, 8) * 40}>
-                <ActivityCard a={a} eager={i < 4} />
-              </Reveal>
-            ))}
-          </div>
+          <>
+            <h2 className="mb-6 font-sans text-sm font-bold text-slate-700">
+              Showing <span className="font-extrabold text-[#00365F]">{list.length}</span> Tickets
+              &amp; Experiences
+            </h2>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {list.map((a, i) => (
+                <Reveal key={a.slug} delay={Math.min(i, 8) * 40}>
+                  <ActivityCard a={a} eager={i < 4} />
+                </Reveal>
+              ))}
+            </div>
+          </>
         )}
       </section>
     </div>

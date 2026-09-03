@@ -139,7 +139,7 @@ function Eyebrow({ children, onDark = false }: { children: React.ReactNode; onDa
       <p
         className={cn(
           "font-sans text-[11px] font-semibold uppercase tracking-[0.22em]",
-          onDark ? "text-[#DDBE5E]" : "text-[#8F7420]",
+          onDark ? "text-[#DDBE5E]" : "text-[#7A641B]",
         )}
       >
         {children}
@@ -265,7 +265,7 @@ function SignatureItineraries() {
             <Eyebrow>Signature itineraries</Eyebrow>
             <h2 className="mt-4 font-display text-[clamp(1.9rem,4.4vw,3.4rem)] leading-[1.08] tracking-tight text-[#00365F]">
               Trips we plan end to end, so you only{" "}
-              <span className="italic text-[#8F7420]">pack a bag</span>
+              <span className="italic text-[#7A641B]">pack a bag</span>
             </h2>
           </div>
         </Reveal>
@@ -289,7 +289,7 @@ function PackageGrid() {
             <div className="min-w-0">
               <Eyebrow>Curated Holiday Packages</Eyebrow>
               <h2 className="mt-3 font-display text-[clamp(1.9rem,4.4vw,3.4rem)] leading-[1.08] tracking-tight text-[#00365F]">
-                Discover Your Next <span className="italic text-[#8F7420]">Getaway</span>
+                Discover Your Next <span className="italic text-[#7A641B]">Getaway</span>
               </h2>
             </div>
           </Reveal>
@@ -325,7 +325,7 @@ function UaeRail() {
           <div className="min-w-0">
             <Eyebrow>While you&apos;re in the Emirates</Eyebrow>
             <h2 className="mt-3 font-display text-3xl leading-[1.1] text-[#00365F] sm:text-5xl">
-              Dubai &amp; Abu Dhabi <span className="italic text-[#8F7420]">day experiences</span>
+              Dubai &amp; Abu Dhabi <span className="italic text-[#7A641B]">day experiences</span>
             </h2>
           </div>
           <ArrowBadgeLink to="/activities" className="shrink-0">
@@ -358,7 +358,7 @@ function UaeRail() {
                 </span>
               </div>
               <div className="p-5">
-                <p className="line-clamp-2 font-display text-base leading-snug text-[#00365F] transition-colors group-hover:text-[#8F7420]">
+                <p className="line-clamp-2 font-display text-base leading-snug text-[#00365F] transition-colors group-hover:text-[#7A641B]">
                   {a.title}
                 </p>
                 <p className="mt-3 font-sans text-sm font-bold text-[#00365F]">
@@ -405,7 +405,7 @@ function Assurance() {
           <div className="min-w-0">
             <Eyebrow>Why book with us</Eyebrow>
             <h2 className="mt-3 font-display text-3xl leading-[1.1] text-[#00365F] sm:text-4xl">
-              A licensed agency, <span className="italic text-[#8F7420]">not a marketplace</span>
+              A licensed agency, <span className="italic text-[#7A641B]">not a marketplace</span>
             </h2>
             <p className="mt-4 font-sans text-sm leading-relaxed text-[#666666]">
               Trading from Deira since {BRAND.founded}, with {offices.length} offices and{" "}
@@ -418,7 +418,7 @@ function Assurance() {
               <li key={title} className="border-b border-[#E5E5E5]">
                 <Reveal delay={i * 70}>
                   <div className="group flex gap-6 py-7">
-                    <span className="mt-1 shrink-0 font-sans text-sm font-bold tabular-nums text-[#CAA42D]">
+                    <span className="mt-1 shrink-0 font-sans text-sm font-bold tabular-nums text-[#7A641B]">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <div className="min-w-0 flex-1">
@@ -538,7 +538,7 @@ function Faq() {
                   aria-expanded={isOpen}
                   className="group flex w-full items-center justify-between gap-6 py-5 text-left"
                 >
-                  <span className="font-display text-lg text-[#00365F] transition-colors group-hover:text-[#8F7420]">
+                  <span className="font-display text-lg text-[#00365F] transition-colors group-hover:text-[#7A641B]">
                     {faq.q}
                   </span>
                   <ChevronDown

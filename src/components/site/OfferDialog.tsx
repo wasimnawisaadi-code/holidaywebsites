@@ -204,7 +204,7 @@ export function OfferDialog() {
         <div className="flex flex-col justify-center p-7 sm:p-9">
           <div className="flex items-center gap-3">
             <span className="h-px w-8 bg-[#CAA42D]" />
-            <p className="font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-[#8F7420]">
+            <p className="font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-[#7A641B]">
               Short-haul from Dubai
             </p>
           </div>
@@ -220,15 +220,19 @@ export function OfferDialog() {
             {pkg.intro}
           </p>
 
+          {/* Each <dd> needs its <dt>. These had none, so the values were
+              read out with nothing naming them. */}
           <dl className="mt-5 flex flex-wrap gap-x-7 gap-y-2 border-t border-[#E5E5E5] pt-4">
             <div className="flex items-center gap-2">
-              <Clock className="size-4 text-[#CAA42D]" />
+              <Clock className="size-4 shrink-0 text-[#CAA42D]" aria-hidden="true" />
+              <dt className="sr-only">Duration</dt>
               <dd className="font-sans text-xs font-semibold text-[#00365F]">
                 {pkg.days} days · {pkg.nights} nights
               </dd>
             </div>
             <div className="flex items-center gap-2">
-              <MapPin className="size-4 text-[#CAA42D]" />
+              <MapPin className="size-4 shrink-0 text-[#CAA42D]" aria-hidden="true" />
+              <dt className="sr-only">Country</dt>
               <dd className="font-sans text-xs font-semibold text-[#00365F]">{pkg.country}</dd>
             </div>
           </dl>
