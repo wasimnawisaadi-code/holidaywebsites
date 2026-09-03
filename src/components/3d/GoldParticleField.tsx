@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 
 type ParticleFieldProps = {
   className?: string;
@@ -35,7 +36,7 @@ type Particle = {
  *   - Pauses while the tab is hidden, rather than animating to nobody.
  */
 export function GoldParticleField({
-  className = "absolute inset-0 pointer-events-none",
+  className,
   particleCount = 55,
   interactive = true,
 }: ParticleFieldProps) {
@@ -167,5 +168,25 @@ export function GoldParticleField({
     };
   }, [particleCount, interactive]);
 
-  return <canvas ref={canvasRef} className={className} aria-hidden="true" />;
+  /*
+   * The positioning is the component's own, not a default a caller can drop.
+   *
+   * It used to be a default parameter value: className = "absolute inset-0
+   * pointer-events-none". /dubai passed className="z-10 opacity-75" to add a
+   * stacking order, which replaced the whole string and took the positioning
+   * with it. The canvas then sat in normal flow inside the hero and pushed the
+   * headline down when the effect sized it to devicePixelRatio — a 425px jump
+   * about ten seconds in on a throttled phone, and the whole of that page's
+   * 0.279 CLS.
+   *
+   * Merging instead of defaulting means a caller can add to it and cannot
+   * silently remove it.
+   */
+  return (
+    <canvas
+      ref={canvasRef}
+      className={cn("pointer-events-none absolute inset-0", className)}
+      aria-hidden="true"
+    />
+  );
 }
