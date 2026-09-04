@@ -16,7 +16,6 @@ import {
   Plane,
   Plus,
   ShieldCheck,
-  Sparkles,
   Sun,
   Sunrise,
   Sunset,
@@ -649,6 +648,21 @@ function PackagePage() {
               </span>
             </div>
 
+            {/*
+              Said at the price, not further down the panel.
+              
+              "From AED 1,899" reads as the price until something says
+              otherwise, and a visitor who takes it as fixed is the one who
+              argues later. The rate genuinely moves with dates, hotel and
+              airline, and the itinerary genuinely can be rebuilt — so both sit
+              directly under the figure they qualify.
+            */}
+            <p className="mt-3 text-xs leading-relaxed text-slate-600">
+              Rate varies with your travel dates, hotel choice and airline.{" "}
+              <span className="font-semibold text-[#00365F]">We can customise this package</span>:
+              change the nights, hotels, cities or pace and we will requote it.
+            </p>
+
             <div className="mt-5 space-y-4">
               {/* Hotel Tier Selector */}
               <div>
@@ -777,10 +791,12 @@ function PackagePage() {
                 <Plane className="mt-0.5 size-4 shrink-0 text-[#7A641B]" aria-hidden="true" />
                 <span>{notes.flights}</span>
               </p>
-              <p className="flex gap-2.5 text-xs leading-relaxed text-slate-700">
-                <Sparkles className="mt-0.5 size-4 shrink-0 text-[#7A641B]" aria-hidden="true" />
-                <span>{notes.tailorMade}</span>
-              </p>
+              {/*
+                The tailor-made sentence used to sit here too. It now sits under
+                the price, where the visitor is actually deciding, so repeating
+                it three inches lower only made the panel longer. The link
+                stays, because that is the part that does something.
+              */}
               <Link
                 to="/customized-tours"
                 className="inline-block text-xs font-bold text-[#00365F] underline underline-offset-2 hover:text-[#7A641B]"
