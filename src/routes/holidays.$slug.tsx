@@ -218,21 +218,26 @@ function PackagePage() {
     "3-Star Comfort" | "4-Star Superior" | "5-Star Luxury"
   >("4-Star Superior");
 
-  const basePrice = pkg.priceFrom || 2499;
-
-  const estimatedTotal = useMemo(() => {
-    let multiplier = 1;
-    if (hotelTier === "3-Star Comfort") multiplier = 0.85;
-    if (hotelTier === "5-Star Luxury") multiplier = 1.35;
-    const perAdult = basePrice * multiplier;
-    const perChild = perAdult * 0.65;
-    return Math.round(adults * perAdult + children * perChild);
-  }, [basePrice, hotelTier, adults, children]);
+  /*
+   * There is no estimated total any more, and there should not have been one.
+   *
+   * It read: lead-in fare x 0.85 for a 3-star, x 1.35 for a 5-star, x 0.65 per
+   * child, falling back to a base of 2499 when a package carried no price at
+   * all. Nobody at the agency set those multipliers. The page showed a visitor
+   * a firm-looking figure — "AED 3,798" — that no consultant had quoted and
+   * that nothing could be booked at, put it on the mobile bar as well, and then
+   * sent the same invented number to the office in the WhatsApp message as
+   * though the customer had agreed it.
+   *
+   * The lead-in fare in the catalogue is a real number, so that is what shows.
+   * The tier and traveller controls stay: those are the visitor stating what
+   * they want, which is worth carrying into the enquiry.
+   */
 
   const customEnquiry = useMemo(() => {
-    const msg = `Hi ${BRAND.short}, I'd like to book the "${pkg.title}" package (${pkg.days}D/${pkg.nights}N, ${pkg.country}).\n- Hotel Tier: ${hotelTier}\n- Travellers: ${adults} Adult(s)${children > 0 ? `, ${children} Child(ren)` : ""}\n- Estimated Package Total: AED ${estimatedTotal.toLocaleString()}\nPlease share available departure dates, flight options from your departure city, and visa details.`;
+    const msg = `Hi ${BRAND.short}, I'd like to book the "${pkg.title}" package (${pkg.days}D/${pkg.nights}N, ${pkg.country}).\n- Hotel Tier: ${hotelTier}\n- Travellers: ${adults} Adult(s)${children > 0 ? `, ${children} Child(ren)` : ""}\n- Please confirm the price for this combination.\nPlease share available departure dates, flight options from your departure city, and visa details.`;
     return waLink(msg);
-  }, [pkg, hotelTier, adults, children, estimatedTotal]);
+  }, [pkg, hotelTier, adults, children]);
 
   const countryRecord = countries.find(
     (c) =>
@@ -629,11 +634,9 @@ function PackagePage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                  Total Calculation
+                  Per person
                 </p>
-                <p className="text-2xl font-extrabold text-[#00365F] mt-1">
-                  AED {estimatedTotal.toLocaleString()}
-                </p>
+                <p className="mt-1 text-2xl font-extrabold text-[#00365F]">{priceLabel(pkg)}</p>
               </div>
               <span className="rounded-full bg-[#CAA42D]/15 px-3 py-1 text-xs font-bold text-[#00365F]">
                 {pkg.days}D / {pkg.nights}N
@@ -776,9 +779,7 @@ function PackagePage() {
       <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-5 py-3.5 backdrop-blur-md lg:hidden shadow-2xl">
         <div className="min-w-0">
           <p className="truncate text-xs font-bold text-[#00365F]">{pkg.title}</p>
-          <p className="text-sm font-extrabold text-[#7A641B]">
-            AED {estimatedTotal.toLocaleString()}
-          </p>
+          <p className="text-sm font-extrabold text-[#7A641B]">{priceLabel(pkg)}</p>
         </div>
         <a
           href={customEnquiry}
