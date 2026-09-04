@@ -27,6 +27,7 @@ import { Route as CountriesIndexRouteImport } from './routes/countries.index'
 import { Route as CountriesSlugRouteImport } from './routes/countries.$slug'
 import { Route as HolidaysIndexRouteImport } from './routes/holidays.index'
 import { Route as HolidaysSlugRouteImport } from './routes/holidays.$slug'
+import { Route as HolidaysSlugItineraryDotpdfRouteImport } from './routes/holidays.$slug.itinerary[.]pdf'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -118,6 +119,12 @@ const HolidaysSlugRoute = HolidaysSlugRouteImport.update({
   path: '/holidays/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HolidaysSlugItineraryDotpdfRoute =
+  HolidaysSlugItineraryDotpdfRouteImport.update({
+    id: '/itinerary.pdf',
+    path: '/itinerary.pdf',
+    getParentRoute: () => HolidaysSlugRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -134,10 +141,11 @@ export interface FileRoutesByFullPath {
   '/uae': typeof UaeRoute
   '/activities/$slug': typeof ActivitiesSlugRoute
   '/countries/$slug': typeof CountriesSlugRoute
-  '/holidays/$slug': typeof HolidaysSlugRoute
+  '/holidays/$slug': typeof HolidaysSlugRouteWithChildren
   '/activities/': typeof ActivitiesIndexRoute
   '/countries/': typeof CountriesIndexRoute
   '/holidays/': typeof HolidaysIndexRoute
+  '/holidays/$slug/itinerary.pdf': typeof HolidaysSlugItineraryDotpdfRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -154,10 +162,11 @@ export interface FileRoutesByTo {
   '/uae': typeof UaeRoute
   '/activities/$slug': typeof ActivitiesSlugRoute
   '/countries/$slug': typeof CountriesSlugRoute
-  '/holidays/$slug': typeof HolidaysSlugRoute
+  '/holidays/$slug': typeof HolidaysSlugRouteWithChildren
   '/activities': typeof ActivitiesIndexRoute
   '/countries': typeof CountriesIndexRoute
   '/holidays': typeof HolidaysIndexRoute
+  '/holidays/$slug/itinerary.pdf': typeof HolidaysSlugItineraryDotpdfRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -175,10 +184,11 @@ export interface FileRoutesById {
   '/uae': typeof UaeRoute
   '/activities/$slug': typeof ActivitiesSlugRoute
   '/countries/$slug': typeof CountriesSlugRoute
-  '/holidays/$slug': typeof HolidaysSlugRoute
+  '/holidays/$slug': typeof HolidaysSlugRouteWithChildren
   '/activities/': typeof ActivitiesIndexRoute
   '/countries/': typeof CountriesIndexRoute
   '/holidays/': typeof HolidaysIndexRoute
+  '/holidays/$slug/itinerary.pdf': typeof HolidaysSlugItineraryDotpdfRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
     | '/activities/'
     | '/countries/'
     | '/holidays/'
+    | '/holidays/$slug/itinerary.pdf'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -221,6 +232,7 @@ export interface FileRouteTypes {
     | '/activities'
     | '/countries'
     | '/holidays'
+    | '/holidays/$slug/itinerary.pdf'
   id:
     | '__root__'
     | '/'
@@ -241,6 +253,7 @@ export interface FileRouteTypes {
     | '/activities/'
     | '/countries/'
     | '/holidays/'
+    | '/holidays/$slug/itinerary.pdf'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -258,7 +271,7 @@ export interface RootRouteChildren {
   UaeRoute: typeof UaeRoute
   ActivitiesSlugRoute: typeof ActivitiesSlugRoute
   CountriesSlugRoute: typeof CountriesSlugRoute
-  HolidaysSlugRoute: typeof HolidaysSlugRoute
+  HolidaysSlugRoute: typeof HolidaysSlugRouteWithChildren
   ActivitiesIndexRoute: typeof ActivitiesIndexRoute
   CountriesIndexRoute: typeof CountriesIndexRoute
   HolidaysIndexRoute: typeof HolidaysIndexRoute
@@ -392,8 +405,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HolidaysSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/holidays/$slug/itinerary.pdf': {
+      id: '/holidays/$slug/itinerary.pdf'
+      path: '/itinerary.pdf'
+      fullPath: '/holidays/$slug/itinerary.pdf'
+      preLoaderRoute: typeof HolidaysSlugItineraryDotpdfRouteImport
+      parentRoute: typeof HolidaysSlugRoute
+    }
   }
 }
+
+interface HolidaysSlugRouteChildren {
+  HolidaysSlugItineraryDotpdfRoute: typeof HolidaysSlugItineraryDotpdfRoute
+}
+
+const HolidaysSlugRouteChildren: HolidaysSlugRouteChildren = {
+  HolidaysSlugItineraryDotpdfRoute: HolidaysSlugItineraryDotpdfRoute,
+}
+
+const HolidaysSlugRouteWithChildren = HolidaysSlugRoute._addFileChildren(
+  HolidaysSlugRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -410,7 +442,7 @@ const rootRouteChildren: RootRouteChildren = {
   UaeRoute: UaeRoute,
   ActivitiesSlugRoute: ActivitiesSlugRoute,
   CountriesSlugRoute: CountriesSlugRoute,
-  HolidaysSlugRoute: HolidaysSlugRoute,
+  HolidaysSlugRoute: HolidaysSlugRouteWithChildren,
   ActivitiesIndexRoute: ActivitiesIndexRoute,
   CountriesIndexRoute: CountriesIndexRoute,
   HolidaysIndexRoute: HolidaysIndexRoute,

@@ -452,15 +452,12 @@ function ActivityPage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                  Total Calculation
-                </p>
-                <p className="text-2xl font-extrabold text-[#00365F] mt-1">
-                  AED{" "}
                   {totalPrice > 0
-                    ? totalPrice.toLocaleString()
-                    : a.fromPrice
-                      ? a.fromPrice.toLocaleString()
-                      : "On Request"}
+                    ? `${adults + children} guest${adults + children > 1 ? "s" : ""}`
+                    : "Per person"}
+                </p>
+                <p className="mt-1 text-2xl font-extrabold text-[#00365F]">
+                  {totalPrice > 0 ? `AED ${totalPrice.toLocaleString()}` : inboundFrom(a)}
                 </p>
               </div>
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-[#7A641B]">

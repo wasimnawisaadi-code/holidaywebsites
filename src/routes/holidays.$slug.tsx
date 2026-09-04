@@ -8,6 +8,7 @@ import {
   Check,
   ChevronDown,
   Clock,
+  Download,
   Info,
   MapPin,
   MessageCircle,
@@ -34,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { packageTitle, metaDescription } from "@/lib/seo";
 import { absoluteUrl, siteUrl } from "@/lib/site";
 import { tileImage } from "@/lib/img";
+import { dayHeadline, flexibilityNotes, showSummary } from "@/lib/itinerary";
 
 export const Route = createFileRoute("/holidays/$slug")({
   /**
@@ -239,6 +241,8 @@ function PackagePage() {
     return waLink(msg);
   }, [pkg, hotelTier, adults, children]);
 
+  const notes = flexibilityNotes(pkg);
+
   const countryRecord = countries.find(
     (c) =>
       c.name.toLowerCase() === pkg.country.toLowerCase() ||
@@ -424,9 +428,11 @@ function PackagePage() {
                         Day {String(d.day).padStart(2, "0")}
                       </span>
                       <span className="mt-1 block font-display text-xl font-bold text-[#00365F]">
-                        {d.title}
+                        {dayHeadline(d.title, blocks?.morning)}
                       </span>
-                      <span className="mt-1 block text-sm text-slate-600">{d.summary}</span>
+                      {showSummary(d.summary, Boolean(blocks)) ? (
+                        <span className="mt-1 block text-sm text-slate-600">{d.summary}</span>
+                      ) : null}
                     </button>
 
                     {open && (
@@ -742,6 +748,46 @@ function PackagePage() {
             >
               Custom Request / Group Booking
             </Link>
+
+            {/*
+              A plain anchor, not a Link: this points at a server route that
+              returns a PDF, so the router must not try to handle it as a
+              client navigation. The file is built per request from the same
+              catalogue this page renders, so it can never drift from what the
+              visitor just read.
+            */}
+            <a
+              href={`/holidays/${pkg.slug}/itinerary.pdf`}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 py-2.5 text-center text-xs font-bold text-slate-700 transition-colors hover:border-[#00365F]/40 hover:bg-slate-50"
+            >
+              <Download className="size-3.5 text-[#7A641B]" aria-hidden="true" />
+              Download itinerary (PDF)
+            </a>
+
+            {/*
+              The two questions a customer asks before they message: what about
+              flights, and can this be changed. The flights line is read from
+              the package's own inclusions rather than asserted, because the
+              catalogue genuinely splits — 14 packages price flights in and 36
+              quote them separately, so one blanket sentence would be wrong for
+              a quarter of the catalogue.
+            */}
+            <div className="mt-5 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="flex gap-2.5 text-xs leading-relaxed text-slate-700">
+                <Plane className="mt-0.5 size-4 shrink-0 text-[#7A641B]" aria-hidden="true" />
+                <span>{notes.flights}</span>
+              </p>
+              <p className="flex gap-2.5 text-xs leading-relaxed text-slate-700">
+                <Sparkles className="mt-0.5 size-4 shrink-0 text-[#7A641B]" aria-hidden="true" />
+                <span>{notes.tailorMade}</span>
+              </p>
+              <Link
+                to="/customized-tours"
+                className="inline-block text-xs font-bold text-[#00365F] underline underline-offset-2 hover:text-[#7A641B]"
+              >
+                Plan a tailor-made version
+              </Link>
+            </div>
 
             <ul className="mt-6 space-y-2.5 border-t border-slate-100 pt-5 text-xs text-slate-600">
               <li className="flex items-center gap-2">
