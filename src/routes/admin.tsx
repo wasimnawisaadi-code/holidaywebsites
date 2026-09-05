@@ -5,10 +5,6 @@ import {
   Activity,
   MessageCircle,
   Users,
-  Eye,
-  Smartphone,
-  Globe,
-  Clock,
   RefreshCw,
   Lock,
   Mail,
@@ -17,15 +13,23 @@ import {
   Check,
   Filter,
   Phone,
-  ExternalLink,
   MessageSquare,
   Copy,
   Trash2,
   ChevronDown,
   ChevronUp,
+  Inbox,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Dashboard, Lead } from "@/lib/admin-data";
+
+/**
+ * Mirrors SUBSCRIBE_SOURCES in admin-data.
+ *
+ * That module throws on import from the client, so this file cannot pull the
+ * constant across even though it is only a list of three strings.
+ */
+const SUBSCRIBE_SOURCES = ["subscribe", "footer", "newsletter"];
 
 const COOKIE = "ns_admin";
 
@@ -293,7 +297,7 @@ function SignIn({ configured }: { configured: boolean }) {
   );
 }
 
-type TabType = "leads" | "whatsapp" | "sessions";
+type TabType = "leads" | "subscribers" | "whatsapp" | "sessions";
 
 function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
   const router = useRouter();
@@ -323,17 +327,31 @@ function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
           {/* Tab Navigation */}
           <nav className="flex items-center gap-1 rounded-2xl bg-[#F1F5F9] p-1">
             {[
-              { id: "leads", label: "Leads & Enquiries", count: data.leads.length, icon: Mail },
+              {
+                id: "leads",
+                label: "Enquiries",
+                // Subscribers have their own tab, so this count is enquiries
+                // only. It used to include them, which made the number look
+                // healthy while the actual enquiry list was nearly empty.
+                count: data.leads.length - data.subscribers.length,
+                icon: Mail,
+              },
+              {
+                id: "subscribers",
+                label: "Subscribers",
+                count: data.subscribers.length,
+                icon: Inbox,
+              },
               {
                 id: "whatsapp",
-                label: "WhatsApp Intent Log",
-                count: data.totals.whatsapp,
+                label: "WhatsApp",
+                count: data.whatsappLog.length,
                 icon: MessageCircle,
               },
               {
                 id: "sessions",
-                label: "Live Visitor Feed",
-                count: data.recent.length,
+                label: "Visitors",
+                count: data.sessions.length,
                 icon: Users,
               },
             ].map((t) => {
@@ -401,41 +419,65 @@ function DashboardView({ data, who }: { data: Dashboard; who?: string }) {
           Analytics Overview, which is where a traffic figure belongs.
           What leads is what is waiting: leads nobody has contacted yet.
         */}
-        <div className="grid gap-4 sm:grid-cols-3">
+        {/*
+          "Waiting for a reply" counted every lead with status "new", which
+          included newsletter signups. Nobody owes a subscriber a reply, so the
+          card read 2 while the enquiry list was empty. Subscribers have their
+          own count now, and the reply card means what it says.
+        */}
+        <div className="grid gap-4 sm:grid-cols-4">
           <KpiCard
             icon={Mail}
             label="Waiting for a reply"
-            value={data.leads.filter((l) => l.status === "new").length}
-            note="Leads nobody has contacted yet"
+            value={
+              data.leads.filter((l) => l.status === "new" && !SUBSCRIBE_SOURCES.includes(l.source))
+                .length
+            }
+            note="Enquiries nobody has answered yet"
             accent
           />
           <KpiCard
             icon={MessageCircle}
             label="WhatsApp enquiries"
-            value={data.totals.whatsapp}
+            value={data.whatsappLog.length}
             note="Chats opened from the site"
           />
           <KpiCard
+            icon={Inbox}
+            label="Subscribers"
+            value={data.subscribers.length}
+            note="On the mailing list"
+          />
+          <KpiCard
             icon={Users}
-            label="All leads"
-            value={data.leads.length}
-            note="Everything ever submitted"
+            label="Visitors"
+            value={data.totals.sessions}
+            note="Sessions recorded"
           />
         </div>
 
         {tab === "leads" && (
           <LeadsManager
-            leads={data.leads}
+            leads={data.leads.filter((l) => !SUBSCRIBE_SOURCES.includes(l.source))}
             byStatus={data.leadsByStatus}
             bySource={data.leadsBySource}
           />
         )}
 
+        {tab === "subscribers" && <SubscribersManager subscribers={data.subscribers} />}
+
         {tab === "whatsapp" && (
-          <WhatsAppIntentLog contexts={data.whatsappContexts} events={data.recent} />
+          <WhatsAppIntentLog log={data.whatsappLog} contexts={data.whatsappContexts} />
         )}
 
-        {tab === "sessions" && <SessionsFeed recent={data.recent} />}
+        {tab === "sessions" && (
+          <VisitorSessions
+            sessions={data.sessions}
+            journeys={data.journeys}
+            funnel={data.funnel}
+            recent={data.recent}
+          />
+        )}
       </main>
     </div>
   );
@@ -1084,140 +1126,6 @@ function LeadDetail({ lead }: { lead: Lead }) {
   );
 }
 
-function WhatsAppIntentLog({
-  contexts,
-  events,
-}: {
-  contexts: Dashboard["whatsappContexts"];
-  events: Dashboard["recent"];
-}) {
-  const whatsappEvents = useMemo(() => {
-    return events.filter((e) => e.type === "whatsapp_click");
-  }, [events]);
-
-  return (
-    <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_400px]">
-      <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
-        <h2 className="font-display text-2xl font-bold text-[#00365F]">
-          Live WhatsApp Clicks & Pre-filled Messages
-        </h2>
-        <p className="mt-1 font-sans text-xs text-[#64748B]">
-          Audit log of every WhatsApp chat triggered from the website
-        </p>
-
-        {whatsappEvents.length ? (
-          <div className="mt-6 space-y-4">
-            {whatsappEvents.map((w) => {
-              const intent = String(w.meta?.["intent"] ?? "");
-              const context = String(w.meta?.["context"] ?? w.path ?? "General Enquiry");
-              // Parsed at capture time from the prefilled message, so the
-              // office reads an enquiry as fields rather than re-reading a
-              // paragraph. Older rows have no `fields` and fall back to the
-              // raw message below.
-              const fields = (w.meta?.["fields"] ?? {}) as Record<string, string>;
-              const fieldList = Object.entries(fields).filter(([, v]) => v);
-              const waPhone = String(w.meta?.["phone"] ?? "");
-              const slug = String(w.meta?.["slug"] ?? "");
-              return (
-                <div
-                  key={w.id}
-                  className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 transition-all hover:border-[#CAA42D]"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E8F0] pb-2.5">
-                    <span className="font-sans text-xs font-bold text-[#00365F]">
-                      {slug || context}
-                    </span>
-                    <span className="font-sans text-[11px] text-[#64748B]">
-                      {new Date(w.created_at).toLocaleString()}
-                    </span>
-                  </div>
-
-                  {fieldList.length ? (
-                    <dl className="mt-3 grid gap-x-5 gap-y-1.5 sm:grid-cols-2">
-                      {fieldList.map(([k, v]) => (
-                        <div key={k} className="min-w-0">
-                          <dt className="font-sans text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">
-                            {k}
-                          </dt>
-                          <dd className="font-sans text-xs text-[#00365F]">{v}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  ) : (
-                    <p className="mt-2.5 font-sans text-xs leading-relaxed text-[#334155]">
-                      {intent ? (
-                        <span className="font-medium whitespace-pre-line text-[#00365F]">
-                          {intent}
-                        </span>
-                      ) : (
-                        <span className="text-[#94A3B8] italic">
-                          Tapped the floating WhatsApp button, no prefilled message
-                        </span>
-                      )}
-                    </p>
-                  )}
-
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-[#64748B]">
-                    <span>{w.device ?? "device unknown"}</span>
-                    <span>
-                      path <code className="font-mono text-[#00365F]">{w.path}</code>
-                    </span>
-                    {waPhone ? (
-                      <a
-                        href={`https://wa.me/${waPhone}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-semibold text-emerald-700 hover:underline"
-                      >
-                        open this chat
-                      </a>
-                    ) : null}
-                    <span>
-                      session{" "}
-                      <code className="font-mono text-[10px] text-[#94A3B8]">
-                        {w.session_id?.slice(0, 10)}
-                      </code>
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="mt-8 rounded-2xl border border-dashed border-[#CBD5E1] p-12 text-center text-[#64748B]">
-            No recent WhatsApp clicks recorded yet.
-          </div>
-        )}
-      </div>
-
-      {/* Top converting contexts */}
-      <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
-        <h3 className="font-display text-lg font-bold text-[#00365F]">Most Inquired Pages</h3>
-        <p className="mt-1 font-sans text-xs text-[#64748B]">
-          Pages driving the highest WhatsApp bookings
-        </p>
-
-        {contexts.length ? (
-          <ul className="mt-6 divide-y divide-[#F1F5F9]">
-            {contexts.map((c) => (
-              <li key={c.context} className="flex items-center justify-between gap-3 py-3">
-                <span className="truncate font-sans text-xs font-semibold text-[#00365F]">
-                  {c.context}
-                </span>
-                <span className="rounded-full bg-[#CAA42D]/20 px-2.5 py-0.5 font-display text-xs font-extrabold text-[#7A641B]">
-                  {c.count} {c.count === 1 ? "click" : "clicks"}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-6 text-xs text-[#94A3B8]">No context stats yet.</p>
-        )}
-      </div>
-    </div>
-  );
-}
-
 function SessionsFeed({ recent }: { recent: Dashboard["recent"] }) {
   return (
     <div className="mt-8 rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
@@ -1295,3 +1203,699 @@ function SessionsFeed({ recent }: { recent: Dashboard["recent"] }) {
  * reporting surface is gone. Traffic questions belong in GA4; this panel is
  * for leads.
  */
+
+/* -------------------------------------------------------------------------- *
+ * Shared export
+ * -------------------------------------------------------------------------- */
+
+/**
+ * Writes a CSV the office can open in Excel without it mangling anything.
+ *
+ * Three things this handles that a naive join does not: a cell opening with
+ * = + - or @ is executable in Excel and Sheets, so it is prefixed with an
+ * apostrophe; tabs and newlines inside a value break the row apart regardless
+ * of quoting, so they are flattened; and without a BOM, Excel reads the file
+ * as the local codepage and every Arabic or accented name arrives as mojibake.
+ */
+function downloadCsv(filename: string, headers: string[], rows: unknown[][]): void {
+  const cell = (value: unknown): string => {
+    const text = String(value ?? "").replace(/[\t\r\n]+/g, " ");
+    const safe = /^[=+\-@]/.test(text) ? `'${text}` : text;
+    return `"${safe.replace(/"/g, '""')}"`;
+  };
+  const csv = [headers.map(cell).join(","), ...rows.map((r) => r.map(cell).join(","))].join("\r\n");
+  const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${filename}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+/** Local date and time, or a dash when there is nothing to show. */
+const when = (iso: string | null | undefined): string =>
+  iso ? new Date(iso).toLocaleString() : "Not recorded";
+
+/* -------------------------------------------------------------------------- *
+ * Subscribers
+ * -------------------------------------------------------------------------- */
+
+/**
+ * Newsletter signups, with the address prominent.
+ *
+ * These used to sit inside the general Leads table, sorted between real
+ * enquiries and counted in the same total, so the enquiry list looked busier
+ * than it was and the mailing list could not be exported on its own.
+ */
+function SubscribersManager({ subscribers }: { subscribers: Lead[] }) {
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return subscribers;
+    return subscribers.filter((s) =>
+      [s.email, s.name, s.source, s.path].some((v) => (v ?? "").toLowerCase().includes(q)),
+    );
+  }, [subscribers, query]);
+
+  const copyAll = () => {
+    void navigator.clipboard?.writeText(filtered.map((s) => s.email).join(", "));
+  };
+
+  return (
+    <div className="mt-8 rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#F1F5F9] pb-6">
+        <div>
+          <h2 className="font-display text-2xl font-bold text-[#00365F]">Newsletter subscribers</h2>
+          <p className="mt-1 font-sans text-xs text-[#64748B]">
+            {filtered.length === subscribers.length
+              ? `${subscribers.length} ${subscribers.length === 1 ? "address" : "addresses"}`
+              : `${filtered.length} of ${subscribers.length}`}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={copyAll}
+            disabled={!filtered.length}
+            className="inline-flex items-center gap-2 rounded-xl border border-[#E2E8F0] px-4 py-2.5 font-sans text-xs font-bold text-[#00365F] transition-colors hover:bg-[#F8FAFC] disabled:opacity-40"
+          >
+            <Copy className="size-4" />
+            <span>Copy addresses</span>
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              downloadCsv(
+                "nawi-saadi-subscribers",
+                ["Subscribed", "Email", "Name", "Signed up from", "Page", "Status"],
+                filtered.map((s) => [
+                  when(s.created_at),
+                  s.email,
+                  s.name ?? "",
+                  s.source,
+                  s.path ?? "",
+                  s.status,
+                ]),
+              )
+            }
+            disabled={!filtered.length}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#00365F] px-4 py-2.5 font-sans text-xs font-bold text-white transition-colors hover:bg-[#00243f] disabled:opacity-40"
+          >
+            <Download className="size-4" />
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <label className="mt-6 flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5">
+        <Search className="size-4 shrink-0 text-[#94A3B8]" aria-hidden="true" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search by address, name or page"
+          className="w-full bg-transparent font-sans text-sm text-[#00365F] outline-none placeholder:text-[#94A3B8]"
+        />
+      </label>
+
+      {filtered.length ? (
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full min-w-[720px] border-collapse font-sans text-xs">
+            <thead>
+              <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-left text-[#475569]">
+                <th className="rounded-l-xl px-4 py-3 font-bold">Subscribed</th>
+                <th className="px-4 py-3 font-bold">Email</th>
+                <th className="px-4 py-3 font-bold">Name</th>
+                <th className="px-4 py-3 font-bold">Signed up from</th>
+                <th className="rounded-r-xl px-4 py-3 font-bold">Page</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F1F5F9]">
+              {filtered.map((sub) => (
+                <tr key={sub.id} className="transition-colors hover:bg-[#F8FAFC]">
+                  <td className="whitespace-nowrap px-4 py-3 text-[#475569]">
+                    {when(sub.created_at)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <a
+                      href={`mailto:${sub.email}`}
+                      className="font-semibold text-[#00365F] hover:text-[#7A641B] hover:underline"
+                    >
+                      {sub.email}
+                    </a>
+                  </td>
+                  <td className="px-4 py-3 text-[#475569]">{sub.name ?? "Not given"}</td>
+                  <td className="px-4 py-3">
+                    <span className="rounded-full bg-[#F1F5F9] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#475569]">
+                      {sub.source}
+                    </span>
+                  </td>
+                  <td className="max-w-[220px] truncate px-4 py-3 font-mono text-[11px] text-[#64748B]">
+                    {sub.path ?? "Not recorded"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="mt-8 rounded-2xl border border-dashed border-[#CBD5E1] p-12 text-center text-[#64748B]">
+          {subscribers.length ? "Nothing matches that search." : "No one has subscribed yet."}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- *
+ * WhatsApp
+ * -------------------------------------------------------------------------- */
+
+/**
+ * Every WhatsApp click, in full.
+ *
+ * This used to render from `recent`, which is capped at 150 events, while the
+ * tab counted all of them from the 5,000-row read. The badge said one number
+ * and the list showed another, which reads as enquiries going missing.
+ *
+ * The prefilled message is the most valuable thing the site records: it is the
+ * visitor's own statement of what they want, captured at the moment they
+ * decided to ask. It is shown in full, parsed into fields where the capture
+ * managed it, with the raw text underneath either way.
+ */
+function WhatsAppIntentLog({
+  log,
+  contexts,
+}: {
+  log: Dashboard["whatsappLog"];
+  contexts: Dashboard["whatsappContexts"];
+}) {
+  const [query, setQuery] = useState("");
+  const [openId, setOpenId] = useState<number | null>(null);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return log;
+    return log.filter((w) =>
+      [w.intent, w.slug, w.path, w.pageType, w.label, ...Object.values(w.fields)].some((v) =>
+        (v ?? "").toLowerCase().includes(q),
+      ),
+    );
+  }, [log, query]);
+
+  return (
+    <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#F1F5F9] pb-6">
+          <div>
+            <h2 className="font-display text-2xl font-bold text-[#00365F]">WhatsApp enquiries</h2>
+            <p className="mt-1 font-sans text-xs text-[#64748B]">
+              {filtered.length === log.length
+                ? `${log.length} recorded, every one kept`
+                : `${filtered.length} of ${log.length}`}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() =>
+              downloadCsv(
+                "nawi-saadi-whatsapp",
+                ["When", "Package or page", "Page type", "Device", "Opened", "Message", "Session"],
+                filtered.map((w) => [
+                  when(w.created_at),
+                  w.slug || w.path || "",
+                  w.pageType,
+                  w.device ?? "",
+                  w.openKind === "new_tab" ? "new tab" : "same tab",
+                  w.intent,
+                  w.session_id ?? "",
+                ]),
+              )
+            }
+            disabled={!filtered.length}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#00365F] px-4 py-2.5 font-sans text-xs font-bold text-white transition-colors hover:bg-[#00243f] disabled:opacity-40"
+          >
+            <Download className="size-4" />
+            <span>Export CSV</span>
+          </button>
+        </div>
+
+        <label className="mt-6 flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5">
+          <Search className="size-4 shrink-0 text-[#94A3B8]" aria-hidden="true" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search messages, packages or pages"
+            className="w-full bg-transparent font-sans text-sm text-[#00365F] outline-none placeholder:text-[#94A3B8]"
+          />
+        </label>
+
+        {filtered.length ? (
+          <ul className="mt-6 space-y-3">
+            {filtered.map((w) => {
+              const fieldList = Object.entries(w.fields);
+              const open = openId === w.id;
+              const tags = [
+                w.pageType,
+                w.device,
+                w.openKind === "new_tab" ? "opened in a new tab" : null,
+                w.referrer,
+              ].filter(Boolean);
+              return (
+                <li
+                  key={w.id}
+                  className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 transition-colors hover:border-[#CAA42D]"
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                    <span className="font-sans text-xs font-bold text-[#00365F]">
+                      {w.slug || w.path || "General enquiry"}
+                    </span>
+                    <span className="font-sans text-[11px] text-[#64748B]">
+                      {when(w.created_at)}
+                    </span>
+                  </div>
+
+                  {tags.length ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      {tags.map((tag) => (
+                        <span
+                          key={String(tag)}
+                          className="rounded-full bg-white px-2.5 py-0.5 font-sans text-[10px] font-semibold text-[#475569] ring-1 ring-[#E2E8F0]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {fieldList.length ? (
+                    <dl className="mt-3 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+                      {fieldList.map(([k, v]) => (
+                        <div key={k} className="min-w-0">
+                          <dt className="font-sans text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">
+                            {k}
+                          </dt>
+                          <dd className="truncate font-sans text-xs font-semibold text-[#00365F]">
+                            {v}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  ) : null}
+
+                  {w.intent ? (
+                    <>
+                      <p
+                        className={cn(
+                          "mt-3 whitespace-pre-wrap font-sans text-xs leading-relaxed text-[#475569]",
+                          !open && "line-clamp-2",
+                        )}
+                      >
+                        {w.intent}
+                      </p>
+                      {w.intent.length > 130 ? (
+                        <button
+                          type="button"
+                          onClick={() => setOpenId(open ? null : w.id)}
+                          className="mt-1.5 inline-flex items-center gap-1 font-sans text-[11px] font-bold text-[#00365F] hover:text-[#7A641B]"
+                        >
+                          {open ? "Show less" : "Show the whole message"}
+                          {open ? (
+                            <ChevronUp className="size-3.5" />
+                          ) : (
+                            <ChevronDown className="size-3.5" />
+                          )}
+                        </button>
+                      ) : null}
+                    </>
+                  ) : (
+                    <p className="mt-3 font-sans text-xs italic text-[#94A3B8]">
+                      No prefilled message on this link.
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div className="mt-8 rounded-2xl border border-dashed border-[#CBD5E1] p-12 text-center text-[#64748B]">
+            {log.length ? "Nothing matches that search." : "No WhatsApp clicks recorded yet."}
+          </div>
+        )}
+      </div>
+
+      <div className="h-fit rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
+        <h3 className="font-display text-lg font-bold text-[#00365F]">Which pages start chats</h3>
+        <p className="mt-1 font-sans text-xs text-[#64748B]">Ranked by clicks</p>
+
+        {contexts.length ? (
+          <ul className="mt-6 divide-y divide-[#F1F5F9]">
+            {contexts.map((c) => (
+              <li key={c.context} className="flex items-center justify-between gap-3 py-3">
+                <span className="truncate font-sans text-xs font-semibold text-[#00365F]">
+                  {c.context}
+                </span>
+                <span className="shrink-0 rounded-full bg-[#CAA42D]/20 px-2.5 py-0.5 font-display text-xs font-extrabold text-[#7A641B]">
+                  {c.count}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-6 font-sans text-xs text-[#94A3B8]">Nothing yet.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- *
+ * Visitors
+ * -------------------------------------------------------------------------- */
+
+/** How an event type should read to someone who did not write the code. */
+const EVENT_LABELS: Record<string, string> = {
+  page_view: "Viewed page",
+  package_view: "Opened package",
+  country_view: "Opened country",
+  activity_view: "Opened activity",
+  whatsapp_click: "Started a WhatsApp chat",
+  phone_click: "Tapped the phone number",
+  email_click: "Tapped the email address",
+  cta_click: "Pressed a call to action",
+  offer_shown: "Saw the offer popup",
+  offer_dismissed: "Dismissed the offer",
+  offer_cta: "Took the offer",
+  enquiry_search: "Searched",
+  outbound_click: "Left for another site",
+  scroll_depth: "Scrolled",
+  ui_click: "Pressed a button",
+  filter_change: "Changed a filter",
+};
+
+/**
+ * One visitor at a time, and what they actually did.
+ *
+ * The old feed was a flat table of the last 150 events across everybody, which
+ * answers "is anything happening" and nothing else. Grouping by session answers
+ * the question the office asks: this person messaged us about Baku, what were
+ * they looking at first, and how long were they on the site.
+ */
+function VisitorSessions({
+  sessions,
+  journeys,
+  funnel,
+  recent,
+}: {
+  sessions: Dashboard["sessions"];
+  journeys: Dashboard["journeys"];
+  funnel: Dashboard["funnel"];
+  recent: Dashboard["recent"];
+}) {
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [enquirersOnly, setEnquirersOnly] = useState(false);
+  const [showRaw, setShowRaw] = useState(false);
+
+  const shown = useMemo(
+    () => (enquirersOnly ? sessions.filter((s) => s.whatsapp > 0) : sessions),
+    [sessions, enquirersOnly],
+  );
+
+  const pct = (n: number) => (funnel.visited ? Math.round((n / funnel.visited) * 100) : 0);
+  /*
+   * Counts, not funnel stages, and labelled as such.
+   *
+   * They are not nested: someone can arrive straight on a package page from an
+   * ad without ever seeing a second page, so "opened a package" runs higher
+   * than "saw more than one page". Drawn as a funnel that reads as broken data.
+   */
+  const stages = [
+    { label: "Arrived", value: funnel.visited },
+    { label: "Opened a package, country or tour", value: funnel.viewedDetail },
+    { label: "Saw more than one page", value: funnel.browsed },
+    { label: "Started a WhatsApp chat", value: funnel.enquired },
+  ];
+  const detailToChat = funnel.viewedDetail
+    ? Math.round((funnel.enquiredAfterDetail / funnel.viewedDetail) * 100)
+    : 0;
+
+  return (
+    <div className="mt-8 space-y-6">
+      {/* Funnel */}
+      <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
+        <h2 className="font-display text-2xl font-bold text-[#00365F]">What visitors did</h2>
+        <p className="mt-1 font-sans text-xs text-[#64748B]">
+          Across the {sessions.length} {sessions.length === 1 ? "session" : "sessions"} recorded.
+          These overlap: someone can arrive straight on a package page.
+        </p>
+
+        {funnel.viewedDetail ? (
+          <p className="mt-5 rounded-2xl bg-[#F8FAFC] px-4 py-3 font-sans text-xs text-[#475569]">
+            <span className="font-bold text-[#00365F]">
+              {funnel.enquiredAfterDetail} of {funnel.viewedDetail}
+            </span>{" "}
+            who opened a package or tour went on to message ({detailToChat}%). That is the number
+            worth moving.
+          </p>
+        ) : null}
+
+        <ul className="mt-6 space-y-3">
+          {stages.map((stage) => (
+            <li key={stage.label}>
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="font-sans text-xs font-semibold text-[#00365F]">
+                  {stage.label}
+                </span>
+                <span className="font-sans text-xs tabular-nums text-[#64748B]">
+                  {stage.value} ({pct(stage.value)}%)
+                </span>
+              </div>
+              <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#F1F5F9]">
+                <div
+                  className="h-full rounded-full bg-[#00365F]"
+                  style={{ width: `${pct(stage.value)}%` }}
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Session list */}
+      <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#F1F5F9] pb-6">
+          <div>
+            <h2 className="font-display text-2xl font-bold text-[#00365F]">Visitors</h2>
+            <p className="mt-1 font-sans text-xs text-[#64748B]">
+              Newest first. Open one to see everywhere they went.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setEnquirersOnly((v) => !v)}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-sans text-xs font-bold transition-colors",
+                enquirersOnly
+                  ? "bg-[#00365F] text-white"
+                  : "border border-[#E2E8F0] text-[#00365F] hover:bg-[#F8FAFC]",
+              )}
+            >
+              <Filter className="size-4" />
+              <span>Only those who messaged</span>
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                downloadCsv(
+                  "nawi-saadi-visitors",
+                  [
+                    "Started",
+                    "Ended",
+                    "Minutes",
+                    "Device",
+                    "Came from",
+                    "Pages",
+                    "Events",
+                    "WhatsApp",
+                    "Session",
+                  ],
+                  shown.map((s) => [
+                    when(s.started),
+                    when(s.ended),
+                    s.minutes,
+                    s.device ?? "",
+                    s.referrer ?? "direct",
+                    s.pages.join(" > "),
+                    s.events,
+                    s.whatsapp,
+                    s.id,
+                  ]),
+                )
+              }
+              disabled={!shown.length}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#00365F] px-4 py-2.5 font-sans text-xs font-bold text-white transition-colors hover:bg-[#00243f] disabled:opacity-40"
+            >
+              <Download className="size-4" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        {shown.length ? (
+          <ul className="mt-6 space-y-3">
+            {shown.map((s) => {
+              const open = openId === s.id;
+              const steps = journeys[s.id];
+              return (
+                <li
+                  key={s.id}
+                  className={cn(
+                    "rounded-2xl border transition-colors",
+                    s.whatsapp > 0
+                      ? "border-[#CAA42D]/50 bg-[#FEFCF5]"
+                      : "border-[#E2E8F0] bg-[#F8FAFC]",
+                  )}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenId(open ? null : s.id)}
+                    aria-expanded={open}
+                    className="w-full cursor-pointer p-4 text-left"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                      <span className="font-sans text-xs font-bold text-[#00365F]">
+                        {s.pages[0] ?? "Unknown entry page"}
+                        {s.pages.length > 1 ? (
+                          <span className="font-normal text-[#64748B]">
+                            {" "}
+                            and {s.pages.length - 1} more{" "}
+                            {s.pages.length - 1 === 1 ? "page" : "pages"}
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="font-sans text-[11px] text-[#64748B]">
+                        {when(s.started)}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      {s.whatsapp > 0 ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#CAA42D]/25 px-2.5 py-0.5 font-sans text-[10px] font-bold text-[#7A641B]">
+                          <MessageCircle className="size-3" />
+                          {s.whatsapp} WhatsApp {s.whatsapp === 1 ? "click" : "clicks"}
+                        </span>
+                      ) : null}
+                      {[
+                        s.device,
+                        s.referrer ?? "direct",
+                        `${s.events} ${s.events === 1 ? "action" : "actions"}`,
+                        s.minutes > 0 ? `${s.minutes} min` : "under a minute",
+                      ]
+                        .filter(Boolean)
+                        .map((tag) => (
+                          <span
+                            key={String(tag)}
+                            className="rounded-full bg-white px-2.5 py-0.5 font-sans text-[10px] font-semibold text-[#475569] ring-1 ring-[#E2E8F0]"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      <span className="ml-auto inline-flex items-center gap-1 font-sans text-[11px] font-bold text-[#00365F]">
+                        {open ? "Hide the journey" : "See the journey"}
+                        {open ? (
+                          <ChevronUp className="size-3.5" />
+                        ) : (
+                          <ChevronDown className="size-3.5" />
+                        )}
+                      </span>
+                    </div>
+                  </button>
+
+                  {open ? (
+                    <div className="border-t border-[#E2E8F0] px-4 pb-4 pt-3">
+                      {steps?.length ? (
+                        <ol className="space-y-2.5">
+                          {steps.map((step, i) => (
+                            <li key={`${step.t}-${i}`} className="flex gap-3">
+                              <span className="mt-1 w-14 shrink-0 font-sans text-[10px] tabular-nums text-[#94A3B8]">
+                                {new Date(step.t).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                })}
+                              </span>
+                              <span
+                                className={cn(
+                                  "mt-1.5 size-2 shrink-0 rounded-full",
+                                  step.type === "whatsapp_click" ? "bg-[#CAA42D]" : "bg-[#CBD5E1]",
+                                )}
+                                aria-hidden="true"
+                              />
+                              <span className="min-w-0 font-sans text-xs">
+                                <span className="font-semibold text-[#00365F]">
+                                  {EVENT_LABELS[step.type] ?? step.type}
+                                </span>
+                                {step.path ? (
+                                  <span className="ml-1.5 font-mono text-[11px] text-[#64748B]">
+                                    {step.path}
+                                  </span>
+                                ) : null}
+                                {step.label ? (
+                                  <span className="ml-1.5 text-[#475569]">{step.label}</span>
+                                ) : null}
+                              </span>
+                            </li>
+                          ))}
+                        </ol>
+                      ) : (
+                        <p className="font-sans text-xs text-[#94A3B8]">
+                          The step-by-step journey is kept for the 80 most recent visitors only.
+                          This one is older than that.
+                        </p>
+                      )}
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div className="mt-8 rounded-2xl border border-dashed border-[#CBD5E1] p-12 text-center text-[#64748B]">
+            {sessions.length ? "No one has messaged yet." : "No visitors recorded yet."}
+          </div>
+        )}
+      </div>
+
+      {/* Raw event log, folded away: useful when something looks wrong, noise otherwise. */}
+      <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
+        <button
+          type="button"
+          onClick={() => setShowRaw((v) => !v)}
+          aria-expanded={showRaw}
+          className="flex w-full cursor-pointer items-center justify-between gap-4 text-left"
+        >
+          <span>
+            <span className="block font-display text-lg font-bold text-[#00365F]">
+              Raw event log
+            </span>
+            <span className="mt-0.5 block font-sans text-xs text-[#64748B]">
+              The last {recent.length} actions across everyone, exactly as recorded
+            </span>
+          </span>
+          {showRaw ? (
+            <ChevronUp className="size-5 shrink-0 text-[#64748B]" />
+          ) : (
+            <ChevronDown className="size-5 shrink-0 text-[#64748B]" />
+          )}
+        </button>
+
+        {showRaw ? <SessionsFeed recent={recent} /> : null}
+      </div>
+    </div>
+  );
+}

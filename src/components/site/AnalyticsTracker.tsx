@@ -144,7 +144,14 @@ export function AnalyticsTracker() {
         for (const line of intent.split("\n")) {
           const at = line.indexOf(":");
           if (at < 1) continue;
-          const key = line.slice(0, at).trim().toLowerCase();
+          // waLink() writes these as bullet lines ("- Hotel Tier: 5-Star"), so
+          // without stripping the marker the office sees a field called
+          // "- hotel tier" in the dashboard.
+          const key = line
+            .slice(0, at)
+            .replace(/^[\s•*\-–—]+/, "")
+            .trim()
+            .toLowerCase();
           const value = line.slice(at + 1).trim();
           if (key && value && key.length < 24) fields[key] = value.slice(0, 160);
         }
