@@ -19,6 +19,14 @@
  * and silently gives up if the request fails or the keys are unset.
  */
 
+import {
+  pushEvent,
+  reportConversion,
+  conversionValue,
+  CONVERSION_CURRENCY,
+  type ConversionAction,
+} from "./ads";
+
 const URL_BASE = import.meta.env["VITE_SUPABASE_URL"] as string | undefined;
 const ANON_KEY = import.meta.env["VITE_SUPABASE_ANON_KEY"] as string | undefined;
 
@@ -50,6 +58,8 @@ export type EventType =
   | "outbound_click"
   | "scroll_depth"
   | "cta_click"
+  // Itinerary PDF, and any file added later.
+  | "download"
   // Everything a visitor presses or filters that is not a link. One event
   // with a label, not a hundred event types.
   | "ui_click"
@@ -96,7 +106,13 @@ export function analyticsEnabled(): boolean {
 export function trackingActive(): boolean {
   if (typeof window === "undefined") return false;
   if (analyticsEnabled()) return true;
-  return typeof (window as unknown as { gtag?: unknown }).gtag === "function";
+  const w = window as unknown as { gtag?: unknown; dataLayer?: unknown };
+  if (typeof w.gtag === "function") return true;
+  // GTM is a third destination with its own failure modes. A container can be
+  // live and firing an Ads conversion tag on a page where gtag.js was blocked
+  // by an extension; gating the click listeners on gtag alone would silence
+  // those conversions for the visitors most likely to be running a blocker.
+  return Array.isArray(w.dataLayer);
 }
 
 /**
@@ -134,6 +150,40 @@ const CONVERSIONS = new Set<EventType>([
   "cta_click",
   "offer_cta",
 ]);
+
+/**
+ * Which events Google Ads should be told about, and as what.
+ *
+ * Narrower than the GA4 set above, on purpose. `offer_cta` is someone clicking
+ * through a promo dialog to a package page — worth knowing about, and not a
+ * lead. Reporting it to Ads as a conversion would teach bidding to buy clicks
+ * from people who dismiss a popup by pressing the button on it, which is the
+ * opposite of what this account needs at a few clicks a day.
+ *
+ * `cta_click` is overloaded: `leads.ts` fires it after a successful enquiry
+ * write, and `SubscribeForm` fires it for a newsletter signup. Those are worth
+ * very different amounts, so the source decides which action is reported
+ * rather than both landing in one bucket.
+ */
+function adsAction(type: EventType, meta: Record<string, unknown>): ConversionAction | null {
+  switch (type) {
+    case "whatsapp_click":
+      return "whatsapp_lead";
+    case "phone_click":
+      return "phone_lead";
+    case "email_click":
+      return "email_lead";
+    case "download":
+      return "itinerary_download";
+    case "cta_click": {
+      const source = String(meta["source"] ?? meta["action"] ?? "");
+      if (/^(subscribe|footer|newsletter)$/.test(source)) return "subscribe";
+      return "form_lead";
+    }
+    default:
+      return null;
+  }
+}
 
 /**
  * Mirrors an event into GA4.
@@ -219,6 +269,29 @@ export function track(type: EventType, meta: Record<string, unknown> = {}): void
   // GA4 first, and independently of Supabase: the two have different failure
   // modes and one being unavailable must not silence the other.
   toGa(type, meta);
+
+  // GTM next, in a shape its Custom Event triggers can actually match. gtag's
+  // own dataLayer entries are `arguments` objects and are invisible to GTM, so
+  // without this the container on the page could see none of the site's
+  // events — see the note at the top of lib/ads.ts.
+  const action = adsAction(type, meta);
+  pushEvent(type, {
+    ...forGa(meta),
+    is_conversion: CONVERSIONS.has(type),
+    // Present so a GTM tag can read the value without duplicating the table.
+    ...(action
+      ? {
+          ns_conversion_action: action,
+          ns_value: conversionValue(action),
+          ns_currency: CONVERSION_CURRENCY,
+        }
+      : {}),
+  });
+
+  // Then Google Ads. Only real lead actions, and only once the account's tag
+  // and labels are configured — until then this is a no-op.
+  if (action) reportConversion(action, { ns_event: type });
+
   if (!URL_BASE || !ANON_KEY || disabled) return;
 
   try {

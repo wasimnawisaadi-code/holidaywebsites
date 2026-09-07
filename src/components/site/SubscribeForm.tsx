@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Mail, Check, Loader2 } from "lucide-react";
 import { track } from "@/lib/analytics";
+import { storedClickIds, setUserData } from "@/lib/ads";
 import { cn } from "@/lib/utils";
 
 /**
@@ -76,7 +77,10 @@ export function SubscribeForm({
           source,
           path: window.location.pathname,
           referrer: document.referrer ? new URL(document.referrer).origin : null,
-          detail,
+          // Same reasoning as lib/leads.ts: keep the ad click on the row, so a
+          // subscriber who later books can be traced back to the campaign
+          // that found them.
+          detail: { ...detail, ...(storedClickIds() ?? {}) },
           session_id: sessionId,
         }),
       });
@@ -84,6 +88,9 @@ export function SubscribeForm({
       // 201 Created or 409 Conflict (already subscribed) are both considered a success
       if (res.ok || res.status === 409) {
         setState("done");
+        // Set before the event: track() fires the Ads conversion, and gtag
+        // reads user_data as it stands at that moment.
+        setUserData({ email: value });
         track("cta_click", { action: "subscribe", source, email_domain: value.split("@")[1] });
       } else {
         throw new Error(String(res.status));

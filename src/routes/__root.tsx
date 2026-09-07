@@ -26,6 +26,7 @@ import {
   gtmId,
   gaId,
 } from "@/lib/site";
+import { adsId } from "@/lib/ads";
 
 /**
  * 404 page.
@@ -187,6 +188,43 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "manifest", href: "/site.webmanifest" },
     ],
     scripts: [
+      // Consent Mode v2 defaults.
+      //
+      // Must be the first script on the page — it has to be in dataLayer
+      // before gtm.js or gtag.js reads it, and a default set afterwards is
+      // ignored. Google requires this to be present for personalised
+      // remarketing audiences and for modelled conversions to be reported at
+      // all in the EEA and UK; without it, an EEA visitor's conversion is
+      // simply dropped rather than modelled.
+      //
+      // The grants below reflect what this site actually does. It sets no
+      // advertising cookie of its own and builds no profile, but it does
+      // measure, and Google Ads conversion tracking rides on ad_storage — so
+      // that is granted, with personalisation and data sharing left denied.
+      // If a cookie banner is added later, it should call gtag('consent',
+      // 'update', ...) rather than replacing these defaults.
+      {
+        children:
+          `window.dataLayer=window.dataLayer||[];` +
+          `function gtag(){dataLayer.push(arguments);}` +
+          `gtag('consent','default',{` +
+          `'ad_storage':'granted',` +
+          `'analytics_storage':'granted',` +
+          `'ad_user_data':'granted',` +
+          `'ad_personalization':'denied',` +
+          `'functionality_storage':'granted',` +
+          `'security_storage':'granted'` +
+          `});` +
+          // Cross-domain and URL-parameter click-id passthrough. Safari caps a
+          // JavaScript-written cookie at seven days, which is shorter than the
+          // consideration window for a holiday costing several thousand
+          // dirhams — someone who clicks an ad, thinks it over for a fortnight
+          // and then enquires is a conversion Ads never hears about. This
+          // moves the click id into a server-set cookie where the browser
+          // leaves it alone.
+          `gtag('set','url_passthrough',true);` +
+          `gtag('set','ads_data_redaction',false);`,
+      },
       // Google Tag Manager. Inlined rather than src-loaded because GTM's own
       // snippet must run before the async gtm.js arrives, so that dataLayer
       // exists for any tag that fires on page load.
@@ -210,13 +248,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             },
           ]
         : []),
-      // Google Analytics 4. gtag.js is loaded async, then configured inline —
-      // the inline call has to run after the library defines dataLayer, which
-      // is why these are two entries rather than one.
-      ...(gaId()
+      // Google Analytics 4 and Google Ads. gtag.js is loaded async, then
+      // configured inline — the inline call has to run after the library
+      // defines dataLayer, which is why these are two entries rather than one.
+      //
+      // One library serves both products: the `id` in the src only decides
+      // which config is loaded first, and each `config` call after it attaches
+      // another destination. Loading it twice, once per id, would download the
+      // same script twice and double every page_view.
+      ...(gaId() || adsId()
         ? [
             {
-              src: `https://www.googletagmanager.com/gtag/js?id=${gaId()}`,
+              src: `https://www.googletagmanager.com/gtag/js?id=${gaId() ?? adsId()}`,
               async: true,
               // See the note on the GTM snippet above: async already keeps
               // this off the parser, but it was still competing for bandwidth
@@ -228,7 +271,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
                 `window.dataLayer=window.dataLayer||[];` +
                 `function gtag(){dataLayer.push(arguments);}` +
                 `gtag('js',new Date());` +
-                `gtag('config','${gaId()}');`,
+                (gaId() ? `gtag('config','${gaId()}');` : "") +
+                // The Google Ads tag.
+                //
+                // `allow_enhanced_conversions` is what permits lib/ads.ts to
+                // attach a hashed email or phone number to a conversion. It
+                // has to be declared at config time; setting user_data on an
+                // account that has not enabled it is silently ignored, which
+                // is a failure mode worth naming because nothing anywhere
+                // reports it.
+                (adsId() ? `gtag('config','${adsId()}',{'allow_enhanced_conversions':true});` : ""),
             },
           ]
         : []),

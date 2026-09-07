@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { track, analyticsEnabled, trackingActive } from "@/lib/analytics";
+import { captureClickIds, storedClickIds } from "@/lib/ads";
 
 /**
  * Site-wide event capture. Renders nothing.
@@ -38,11 +39,50 @@ function slugOf(path: string): string {
   return m?.[1] ?? "";
 }
 
+/**
+ * The paid click behind this visit, flattened for the event record.
+ *
+ * Returns an empty object for organic traffic, so the fields simply do not
+ * appear rather than appearing empty — which keeps "came from an ad" a
+ * question the dashboard can answer by presence rather than by comparing
+ * against a blank string.
+ */
+function adAttribution(): Record<string, string> {
+  const stored = storedClickIds();
+  if (!stored) return {};
+  const out: Record<string, string> = {};
+  if (stored.gclid) out["gclid"] = stored.gclid;
+  if (stored.gbraid) out["gbraid"] = stored.gbraid;
+  if (stored.wbraid) out["wbraid"] = stored.wbraid;
+  if (stored.utm_source) out["utm_source"] = stored.utm_source;
+  if (stored.utm_campaign) out["utm_campaign"] = stored.utm_campaign;
+  if (stored.utm_term) out["utm_term"] = stored.utm_term;
+  if (stored.keyword) out["ad_keyword"] = stored.keyword;
+  if (stored.landing_page) out["ad_landing_page"] = stored.landing_page;
+  return out;
+}
+
 export function AnalyticsTracker() {
   const pathname = useRouterState({ select: (s) => s?.location?.pathname ?? "" });
   const previous = useRef<string | null>(null);
   const enteredAt = useRef<number>(Date.now());
   const depthsSent = useRef<Set<number>>(new Set());
+
+  // ---- ad click attribution ---------------------------------------------
+  //
+  // Runs before anything else and on every navigation, not once on mount. A
+  // visitor can arrive on any route from an ad, and the router's own
+  // client-side navigations do not remount this component — but an ad click
+  // always produces a full page load, so the first run is the one that
+  // matters. Repeating it is free and guards against a landing page that
+  // redirects while keeping the query string.
+  //
+  // Deliberately not gated on analyticsEnabled(): the gclid must be captured
+  // even if Supabase is unreachable, because it is the only record of which
+  // ad paid for this visitor and there is no second chance to read it.
+  useEffect(() => {
+    captureClickIds();
+  }, [pathname]);
 
   // ---- page views -------------------------------------------------------
   useEffect(() => {
@@ -173,6 +213,12 @@ export function AnalyticsTracker() {
           page_type: pageType(window.location.pathname),
           slug: slugOf(window.location.pathname),
           title: document.title,
+          // Which ad, if any, paid for this enquiry. Stored on the event so
+          // the office can answer "is Google Ads actually producing bookings"
+          // from the enquiries themselves, rather than trusting the number
+          // Ads reports about itself. The gclid is also what makes an offline
+          // conversion upload possible once the booking closes.
+          ...adAttribution(),
         });
         return;
       }
@@ -182,6 +228,24 @@ export function AnalyticsTracker() {
       }
       if (href.startsWith("mailto:")) {
         track("email_click", { label });
+        return;
+      }
+      // Downloading the itinerary is the strongest non-contact signal on the
+      // site — it is someone taking the trip away to show a spouse. It was
+      // invisible: the PDF is served from a same-origin route, so it matched
+      // neither the outbound-link branch below nor any of the contact
+      // branches above, and fell through the handler entirely.
+      //
+      // Matched by extension rather than by path so any PDF added later is
+      // covered without anyone remembering to come back here.
+      if (/\.pdf($|[?#])/i.test(href)) {
+        track("download", {
+          file: href.slice(0, 200),
+          label,
+          page_type: pageType(window.location.pathname),
+          slug: slugOf(window.location.pathname),
+          ...adAttribution(),
+        });
         return;
       }
       if (/^https?:\/\//.test(href) && !href.includes(window.location.host)) {

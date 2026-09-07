@@ -1,4 +1,5 @@
 import { track } from "./analytics";
+import { storedClickIds, setUserData } from "./ads";
 
 export type LeadPayload = {
   email: string;
@@ -66,13 +67,28 @@ export async function submitLead(payload: LeadPayload): Promise<LeadResult> {
         source: payload.source,
         path,
         referrer,
-        detail: payload.detail || {},
+        // The ad click that produced this lead, stored alongside the enquiry
+        // itself. This is what makes offline conversion import possible: when
+        // the office closes a booking three weeks later over WhatsApp, the
+        // gclid on the lead row is the only thing that can tell Google Ads
+        // which click earned it. Without it the campaign can only ever
+        // optimise towards enquiries, never towards enquiries that became
+        // money. Empty for organic visitors, which is most of them.
+        detail: { ...(payload.detail || {}), ...(storedClickIds() ?? {}) },
         notes: payload.notes || null,
         session_id: sessionId,
       }),
     });
 
     if (res.ok) {
+      // Before the conversion, not after: gtag reads user_data off the tag's
+      // state at the moment the conversion event fires, so setting it
+      // afterwards attaches it to nothing. This is what lets Google match a
+      // conversion to an ad click when the browser blocked the cookie that
+      // would normally have done it — the largest single recovery of lost
+      // conversions available to a lead-generation account.
+      setUserData({ email: payload.email, phone: payload.phone });
+
       track("cta_click", {
         action: payload.source,
         source: payload.source,
