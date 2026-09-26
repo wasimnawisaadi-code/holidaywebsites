@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+/**
+ * Trip portal theme.
+ *
+ * Deliberately the marketing site's locked brand colours — a customer who
+ * booked on nawisaadiholidays.com and then opens a link on a different domain
+ * needs to recognise it instantly, or they will assume the link is a scam. That
+ * recognition is a security feature here, not decoration.
+ *
+ * Light only. This is read one-handed in an airport arrivals hall, on a phone at
+ * full brightness; a dark theme that inverts to near-black is harder to read in
+ * that exact situation, which is the one the portal exists for.
+ */
+@theme {
+  --color-navy: #00365f;
+  --color-navy-deep: #002340;
+  --color-gold: #caa42d;
+  --color-gold-deep: #7a641b;
+  --color-ink: #10202c;
+  --color-muted: #5d6b78;
+  --color-hair: #e2e8ee;
+  --color-paper: #f4f7fa;
+  --color-live: #1b7a53;
+  --color-alert: #a3381f;
+
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  margin: 0;
+  /* iOS Safari's rubber-band scroll reveals the page background behind the
+     header; painting the body navy would show navy, so the paper tone is set
+     here and the header paints its own. */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A focus ring that survives on both the navy header and the paper body. */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* The live-status dot. One small piece of motion, on the one element whose
+   whole job is to say "this is current". */
+@keyframes ns-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+.ns-pulse {
+  animation: ns-pulse 2.4s ease-in-out infinite;
+}

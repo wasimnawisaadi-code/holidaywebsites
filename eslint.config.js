@@ -6,7 +6,11 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", ".output", ".vinxi"] },
+  // trip-portal is a separate application with its own eslint config, its own
+  // dependency tree and its own release schedule. Linting it from here would
+  // apply the website's rules to it and, worse, make a rule change for the
+  // website able to fail the portal's build.
+  { ignores: ["dist", ".output", ".vinxi", "trip-portal"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

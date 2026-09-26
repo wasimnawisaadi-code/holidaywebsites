@@ -21,3 +21,6 @@ src/data/inbound-tickets.ts
 # regeneration that says nothing about the data.
 src/data/generated/
 src/data/experiences.ts
+
+# Separate application — formatted by its own prettier config.
+trip-portal
