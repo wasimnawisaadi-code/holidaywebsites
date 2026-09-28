@@ -328,7 +328,7 @@ check("customer sees the line items", body.includes("Airport transfers"));
 check("customer sees the subtotal to the fils", body.includes("4,799.97"));
 check("customer's balance matches the admin to the fils", body.includes("3,700.00"));
 check("customer sees a part-paid status", body.toLowerCase().includes("part paid"));
-check("customer has a way to arrange payment", body.includes("Arrange payment on WhatsApp"));
+check("customer has a way to arrange payment", body.includes("Arrange payment"));
 
 // The photo must actually load, not merely be referenced. Private bucket, so
 // the src has to be a signed URL — and a signed URL that has expired or was

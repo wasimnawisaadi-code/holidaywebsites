@@ -1,26 +1,33 @@
 @import "tailwindcss";
 
 /**
- * Trip portal theme.
+ * Trip portal theme — the live nawisaadiholidays.com palette, exactly.
  *
- * Deliberately the marketing site's locked brand colours — a customer who
- * booked on nawisaadiholidays.com and then opens a link on a different domain
- * needs to recognise it instantly, or they will assume the link is a scam. That
- * recognition is a security feature here, not decoration.
+ * A customer who booked on the website and then opens a link on another domain
+ * has to recognise it instantly or they will assume the link is a scam, so this
+ * recognition is doing a security job as much as a visual one. The values are
+ * the ones scraped from the live site (see the website's live-palette notes),
+ * not approximations: an earlier version of this file used a near-miss navy,
+ * gold and grey set that looked "nearly right" and disagreed with every page of
+ * the website.
  *
- * Light only. This is read one-handed in an airport arrivals hall, on a phone at
- * full brightness; a dark theme that inverts to near-black is harder to read in
- * that exact situation, which is the one the portal exists for.
+ * Light-first, as the owner decided for the whole brand: navy is an accent for
+ * buttons and small strips, never a page or section background. The one dark
+ * area is the photograph at the top of a trip, where the image is the point.
  */
 @theme {
   --color-navy: #00365f;
   --color-navy-deep: #002340;
   --color-gold: #caa42d;
-  --color-gold-deep: #7a641b;
-  --color-ink: #10202c;
-  --color-muted: #5d6b78;
-  --color-hair: #e2e8ee;
-  --color-paper: #f4f7fa;
+  /* Gold that is legible as text on white; #CAA42D itself fails contrast. */
+  --color-gold-deep: #8f7420;
+  /* Gold that is legible as text on navy or on a darkened photograph. */
+  --color-gold-light: #ddbe5e;
+  --color-ink: #353844;
+  --color-muted: #666666;
+  --color-hair: #e5e5e5;
+  --color-paper: #f8f8f8;
+  --color-sand: #f7f5f1;
   --color-live: #1b7a53;
   --color-alert: #a3381f;
 
@@ -30,20 +37,24 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--color-paper);
+  background: #ffffff;
   color: var(--color-ink);
   font-family: var(--font-sans);
   margin: 0;
-  /* iOS Safari's rubber-band scroll reveals the page background behind the
-     header; painting the body navy would show navy, so the paper tone is set
-     here and the header paints its own. */
   -webkit-font-smoothing: antialiased;
 }
 
-/* A focus ring that survives on both the navy header and the paper body. */
+/* Playfair at 500 only. 600 and 700 thicken it into something that reads as a
+   template; the brand settled on 500 across the website. */
+.font-display {
+  font-weight: 500;
+}
+
+/* A focus ring that survives on white, on sand, and on a darkened photograph. */
 :focus-visible {
   outline: 2px solid var(--color-gold);
   outline-offset: 2px;
@@ -56,6 +67,9 @@ body {
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
   }
 }
 
@@ -74,4 +88,17 @@ body {
 }
 .ns-pulse {
   animation: ns-pulse 2.4s ease-in-out infinite;
+}
+
+/* Section anchors land below the sticky section bar, not underneath it. */
+[data-anchor] {
+  scroll-margin-top: 4.5rem;
+}
+
+/* Horizontal day rail: scrollable without a visible bar on touch devices. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

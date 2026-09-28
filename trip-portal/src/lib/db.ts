@@ -215,6 +215,50 @@ export async function signedUploadUrl(
   }
 }
 
+/** Every object directly under a folder, e.g. one trip's `<tripId>/`. */
+export async function listObjects(
+  bucket: "trip-media" | "trip-docs",
+  prefix: string,
+): Promise<string[]> {
+  const { url, key } = creds();
+  const names: string[] = [];
+  // Paged, because a long trip with galleries on every day can pass 100 files
+  // and a single page would silently leave the rest behind on delete.
+  for (let offset = 0; ; offset += 100) {
+    const res = await fetch(`${url}/storage/v1/object/list/${bucket}`, {
+      method: "POST",
+      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ prefix, limit: 100, offset }),
+    });
+    if (!res.ok) break;
+    const page = (await res.json()) as { name: string; id: string | null }[];
+    for (const o of page) if (o.id) names.push(`${prefix}${o.name}`);
+    if (page.length < 100) break;
+  }
+  return names;
+}
+
+/** Deletes many objects in one request. Returns how many storage reported removed. */
+export async function deleteObjects(
+  bucket: "trip-media" | "trip-docs",
+  paths: string[],
+): Promise<number> {
+  if (!paths.length) return 0;
+  try {
+    const { url, key } = creds();
+    const res = await fetch(`${url}/storage/v1/object/${bucket}`, {
+      method: "DELETE",
+      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ prefixes: paths }),
+    });
+    if (!res.ok) return 0;
+    const removed = (await res.json()) as unknown[];
+    return Array.isArray(removed) ? removed.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
 export async function deleteObject(
   bucket: "trip-media" | "trip-docs",
   path: string,

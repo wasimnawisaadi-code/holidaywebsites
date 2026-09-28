@@ -2,6 +2,8 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
+import { Icon, type IconName } from "@/components/Icon";
+import { destinationPhoto } from "@/lib/destinations";
 import {
   PROGRESS_STAGES,
   money,
@@ -271,65 +273,98 @@ function SignIn() {
   const [busy, setBusy] = useState(false);
 
   return (
-    <main className="grid min-h-screen place-items-center bg-navy px-5">
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setBusy(true);
-          setError("");
-          const result = await doSignIn({ data: { email, password } });
-          setBusy(false);
-          if (result.ok) router.invalidate();
-          else setError(result.reason);
-        }}
-        className="w-full max-w-sm rounded-2xl bg-white p-7 shadow-2xl"
-      >
-        <p className="text-[10px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
-          Nawi Saadi Travel
-        </p>
-        <h1 className="mt-2.5 font-display text-2xl text-navy">Trip operations</h1>
-        <p className="mt-1.5 text-sm text-muted">Staff access only.</p>
-
-        <label className="mt-6 block text-xs font-semibold text-navy" htmlFor="admin-email">
-          Email
-        </label>
-        <input
-          id="admin-email"
-          type="email"
-          required
-          autoComplete="username"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mt-1.5 w-full rounded-xl border border-hair px-3.5 py-2.5 text-sm outline-none focus:border-gold"
+    <main className="grid min-h-screen bg-white lg:grid-cols-[1.1fr_1fr]">
+      {/* The photograph half. On a phone it becomes a banner above the form, so
+          the page is never a dark block — the brand is light-first. */}
+      <div className="relative isolate h-56 overflow-hidden lg:h-auto">
+        <img
+          src="/destinations/hero-dubai.webp"
+          alt=""
+          className="absolute inset-0 -z-20 size-full object-cover"
         />
-
-        <label className="mt-4 block text-xs font-semibold text-navy" htmlFor="admin-password">
-          Password
-        </label>
-        <input
-          id="admin-password"
-          type="password"
-          required
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-1.5 w-full rounded-xl border border-hair px-3.5 py-2.5 text-sm outline-none focus:border-gold"
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-gradient-to-t from-navy-deep/80 via-navy-deep/20 to-navy-deep/40"
         />
+        <div className="flex h-full flex-col justify-between p-6 text-white lg:p-10">
+          <img
+            src="/brand/logo-white.webp"
+            alt="Nawi Saadi Travel & Tourism"
+            className="h-10 w-auto self-start lg:h-12"
+          />
+          <div className="hidden lg:block">
+            <p className="flex items-center gap-2.5 text-[11px] font-semibold tracking-[0.24em] text-gold-light uppercase">
+              <span className="h-px w-10 bg-gold-light" /> Trip operations
+            </p>
+            <p className="mt-3 max-w-md font-display text-4xl leading-tight">
+              Every customer&apos;s journey,{" "}
+              <span className="text-gold-light italic">in one place.</span>
+            </p>
+          </div>
+        </div>
+      </div>
 
-        {error ? (
-          <p role="alert" className="mt-3.5 rounded-lg bg-alert/8 p-2.5 text-xs text-alert">
-            {error}
-          </p>
-        ) : null}
-
-        <button
-          type="submit"
-          disabled={busy}
-          className="mt-5 w-full rounded-xl bg-navy py-3 text-sm font-bold text-white disabled:opacity-60"
+      <div className="flex items-center justify-center px-6 py-12">
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setBusy(true);
+            setError("");
+            const result = await doSignIn({ data: { email, password } });
+            setBusy(false);
+            if (result.ok) router.invalidate();
+            else setError(result.reason);
+          }}
+          className="w-full max-w-sm"
         >
-          {busy ? "Checking…" : "Sign in"}
-        </button>
-      </form>
+          <img src="/brand/logo-ink.webp" alt="" className="h-12 w-auto" />
+          <h1 className="mt-8 font-display text-3xl text-navy">Welcome back</h1>
+          <p className="mt-1.5 text-sm text-muted">Staff sign-in for Nawi Saadi trip operations.</p>
+
+          <label className="mt-8 block text-xs font-semibold text-navy" htmlFor="admin-email">
+            Email
+          </label>
+          <input
+            id="admin-email"
+            type="email"
+            required
+            autoComplete="username"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="mt-1.5 w-full rounded-xl border border-hair px-4 py-3 text-sm outline-none focus:border-gold focus:ring-4 focus:ring-gold/15"
+          />
+
+          <label className="mt-4 block text-xs font-semibold text-navy" htmlFor="admin-password">
+            Password
+          </label>
+          <input
+            id="admin-password"
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="mt-1.5 w-full rounded-xl border border-hair px-4 py-3 text-sm outline-none focus:border-gold focus:ring-4 focus:ring-gold/15"
+          />
+
+          {error ? (
+            <p role="alert" className="mt-4 rounded-xl bg-alert/8 p-3 text-sm text-alert">
+              {error}
+            </p>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={busy}
+            className="mt-6 w-full rounded-xl bg-navy py-3.5 text-sm font-semibold text-white transition hover:bg-navy-deep disabled:opacity-60"
+          >
+            {busy ? "Checking…" : "Sign in"}
+          </button>
+          <p className="mt-6 text-center text-xs text-muted">
+            IATA accredited · DTCM approved · Since 2009
+          </p>
+        </form>
+      </div>
     </main>
   );
 }
@@ -355,32 +390,61 @@ function Dashboard() {
     }
   };
 
+  const [query, setQuery] = useState("");
+
   // "Active" is the default view because a fifty-trip list sorted by date buries
   // the three people travelling today, which is the only thing the morning shift
-  // needs.
-  const shown = trips.filter((t) =>
-    filter === "all" ? true : t.status !== "completed" && t.status !== "cancelled",
+  // needs. Search covers name, reference, destination and phone — what someone
+  // actually has in hand when a customer rings.
+  const q = query.trim().toLowerCase();
+  const shown = trips.filter((t) => {
+    if (filter !== "all" && (t.status === "completed" || t.status === "cancelled")) return false;
+    if (!q) return true;
+    return [t.customer_name, t.trip_code, t.destination, t.title, t.customer_phone]
+      .filter(Boolean)
+      .some((v) => String(v).toLowerCase().includes(q));
+  });
+
+  const hour = Number(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Dubai",
+      hour: "numeric",
+      hour12: false,
+    }).format(new Date()),
   );
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
     <div className="min-h-screen bg-paper">
-      <header className="bg-navy px-5 py-4 text-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4">
-          <div className="min-w-0">
-            <p className="text-[10px] font-semibold tracking-[0.2em] text-gold uppercase">
-              Nawi Saadi Travel
-            </p>
-            <h1 className="font-display text-xl leading-tight">Trip operations</h1>
-          </div>
+      <header className="sticky top-0 z-20 border-b border-hair bg-white/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center gap-5 px-5 py-3">
+          <img
+            src="/brand/logo-ink.webp"
+            alt="Nawi Saadi Travel & Tourism"
+            className="h-10 w-auto"
+          />
+          <nav className="flex gap-1 text-sm font-semibold">
+            <span className="rounded-lg bg-sand px-3 py-1.5 text-navy">Trips</span>
+            <Link
+              to="/admin/drivers"
+              className="rounded-lg px-3 py-1.5 text-muted hover:bg-sand hover:text-navy"
+            >
+              Drivers
+            </Link>
+          </nav>
           <div className="ml-auto flex items-center gap-3 text-xs">
-            <span className="hidden text-white/70 sm:inline">{session?.email}</span>
+            {/* A shared-password session carries no address — its internal
+                label is "shared-password", which is not something to show staff. */}
+            <span className="hidden text-muted sm:inline">
+              {session?.via === "password" ? "Staff" : session?.email}
+            </span>
             <button
               type="button"
               onClick={async () => {
                 await doSignOut({});
                 router.invalidate();
               }}
-              className="rounded-lg border border-white/25 px-3 py-1.5 font-semibold"
+              className="rounded-lg border border-hair px-3 py-1.5 font-semibold text-navy hover:border-navy"
             >
               Sign out
             </button>
@@ -391,7 +455,7 @@ function Dashboard() {
       {refreshing ? (
         <p
           role="status"
-          className="sticky top-0 z-10 bg-gold px-5 py-1.5 text-center text-xs font-bold text-navy"
+          className="sticky top-[65px] z-10 bg-gold px-5 py-1.5 text-center text-xs font-bold text-navy"
         >
           Saving…
         </p>
@@ -399,55 +463,55 @@ function Dashboard() {
 
       <main
         aria-busy={refreshing}
-        className={`mx-auto max-w-6xl px-5 py-7 transition-opacity ${
+        className={`mx-auto max-w-6xl px-5 py-8 transition-opacity ${
           refreshing ? "pointer-events-none opacity-60" : ""
         }`}
       >
+        <div className="flex flex-wrap items-end gap-4">
+          <div>
+            <p className="flex items-center gap-2.5 text-[11px] font-semibold tracking-[0.22em] text-gold-deep uppercase">
+              <span className="h-px w-10 bg-gold" /> {greeting}
+            </p>
+            <h1 className="mt-2 font-display text-4xl text-navy">
+              Trip <span className="text-gold-deep italic">operations</span>
+            </h1>
+          </div>
+          <button
+            type="button"
+            onClick={() => setCreating((v) => !v)}
+            className="ml-auto inline-flex items-center gap-2 rounded-xl bg-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-navy-deep"
+          >
+            {creating ? "Cancel" : "+ New trip"}
+          </button>
+        </div>
+
         {/* ---- summary ---- */}
-        <div className="grid gap-3 sm:grid-cols-4">
+        <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Stat
-            label="Active trips"
+            icon="car"
+            label="On the road now"
             value={trips.filter((t) => t.status === "in_progress").length}
           />
           <Stat
+            icon="calendar"
             label="Travelling soon"
             value={trips.filter((t) => t.status === "confirmed").length}
           />
           <Stat
-            label="Unpublished"
-            value={trips.filter((t) => !t.published_at).length}
-            tone={trips.some((t) => !t.published_at) ? "warn" : "plain"}
+            icon="file"
+            label="Not published yet"
+            value={trips.filter((t) => !t.published_at && t.status !== "cancelled").length}
+            tone="warn"
           />
           <Stat
-            label="Never opened"
-            value={trips.filter((t) => t.published_at && !t.last_seen_at).length}
-            tone={trips.some((t) => t.published_at && !t.last_seen_at) ? "warn" : "plain"}
+            icon="alert"
+            label="Link never opened"
+            value={
+              trips.filter((t) => t.published_at && !t.last_seen_at && t.status !== "cancelled")
+                .length
+            }
+            tone="warn"
           />
-        </div>
-
-        {/* ---- actions ---- */}
-        <div className="mt-7 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setCreating((v) => !v)}
-            className="rounded-xl bg-navy px-5 py-2.5 text-sm font-bold text-white"
-          >
-            {creating ? "Cancel" : "+ New trip"}
-          </button>
-          <div className="ml-auto flex gap-1 rounded-xl border border-hair bg-white p-1">
-            {(["active", "all"] as const).map((f) => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setFilter(f)}
-                className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold capitalize ${
-                  filter === f ? "bg-navy text-white" : "text-navy"
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
         </div>
 
         {creating ? (
@@ -459,16 +523,51 @@ function Dashboard() {
           />
         ) : null}
 
+        {/* ---- search + filter ---- */}
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <label className="relative min-w-0 flex-1 sm:max-w-sm">
+            <span className="sr-only">Search trips</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search name, reference, destination, phone"
+              className="w-full rounded-xl border border-hair bg-white py-2.5 pr-3 pl-4 text-sm outline-none focus:border-gold focus:ring-4 focus:ring-gold/15"
+            />
+          </label>
+          <div className="ml-auto flex gap-1 rounded-xl border border-hair bg-white p-1">
+            {(["active", "all"] as const).map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setFilter(f)}
+                className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold capitalize ${
+                  filter === f ? "bg-navy text-white" : "text-navy"
+                }`}
+              >
+                {f === "active" ? "Active" : "All trips"}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* ---- the list ---- */}
-        <div className="mt-6 flex flex-col gap-3">
+        <div className="mt-4 flex flex-col gap-3">
           {shown.map((trip) => (
             <TripRow key={trip.id} trip={trip} base={base} onChange={refresh} />
           ))}
           {!shown.length ? (
-            <p className="rounded-2xl border border-hair bg-white p-6 text-center text-sm text-muted">
-              No trips here yet. Press <strong>+ New trip</strong> to create the first one and get a
-              tracking link.
-            </p>
+            <div className="rounded-3xl border-2 border-dashed border-hair bg-white p-10 text-center">
+              <Icon name="globe" className="mx-auto size-10 text-gold-deep" />
+              <p className="mt-3 font-display text-xl text-navy">
+                {q ? "No trips match that search" : "No trips here yet"}
+              </p>
+              <p className="mt-1 text-sm text-muted">
+                {q
+                  ? "Try part of the name, the NST reference or the phone number."
+                  : "Press + New trip to create the first one and get its tracking link."}
+              </p>
+            </div>
           ) : null}
         </div>
       </main>
@@ -477,33 +576,39 @@ function Dashboard() {
 }
 
 function Stat({
+  icon,
   label,
   value,
   tone = "plain",
 }: {
+  icon: IconName;
   label: string;
   value: number;
   tone?: "plain" | "warn";
 }) {
+  const alert = tone === "warn" && value > 0;
   return (
     <div
-      className={`rounded-xl border bg-white p-4 ${
-        tone === "warn" && value > 0 ? "border-gold" : "border-hair"
-      }`}
+      className={`rounded-2xl border bg-white p-4 shadow-sm ${alert ? "border-gold" : "border-hair"}`}
     >
-      <p className="text-[10px] font-semibold tracking-[0.14em] text-muted uppercase">{label}</p>
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-semibold tracking-wide text-muted">{label}</p>
+        <span
+          className={`grid size-8 place-items-center rounded-lg ${
+            alert ? "bg-gold/15 text-gold-deep" : "bg-sand text-gold-deep"
+          }`}
+        >
+          <Icon name={icon} className="size-4" />
+        </span>
+      </div>
       <p
-        className={`mt-1 font-mono text-2xl font-bold tabular-nums ${
-          tone === "warn" && value > 0 ? "text-gold-deep" : "text-navy"
-        }`}
+        className={`mt-2 font-display text-3xl tabular-nums ${alert ? "text-gold-deep" : "text-navy"}`}
       >
         {value}
       </p>
     </div>
   );
 }
-
-/* ---------------------------------------------------------------------- */
 
 function NewTripForm({ onDone }: { onDone: () => void }) {
   const [busy, setBusy] = useState(false);
@@ -666,8 +771,14 @@ function TripRow({
   };
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-hair bg-white">
+    <article className="overflow-hidden rounded-3xl border border-hair bg-white shadow-sm transition hover:shadow-md">
       <div className="flex flex-wrap items-start gap-4 p-4">
+        <img
+          src={destinationPhoto(trip.destination, true)}
+          alt=""
+          loading="lazy"
+          className="hidden size-20 shrink-0 rounded-2xl object-cover sm:block"
+        />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-xs font-semibold text-gold-deep">{trip.trip_code}</span>

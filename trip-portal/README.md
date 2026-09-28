@@ -38,9 +38,11 @@ client-safe half — components import from there.
 
 ## Deploying
 
-A **new** Vercel project, root directory `trip-portal`, domain
-`trip.nawisaadi.com`. Set `PORTAL_BASE_URL` to that domain before printing any
-QR code.
+Live as the Vercel project `nawi-saadi-trip-portal` (root directory
+`trip-portal`, framework Other) at <https://nawi-saadi-trip-portal.vercel.app>.
+It is connected to this repo, so every push to `main` deploys it — and also
+rebuilds the website, which is a separate project. Change `PORTAL_BASE_URL`
+before printing QR codes if a custom domain is added.
 
 ## The daily loop
 
@@ -56,12 +58,20 @@ QR code.
    items, record what has been paid, tick "Show to customer". Totals, balance and
    status are recomputed from the lines on every save — nobody types a total, so
    the portal can never contradict itself. The dashboard shows who still owes.
-6. **Activity & history** shows what the customer has actually opened, and a
-   database-level record of every edit and who made it.
+   Each invoice downloads as a branded PDF — the customer from their link, the
+   office from the editor (drafts carry a DRAFT watermark).
+6. **Trip details** edits everything set at creation, sets the cover photo, and
+   cancels (link stops working, record kept) or deletes the trip (every row and
+   every file in storage). Each day can carry its own photo.
+7. **Drivers** (`/admin/drivers`) — add once with photo, vehicle and plate, pick
+   on any trip; edit, deactivate or delete.
+8. **Activity & history** shows what the customer has actually opened, a
+   database-level record of every edit and who made it, and lets a mistaken
+   progress update be deleted.
 
 ## Verification
 
-Three suites, all driving a real browser. Run them one at a time — applying a
+Four suites, all driving a real browser. Run them one at a time — applying a
 migration while a suite runs makes PostgREST reload its schema cache mid-test,
 and requests landing in that window fail for reasons unrelated to the code.
 
@@ -72,8 +82,12 @@ and requests landing in that window fail for reasons unrelated to the code.
   DEMO trip, checks the draft gate, moves progress, publishes, and checks what
   the customer sees on a phone-sized screen.
 - `node scripts/e2e-editor.mjs` — **writes to the database.** Days, steps,
-  blocks, the per-day draft gate, and invoice arithmetic checked to the fils
-  between the admin and the customer.
+  blocks, the per-day draft gate, invoice arithmetic checked to the fils
+  between the admin and the customer, and uploads going straight to storage.
+- `node scripts/e2e-crud.mjs` — **writes to the database.** Editing a trip,
+  cover and day photos, invoice PDFs for customer and office (and a wrong link
+  refused), deleting a progress update, the drivers page, and deleting a trip
+  with proof its files leave storage. Saves screenshots to `scripts/__shot-*`.
 
 The e2e suites need `.env.local` exported (`set -a; . ./.env.local; set +a`) and
 a preview running on port 4201. They name everything they create `DEMO — …`;

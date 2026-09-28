@@ -1,48 +1,74 @@
+import { useState } from "react";
+
+import { Icon, type IconName } from "./Icon";
 import { InvoiceCard } from "./InvoiceCard";
+import { Lightbox, type LightboxPhoto } from "./Lightbox";
 import type { Block, Driver, Invoice, TripDocument } from "@/lib/types";
 
 /**
  * Renders the content the office built in the admin.
  *
- * One switch over `kind`, and each branch reads only the two or three payload
- * fields it needs. An unknown kind renders nothing rather than throwing: a block
- * created by a newer admin build must not take down the itinerary of a customer
- * standing in an airport, and a silently missing paragraph is a far better
- * failure than a blank page.
+ * One switch over `kind`, and each branch reads only the fields it needs. An
+ * unknown kind renders nothing rather than throwing: a block created by a newer
+ * admin build must not take down the itinerary of a customer standing in an
+ * airport, and a silently missing paragraph is a far better failure than a
+ * blank page.
+ *
+ * Photographs lead. In an itinerary a photo is usually an instruction — this is
+ * the exit, this is the kiosk your driver waits beside — so every photo is shown
+ * wide and opens full-screen on tap, where the customer can actually read it.
  *
  * Every image and video URL arriving here is already signed — see `signBlock`
  * in lib/trips.ts. This component never touches storage.
  */
 
-type Ctx = {
+export type BlockCtx = {
   drivers: Driver[];
   documents: TripDocument[];
   invoices?: Invoice[];
-  /** Fired when a customer plays a video or opens a document. */
-  onEngage?: (event: string, detail: string) => void;
+  /** Where an invoice's PDF downloads from, or undefined to hide the button. */
+  invoicePdfHref?: ((invoiceId: string) => string) | undefined;
+  /** Fired when a customer plays a video, opens a photo or a document. */
+  onEngage?: ((event: string, detail: string) => void) | undefined;
 };
 
-export function BlockList({ blocks, ctx }: { blocks: Block[]; ctx: Ctx }) {
+export function BlockList({ blocks, ctx }: { blocks: Block[]; ctx: BlockCtx }) {
+  const [viewer, setViewer] = useState<{ photos: LightboxPhoto[]; start: number } | null>(null);
   if (!blocks.length) return null;
+
+  const open = (photos: LightboxPhoto[], start: number, label: string) => {
+    setViewer({ photos, start });
+    ctx.onEngage?.("photo", label);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {blocks.map((b) => (
-        <BlockView key={b.id} block={b} ctx={ctx} />
+        <BlockView key={b.id} block={b} ctx={ctx} openPhotos={open} />
       ))}
+      {viewer ? (
+        <Lightbox photos={viewer.photos} start={viewer.start} onClose={() => setViewer(null)} />
+      ) : null}
     </div>
   );
 }
 
-function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
+type OpenPhotos = (photos: LightboxPhoto[], start: number, label: string) => void;
+
+function BlockView({
+  block,
+  ctx,
+  openPhotos,
+}: {
+  block: Block;
+  ctx: BlockCtx;
+  openPhotos: OpenPhotos;
+}) {
   const p = block.payload ?? {};
 
   switch (block.kind) {
     case "heading":
-      return (
-        <h4 className="font-sans text-sm font-bold tracking-tight text-navy">
-          {p.heading ?? p.text}
-        </h4>
-      );
+      return <h4 className="font-display text-lg text-navy">{p.heading ?? p.text}</h4>;
 
     case "text":
       return p.text ? (
@@ -51,51 +77,33 @@ function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
 
     case "image":
       return p.url ? (
-        <figure className="overflow-hidden rounded-xl border border-hair bg-white">
-          <img
-            src={p.url}
+        <figure>
+          <PhotoButton
+            url={p.url}
             alt={p.caption ?? ""}
-            // Explicit dimensions are unknown (the office uploads any size), so
-            // aspect-ratio holds the space instead. Without it the page jumps as
-            // each photo lands, which on a slow airport connection means the
-            // customer loses their place three times while reading.
-            className="block w-full bg-paper object-cover"
-            style={{ aspectRatio: "4 / 3" }}
-            loading="lazy"
+            ratio="4 / 3"
+            onOpen={() =>
+              openPhotos([{ url: p.url!, caption: p.caption }], 0, p.caption ?? "photo")
+            }
           />
           {p.caption ? (
-            <figcaption className="px-3 py-2 text-xs leading-relaxed text-muted">
-              {p.caption}
+            <figcaption className="mt-2 flex items-start gap-1.5 text-[13px] leading-relaxed text-muted">
+              <Icon name="camera" className="mt-0.5 size-3.5 shrink-0 text-gold-deep" />
+              <span>{p.caption}</span>
             </figcaption>
           ) : null}
         </figure>
       ) : null;
 
-    case "gallery": {
-      const urls = (p.urls ?? []).filter(Boolean) as string[];
-      if (!urls.length) return null;
-      return (
-        <div className="grid grid-cols-2 gap-2">
-          {urls.map((u, i) => (
-            <img
-              key={u + i}
-              src={u}
-              alt={p.caption ? `${p.caption} ${i + 1}` : ""}
-              className="w-full rounded-lg border border-hair bg-paper object-cover"
-              style={{ aspectRatio: "1 / 1" }}
-              loading="lazy"
-            />
-          ))}
-        </div>
-      );
-    }
+    case "gallery":
+      return <Gallery urls={p.urls ?? []} caption={p.caption} openPhotos={openPhotos} />;
 
     case "video":
-      // The reason this whole system exists, per the brief: a 15-second clip of
-      // which exit to walk out of. `playsInline` matters — without it iOS takes
-      // the video fullscreen, which loses the written instructions beside it.
+      // The reason this system exists, per the brief: a short clip of which exit
+      // to walk out of. `playsInline` matters — without it iOS takes the video
+      // fullscreen and the written instructions beside it disappear.
       return p.url ? (
-        <div className="overflow-hidden rounded-xl border border-hair bg-black">
+        <figure className="overflow-hidden rounded-2xl border border-hair bg-black shadow-sm">
           <video
             src={p.url}
             poster={p.posterUrl ?? undefined}
@@ -106,43 +114,47 @@ function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
             style={{ aspectRatio: "16 / 9" }}
             onPlay={() => ctx.onEngage?.("video", p.label ?? p.caption ?? "video")}
           />
-          {p.caption || p.label ? (
-            <p className="bg-white px-3 py-2 text-xs leading-relaxed text-muted">
-              {p.label ?? p.caption}
-            </p>
+          {p.label || p.caption ? (
+            <figcaption className="flex items-center gap-2 bg-white px-4 py-3">
+              <Icon name="video" className="size-4 shrink-0 text-gold-deep" />
+              <span className="text-sm font-semibold text-navy">{p.label ?? p.caption}</span>
+            </figcaption>
           ) : null}
-        </div>
+        </figure>
       ) : null;
 
     case "map": {
       const { latitude: lat, longitude: lng, locationName } = p;
       if (lat == null || lng == null) {
-        return locationName ? <LocationLine name={locationName} /> : null;
+        return locationName ? (
+          <p className="flex items-center gap-2 text-sm text-muted">
+            <Icon name="pin" className="size-4 text-gold-deep" />
+            <span>{locationName}</span>
+          </p>
+        ) : null;
       }
       // A link to the customer's own maps app, not an embedded iframe. An embed
-      // needs a Google Maps API key, costs money per load, and is useless to the
-      // person who actually wants turn-by-turn directions from where they are
-      // standing. The link opens whichever app they already have.
+      // needs a paid API key and is useless to the person who wants turn-by-turn
+      // directions from where they are standing.
       return (
         <a
           href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => ctx.onEngage?.("map", locationName ?? `${lat},${lng}`)}
-          className="flex items-center gap-3 rounded-xl border border-hair bg-white p-3.5 transition-colors hover:border-gold"
+          className="group flex items-center gap-3.5 rounded-2xl border border-hair bg-white p-3.5 shadow-sm transition hover:border-gold hover:shadow-md"
         >
-          <span
-            aria-hidden="true"
-            className="grid size-10 shrink-0 place-items-center rounded-lg bg-navy/8 text-lg"
-          >
-            📍
-          </span>
+          <IconBadge name="pin" />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-semibold text-navy">
               {locationName ?? "Open location"}
             </span>
-            <span className="block text-xs text-muted">Tap to open in Maps</span>
+            <span className="block text-xs text-muted">Open directions in Maps</span>
           </span>
+          <Icon
+            name="arrowRight"
+            className="size-4 shrink-0 text-gold-deep transition group-hover:translate-x-0.5"
+          />
         </a>
       );
     }
@@ -155,12 +167,13 @@ function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
     case "hotel":
       return (
         <DetailCard
-          icon="🏨"
-          title={p.name ?? "Hotel"}
+          icon="hotel"
+          eyebrow="Hotel"
+          title={p.name ?? "Your hotel"}
           rows={[
             ["Check in", p.checkIn],
             ["Check out", p.checkOut],
-            ["Reference", p.reference],
+            ["Booking ref.", p.reference],
             ["Phone", p.phone],
           ]}
           note={p.text}
@@ -170,12 +183,13 @@ function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
     case "flight":
       return (
         <DetailCard
-          icon="✈️"
-          title={p.flightNumber ? `Flight ${p.flightNumber}` : "Flight"}
+          icon="plane"
+          eyebrow="Flight"
+          title={p.flightNumber ? p.flightNumber : "Your flight"}
           rows={[
-            ["Departure", p.departure],
-            ["Arrival", p.arrival],
-            ["Reference", p.reference],
+            ["Departs", p.departure],
+            ["Arrives", p.arrival],
+            ["Booking ref.", p.reference],
           ]}
           note={p.text}
         />
@@ -184,8 +198,9 @@ function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
     case "ticket":
       return (
         <DetailCard
-          icon="🎟️"
-          title={p.name ?? "Ticket"}
+          icon="ticket"
+          eyebrow="Ticket"
+          title={p.name ?? "Your ticket"}
           rows={[
             ["Reference", p.reference],
             ["Time", p.label],
@@ -202,19 +217,23 @@ function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
 
     case "contact":
       return (
-        <div className="rounded-xl border border-hair bg-white p-3.5">
-          <p className="text-sm font-semibold text-navy">{p.name ?? "Contact"}</p>
-          <div className="mt-2.5 flex flex-wrap gap-2">
-            {p.phone ? <CallButton href={`tel:${p.phone}`} label="Call" /> : null}
+        <div className="rounded-2xl border border-hair bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <IconBadge name="phone" />
+            <p className="text-sm font-semibold text-navy">{p.name ?? "Contact"}</p>
+          </div>
+          {p.text ? <p className="mt-2.5 text-sm leading-relaxed text-muted">{p.text}</p> : null}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {p.phone ? <ActionLink href={`tel:${p.phone}`} icon="phone" label="Call" /> : null}
             {p.whatsapp ? (
-              <CallButton
+              <ActionLink
                 href={`https://wa.me/${p.whatsapp.replace(/[^\d]/g, "")}`}
+                icon="chat"
                 label="WhatsApp"
                 tone="gold"
               />
             ) : null}
           </div>
-          {p.text ? <p className="mt-2.5 text-xs leading-relaxed text-muted">{p.text}</p> : null}
         </div>
       );
 
@@ -224,30 +243,45 @@ function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
       const tone = p.tone ?? "info";
       const style =
         tone === "critical"
-          ? "border-alert/35 bg-alert/8 text-alert"
+          ? "border-l-alert bg-alert/6 text-alert"
           : tone === "warning"
-            ? "border-gold/45 bg-gold/10 text-gold-deep"
-            : "border-navy/20 bg-navy/5 text-navy";
+            ? "border-l-gold bg-sand text-gold-deep"
+            : "border-l-navy bg-paper text-navy";
       return (
-        <div className={`rounded-xl border p-3.5 ${style}`}>
-          {p.heading ? <p className="text-sm font-bold">{p.heading}</p> : null}
-          {p.text ? (
-            <p className="mt-1 text-sm leading-relaxed whitespace-pre-line">{p.text}</p>
-          ) : null}
+        <div className={`rounded-r-2xl border-l-4 px-4 py-3.5 ${style}`}>
+          <div className="flex items-start gap-2.5">
+            <Icon name={tone === "info" ? "shield" : "alert"} className="mt-0.5 size-4 shrink-0" />
+            <div className="min-w-0">
+              {p.heading ? <p className="text-sm font-bold">{p.heading}</p> : null}
+              {p.text ? (
+                <p className="mt-0.5 text-sm leading-relaxed whitespace-pre-line text-ink">
+                  {p.text}
+                </p>
+              ) : null}
+            </div>
+          </div>
         </div>
       );
     }
 
     case "emergency":
       return (
-        <div className="rounded-xl border border-alert/35 bg-alert/8 p-3.5">
-          <p className="text-sm font-bold text-alert">{p.heading ?? "In an emergency"}</p>
-          {p.text ? <p className="mt-1 text-sm leading-relaxed text-ink">{p.text}</p> : null}
-          <div className="mt-2.5 flex flex-wrap gap-2">
-            {p.phone ? (
-              <CallButton href={`tel:${p.phone}`} label={`Call ${p.name ?? "us"}`} />
-            ) : null}
+        <div className="rounded-2xl border border-alert/30 bg-alert/6 p-4">
+          <div className="flex items-center gap-2.5">
+            <Icon name="alert" className="size-4 text-alert" />
+            <p className="text-sm font-bold text-alert">{p.heading ?? "In an emergency"}</p>
           </div>
+          {p.text ? <p className="mt-2 text-sm leading-relaxed text-ink">{p.text}</p> : null}
+          {p.phone ? (
+            <div className="mt-3">
+              <ActionLink
+                href={`tel:${p.phone}`}
+                icon="phone"
+                label={`Call ${p.name ?? "now"}`}
+                tone="alert"
+              />
+            </div>
+          ) : null}
         </div>
       );
 
@@ -258,12 +292,13 @@ function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => ctx.onEngage?.("link", p.label ?? p.href ?? "")}
-          className="flex items-center justify-between gap-3 rounded-xl border border-hair bg-white p-3.5 text-sm font-semibold text-navy transition-colors hover:border-gold"
+          className="group flex items-center gap-3.5 rounded-2xl border border-hair bg-white p-3.5 shadow-sm transition hover:border-gold hover:shadow-md"
         >
-          <span className="min-w-0 truncate">{p.label ?? p.href}</span>
-          <span aria-hidden="true" className="shrink-0 text-muted">
-            ↗
+          <IconBadge name="link" />
+          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-navy">
+            {p.label ?? p.href}
           </span>
+          <Icon name="arrowRight" className="size-4 shrink-0 text-gold-deep" />
         </a>
       ) : null;
 
@@ -272,20 +307,29 @@ function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
       // invoice updates every place it appears. A copy stored in the block would
       // keep showing the old balance after a payment was recorded.
       const invoice = ctx.invoices?.find((i) => i.id === p.invoiceId);
-      return invoice ? <InvoiceCard invoice={invoice} onEngage={ctx.onEngage} /> : null;
+      return invoice ? (
+        <InvoiceCard
+          invoice={invoice}
+          pdfHref={ctx.invoicePdfHref?.(invoice.id)}
+          onEngage={ctx.onEngage}
+        />
+      ) : null;
     }
 
     case "checklist": {
       const items = p.items ?? [];
       if (!items.length) return null;
       return (
-        <div className="rounded-xl border border-hair bg-white p-3.5">
-          {p.heading ? <p className="mb-2 text-sm font-bold text-navy">{p.heading}</p> : null}
-          <ul className="flex flex-col gap-1.5">
+        <div className="rounded-2xl border border-hair bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <IconBadge name="list" />
+            <p className="text-sm font-semibold text-navy">{p.heading ?? "Checklist"}</p>
+          </div>
+          <ul className="mt-3 flex flex-col gap-2">
             {items.map((item, i) => (
               <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-ink">
-                <span aria-hidden="true" className="mt-0.5 shrink-0 text-gold-deep">
-                  ✓
+                <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-gold/15 text-gold-deep">
+                  <Icon name="check" className="size-3" strokeWidth={2.5} />
                 </span>
                 <span>{item}</span>
               </li>
@@ -302,33 +346,135 @@ function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
 
 /* ---------------------------------------------------------------------- */
 
-function LocationLine({ name }: { name: string }) {
+/** A photo that opens the viewer. A real button, so it is reachable by keyboard. */
+function PhotoButton({
+  url,
+  alt,
+  ratio,
+  onOpen,
+  overlay,
+}: {
+  url: string;
+  alt: string;
+  ratio: string;
+  onOpen: () => void;
+  overlay?: string | undefined;
+}) {
   return (
-    <p className="flex items-center gap-2 text-sm text-muted">
-      <span aria-hidden="true">📍</span>
-      <span>{name}</span>
-    </p>
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={alt ? `View photo: ${alt}` : "View photo"}
+      className="group relative block w-full overflow-hidden rounded-2xl bg-paper shadow-sm"
+      style={{ aspectRatio: ratio }}
+    >
+      <img
+        src={url}
+        alt={alt}
+        loading="lazy"
+        className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-[1.02]"
+      />
+      {overlay ? (
+        <span className="absolute inset-0 grid place-items-center bg-navy-deep/55 text-lg font-semibold text-white">
+          {overlay}
+        </span>
+      ) : null}
+    </button>
   );
 }
 
-function CallButton({
+/**
+ * Several photos. One large lead image and the rest as tiles, because the first
+ * photo the office chose is almost always the one that matters most, and five
+ * equal squares make the customer study all of them to find it.
+ */
+function Gallery({
+  urls,
+  caption,
+  openPhotos,
+}: {
+  urls: (string | null)[];
+  caption?: string | undefined;
+  openPhotos: OpenPhotos;
+}) {
+  const list = urls.filter((u): u is string => Boolean(u));
+  if (!list.length) return null;
+
+  const photos: LightboxPhoto[] = list.map((url, i) => ({
+    url,
+    caption: caption ? `${caption} (${i + 1} of ${list.length})` : undefined,
+  }));
+  const open = (i: number) => openPhotos(photos, i, caption ?? "gallery");
+
+  const [lead, ...rest] = list;
+  const tiles = rest.slice(0, 3);
+  const hidden = list.length - 1 - tiles.length;
+
+  return (
+    <figure>
+      <PhotoButton url={lead!} alt={caption ?? ""} ratio="16 / 10" onOpen={() => open(0)} />
+      {tiles.length ? (
+        <div
+          className={`mt-2 grid gap-2 ${tiles.length === 1 ? "grid-cols-1" : tiles.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}
+        >
+          {tiles.map((u, i) => (
+            <PhotoButton
+              key={u + i}
+              url={u}
+              alt={caption ? `${caption} ${i + 2}` : ""}
+              ratio="1 / 1"
+              onOpen={() => open(i + 1)}
+              overlay={i === tiles.length - 1 && hidden > 0 ? `+${hidden}` : undefined}
+            />
+          ))}
+        </div>
+      ) : null}
+      {caption ? (
+        <figcaption className="mt-2 flex items-start gap-1.5 text-[13px] leading-relaxed text-muted">
+          <Icon name="images" className="mt-0.5 size-3.5 shrink-0 text-gold-deep" />
+          <span>
+            {caption} · {list.length} photos
+          </span>
+        </figcaption>
+      ) : null}
+    </figure>
+  );
+}
+
+function IconBadge({ name }: { name: IconName }) {
+  return (
+    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-sand text-gold-deep">
+      <Icon name={name} className="size-5" />
+    </span>
+  );
+}
+
+function ActionLink({
   href,
+  icon,
   label,
   tone = "navy",
 }: {
   href: string;
+  icon: IconName;
   label: string;
-  tone?: "navy" | "gold";
+  tone?: "navy" | "gold" | "alert";
 }) {
+  const external = href.startsWith("http");
+  const style =
+    tone === "gold"
+      ? "bg-gold text-navy hover:bg-gold-light"
+      : tone === "alert"
+        ? "bg-alert text-white"
+        : "bg-navy text-white hover:bg-navy-deep";
   return (
     <a
       href={href}
-      target={href.startsWith("http") ? "_blank" : undefined}
-      rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-      className={`inline-flex items-center rounded-lg px-4 py-2 text-xs font-bold ${
-        tone === "gold" ? "bg-gold text-navy" : "bg-navy text-white"
-      }`}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
+      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${style}`}
     >
+      <Icon name={icon} className="size-4" />
       {label}
     </a>
   );
@@ -336,33 +482,40 @@ function CallButton({
 
 function DetailCard({
   icon,
+  eyebrow,
   title,
   rows,
   note,
 }: {
-  icon: string;
+  icon: IconName;
+  eyebrow: string;
   title: string;
   rows: [string, string | undefined][];
   note?: string | undefined;
 }) {
   const present = rows.filter(([, v]) => Boolean(v));
   return (
-    <div className="rounded-xl border border-hair bg-white p-3.5">
-      <p className="flex items-center gap-2 text-sm font-semibold text-navy">
-        <span aria-hidden="true">{icon}</span>
-        <span>{title}</span>
-      </p>
+    <div className="rounded-2xl border border-hair bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-3">
+        <IconBadge name={icon} />
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+            {eyebrow}
+          </p>
+          <p className="truncate text-base font-semibold text-navy">{title}</p>
+        </div>
+      </div>
       {present.length ? (
-        <dl className="mt-2.5 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-xs">
+        <dl className="mt-3.5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-hair pt-3.5">
           {present.map(([k, v]) => (
-            <div key={k} className="col-span-2 grid grid-cols-subgrid">
-              <dt className="text-muted">{k}</dt>
-              <dd className="font-semibold text-ink">{v}</dd>
+            <div key={k} className="min-w-0">
+              <dt className="text-[11px] tracking-wide text-muted uppercase">{k}</dt>
+              <dd className="mt-0.5 text-sm font-semibold break-words text-ink">{v}</dd>
             </div>
           ))}
         </dl>
       ) : null}
-      {note ? <p className="mt-2.5 text-xs leading-relaxed text-muted">{note}</p> : null}
+      {note ? <p className="mt-3 text-sm leading-relaxed text-muted">{note}</p> : null}
     </div>
   );
 }
@@ -371,9 +524,9 @@ function DetailCard({
  * The driver card.
  *
  * Photograph, name, vehicle and plate, then call and WhatsApp as the two
- * largest things on it. This is read while standing on a kerb looking for a
- * car, so the plate number is set large and in tabular figures — at a glance,
- * from a distance, against a moving background.
+ * largest things on it. This is read on a kerb looking for a car, so the plate
+ * is set large, in tabular figures, on a plate-like tile — readable at a glance
+ * against a moving background.
  */
 export function DriverCard({
   driver,
@@ -383,28 +536,25 @@ export function DriverCard({
   onEngage?: ((event: string, detail: string) => void) | undefined;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-hair bg-white">
-      <div className="flex gap-3.5 p-3.5">
+    <div className="overflow-hidden rounded-2xl border border-hair bg-white shadow-sm">
+      <div className="flex items-center gap-4 p-4">
         {driver.photoUrl ? (
           <img
             src={driver.photoUrl}
             alt={driver.full_name}
-            className="size-16 shrink-0 rounded-xl border border-hair object-cover"
+            className="size-16 shrink-0 rounded-2xl object-cover ring-2 ring-gold/40"
           />
         ) : (
-          <span
-            aria-hidden="true"
-            className="grid size-16 shrink-0 place-items-center rounded-xl bg-navy/8 text-2xl"
-          >
-            🚗
+          <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-sand text-gold-deep">
+            <Icon name="car" className="size-7" />
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold tracking-[0.14em] text-gold-deep uppercase">
+          <p className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
             Your driver
           </p>
-          <p className="mt-0.5 truncate text-base font-bold text-navy">{driver.full_name}</p>
-          {driver.vehicle ? <p className="truncate text-xs text-muted">{driver.vehicle}</p> : null}
+          <p className="mt-0.5 truncate font-display text-xl text-navy">{driver.full_name}</p>
+          {driver.vehicle ? <p className="truncate text-sm text-muted">{driver.vehicle}</p> : null}
           {driver.languages ? (
             <p className="truncate text-xs text-muted">Speaks {driver.languages}</p>
           ) : null}
@@ -412,24 +562,24 @@ export function DriverCard({
       </div>
 
       {driver.plate_number ? (
-        <div className="mx-3.5 rounded-lg bg-paper px-3 py-2.5 text-center">
-          <p className="text-[10px] font-semibold tracking-[0.14em] text-muted uppercase">
-            Vehicle plate
-          </p>
-          <p className="font-mono text-xl font-bold tracking-wider tabular-nums text-navy">
+        <div className="mx-4 flex items-center justify-between rounded-xl border-2 border-ink/80 bg-white px-4 py-2">
+          <span className="text-[10px] font-semibold tracking-[0.18em] text-muted uppercase">
+            Plate
+          </span>
+          <span className="font-mono text-2xl font-bold tracking-wider text-ink tabular-nums">
             {driver.plate_number}
-          </p>
+          </span>
         </div>
       ) : null}
 
-      <div className="flex gap-2 p-3.5">
+      <div className="grid grid-cols-2 gap-2 p-4">
         {driver.phone ? (
           <a
             href={`tel:${driver.phone}`}
             onClick={() => onEngage?.("driver_call", driver.full_name)}
-            className="flex-1 rounded-lg bg-navy py-2.5 text-center text-xs font-bold text-white"
+            className="flex items-center justify-center gap-2 rounded-xl bg-navy py-3 text-sm font-semibold text-white hover:bg-navy-deep"
           >
-            Call driver
+            <Icon name="phone" className="size-4" /> Call
           </a>
         ) : null}
         {driver.whatsapp ? (
@@ -438,9 +588,9 @@ export function DriverCard({
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => onEngage?.("driver_whatsapp", driver.full_name)}
-            className="flex-1 rounded-lg bg-gold py-2.5 text-center text-xs font-bold text-navy"
+            className="flex items-center justify-center gap-2 rounded-xl bg-gold py-3 text-sm font-semibold text-navy hover:bg-gold-light"
           >
-            WhatsApp
+            <Icon name="chat" className="size-4" /> WhatsApp
           </a>
         ) : null}
       </div>
@@ -462,21 +612,14 @@ export function DocumentLink({
       target="_blank"
       rel="noopener noreferrer"
       onClick={() => onEngage?.("document_open", doc.name)}
-      className="flex items-center gap-3 rounded-xl border border-hair bg-white p-3.5 transition-colors hover:border-gold"
+      className="group flex items-center gap-3.5 rounded-2xl border border-hair bg-white p-3.5 shadow-sm transition hover:border-gold hover:shadow-md"
     >
-      <span
-        aria-hidden="true"
-        className="grid size-10 shrink-0 place-items-center rounded-lg bg-navy/8 text-lg"
-      >
-        📄
-      </span>
+      <IconBadge name="file" />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold text-navy">{doc.name}</span>
         {doc.doc_type ? <span className="block text-xs text-muted">{doc.doc_type}</span> : null}
       </span>
-      <span aria-hidden="true" className="shrink-0 text-muted">
-        ↓
-      </span>
+      <Icon name="download" className="size-4 shrink-0 text-gold-deep" />
     </a>
   );
 }

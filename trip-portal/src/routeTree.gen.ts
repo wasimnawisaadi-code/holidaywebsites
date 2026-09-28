@@ -11,8 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AdminDriversRouteImport } from './routes/admin_.drivers'
 import { Route as TTokenRouteImport } from './routes/t.$token'
+import { Route as AdminInvoicesChar123invoiceIdChar125DotpdfRouteImport } from './routes/admin_.invoices.{$invoiceId}[.]pdf'
 import { Route as AdminTripsIdRouteImport } from './routes/admin_.trips.$id'
+import { Route as TTokenInvoiceChar123invoiceIdChar125DotpdfRouteImport } from './routes/t.$token.invoice.{$invoiceId}[.]pdf'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -24,48 +27,98 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDriversRoute = AdminDriversRouteImport.update({
+  id: '/admin_/drivers',
+  path: '/admin/drivers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TTokenRoute = TTokenRouteImport.update({
   id: '/t/$token',
   path: '/t/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminInvoicesChar123invoiceIdChar125DotpdfRoute =
+  AdminInvoicesChar123invoiceIdChar125DotpdfRouteImport.update({
+    id: '/admin_/invoices/{$invoiceId}.pdf',
+    path: '/admin/invoices/{$invoiceId}.pdf',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminTripsIdRoute = AdminTripsIdRouteImport.update({
   id: '/admin_/trips/$id',
   path: '/admin/trips/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TTokenInvoiceChar123invoiceIdChar125DotpdfRoute =
+  TTokenInvoiceChar123invoiceIdChar125DotpdfRouteImport.update({
+    id: '/invoice/{$invoiceId}.pdf',
+    path: '/invoice/{$invoiceId}.pdf',
+    getParentRoute: () => TTokenRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/t/$token': typeof TTokenRoute
+  '/admin/drivers': typeof AdminDriversRoute
+  '/t/$token': typeof TTokenRouteWithChildren
+  '/admin/invoices/{$invoiceId}.pdf': typeof AdminInvoicesChar123invoiceIdChar125DotpdfRoute
   '/admin/trips/$id': typeof AdminTripsIdRoute
+  '/t/$token/invoice/{$invoiceId}.pdf': typeof TTokenInvoiceChar123invoiceIdChar125DotpdfRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/t/$token': typeof TTokenRoute
+  '/admin/drivers': typeof AdminDriversRoute
+  '/t/$token': typeof TTokenRouteWithChildren
+  '/admin/invoices/{$invoiceId}.pdf': typeof AdminInvoicesChar123invoiceIdChar125DotpdfRoute
   '/admin/trips/$id': typeof AdminTripsIdRoute
+  '/t/$token/invoice/{$invoiceId}.pdf': typeof TTokenInvoiceChar123invoiceIdChar125DotpdfRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/t/$token': typeof TTokenRoute
+  '/admin_/drivers': typeof AdminDriversRoute
+  '/t/$token': typeof TTokenRouteWithChildren
+  '/admin_/invoices/{$invoiceId}.pdf': typeof AdminInvoicesChar123invoiceIdChar125DotpdfRoute
   '/admin_/trips/$id': typeof AdminTripsIdRoute
+  '/t/$token/invoice/{$invoiceId}.pdf': typeof TTokenInvoiceChar123invoiceIdChar125DotpdfRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/t/$token' | '/admin/trips/$id'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/admin/drivers'
+    | '/t/$token'
+    | '/admin/invoices/{$invoiceId}.pdf'
+    | '/admin/trips/$id'
+    | '/t/$token/invoice/{$invoiceId}.pdf'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/t/$token' | '/admin/trips/$id'
-  id: '__root__' | '/' | '/admin' | '/t/$token' | '/admin_/trips/$id'
+  to:
+    | '/'
+    | '/admin'
+    | '/admin/drivers'
+    | '/t/$token'
+    | '/admin/invoices/{$invoiceId}.pdf'
+    | '/admin/trips/$id'
+    | '/t/$token/invoice/{$invoiceId}.pdf'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/admin_/drivers'
+    | '/t/$token'
+    | '/admin_/invoices/{$invoiceId}.pdf'
+    | '/admin_/trips/$id'
+    | '/t/$token/invoice/{$invoiceId}.pdf'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
-  TTokenRoute: typeof TTokenRoute
+  AdminDriversRoute: typeof AdminDriversRoute
+  TTokenRoute: typeof TTokenRouteWithChildren
+  AdminInvoicesChar123invoiceIdChar125DotpdfRoute: typeof AdminInvoicesChar123invoiceIdChar125DotpdfRoute
   AdminTripsIdRoute: typeof AdminTripsIdRoute
 }
 
@@ -85,11 +138,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin_/drivers': {
+      id: '/admin_/drivers'
+      path: '/admin/drivers'
+      fullPath: '/admin/drivers'
+      preLoaderRoute: typeof AdminDriversRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/t/$token': {
       id: '/t/$token'
       path: '/t/$token'
       fullPath: '/t/$token'
       preLoaderRoute: typeof TTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin_/invoices/{$invoiceId}.pdf': {
+      id: '/admin_/invoices/{$invoiceId}.pdf'
+      path: '/admin/invoices/{$invoiceId}.pdf'
+      fullPath: '/admin/invoices/{$invoiceId}.pdf'
+      preLoaderRoute: typeof AdminInvoicesChar123invoiceIdChar125DotpdfRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin_/trips/$id': {
@@ -99,13 +166,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTripsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/t/$token/invoice/{$invoiceId}.pdf': {
+      id: '/t/$token/invoice/{$invoiceId}.pdf'
+      path: '/invoice/{$invoiceId}.pdf'
+      fullPath: '/t/$token/invoice/{$invoiceId}.pdf'
+      preLoaderRoute: typeof TTokenInvoiceChar123invoiceIdChar125DotpdfRouteImport
+      parentRoute: typeof TTokenRoute
+    }
   }
 }
+
+interface TTokenRouteChildren {
+  TTokenInvoiceChar123invoiceIdChar125DotpdfRoute: typeof TTokenInvoiceChar123invoiceIdChar125DotpdfRoute
+}
+
+const TTokenRouteChildren: TTokenRouteChildren = {
+  TTokenInvoiceChar123invoiceIdChar125DotpdfRoute:
+    TTokenInvoiceChar123invoiceIdChar125DotpdfRoute,
+}
+
+const TTokenRouteWithChildren =
+  TTokenRoute._addFileChildren(TTokenRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
-  TTokenRoute: TTokenRoute,
+  AdminDriversRoute: AdminDriversRoute,
+  TTokenRoute: TTokenRouteWithChildren,
+  AdminInvoicesChar123invoiceIdChar125DotpdfRoute:
+    AdminInvoicesChar123invoiceIdChar125DotpdfRoute,
   AdminTripsIdRoute: AdminTripsIdRoute,
 }
 export const routeTree = rootRouteImport

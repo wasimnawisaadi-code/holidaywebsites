@@ -1,3 +1,5 @@
+import type { IconName } from "@/components/Icon";
+
 /**
  * Domain types and the progress ladder. Safe on both sides of the wire.
  *
@@ -153,24 +155,24 @@ export const BLOCK_KINDS = [
 export type BlockKind = (typeof BLOCK_KINDS)[number];
 
 /** What the office sees in the "add content" menu, in a sensible order. */
-export const BLOCK_LABELS: Record<BlockKind, { label: string; icon: string; hint: string }> = {
-  text: { label: "Text", icon: "📝", hint: "A paragraph of instructions" },
-  heading: { label: "Subheading", icon: "🔠", hint: "A small heading inside a step" },
-  image: { label: "Image", icon: "📷", hint: "One photo with a caption" },
-  gallery: { label: "Gallery", icon: "🖼", hint: "Several photos in a grid" },
-  video: { label: "Video", icon: "🎥", hint: "A short clip, e.g. how to find the driver" },
-  map: { label: "Location", icon: "📍", hint: "Opens in the customer's maps app" },
-  driver: { label: "Driver", icon: "🚗", hint: "Photo, vehicle, plate, call and WhatsApp" },
-  hotel: { label: "Hotel", icon: "🏨", hint: "Check-in, check-out, reference" },
-  flight: { label: "Flight", icon: "✈️", hint: "Flight number and times" },
-  ticket: { label: "Ticket", icon: "🎟", hint: "Attraction ticket or voucher" },
-  document: { label: "Document", icon: "📄", hint: "A PDF already uploaded to this trip" },
-  contact: { label: "Contact", icon: "📞", hint: "A name with call and WhatsApp buttons" },
-  notice: { label: "Notice", icon: "⚠️", hint: "Something they must not miss" },
-  emergency: { label: "Emergency", icon: "🆘", hint: "Emergency contact panel" },
-  link: { label: "Link", icon: "🔗", hint: "An external link" },
-  checklist: { label: "Checklist", icon: "✅", hint: "A list of things to bring or do" },
-  invoice: { label: "Invoice", icon: "🧾", hint: "A published invoice for this trip" },
+export const BLOCK_LABELS: Record<BlockKind, { label: string; icon: IconName; hint: string }> = {
+  text: { label: "Text", icon: "text", hint: "A paragraph of instructions" },
+  heading: { label: "Subheading", icon: "heading", hint: "A small heading inside a step" },
+  image: { label: "Image", icon: "image", hint: "One photo with a caption" },
+  gallery: { label: "Gallery", icon: "images", hint: "Several photos, opened full-screen" },
+  video: { label: "Video", icon: "video", hint: "A short clip, e.g. how to find the driver" },
+  map: { label: "Location", icon: "pin", hint: "Opens in the customer's maps app" },
+  driver: { label: "Driver", icon: "car", hint: "Photo, vehicle, plate, call and WhatsApp" },
+  hotel: { label: "Hotel", icon: "hotel", hint: "Check-in, check-out, reference" },
+  flight: { label: "Flight", icon: "plane", hint: "Flight number and times" },
+  ticket: { label: "Ticket", icon: "ticket", hint: "Attraction ticket or voucher" },
+  document: { label: "Document", icon: "file", hint: "A PDF already uploaded to this trip" },
+  contact: { label: "Contact", icon: "phone", hint: "A name with call and WhatsApp buttons" },
+  notice: { label: "Notice", icon: "alert", hint: "Something they must not miss" },
+  emergency: { label: "Emergency", icon: "shield", hint: "Emergency contact panel" },
+  link: { label: "Link", icon: "link", hint: "An external link" },
+  checklist: { label: "Checklist", icon: "list", hint: "A list of things to bring or do" },
+  invoice: { label: "Invoice", icon: "receipt", hint: "A published invoice for this trip" },
 };
 
 /**

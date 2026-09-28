@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
+import { Icon } from "@/components/Icon";
+
 /**
  * The bare origin.
  *
@@ -7,7 +9,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
  * /admin. It exists so the root of the domain is not a 404, which looks broken
  * to anyone checking whether the link they were sent is legitimate — and that is
  * a question customers do ask before tapping a link that carries their
- * documents.
+ * documents. So it looks unmistakably like Nawi Saadi, and it tells them how to
+ * reach the office.
  *
  * It deliberately offers no way to look up a trip. A search box here would turn
  * the domain into an oracle for guessing trip codes.
@@ -19,38 +22,69 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   return (
-    <main className="grid min-h-screen place-items-center bg-navy px-6 text-white">
-      <div className="max-w-md text-center">
-        <p className="text-[10px] font-semibold tracking-[0.22em] text-gold uppercase">
-          Nawi Saadi Travel &amp; Tourism
+    <main className="min-h-screen bg-white">
+      <section className="relative isolate overflow-hidden text-white">
+        <img
+          src="/destinations/hero-dubai.webp"
+          alt=""
+          className="absolute inset-0 -z-20 size-full object-cover"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-gradient-to-b from-navy-deep/70 via-navy-deep/30 to-navy-deep/85"
+        />
+        <div className="mx-auto flex min-h-[26rem] max-w-3xl flex-col px-6 pt-8 pb-14">
+          <img
+            src="/brand/logo-white.webp"
+            alt="Nawi Saadi Travel & Tourism"
+            className="h-11 w-auto self-start"
+          />
+          <div className="mt-auto">
+            <p className="flex items-center gap-2.5 text-[11px] font-semibold tracking-[0.24em] text-gold-light uppercase">
+              <span className="h-px w-10 bg-gold-light" /> Trip portal
+            </p>
+            <h1 className="mt-3 font-display text-4xl leading-tight text-balance sm:text-5xl">
+              Your journey, <span className="text-gold-light italic">day by day.</span>
+            </h1>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-3xl px-6 py-12">
+        <p className="max-w-xl text-[15px] leading-relaxed text-ink">
+          This is where Nawi Saadi customers follow their itinerary, driver, documents and invoices.
+          Your consultant sends you a private link — open that link, or scan the QR code on your
+          welcome letter, to see your trip.
         </p>
-        <h1 className="mt-4 font-display text-3xl leading-tight">Trip portal</h1>
-        <p className="mt-4 text-sm leading-relaxed text-white/80">
-          This is where our customers follow their itinerary, driver and documents. Your consultant
-          sends you a private link — open that link, or the QR code on your welcome letter, to see
-          your trip.
-        </p>
-        <p className="mt-5 text-sm leading-relaxed text-white/80">
+        <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted">
           Lost your link? Message the office and we will resend it.
         </p>
-        <div className="mt-7 flex flex-col gap-2.5">
+
+        <div className="mt-8 grid max-w-md gap-2.5 sm:grid-cols-2">
           <a
             href="https://wa.me/971561228069"
-            className="rounded-xl bg-gold py-3 text-sm font-bold text-navy"
+            className="flex items-center justify-center gap-2 rounded-xl bg-gold py-3.5 text-sm font-semibold text-navy transition hover:bg-gold-light"
           >
-            WhatsApp the office
+            <Icon name="chat" className="size-4" /> WhatsApp the office
           </a>
           <a
             href="tel:+971561228069"
-            className="rounded-xl border border-white/25 py-3 text-sm font-semibold text-white"
+            className="flex items-center justify-center gap-2 rounded-xl bg-navy py-3.5 text-sm font-semibold text-white transition hover:bg-navy-deep"
           >
-            Call +971 56 122 8069
+            <Icon name="phone" className="size-4" /> +971 56 122 8069
           </a>
         </div>
-        <Link to="/admin" className="mt-8 inline-block text-xs text-white/45 underline">
-          Staff sign in
-        </Link>
-      </div>
+
+        <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-hair pt-6 text-xs text-muted">
+          <span>IATA accredited · DTCM approved · Since 2009 · Naif Road, Deira, Dubai</span>
+          <Link
+            to="/admin"
+            className="font-semibold text-navy underline decoration-gold/50 underline-offset-4"
+          >
+            Staff sign in
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }

@@ -290,3 +290,87 @@ export async function nextTripCode(startDate: string): Promise<string> {
   const n = last ? Number(last.slice(prefix.length)) + 1 : 1;
   return prefix + String(Number.isFinite(n) ? n : 1).padStart(3, "0");
 }
+
+/* -------------------------------------------------------------------------
+ * Invoice PDFs
+ *
+ * Small, targeted reads rather than tripByToken: a PDF needs one invoice and a
+ * few trip facts, not every day, block and signed photo URL of the trip.
+ * ---------------------------------------------------------------------- */
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+type InvoiceTripFacts = {
+  invoice: Invoice;
+  tripId: string;
+  tripCode: string;
+  destination: string;
+  startDate: string;
+  endDate: string;
+  customerName: string | null;
+  customerPhone: string | null;
+};
+
+const INVOICE_TRIP =
+  "id,trip_code,destination,start_date,end_date,published_at,status,customer:trip_customers(full_name,phone)";
+
+function toFacts(trip: Record<string, unknown>, invoice: Invoice): InvoiceTripFacts {
+  const customer = trip["customer"] as { full_name?: string; phone?: string | null } | null;
+  return {
+    invoice,
+    tripId: String(trip["id"]),
+    tripCode: String(trip["trip_code"]),
+    destination: String(trip["destination"]),
+    startDate: String(trip["start_date"]),
+    endDate: String(trip["end_date"]),
+    customerName: customer?.full_name ?? null,
+    customerPhone: customer?.phone ?? null,
+  };
+}
+
+/**
+ * The invoice a customer may download, or null.
+ *
+ * Every rule the portal page applies is applied again here, because this URL
+ * can be requested on its own: the token must match a published, live trip, and
+ * the invoice must belong to that trip, be published, and not be cancelled. An
+ * invoice id copied from one customer's link does nothing under another's token.
+ */
+export async function invoiceForToken(
+  token: string,
+  invoiceId: string,
+): Promise<InvoiceTripFacts | null> {
+  if (!token || token.length < 32 || !UUID_RE.test(invoiceId)) return null;
+
+  const trips = await select<Record<string, unknown>[]>(
+    `trips?tracking_token=eq.${encodeURIComponent(token)}&select=${encodeURIComponent(INVOICE_TRIP)}&limit=1`,
+  );
+  const trip = trips?.[0];
+  if (!trip || !trip["published_at"] || trip["status"] === "cancelled") return null;
+
+  const invoices = await select<Invoice[]>(
+    `trip_invoices?id=eq.${invoiceId}&trip_id=eq.${String(trip["id"])}&published=is.true&status=neq.void` +
+      `&select=*,items:trip_invoice_items(*)&limit=1`,
+  );
+  const invoice = invoices?.[0];
+  if (!invoice) return null;
+  sortInvoiceItems([invoice]);
+  return toFacts(trip, invoice);
+}
+
+/** Any invoice, for the office — drafts and cancelled ones included. */
+export async function invoiceForAdmin(invoiceId: string): Promise<InvoiceTripFacts | null> {
+  if (!UUID_RE.test(invoiceId)) return null;
+  const invoices = await select<(Invoice & { trip_id: string })[]>(
+    `trip_invoices?id=eq.${invoiceId}&select=*,items:trip_invoice_items(*)&limit=1`,
+  );
+  const invoice = invoices?.[0];
+  if (!invoice) return null;
+  const trips = await select<Record<string, unknown>[]>(
+    `trips?id=eq.${invoice.trip_id}&select=${encodeURIComponent(INVOICE_TRIP)}&limit=1`,
+  );
+  const trip = trips?.[0];
+  if (!trip) return null;
+  sortInvoiceItems([invoice]);
+  return toFacts(trip, invoice);
+}

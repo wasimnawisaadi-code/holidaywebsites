@@ -1,7 +1,17 @@
-import { createFileRoute, Link, useRouter, notFound, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useRouter,
+  notFound,
+  redirect,
+} from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useId, useState } from "react";
 
+import { Icon, type IconName } from "@/components/Icon";
+import { destinationPhoto } from "@/lib/destinations";
+import { UUID, uploadDirect } from "@/lib/uploads";
 import type { Json } from "@/lib/views";
 import {
   balanceOf,
@@ -73,7 +83,21 @@ const loadTrip = createServerFn({ method: "GET" })
       auditForTrip(id, 40),
     ]);
     if (!trip) return null;
-    return { ...trip, views, audit, base: portalBaseUrl() };
+
+    // Covers are signed so the office sees the actual photo it chose, not a
+    // storage path. Block photos stay as paths here; the customer preview shows
+    // those rendered.
+    const { signedUrl } = await import("@/lib/db");
+    const [heroUrl, days] = await Promise.all([
+      signedUrl("trip-media", trip.trip.hero_image ?? ""),
+      Promise.all(
+        trip.days.map(async (d) => ({
+          ...d,
+          coverUrl: await signedUrl("trip-media", d.cover_image ?? ""),
+        })),
+      ),
+    ]);
+    return { ...trip, trip: { ...trip.trip, heroUrl }, days, views, audit, base: portalBaseUrl() };
   });
 
 const saveDay = createServerFn({ method: "POST" })
@@ -232,6 +256,204 @@ const deleteRow = createServerFn({ method: "POST" })
     // After the row, not before: if the delete fails the file must still exist
     // for the row that still points at it.
     await Promise.all(files.map((f) => deleteObject(f.bucket, f.path)));
+    return { ok: true as const };
+  });
+
+/* -------------------------------------------------------------------------
+ * Trip details, covers, and deleting a trip
+ * ---------------------------------------------------------------------- */
+
+/** The trip's status from its latest progress stage — the same rule as the dashboard. */
+function statusForStage(
+  stage: string | null | undefined,
+): "confirmed" | "in_progress" | "completed" {
+  if (stage === "trip_complete") return "completed";
+  if (!stage || stage === "booked" || stage === "documents_ready") return "confirmed";
+  return "in_progress";
+}
+
+const updateTrip = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      id: string;
+      title: string;
+      destination: string;
+      startDate: string;
+      endDate: string;
+      adults: number;
+      children: number;
+      emergencyName: string;
+      emergencyPhone: string;
+      customerName: string;
+      customerPhone: string;
+      customerWhatsapp: string;
+      cancelled: boolean;
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    await requireSession();
+    if (!UUID.test(data.id)) return { ok: false as const, reason: "Unknown trip." };
+    const destination = data.destination.trim();
+    const name = data.customerName.trim();
+    if (!destination) return { ok: false as const, reason: "Destination is required." };
+    if (!name) return { ok: false as const, reason: "Customer name is required." };
+    if (!data.startDate || !data.endDate || data.endDate < data.startDate) {
+      return {
+        ok: false as const,
+        reason: "Check the dates — the trip cannot end before it starts.",
+      };
+    }
+
+    const { select, update, insert } = await import("@/lib/db");
+    const rows = await select<{ customer_id: string | null }[]>(
+      `trips?id=eq.${data.id}&select=customer_id&limit=1`,
+    );
+    if (!rows[0]) return { ok: false as const, reason: "Unknown trip." };
+
+    const customer = {
+      full_name: name,
+      phone: data.customerPhone.trim() || null,
+      whatsapp: data.customerWhatsapp.trim() || data.customerPhone.trim() || null,
+    };
+    let customerId = rows[0].customer_id;
+    if (customerId) {
+      await update("trip_customers", `id=eq.${customerId}`, customer);
+    } else {
+      const made = await insert<{ id: string }[]>("trip_customers", customer);
+      customerId = made[0]?.id ?? null;
+    }
+
+    // Cancelling is a status, not a delete: the trip, its history and its
+    // invoices stay on file, and the customer's link stops working at once
+    // (the portal refuses a cancelled trip). Un-cancelling restores the status
+    // the progress timeline implies rather than guessing.
+    let status: string | undefined;
+    if (data.cancelled) {
+      status = "cancelled";
+    } else {
+      const latest = await select<{ stage: string }[]>(
+        `trip_progress?trip_id=eq.${data.id}&select=stage&order=created_at.desc&limit=1`,
+      );
+      status = statusForStage(latest[0]?.stage);
+    }
+
+    await update("trips", `id=eq.${data.id}`, {
+      customer_id: customerId,
+      title: data.title.trim() || null,
+      destination,
+      start_date: data.startDate,
+      end_date: data.endDate,
+      pax_adults: Math.max(1, Math.min(40, Math.trunc(data.adults) || 1)),
+      pax_children: Math.max(0, Math.min(40, Math.trunc(data.children) || 0)),
+      emergency_name: data.emergencyName.trim() || null,
+      emergency_phone: data.emergencyPhone.trim() || null,
+      status,
+    });
+    return { ok: true as const };
+  });
+
+/**
+ * Sets or clears the cover photo of the trip or of one day.
+ *
+ * The path must sit inside this trip's own storage folder — the upload ticket
+ * only ever issues such paths, and this refuses anything else, so a cover can
+ * never be pointed at another customer's photo. A replaced photo is deleted, so
+ * swapping covers five times does not leave four orphans in the bucket.
+ */
+const setCover = createServerFn({ method: "POST" })
+  .validator(
+    (input: { target: "trip" | "day"; tripId: string; dayId?: string; path: string | null }) =>
+      input,
+  )
+  .handler(async ({ data }) => {
+    await requireSession();
+    if (!UUID.test(data.tripId)) return { ok: false as const };
+    if (data.path && !data.path.startsWith(`${data.tripId}/`)) return { ok: false as const };
+    const { select, update, deleteObject } = await import("@/lib/db");
+
+    if (data.target === "trip") {
+      const rows = await select<{ hero_image: string | null }[]>(
+        `trips?id=eq.${data.tripId}&select=hero_image&limit=1`,
+      );
+      await update("trips", `id=eq.${data.tripId}`, { hero_image: data.path });
+      const old = rows[0]?.hero_image;
+      if (old && old !== data.path) await deleteObject("trip-media", old);
+      return { ok: true as const };
+    }
+
+    if (!data.dayId || !UUID.test(data.dayId)) return { ok: false as const };
+    const rows = await select<{ cover_image: string | null }[]>(
+      `trip_days?id=eq.${data.dayId}&trip_id=eq.${data.tripId}&select=cover_image&limit=1`,
+    );
+    if (!rows[0]) return { ok: false as const };
+    await update("trip_days", `id=eq.${data.dayId}`, { cover_image: data.path });
+    const old = rows[0].cover_image;
+    if (old && old !== data.path) await deleteObject("trip-media", old);
+    return { ok: true as const };
+  });
+
+/**
+ * Deletes a trip for good: every day, step, block, progress entry, document,
+ * invoice and page view, and every file in storage.
+ *
+ * Files first, then rows. The other order leaves photos and vouchers in the
+ * bucket with no row pointing at them — unreachable, but not gone, and "deleted"
+ * should mean deleted when it is a customer's passport-adjacent paperwork. The
+ * audit trail is deliberately kept: it has no foreign key to the trip, so the
+ * record of who deleted it, and when, survives the deletion.
+ */
+const deleteTrip = createServerFn({ method: "POST" })
+  .validator((tripId: string) => tripId)
+  .handler(async ({ data: tripId }) => {
+    const { email } = await requireSession();
+    if (!UUID.test(tripId)) return { ok: false as const };
+    const { select, remove, listObjects, deleteObjects } = await import("@/lib/db");
+
+    const rows = await select<{ customer_id: string | null; trip_code: string }[]>(
+      `trips?id=eq.${tripId}&select=customer_id,trip_code&limit=1`,
+    );
+    const trip = rows[0];
+    if (!trip) return { ok: false as const };
+
+    for (const bucket of ["trip-media", "trip-docs"] as const) {
+      const paths = await listObjects(bucket, `${tripId}/`);
+      await deleteObjects(bucket, paths);
+    }
+    await remove("trips", `id=eq.${tripId}`);
+
+    // The customer row goes too, unless another trip still belongs to them.
+    if (trip.customer_id) {
+      const others = await select<{ id: string }[]>(
+        `trips?customer_id=eq.${trip.customer_id}&select=id&limit=1`,
+      );
+      if (!others.length) await remove("trip_customers", `id=eq.${trip.customer_id}`);
+    }
+    console.info(`trip ${trip.trip_code} deleted by ${email}`);
+    return { ok: true as const };
+  });
+
+/**
+ * Removes one progress update — the correction for "posted Driver arrived on the
+ * wrong trip". The trip's status is then re-derived from whatever is now the
+ * latest update, so the dashboard and the customer's page agree again.
+ */
+const deleteProgress = createServerFn({ method: "POST" })
+  .validator((input: { tripId: string; id: number }) => input)
+  .handler(async ({ data }) => {
+    await requireSession();
+    if (!UUID.test(data.tripId) || !Number.isInteger(data.id)) return { ok: false as const };
+    const { select, update, remove } = await import("@/lib/db");
+    await remove("trip_progress", `id=eq.${data.id}&trip_id=eq.${data.tripId}`);
+
+    const trips = await select<{ status: string }[]>(
+      `trips?id=eq.${data.tripId}&select=status&limit=1`,
+    );
+    if (trips[0]?.status !== "cancelled") {
+      const latest = await select<{ stage: string }[]>(
+        `trip_progress?trip_id=eq.${data.tripId}&select=stage&order=created_at.desc&limit=1`,
+      );
+      await update("trips", `id=eq.${data.tripId}`, { status: statusForStage(latest[0]?.stage) });
+    }
     return { ok: true as const };
   });
 
@@ -401,104 +623,10 @@ const saveInvoiceItem = createServerFn({ method: "POST" })
 /* -------------------------------------------------------------------------
  * Uploads
  *
- * The file goes from the browser straight to Supabase Storage; see
- * signedUploadUrl in lib/db.ts for why it cannot pass through this function.
- * These two server functions never touch the bytes. One decides where a file
- * may go and signs a ticket for exactly that place; the other records a
- * document once it has landed.
+ * The file goes from the browser straight to Supabase Storage; the ticket and
+ * the transfer live in lib/uploads.ts, shared with the drivers page. What stays
+ * here is trip-specific: recording a document once its file has landed.
  * ---------------------------------------------------------------------- */
-
-/** Mirrors the bucket configuration in 0002, so a refusal is explained up front. */
-const BUCKETS = {
-  "trip-media": {
-    maxBytes: 200 * 1024 * 1024,
-    types: [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/avif",
-      "image/heic",
-      "video/mp4",
-      "video/quicktime",
-      "video/webm",
-    ],
-  },
-  "trip-docs": {
-    maxBytes: 25 * 1024 * 1024,
-    types: ["application/pdf", "image/jpeg", "image/png", "image/webp"],
-  },
-} as const;
-
-type Bucket = keyof typeof BUCKETS;
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-const createUploadTicket = createServerFn({ method: "POST" })
-  .validator(
-    (input: {
-      tripId: string;
-      bucket: string;
-      fileName: string;
-      contentType: string;
-      size: number;
-    }) => input,
-  )
-  .handler(async ({ data }) => {
-    await requireSession();
-
-    // The trip id becomes the first segment of the storage path, so it is held
-    // to the exact shape of a UUID. Anything else — "../", a slash, an empty
-    // string — could otherwise steer the upload outside the trip's own folder.
-    if (!UUID.test(data.tripId)) return { ok: false as const, reason: "Unknown trip." };
-
-    const bucket = data.bucket as Bucket;
-    const rules = BUCKETS[bucket];
-    if (!rules) return { ok: false as const, reason: "Unknown upload type." };
-
-    // Checked here as well as by storage, because storage's refusal arrives as
-    // an opaque error after the whole file has been sent. A 180 MB video that
-    // is rejected after two minutes of uploading is a wasted two minutes; this
-    // says no before a byte moves, and says why.
-    const type = data.contentType.toLowerCase();
-    if (!(rules.types as readonly string[]).includes(type)) {
-      return {
-        ok: false as const,
-        reason:
-          bucket === "trip-docs"
-            ? "Documents must be a PDF or an image (JPEG, PNG, WebP)."
-            : "Use a photo (JPEG, PNG, WebP, HEIC) or a video (MP4, MOV, WebM).",
-      };
-    }
-    if (!Number.isFinite(data.size) || data.size <= 0) {
-      return { ok: false as const, reason: "That file is empty." };
-    }
-    if (data.size > rules.maxBytes) {
-      return {
-        ok: false as const,
-        reason: `That file is ${Math.ceil(data.size / 1048576)} MB. The limit is ${
-          rules.maxBytes / 1048576
-        } MB — try trimming the clip or exporting at a lower resolution.`,
-      };
-    }
-
-    // The server chooses the name; the browser only suggests one. A filename
-    // carrying a slash would write outside the trip's prefix, and one carrying
-    // spaces or Arabic script breaks the signed-URL path.
-    const safe =
-      data.fileName
-        .toLowerCase()
-        .replace(/[^a-z0-9.\-_]+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^[-.]+/, "")
-        .slice(-80) || "file";
-    const path = `${data.tripId}/${Date.now()}-${safe}`;
-
-    const { signedUploadUrl } = await import("@/lib/db");
-    const uploadUrl = await signedUploadUrl(bucket, path);
-    if (!uploadUrl)
-      return { ok: false as const, reason: "Storage did not issue an upload ticket." };
-    return { ok: true as const, uploadUrl, path };
-  });
 
 /** Records a document once its file is in storage. */
 const registerDocument = createServerFn({ method: "POST" })
@@ -525,63 +653,6 @@ const registerDocument = createServerFn({ method: "POST" })
     });
     return { ok: true as const };
   });
-
-/**
- * Sends a file straight to storage, reporting progress.
- *
- * XMLHttpRequest rather than fetch, deliberately: fetch has no upload-progress
- * event, and a 40 MB video on office wifi is a minute of a frozen-looking
- * screen without one. People close the tab during that minute.
- */
-async function uploadDirect(
-  file: File,
-  opts: { tripId: string; bucket: Bucket; onProgress?: (pct: number) => void },
-): Promise<{ ok: true; path: string } | { ok: false; reason: string }> {
-  const ticket = await createUploadTicket({
-    data: {
-      tripId: opts.tripId,
-      bucket: opts.bucket,
-      fileName: file.name,
-      // Some phones hand over HEIC or MOV with an empty type; infer it from the
-      // extension rather than refusing a perfectly good file.
-      contentType: file.type || guessType(file.name),
-      size: file.size,
-    },
-  });
-  if (!ticket.ok) return { ok: false, reason: ticket.reason };
-
-  return new Promise((resolve) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("PUT", ticket.uploadUrl);
-    xhr.setRequestHeader("Content-Type", file.type || guessType(file.name));
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) opts.onProgress?.(Math.round((e.loaded / e.total) * 100));
-    };
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) resolve({ ok: true, path: ticket.path });
-      else resolve({ ok: false, reason: `Upload refused by storage (${xhr.status}).` });
-    };
-    xhr.onerror = () => resolve({ ok: false, reason: "The connection dropped during upload." });
-    xhr.send(file);
-  });
-}
-
-function guessType(name: string): string {
-  const ext = name.toLowerCase().split(".").pop() ?? "";
-  const map: Record<string, string> = {
-    jpg: "image/jpeg",
-    jpeg: "image/jpeg",
-    png: "image/png",
-    webp: "image/webp",
-    avif: "image/avif",
-    heic: "image/heic",
-    mp4: "video/mp4",
-    mov: "video/quicktime",
-    webm: "video/webm",
-    pdf: "application/pdf",
-  };
-  return map[ext] ?? "application/octet-stream";
-}
 
 /* -------------------------------------------------------------------------
  * Route
@@ -664,32 +735,88 @@ function Editor() {
     }
   };
 
-  const [tab, setTab] = useState<"itinerary" | "documents" | "invoices" | "activity">("itinerary");
+  const [tab, setTab] = useState<"itinerary" | "details" | "documents" | "invoices" | "activity">(
+    "itinerary",
+  );
   const url = `${base}/t/${trip.tracking_token}`;
+  const cover = trip.heroUrl ?? destinationPhoto(trip.destination);
+
+  const tabs: [typeof tab, string, IconName][] = [
+    ["itinerary", `Itinerary · ${days.length} ${days.length === 1 ? "day" : "days"}`, "calendar"],
+    ["details", "Trip details", "globe"],
+    ["documents", `Documents · ${documents.length}`, "file"],
+    ["invoices", `Invoices · ${invoices.length}`, "receipt"],
+    ["activity", "Activity & history", "clock"],
+  ];
 
   return (
     <div className="min-h-screen bg-paper">
-      <header className="bg-navy px-5 py-4 text-white">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-4">
-          <div className="min-w-0">
-            <Link to="/admin" className="text-[11px] text-gold">
-              ← All trips
+      {/* The trip's own photograph, so every screen of the editor shows which
+          customer and which place is being worked on. */}
+      <header className="relative isolate overflow-hidden text-white">
+        <img src={cover} alt="" className="absolute inset-0 -z-20 size-full object-cover" />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-navy-deep/90 via-navy-deep/65 to-navy-deep/20"
+        />
+        <div className="mx-auto max-w-5xl px-5 pt-5 pb-7">
+          <div className="flex items-center justify-between gap-3">
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold backdrop-blur hover:bg-white/25"
+            >
+              <Icon name="chevronLeft" className="size-3.5" /> All trips
             </Link>
-            <h1 className="mt-1 truncate font-display text-xl leading-tight">
-              {trip.customer?.full_name ?? trip.destination}
-            </h1>
-            <p className="font-mono text-[11px] text-white/65">
-              {trip.trip_code} · {trip.start_date} → {trip.end_date}
-            </p>
+            <img src="/brand/logo-white.webp" alt="Nawi Saadi" className="h-8 w-auto" />
           </div>
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-auto rounded-lg bg-gold px-4 py-2 text-xs font-bold text-navy"
-          >
-            Preview as customer
-          </a>
+
+          <div className="mt-8 flex flex-wrap items-end gap-5">
+            <div className="min-w-0 flex-1">
+              <p className="font-mono text-xs text-gold-light">{trip.trip_code}</p>
+              <h1 className="mt-1 truncate font-display text-3xl leading-tight sm:text-4xl">
+                {trip.customer?.full_name ?? trip.destination}
+              </h1>
+              <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/85">
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon name="globe" className="size-4 text-gold-light" /> {trip.destination}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon name="calendar" className="size-4 text-gold-light" /> {trip.start_date} →{" "}
+                  {trip.end_date}
+                </span>
+                {trip.status === "cancelled" ? (
+                  <span className="rounded-full bg-alert px-2.5 py-0.5 text-[11px] font-bold uppercase">
+                    Cancelled
+                  </span>
+                ) : !trip.published_at ? (
+                  <span className="rounded-full bg-gold px-2.5 py-0.5 text-[11px] font-bold text-navy uppercase">
+                    Draft — not visible yet
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-live px-2.5 py-0.5 text-[11px] font-bold uppercase">
+                    Live for customer
+                  </span>
+                )}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void navigator.clipboard?.writeText(url)}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-white/15 px-4 py-2.5 text-xs font-semibold backdrop-blur hover:bg-white/25"
+              >
+                <Icon name="link" className="size-4" /> Copy link
+              </button>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gold px-4 py-2.5 text-xs font-bold text-navy hover:bg-gold-light"
+              >
+                <Icon name="arrowRight" className="size-4" /> Preview as customer
+              </a>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -708,23 +835,17 @@ function Editor() {
           refreshing ? "pointer-events-none opacity-60" : ""
         }`}
       >
-        <nav className="flex gap-1 rounded-xl border border-hair bg-white p-1">
-          {(
-            [
-              ["itinerary", `Itinerary (${days.length} days)`],
-              ["documents", `Documents (${documents.length})`],
-              ["invoices", `Invoices (${invoices.length})`],
-              ["activity", "Activity & history"],
-            ] as const
-          ).map(([id, label]) => (
+        <nav className="no-scrollbar flex gap-1 overflow-x-auto rounded-2xl border border-hair bg-white p-1.5 shadow-sm">
+          {tabs.map(([id, label, icon]) => (
             <button
               key={id}
               type="button"
               onClick={() => setTab(id)}
-              className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold ${
-                tab === id ? "bg-navy text-white" : "text-navy"
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition ${
+                tab === id ? "bg-navy text-white shadow" : "text-navy hover:bg-sand"
               }`}
             >
+              <Icon name={icon} className="size-3.5" />
               {label}
             </button>
           ))}
@@ -741,6 +862,8 @@ function Editor() {
           />
         ) : null}
 
+        {tab === "details" ? <TripDetailsTab trip={trip} onChange={refresh} /> : null}
+
         {tab === "documents" ? (
           <DocumentsTab trip={trip} documents={documents} onChange={refresh} />
         ) : null}
@@ -750,9 +873,292 @@ function Editor() {
         ) : null}
 
         {tab === "activity" ? (
-          <ActivityTab views={views} audit={audit} progress={progress} />
+          <ActivityTab
+            tripId={trip.id}
+            views={views}
+            audit={audit}
+            progress={progress}
+            onChange={refresh}
+          />
         ) : null}
       </main>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------
+ * Trip details — edit everything set at creation, the cover, and delete
+ * ---------------------------------------------------------------------- */
+
+function TripDetailsTab({ trip, onChange }: { trip: Trip; onChange: () => void | Promise<void> }) {
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [progress, setProgress] = useState<number | null>(null);
+  const [uploadError, setUploadError] = useState("");
+
+  const uploadCover = async (file: File) => {
+    setProgress(0);
+    setUploadError("");
+    const result = await uploadDirect(file, {
+      folder: trip.id,
+      bucket: "trip-media",
+      onProgress: setProgress,
+    });
+    if (!result.ok) {
+      setProgress(null);
+      setUploadError(result.reason);
+      return;
+    }
+    await setCover({ data: { target: "trip", tripId: trip.id, path: result.path } });
+    setProgress(null);
+    await onChange();
+  };
+
+  return (
+    <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_320px]">
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.currentTarget);
+          setBusy(true);
+          setError("");
+          setSaved(false);
+          const result = await updateTrip({
+            data: {
+              id: trip.id,
+              title: String(f.get("title") ?? ""),
+              destination: String(f.get("destination") ?? ""),
+              startDate: String(f.get("startDate") ?? ""),
+              endDate: String(f.get("endDate") ?? ""),
+              adults: Number(f.get("adults") ?? 1),
+              children: Number(f.get("children") ?? 0),
+              emergencyName: String(f.get("emergencyName") ?? ""),
+              emergencyPhone: String(f.get("emergencyPhone") ?? ""),
+              customerName: String(f.get("customerName") ?? ""),
+              customerPhone: String(f.get("customerPhone") ?? ""),
+              customerWhatsapp: String(f.get("customerWhatsapp") ?? ""),
+              cancelled: f.get("cancelled") === "on",
+            },
+          });
+          setBusy(false);
+          if (!result.ok) {
+            setError(result.reason);
+            return;
+          }
+          setSaved(true);
+          await onChange();
+        }}
+        className="rounded-3xl border border-hair bg-white p-6 shadow-sm"
+      >
+        <h2 className="font-display text-2xl text-navy">Trip details</h2>
+        <p className="mt-1 text-sm text-muted">
+          Everything set when the trip was created. Changes show on the customer&apos;s link as soon
+          as you save.
+        </p>
+
+        <fieldset className="mt-6">
+          <legend className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+            Customer
+          </legend>
+          <div className="mt-3 grid gap-4 sm:grid-cols-3">
+            <SmallField
+              label="Full name"
+              name="customerName"
+              defaultValue={trip.customer?.full_name ?? ""}
+              required
+            />
+            <SmallField
+              label="Phone"
+              name="customerPhone"
+              defaultValue={trip.customer?.phone ?? ""}
+            />
+            <SmallField
+              label="WhatsApp"
+              name="customerWhatsapp"
+              defaultValue={trip.customer?.whatsapp ?? ""}
+            />
+          </div>
+        </fieldset>
+
+        <fieldset className="mt-6">
+          <legend className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+            Trip
+          </legend>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            <SmallField
+              label="Title shown to the customer"
+              name="title"
+              defaultValue={trip.title ?? ""}
+              placeholder="Five nights in the UAE"
+            />
+            <SmallField
+              label="Destination"
+              name="destination"
+              defaultValue={trip.destination}
+              required
+            />
+            <SmallField
+              label="Start date"
+              name="startDate"
+              type="date"
+              defaultValue={trip.start_date}
+              required
+            />
+            <SmallField
+              label="End date"
+              name="endDate"
+              type="date"
+              defaultValue={trip.end_date}
+              required
+            />
+            <SmallField
+              label="Adults"
+              name="adults"
+              type="number"
+              defaultValue={String(trip.pax_adults)}
+              min="1"
+            />
+            <SmallField
+              label="Children"
+              name="children"
+              type="number"
+              defaultValue={String(trip.pax_children)}
+              min="0"
+            />
+          </div>
+        </fieldset>
+
+        <fieldset className="mt-6">
+          <legend className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+            Emergency line shown to the customer
+          </legend>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            <SmallField
+              label="Name"
+              name="emergencyName"
+              defaultValue={trip.emergency_name ?? ""}
+              placeholder="Nawi Saadi 24/7 desk"
+            />
+            <SmallField
+              label="Phone"
+              name="emergencyPhone"
+              defaultValue={trip.emergency_phone ?? ""}
+              placeholder="+971 56 122 8069"
+            />
+          </div>
+        </fieldset>
+
+        <label className="mt-6 flex items-start gap-2.5 rounded-2xl border border-alert/25 bg-alert/5 p-4 text-sm">
+          <input
+            type="checkbox"
+            name="cancelled"
+            defaultChecked={trip.status === "cancelled"}
+            className="mt-0.5 size-4 accent-[#a3381f]"
+          />
+          <span>
+            <span className="font-semibold text-alert">Trip cancelled</span>
+            <span className="mt-0.5 block text-xs text-muted">
+              The customer&apos;s link stops working. Everything is kept on file and you can undo
+              this at any time.
+            </span>
+          </span>
+        </label>
+
+        {error ? (
+          <p role="alert" className="mt-4 rounded-xl bg-alert/8 p-3 text-sm text-alert">
+            {error}
+          </p>
+        ) : null}
+        {saved ? (
+          <p role="status" className="mt-4 rounded-xl bg-live/10 p-3 text-sm text-live">
+            Saved.
+          </p>
+        ) : null}
+
+        <button
+          type="submit"
+          disabled={busy}
+          className="mt-5 rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white hover:bg-navy-deep disabled:opacity-60"
+        >
+          {busy ? "Saving…" : "Save trip details"}
+        </button>
+      </form>
+
+      <div className="flex flex-col gap-5">
+        <section className="overflow-hidden rounded-3xl border border-hair bg-white shadow-sm">
+          <img
+            src={trip.heroUrl ?? destinationPhoto(trip.destination)}
+            alt=""
+            className="aspect-[4/3] w-full object-cover"
+          />
+          <div className="p-5">
+            <h3 className="font-semibold text-navy">Cover photo</h3>
+            <p className="mt-1 text-xs leading-relaxed text-muted">
+              {trip.heroUrl
+                ? "The first thing your customer sees when they open their link."
+                : `Showing the standard photo for "${trip.destination}". Upload your own — the hotel, the view, the family's first stop.`}
+            </p>
+            <label className="mt-4 flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-gold py-2.5 text-sm font-semibold text-navy hover:bg-gold-light">
+              <Icon name="camera" className="size-4" />
+              {trip.heroUrl ? "Change cover photo" : "Upload cover photo"}
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                disabled={progress !== null}
+                onChange={(e) => {
+                  const file = e.currentTarget.files?.[0];
+                  e.currentTarget.value = "";
+                  if (file) void uploadCover(file);
+                }}
+              />
+            </label>
+            {trip.heroUrl ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  await setCover({ data: { target: "trip", tripId: trip.id, path: null } });
+                  await onChange();
+                }}
+                className="mt-2 w-full rounded-xl border border-hair py-2 text-xs font-semibold text-muted hover:text-alert"
+              >
+                Remove and use the standard photo
+              </button>
+            ) : null}
+            {progress !== null ? <UploadBar pct={progress} /> : null}
+            {uploadError ? (
+              <p role="alert" className="mt-2 rounded-lg bg-alert/8 p-2 text-xs text-alert">
+                {uploadError}
+              </p>
+            ) : null}
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-alert/30 bg-white p-5">
+          <h3 className="font-semibold text-alert">Delete this trip</h3>
+          <p className="mt-1 text-xs leading-relaxed text-muted">
+            Removes the itinerary, updates, documents, invoices and every uploaded photo and video,
+            permanently. The customer&apos;s link stops working. To keep a record instead, tick
+            &ldquo;Trip cancelled&rdquo;.
+          </p>
+          <button
+            type="button"
+            onClick={async () => {
+              const typed = window.prompt(
+                `This cannot be undone. Type the trip reference ${trip.trip_code} to delete it.`,
+              );
+              if (typed?.trim().toUpperCase() !== trip.trip_code.toUpperCase()) return;
+              const result = await deleteTrip({ data: trip.id });
+              if (result.ok) await navigate({ to: "/admin" });
+            }}
+            className="mt-4 w-full rounded-xl border border-alert/50 py-2.5 text-sm font-semibold text-alert hover:bg-alert hover:text-white"
+          >
+            Delete trip permanently
+          </button>
+        </section>
+      </div>
     </div>
   );
 }
@@ -889,6 +1295,8 @@ function DayCard({
 
       {open ? (
         <div className="p-4">
+          <DayCover tripId={trip.id} day={day} onChange={onChange} />
+
           {day.summary ? (
             <p className="mb-4 text-sm leading-relaxed text-muted">{day.summary}</p>
           ) : null}
@@ -932,6 +1340,100 @@ function DayCard({
         </div>
       ) : null}
     </section>
+  );
+}
+
+/**
+ * The photo for one day — shown on the customer's day selector and above that
+ * day's plan. Optional; a day without one falls back to the trip's destination
+ * photo on the selector and simply has no banner.
+ */
+function DayCover({
+  tripId,
+  day,
+  onChange,
+}: {
+  tripId: string;
+  day: Day;
+  onChange: () => void | Promise<void>;
+}) {
+  const [progress, setProgress] = useState<number | null>(null);
+  const [error, setError] = useState("");
+
+  const upload = async (file: File) => {
+    setProgress(0);
+    setError("");
+    const result = await uploadDirect(file, {
+      folder: tripId,
+      bucket: "trip-media",
+      onProgress: setProgress,
+    });
+    if (!result.ok) {
+      setProgress(null);
+      setError(result.reason);
+      return;
+    }
+    await setCover({ data: { target: "day", tripId, dayId: day.id, path: result.path } });
+    setProgress(null);
+    await onChange();
+  };
+
+  return (
+    <div className="mb-4">
+      {day.coverUrl ? (
+        <div className="relative overflow-hidden rounded-2xl">
+          <img src={day.coverUrl} alt="" className="aspect-[16/6] w-full object-cover" />
+          <div className="absolute right-2 bottom-2 flex gap-1.5">
+            <label className="cursor-pointer rounded-lg bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-navy shadow hover:bg-white">
+              Change photo
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                disabled={progress !== null}
+                onChange={(e) => {
+                  const file = e.currentTarget.files?.[0];
+                  e.currentTarget.value = "";
+                  if (file) void upload(file);
+                }}
+              />
+            </label>
+            <button
+              type="button"
+              onClick={async () => {
+                await setCover({ data: { target: "day", tripId, dayId: day.id, path: null } });
+                await onChange();
+              }}
+              className="rounded-lg bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-alert shadow hover:bg-white"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      ) : (
+        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-hair bg-sand py-4 text-xs font-semibold text-gold-deep hover:border-gold">
+          <Icon name="camera" className="size-4" />
+          Add a photo for day {day.day_number}
+          <input
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            disabled={progress !== null}
+            onChange={(e) => {
+              const file = e.currentTarget.files?.[0];
+              e.currentTarget.value = "";
+              if (file) void upload(file);
+            }}
+          />
+        </label>
+      )}
+      {progress !== null ? <UploadBar pct={progress} /> : null}
+      {error ? (
+        <p role="alert" className="mt-2 rounded-lg bg-alert/8 p-2 text-xs text-alert">
+          {error}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -1163,9 +1665,9 @@ function StepCard({
                   type="button"
                   onClick={() => setAdding(kind)}
                   title={BLOCK_LABELS[kind].hint}
-                  className="rounded-lg border border-hair bg-white px-2.5 py-1.5 text-[11px] font-semibold text-navy hover:border-gold"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-hair bg-white px-2.5 py-1.5 text-[11px] font-semibold text-navy hover:border-gold"
                 >
-                  <span aria-hidden="true">{BLOCK_LABELS[kind].icon}</span>{" "}
+                  <Icon name={BLOCK_LABELS[kind].icon} className="size-3.5 text-gold-deep" />
                   {BLOCK_LABELS[kind].label}
                 </button>
               ))}
@@ -1340,7 +1842,7 @@ function BlockRow({
     <div className="rounded-lg border border-hair bg-white">
       <div className="flex items-center gap-2.5 p-2.5">
         <span aria-hidden="true" className="shrink-0 text-sm">
-          {meta?.icon ?? "▫"}
+          {meta ? <Icon name={meta.icon} className="size-4 text-gold-deep" /> : null}
         </span>
         <span className="shrink-0 text-[11px] font-bold text-navy">
           {meta?.label ?? block.kind}
@@ -1476,7 +1978,7 @@ function BlockForm({
     setProgress(0);
     setUploadError("");
     const result = await uploadDirect(file, {
-      tripId,
+      folder: tripId,
       bucket: "trip-media",
       onProgress: setProgress,
     });
@@ -1497,8 +1999,8 @@ function BlockForm({
 
   return (
     <div>
-      <p className="text-[10px] font-semibold tracking-[0.12em] text-gold-deep uppercase">
-        {BLOCK_LABELS[kind].icon} {BLOCK_LABELS[kind].label}
+      <p className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.12em] text-gold-deep uppercase">
+        <Icon name={BLOCK_LABELS[kind].icon} className="size-3.5" /> {BLOCK_LABELS[kind].label}
       </p>
       <p className="mt-0.5 text-[11px] text-muted">{BLOCK_LABELS[kind].hint}</p>
 
@@ -2045,7 +2547,7 @@ function DocumentsTab({
           setProgress(0);
           setError("");
           const result = await uploadDirect(file, {
-            tripId: trip.id,
+            folder: trip.id,
             bucket: "trip-docs",
             onProgress: setProgress,
           });
@@ -2082,7 +2584,7 @@ function DocumentsTab({
             key={doc.id}
             className="flex flex-wrap items-center gap-3 rounded-lg border border-hair bg-paper p-3"
           >
-            <span aria-hidden="true">📄</span>
+            <Icon name="file" className="size-4 shrink-0 text-gold-deep" />
             <span className="min-w-0 flex-1 truncate text-sm font-semibold text-navy">
               {doc.name}
             </span>
@@ -2335,6 +2837,15 @@ function InvoiceEditor({ invoice, onChange }: { invoice: Invoice; onChange: () =
           >
             {busy ? "Saving…" : "Save invoice"}
           </button>
+          <a
+            href={`/admin/invoices/${invoice.id}.pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-hair bg-white px-4 py-2 text-xs font-semibold text-navy hover:border-navy"
+          >
+            <Icon name="download" className="size-3.5" /> PDF
+            {invoice.published ? "" : " (draft)"}
+          </a>
           <button
             type="button"
             onClick={async () => {
@@ -2494,13 +3005,17 @@ function InvoiceItemForm({
  * ---------------------------------------------------------------------- */
 
 function ActivityTab({
+  tripId,
   views,
   audit,
   progress,
+  onChange,
 }: {
+  tripId: string;
   views: LoaderData["views"];
   audit: LoaderData["audit"];
   progress: ProgressEntry[];
+  onChange: () => void | Promise<void>;
 }) {
   return (
     <div className="mt-5 grid gap-4 lg:grid-cols-2">
@@ -2552,6 +3067,19 @@ function ActivityTab({
                   ) : null}
                   {p.note ? <span className="block text-[11px] text-muted">{p.note}</span> : null}
                 </span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!window.confirm("Remove this update? The customer will no longer see it."))
+                      return;
+                    await deleteProgress({ data: { tripId, id: p.id } });
+                    await onChange();
+                  }}
+                  aria-label="Delete this update"
+                  className="shrink-0 self-start rounded-lg border border-hair px-2 py-1 text-[10px] font-semibold text-muted hover:border-alert hover:text-alert"
+                >
+                  Delete
+                </button>
               </li>
             ))}
           </ol>

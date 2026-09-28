@@ -3,7 +3,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 
 import { BlockList, DriverCard, DocumentLink } from "@/components/Blocks";
+import { Icon, type IconName } from "@/components/Icon";
 import { InvoiceCard } from "@/components/InvoiceCard";
+import { JourneyTracker } from "@/components/JourneyTracker";
+import { destinationPhoto } from "@/lib/destinations";
 import { stageMeta, type CustomerTrip } from "@/lib/types";
 
 /**
@@ -52,15 +55,14 @@ export const Route = createFileRoute("/t/$token")({
   },
   head: ({ loaderData }) => ({
     meta: loaderData
-      ? [
-          {
-            title: `${loaderData.trip.destination} · ${loaderData.trip.trip_code} · Nawi Saadi`,
-          },
-        ]
+      ? [{ title: `${loaderData.trip.destination} · ${loaderData.trip.trip_code} · Nawi Saadi` }]
       : [],
   }),
   component: Portal,
 });
+
+const OFFICE_WHATSAPP = "971561228069";
+const OFFICE_PHONE = "+971561228069";
 
 /* ---------------------------------------------------------------------- */
 
@@ -71,27 +73,25 @@ function Portal() {
 
   const engage = (event: string, detail: string) => {
     // No await and no catch on the caller's side: this fires on a click that is
-    // usually also a navigation (a tel: link, a document download), and anything
-    // that blocks or throws here delays the thing the customer actually pressed.
+    // usually also a navigation (a tel: link, a download), and anything that
+    // blocks or throws here delays the thing the customer actually pressed.
     void logEngagement({ data: { token, event, detail } }).catch(() => {});
   };
 
   /**
    * Which day to open on.
    *
-   * A customer mid-trip opening this link wants today, not day one — they have
-   * read day one already. Computed against the trip's own dates rather than
-   * `new Date()` alone so that a trip which has not started opens on day one and
-   * a finished trip opens on its last day, instead of showing nothing.
+   * A customer mid-trip wants today, not day one. "Today" is Dubai's today, not
+   * the server's UTC date: for the four hours after midnight in Dubai the two
+   * disagree, and a customer opening the link at 1am on day three would have
+   * been shown day two.
    */
   const todayIndex = useMemo(() => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(new Date());
     const exact = days.findIndex((d) => d.date === today);
     if (exact >= 0) return exact;
     if (today < trip.start_date) return 0;
     if (today > trip.end_date) return Math.max(0, days.length - 1);
-    // Mid-trip but no day carries today's date — fall back to counting from the
-    // start, which is right whenever the office left the per-day dates blank.
     const elapsed = Math.floor((Date.parse(today) - Date.parse(trip.start_date)) / 86_400_000);
     return Math.min(Math.max(elapsed, 0), Math.max(0, days.length - 1));
   }, [days, trip.start_date, trip.end_date]);
@@ -100,81 +100,131 @@ function Portal() {
   const day = days[activeDay];
   const stage = currentStage ? stageMeta(currentStage) : null;
   const latest = progress[0];
+  const heroPhoto = trip.heroUrl ?? destinationPhoto(trip.destination);
 
-  // Every driver mentioned in the live timeline, most recent first. This is what
-  // the customer wants when the status says "driver arrived".
+  // The driver named most recently in the timeline — who the customer is looking
+  // for when the status says "your driver has arrived".
   const activeDriver = useMemo(() => {
     const entry = progress.find((p) => p.driver_id);
     return entry ? drivers.find((d) => d.id === entry.driver_id) : undefined;
   }, [progress, drivers]);
 
+  const messages = progress.filter((p) => p.note);
+  const pdfHref = (invoiceId: string) => `/t/${token}/invoice/${invoiceId}.pdf`;
+
+  const sections: { id: string; label: string; show: boolean }[] = [
+    { id: "itinerary", label: "Itinerary", show: true },
+    { id: "payment", label: "Payment", show: invoices.length > 0 },
+    { id: "documents", label: "Documents", show: documents.length > 0 },
+    { id: "help", label: "Help", show: true },
+  ];
+
+  const selectDay = (i: number) => {
+    const d = days[i];
+    if (!d) return;
+    setActiveDay(i);
+    engage("day", `Day ${d.day_number}`);
+  };
+
   return (
-    <div className="min-h-screen pb-16">
-      {/* ---- header ---- */}
-      <header className="bg-navy px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-6 text-white">
-        <div className="mx-auto max-w-lg">
-          <p className="text-[10px] font-semibold tracking-[0.2em] text-gold uppercase">
-            Nawi Saadi Travel &amp; Tourism
-          </p>
-          <h1 className="mt-3 font-display text-[26px] leading-tight">
-            {trip.title ?? trip.destination}
-          </h1>
+    <div className="min-h-screen bg-white pb-24">
+      {/* ================================================================
+          Hero: the destination, the traveller, the dates.
+          The one dark area in the portal, and it is a photograph.
+          ============================================================== */}
+      <header className="relative isolate min-h-[27rem] overflow-hidden text-white sm:min-h-[31rem]">
+        <img
+          src={heroPhoto}
+          alt=""
+          fetchPriority="high"
+          className="absolute inset-0 -z-20 size-full object-cover"
+        />
+        {/* Legibility, not mood: dark enough behind the logo at the top and the
+            title at the bottom, and clear through the middle so the place shows. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-gradient-to-b from-navy-deep/70 via-navy-deep/10 to-navy-deep/90"
+        />
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-white/75">
-            <span className="font-mono tracking-wide">{trip.trip_code}</span>
-            <span aria-hidden="true">·</span>
-            <span>{formatRange(trip.start_date, trip.end_date)}</span>
-            <span aria-hidden="true">·</span>
-            <span>{paxLabel(trip.pax_adults, trip.pax_children)}</span>
-          </div>
-
-          {trip.customer?.full_name ? (
-            <p className="mt-2 text-sm text-white/90">Prepared for {trip.customer.full_name}</p>
-          ) : null}
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-lg px-5">
-        {/* ---- live progress: the thing the customer refreshes for ---- */}
-        <section
-          aria-label="Trip progress"
-          className="-mt-4 rounded-2xl border border-hair bg-white p-4 shadow-[0_12px_32px_-22px_rgba(0,35,64,0.45)]"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-[10px] font-semibold tracking-[0.16em] text-muted uppercase">
-                Current status
-              </p>
-              <p className="mt-1.5 flex items-center gap-2 text-base font-bold text-navy">
-                {stage ? (
-                  <>
-                    <span
-                      aria-hidden="true"
-                      className="ns-pulse inline-block size-2 shrink-0 rounded-full bg-live"
-                    />
-                    <span>{stage.customerLabel}</span>
-                  </>
-                ) : (
-                  <span>Your trip is confirmed</span>
-                )}
-              </p>
-              {latest?.note ? (
-                <p className="mt-1.5 text-sm leading-relaxed text-ink">{latest.note}</p>
-              ) : null}
-              {latest ? (
-                <p className="mt-1 text-xs text-muted">Updated {timeAgo(latest.created_at)}</p>
-              ) : null}
-            </div>
-            <span className="shrink-0 font-mono text-sm font-bold tabular-nums text-gold-deep">
-              {percent}%
+        <div className="mx-auto flex min-h-[27rem] max-w-2xl flex-col px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-20 sm:min-h-[31rem]">
+          <div className="flex items-center justify-between">
+            <img
+              src="/brand/logo-white.webp"
+              alt="Nawi Saadi Travel & Tourism"
+              className="h-14 w-auto drop-shadow sm:h-16"
+            />
+            <span className="rounded-full bg-white/15 px-3 py-1 font-mono text-[11px] tracking-wide backdrop-blur">
+              {trip.trip_code}
             </span>
           </div>
 
-          {/* A bar, not a thirteen-step stepper. Thirteen stages will not fit on
-              a phone without becoming illegible, and the customer's question is
-              "how far along am I", not "name every stage". */}
+          <div className="mt-auto">
+            <p className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.24em] text-gold-light uppercase">
+              <span className="h-px w-8 bg-gold-light" />
+              Your journey
+            </p>
+            <h1 className="mt-3 font-display text-[2.1rem] leading-[1.1] text-balance sm:text-5xl">
+              {trip.title ?? trip.destination}
+            </h1>
+            {trip.title ? (
+              <p className="mt-2 flex items-center gap-1.5 text-sm text-white/85">
+                <Icon name="globe" className="size-4 text-gold-light" /> {trip.destination}
+              </p>
+            ) : null}
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <HeroChip icon="calendar" text={formatRange(trip.start_date, trip.end_date)} />
+              <HeroChip icon="users" text={paxLabel(trip.pax_adults, trip.pax_children)} />
+            </div>
+            {trip.customer?.full_name ? (
+              <p className="mt-4 text-sm text-white/80">
+                Prepared for{" "}
+                <span className="font-semibold text-white">{trip.customer.full_name}</span>
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-2xl px-4 sm:px-5">
+        {/* ================================================================
+            Live status and the whole journey
+            ============================================================== */}
+        <section
+          aria-label="Trip progress"
+          className="relative -mt-14 rounded-3xl border border-hair bg-white p-5 shadow-[0_24px_60px_-28px_rgba(0,35,64,0.45)] sm:p-6"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
+                Live status
+              </p>
+              <p className="mt-2 flex items-center gap-2.5 font-display text-2xl leading-tight text-navy">
+                <span
+                  aria-hidden="true"
+                  className="ns-pulse inline-block size-2.5 shrink-0 rounded-full bg-live"
+                />
+                <span>{stage?.customerLabel ?? "Your trip is confirmed"}</span>
+              </p>
+              {latest?.note ? (
+                <p className="mt-2.5 rounded-xl bg-sand px-3.5 py-2.5 text-sm leading-relaxed text-ink">
+                  {latest.note}
+                </p>
+              ) : null}
+              {latest ? (
+                <p className="mt-2 flex items-center gap-1.5 text-xs text-muted">
+                  <Icon name="clock" className="size-3.5" /> Updated {timeAgo(latest.created_at)}
+                </p>
+              ) : null}
+            </div>
+            <div className="shrink-0 text-right">
+              <p className="font-display text-3xl text-gold-deep tabular-nums">{percent}%</p>
+              <p className="text-[10px] tracking-wider text-muted uppercase">complete</p>
+            </div>
+          </div>
+
           <div
-            className="mt-3.5 h-1.5 overflow-hidden rounded-full bg-paper"
+            className="mt-4 h-1.5 overflow-hidden rounded-full bg-paper"
             role="progressbar"
             aria-valuenow={percent}
             aria-valuemin={0}
@@ -182,163 +232,294 @@ function Portal() {
             aria-label="Trip progress"
           >
             <div
-              className="h-full rounded-full bg-gold transition-[width] duration-700"
+              className="h-full rounded-full bg-gradient-to-r from-gold to-gold-light transition-[width] duration-700"
               style={{ width: `${Math.max(percent, 3)}%` }}
             />
           </div>
 
+          <div className="mt-6">
+            <JourneyTracker progress={progress} current={currentStage} />
+          </div>
+
           {activeDriver ? (
-            <div className="mt-4">
+            <div className="mt-5">
               <DriverCard driver={activeDriver} onEngage={engage} />
             </div>
           ) : null}
         </section>
+      </div>
 
-        {/* ---- day picker ---- */}
-        {days.length ? (
-          <nav aria-label="Days" className="mt-7">
-            <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
-              {days.map((d, i) => {
-                const isActive = i === activeDay;
-                const isToday = i === todayIndex;
-                return (
-                  <button
-                    key={d.id}
-                    type="button"
-                    onClick={() => {
-                      setActiveDay(i);
-                      engage("day", `Day ${d.day_number}`);
-                    }}
-                    aria-current={isActive ? "true" : undefined}
-                    className={`shrink-0 rounded-xl border px-3.5 py-2 text-left transition-colors ${
-                      isActive
-                        ? "border-navy bg-navy text-white"
-                        : "border-hair bg-white text-navy hover:border-gold"
-                    }`}
-                  >
-                    <span className="block text-[10px] font-semibold tracking-[0.12em] uppercase opacity-70">
-                      Day {d.day_number}
-                      {isToday ? " · Today" : ""}
-                    </span>
-                    <span className="mt-0.5 block max-w-[9rem] truncate text-xs font-semibold">
-                      {d.title}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </nav>
-        ) : null}
+      {/* ================================================================
+          Section bar — sticky, so any part of the trip is one tap away
+          ============================================================== */}
+      <nav
+        aria-label="Sections"
+        className="sticky top-0 z-30 mt-8 border-y border-hair bg-white/90 backdrop-blur"
+      >
+        <div className="no-scrollbar mx-auto flex max-w-2xl gap-1 overflow-x-auto px-4 py-2 sm:px-5">
+          {sections
+            .filter((s) => s.show)
+            .map((s) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className="shrink-0 rounded-full px-4 py-2 text-sm font-semibold text-navy transition hover:bg-sand"
+              >
+                {s.label}
+              </a>
+            ))}
+        </div>
+      </nav>
 
-        {/* ---- the selected day ---- */}
-        {day ? (
-          <section aria-label={`Day ${day.day_number}`} className="mt-5">
-            {day.coverUrl ? (
-              <img
-                src={day.coverUrl}
-                alt=""
-                className="w-full rounded-2xl border border-hair bg-white object-cover"
-                style={{ aspectRatio: "16 / 9" }}
-              />
-            ) : null}
+      <main className="mx-auto max-w-2xl px-4 sm:px-5">
+        {/* ================================================================
+            Itinerary
+            ============================================================== */}
+        <section id="itinerary" data-anchor aria-label="Itinerary" className="pt-10">
+          <SectionOpener eyebrow="Day by day" title="Your" accent="itinerary" />
 
-            <h2 className="mt-4 font-display text-xl leading-snug text-navy">{day.title}</h2>
-            {day.date ? (
-              <p className="mt-1 text-xs font-semibold tracking-wide text-gold-deep uppercase">
-                {formatLongDate(day.date)}
-              </p>
-            ) : null}
-            {day.summary ? (
-              <p className="mt-2.5 text-[15px] leading-relaxed text-ink">{day.summary}</p>
-            ) : null}
-
-            <ol className="mt-6 flex flex-col gap-5">
-              {day.steps.map((step) => (
-                <li key={step.id} className="relative pl-9">
-                  {/* The rail and numbered dot. A real sequence, so numbering
-                      encodes something true — the order things happen in. */}
-                  <span
-                    aria-hidden="true"
-                    className="absolute top-8 bottom-[-1.25rem] left-[0.875rem] w-px bg-hair last:hidden"
-                  />
-                  <span
-                    aria-hidden="true"
-                    className="absolute top-0.5 left-0 grid size-7 place-items-center rounded-full bg-navy font-mono text-[11px] font-bold text-white"
-                  >
-                    {step.step_number}
-                  </span>
-
-                  <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                    <h3 className="text-[15px] font-bold text-navy">{step.title}</h3>
-                    {step.time_label ? (
-                      <span className="rounded-md bg-gold/15 px-2 py-0.5 font-mono text-[11px] font-semibold text-gold-deep">
-                        {step.time_label}
+          {days.length ? (
+            <>
+              <div
+                role="tablist"
+                aria-label="Days"
+                className="no-scrollbar -mx-4 mt-6 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:-mx-5 sm:px-5"
+              >
+                {days.map((d, i) => {
+                  const active = i === activeDay;
+                  return (
+                    <button
+                      key={d.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => selectDay(i)}
+                      className={`group w-40 shrink-0 snap-start overflow-hidden rounded-2xl border bg-white text-left transition ${
+                        active
+                          ? "border-gold shadow-lg ring-2 ring-gold/40"
+                          : "border-hair shadow-sm hover:border-gold/60"
+                      }`}
+                    >
+                      <span className="relative block h-24 overflow-hidden bg-paper">
+                        <img
+                          src={d.coverUrl ?? destinationPhoto(trip.destination, true)}
+                          alt=""
+                          loading="lazy"
+                          className="size-full object-cover transition duration-500 group-hover:scale-105"
+                        />
+                        <span className="absolute inset-0 bg-gradient-to-t from-navy-deep/70 to-transparent" />
+                        <span className="absolute bottom-2 left-2.5 text-[10px] font-bold tracking-[0.16em] text-white uppercase">
+                          Day {d.day_number}
+                        </span>
+                        {i === todayIndex ? (
+                          <span className="absolute top-2 right-2 rounded-full bg-gold px-2 py-0.5 text-[9px] font-bold tracking-wider text-navy uppercase">
+                            Today
+                          </span>
+                        ) : null}
                       </span>
-                    ) : null}
-                    {step.duration ? (
-                      <span className="text-[11px] text-muted">{step.duration}</span>
-                    ) : null}
-                  </div>
+                      <span className="block px-3 py-2.5">
+                        <span className="block truncate text-sm font-semibold text-navy">
+                          {d.title}
+                        </span>
+                        {d.date ? (
+                          <span className="block text-[11px] text-muted">{shortDate(d.date)}</span>
+                        ) : null}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
 
-                  {step.location_name ? (
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
-                      <span aria-hidden="true">📍</span>
-                      <span>{step.location_name}</span>
-                    </p>
+              {day ? (
+                <article role="tabpanel" aria-label={`Day ${day.day_number}`} className="mt-7">
+                  {day.coverUrl ? (
+                    <img
+                      src={day.coverUrl}
+                      alt=""
+                      className="w-full rounded-3xl object-cover shadow-md"
+                      style={{ aspectRatio: "16 / 9" }}
+                    />
                   ) : null}
 
-                  {step.description ? (
-                    <p className="mt-2 text-[15px] leading-relaxed whitespace-pre-line text-ink">
-                      {step.description}
-                    </p>
+                  <p
+                    className={`${day.coverUrl ? "mt-5" : ""} text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase`}
+                  >
+                    Day {day.day_number}
+                    {day.date ? ` · ${formatLongDate(day.date)}` : ""}
+                  </p>
+                  <h3 className="mt-1.5 font-display text-3xl leading-tight text-navy">
+                    {day.title}
+                  </h3>
+                  {day.summary ? (
+                    <p className="mt-3 text-[15px] leading-relaxed text-muted">{day.summary}</p>
                   ) : null}
 
-                  {step.blocks.length ? (
-                    <div className="mt-3">
-                      <BlockList
-                        blocks={step.blocks}
-                        ctx={{ drivers, documents, invoices, onEngage: engage }}
-                      />
+                  {day.steps.length ? (
+                    <ol className="mt-8 flex flex-col">
+                      {day.steps.map((step, n) => (
+                        <li key={step.id} className="relative pb-10 pl-12 last:pb-2">
+                          {n < day.steps.length - 1 ? (
+                            <span
+                              aria-hidden="true"
+                              className="absolute top-10 bottom-0 left-[1.1875rem] w-px bg-gradient-to-b from-gold/60 to-hair"
+                            />
+                          ) : null}
+                          <span
+                            aria-hidden="true"
+                            className="absolute top-0 left-0 grid size-10 place-items-center rounded-full bg-navy font-sans text-base font-bold text-white shadow-md ring-4 ring-white"
+                          >
+                            {step.step_number}
+                          </span>
+
+                          <div className="flex flex-wrap items-center gap-2 pt-1.5">
+                            {step.time_label ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold-deep tabular-nums">
+                                <Icon name="clock" className="size-3" /> {step.time_label}
+                              </span>
+                            ) : null}
+                            {step.duration ? (
+                              <span className="text-[11px] text-muted">{step.duration}</span>
+                            ) : null}
+                          </div>
+                          <h4 className="mt-2 text-lg leading-snug font-semibold text-navy">
+                            {step.title}
+                          </h4>
+
+                          {step.location_name ? (
+                            step.latitude != null && step.longitude != null ? (
+                              <a
+                                href={`https://www.google.com/maps/search/?api=1&query=${step.latitude},${step.longitude}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => engage("map", step.location_name ?? "")}
+                                className="mt-1 inline-flex items-center gap-1.5 text-sm text-gold-deep underline decoration-gold/40 underline-offset-4"
+                              >
+                                <Icon name="pin" className="size-4" /> {step.location_name}
+                              </a>
+                            ) : (
+                              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted">
+                                <Icon name="pin" className="size-4 text-gold-deep" />{" "}
+                                {step.location_name}
+                              </p>
+                            )
+                          ) : null}
+
+                          {step.description ? (
+                            <p className="mt-2.5 text-[15px] leading-relaxed whitespace-pre-line text-ink">
+                              {step.description}
+                            </p>
+                          ) : null}
+
+                          {step.blocks.length ? (
+                            <div className="mt-4">
+                              <BlockList
+                                blocks={step.blocks}
+                                ctx={{
+                                  drivers,
+                                  documents,
+                                  invoices,
+                                  invoicePdfHref: pdfHref,
+                                  onEngage: engage,
+                                }}
+                              />
+                            </div>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="mt-6 rounded-2xl bg-paper p-5 text-sm leading-relaxed text-muted">
+                      Your consultant is still finalising this day. It will appear here as soon as
+                      it is ready — on this same link.
+                    </p>
+                  )}
+
+                  {days.length > 1 ? (
+                    <div className="mt-6 grid grid-cols-2 gap-3 border-t border-hair pt-6">
+                      {activeDay > 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            selectDay(activeDay - 1);
+                            document.getElementById("itinerary")?.scrollIntoView();
+                          }}
+                          className="flex items-center gap-2 rounded-2xl border border-hair p-3.5 text-left text-sm transition hover:border-gold"
+                        >
+                          <Icon name="chevronLeft" className="size-4 shrink-0 text-gold-deep" />
+                          <span className="min-w-0">
+                            <span className="block text-[10px] tracking-wider text-muted uppercase">
+                              Day {days[activeDay - 1]?.day_number}
+                            </span>
+                            <span className="block truncate font-semibold text-navy">
+                              {days[activeDay - 1]?.title}
+                            </span>
+                          </span>
+                        </button>
+                      ) : (
+                        <span />
+                      )}
+                      {activeDay < days.length - 1 ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            selectDay(activeDay + 1);
+                            document.getElementById("itinerary")?.scrollIntoView();
+                          }}
+                          className="flex items-center justify-end gap-2 rounded-2xl border border-hair p-3.5 text-right text-sm transition hover:border-gold"
+                        >
+                          <span className="min-w-0">
+                            <span className="block text-[10px] tracking-wider text-muted uppercase">
+                              Day {days[activeDay + 1]?.day_number}
+                            </span>
+                            <span className="block truncate font-semibold text-navy">
+                              {days[activeDay + 1]?.title}
+                            </span>
+                          </span>
+                          <Icon name="chevronRight" className="size-4 shrink-0 text-gold-deep" />
+                        </button>
+                      ) : null}
                     </div>
                   ) : null}
-                </li>
-              ))}
-            </ol>
-
-            {!day.steps.length ? (
-              <p className="mt-4 rounded-xl border border-hair bg-white p-4 text-sm text-muted">
-                Your consultant is still finalising this day. It will appear here as soon as it is
-                ready.
+                </article>
+              ) : null}
+            </>
+          ) : (
+            <div className="mt-6 rounded-3xl bg-sand p-6">
+              <h3 className="font-display text-xl text-navy">Your itinerary is being prepared</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                Your booking is confirmed. Your consultant is writing up the day-by-day plan and it
+                will appear here — on this same link, no need for a new one.
               </p>
-            ) : null}
-          </section>
-        ) : (
-          <section className="mt-7 rounded-2xl border border-hair bg-white p-5">
-            <h2 className="font-display text-lg text-navy">Your itinerary is being prepared</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted">
-              Your booking is confirmed. Your consultant is writing up the day-by-day plan and it
-              will appear here — this same link, no need for a new one.
-            </p>
-          </section>
-        )}
+            </div>
+          )}
+        </section>
 
-        {/* ---- invoices ---- */}
+        {/* ================================================================
+            Payment
+            ============================================================== */}
         {invoices.length ? (
-          <section aria-label="Invoices" className="mt-9">
-            <SectionHeading>Payment</SectionHeading>
-            <div className="mt-3 flex flex-col gap-3">
+          <section id="payment" data-anchor aria-label="Payment" className="pt-14">
+            <SectionOpener eyebrow="Payment" title="Invoices &" accent="balance" />
+            <div className="mt-6 flex flex-col gap-4">
               {invoices.map((invoice) => (
-                <InvoiceCard key={invoice.id} invoice={invoice} onEngage={engage} />
+                <InvoiceCard
+                  key={invoice.id}
+                  invoice={invoice}
+                  pdfHref={pdfHref(invoice.id)}
+                  onEngage={engage}
+                />
               ))}
             </div>
           </section>
         ) : null}
 
-        {/* ---- documents ---- */}
+        {/* ================================================================
+            Documents
+            ============================================================== */}
         {documents.length ? (
-          <section aria-label="Documents" className="mt-9">
-            <SectionHeading>Your documents</SectionHeading>
-            <div className="mt-3 flex flex-col gap-2">
+          <section id="documents" data-anchor aria-label="Documents" className="pt-14">
+            <SectionOpener eyebrow="Travel documents" title="Your" accent="documents" />
+            <div className="mt-6 flex flex-col gap-2.5">
               {documents.map((doc) => (
                 <DocumentLink key={doc.id} doc={doc} onEngage={engage} />
               ))}
@@ -348,9 +529,9 @@ function Portal() {
 
         {/* ---- drivers not already shown at the top ---- */}
         {drivers.filter((d) => d.id !== activeDriver?.id).length ? (
-          <section aria-label="Drivers" className="mt-9">
-            <SectionHeading>Your drivers</SectionHeading>
-            <div className="mt-3 flex flex-col gap-3">
+          <section aria-label="Drivers" className="pt-14">
+            <SectionOpener eyebrow="On the road" title="Your" accent="drivers" />
+            <div className="mt-6 flex flex-col gap-3">
               {drivers
                 .filter((d) => d.id !== activeDriver?.id)
                 .map((d) => (
@@ -360,88 +541,121 @@ function Portal() {
           </section>
         ) : null}
 
-        {/* ---- progress history ---- */}
-        {progress.length > 1 ? (
-          <section aria-label="Updates" className="mt-9">
-            <SectionHeading>Updates</SectionHeading>
-            <ol className="mt-3 flex flex-col gap-3">
-              {progress.map((p) => {
-                const m = stageMeta(p.stage);
-                return (
-                  <li key={p.id} className="flex gap-3">
-                    <span
-                      aria-hidden="true"
-                      className="mt-1.5 size-1.5 shrink-0 rounded-full bg-gold"
-                    />
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-navy">
-                        {m?.customerLabel ?? p.stage}
-                      </p>
-                      {p.note ? <p className="text-sm leading-relaxed text-ink">{p.note}</p> : null}
-                      <p className="text-xs text-muted">{formatStamp(p.created_at)}</p>
-                    </div>
-                  </li>
-                );
-              })}
+        {/* ---- messages from the office ---- */}
+        {messages.length ? (
+          <section aria-label="Messages" className="pt-14">
+            <SectionOpener eyebrow="From your consultant" title="Latest" accent="messages" />
+            <ol className="mt-6 flex flex-col gap-3">
+              {messages.map((m) => (
+                <li key={m.id} className="rounded-2xl border border-hair bg-white p-4 shadow-sm">
+                  <p className="text-[11px] font-semibold tracking-wider text-gold-deep uppercase">
+                    {stageMeta(m.stage)?.customerLabel ?? m.stage}
+                  </p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink">{m.note}</p>
+                  <p className="mt-2 text-xs text-muted tabular-nums">
+                    {formatStamp(m.created_at)}
+                  </p>
+                </li>
+              ))}
             </ol>
           </section>
         ) : null}
 
-        {/* ---- help ---- */}
-        <section aria-label="Help" className="mt-9 rounded-2xl border border-hair bg-white p-4">
-          <SectionHeading>Need help?</SectionHeading>
-          <p className="mt-2 text-sm leading-relaxed text-muted">
-            Someone from the office is reachable at any hour of your trip.
-          </p>
-          <div className="mt-3.5 flex flex-col gap-2">
-            <a
-              href={`https://wa.me/971561228069?text=${encodeURIComponent(
-                `Hello Nawi Saadi, this is about trip ${trip.trip_code}.`,
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => engage("help_whatsapp", trip.trip_code)}
-              className="rounded-xl bg-gold py-3 text-center text-sm font-bold text-navy"
-            >
-              WhatsApp the office
-            </a>
-            <a
-              href="tel:+971561228069"
-              onClick={() => engage("help_call", trip.trip_code)}
-              className="rounded-xl bg-navy py-3 text-center text-sm font-bold text-white"
-            >
-              Call +971 56 122 8069
-            </a>
+        {/* ================================================================
+            Help
+            ============================================================== */}
+        <section id="help" data-anchor aria-label="Help" className="pt-14">
+          <SectionOpener eyebrow="We are with you" title="Need" accent="help?" />
+          <div className="mt-6 overflow-hidden rounded-3xl border border-hair bg-sand">
+            <div className="p-5">
+              <p className="text-sm leading-relaxed text-ink">
+                Someone from the office is reachable at any hour of your trip. Mention your trip
+                reference{" "}
+                <span className="font-mono font-semibold text-navy">{trip.trip_code}</span> and we
+                will have everything in front of us.
+              </p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <a
+                  href={`https://wa.me/${OFFICE_WHATSAPP}?text=${encodeURIComponent(
+                    `Hello Nawi Saadi, this is about trip ${trip.trip_code}.`,
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => engage("help_whatsapp", trip.trip_code)}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-gold py-3.5 text-sm font-semibold text-navy transition hover:bg-gold-light"
+                >
+                  <Icon name="chat" className="size-4" /> WhatsApp the office
+                </a>
+                <a
+                  href={`tel:${OFFICE_PHONE}`}
+                  onClick={() => engage("help_call", trip.trip_code)}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-navy py-3.5 text-sm font-semibold text-white transition hover:bg-navy-deep"
+                >
+                  <Icon name="phone" className="size-4" /> Call +971 56 122 8069
+                </a>
+              </div>
+            </div>
             {trip.emergency_phone ? (
               <a
                 href={`tel:${trip.emergency_phone}`}
                 onClick={() => engage("emergency_call", trip.emergency_name ?? "emergency")}
-                className="rounded-xl border border-alert/40 bg-alert/8 py-3 text-center text-sm font-bold text-alert"
+                className="flex items-center gap-3 border-t border-alert/20 bg-alert/6 px-5 py-4 text-sm font-semibold text-alert"
               >
-                Emergency · {trip.emergency_name ?? "24/7 line"}
+                <Icon name="alert" className="size-5" />
+                <span className="flex-1">Emergency · {trip.emergency_name ?? "24/7 line"}</span>
+                <span className="font-mono text-xs">{trip.emergency_phone}</span>
               </a>
             ) : null}
           </div>
         </section>
 
-        {/*
-          The disclosure.
-          Shown rather than buried, because the office can see when this page is
-          opened and which sections were read. A system that watches people
-          without telling them is a different thing wearing the same name, and
-          one plain sentence is the whole cost of not being that.
-        */}
-        <footer className="mt-9 border-t border-hair pt-5 text-center">
-          <p className="text-[11px] leading-relaxed text-muted">
+        {/* ================================================================
+            Footer — who this is from, and what the office can see
+            ============================================================== */}
+        <footer className="mt-16 border-t border-hair pt-8 pb-6 text-center">
+          <img
+            src="/brand/logo-ink.webp"
+            alt="Nawi Saadi Travel & Tourism"
+            className="mx-auto h-12 w-auto"
+          />
+          <p className="mt-4 text-xs tracking-wide text-muted">
+            IATA accredited · DTCM approved · Arranging travel since 2009
+          </p>
+          <p className="mt-1 text-xs text-muted">Millenium Building, Naif Road, Deira, Dubai</p>
+          <p className="mx-auto mt-5 max-w-md text-[11px] leading-relaxed text-muted">
             This is your private trip link — please don&apos;t share it, as it carries your
             documents. So we can help you faster, our office can see when this page is opened and
             which sections you viewed. We don&apos;t track your location and nothing you type here
             is recorded.
           </p>
-          <p className="mt-3 text-[11px] text-muted">
-            Nawi Saadi Travel &amp; Tourism · Naif Road, Deira, Dubai · IATA accredited
-          </p>
         </footer>
+      </main>
+
+      {/* ================================================================
+          Always-there contact bar: the thing a traveller needs most is one
+          thumb-press from any point on the page.
+          ============================================================== */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-hair bg-white/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+        <div className="mx-auto grid max-w-2xl grid-cols-2 gap-2">
+          <a
+            href={`https://wa.me/${OFFICE_WHATSAPP}?text=${encodeURIComponent(
+              `Hello Nawi Saadi, this is about trip ${trip.trip_code}.`,
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => engage("bar_whatsapp", trip.trip_code)}
+            className="flex items-center justify-center gap-2 rounded-xl bg-gold py-3 text-sm font-semibold text-navy"
+          >
+            <Icon name="chat" className="size-4" /> WhatsApp
+          </a>
+          <a
+            href={`tel:${OFFICE_PHONE}`}
+            onClick={() => engage("bar_call", trip.trip_code)}
+            className="flex items-center justify-center gap-2 rounded-xl bg-navy py-3 text-sm font-semibold text-white"
+          >
+            <Icon name="phone" className="size-4" /> Call us
+          </a>
+        </div>
       </div>
     </div>
   );
@@ -449,11 +663,35 @@ function Portal() {
 
 /* ---------------------------------------------------------------------- */
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
+/** The approved section opener: gold rule, eyebrow, Playfair title, gold italic tail. */
+function SectionOpener({
+  eyebrow,
+  title,
+  accent,
+}: {
+  eyebrow: string;
+  title: string;
+  accent: string;
+}) {
   return (
-    <h2 className="text-[11px] font-semibold tracking-[0.16em] text-gold-deep uppercase">
-      {children}
-    </h2>
+    <div>
+      <p className="flex items-center gap-2.5 text-[11px] font-semibold tracking-[0.22em] text-gold-deep uppercase">
+        <span className="h-px w-10 bg-gold" />
+        {eyebrow}
+      </p>
+      <h2 className="mt-3 font-display text-[1.9rem] leading-tight text-navy">
+        {title} <span className="text-gold-deep italic">{accent}</span>
+      </h2>
+    </div>
+  );
+}
+
+function HeroChip({ icon, text }: { icon: IconName; text: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium backdrop-blur">
+      <Icon name={icon} className="size-3.5 text-gold-light" />
+      {text}
+    </span>
   );
 }
 
@@ -479,9 +717,7 @@ function formatRange(start: string, end: string): string {
   const sameMonth =
     a.getUTCMonth() === b.getUTCMonth() && a.getUTCFullYear() === b.getUTCFullYear();
   const mon = (d: Date) => MONTHS[d.getUTCMonth()]?.slice(0, 3) ?? "";
-  if (sameMonth) {
-    return `${a.getUTCDate()}–${b.getUTCDate()} ${mon(b)} ${b.getUTCFullYear()}`;
-  }
+  if (sameMonth) return `${a.getUTCDate()}–${b.getUTCDate()} ${mon(b)} ${b.getUTCFullYear()}`;
   return `${a.getUTCDate()} ${mon(a)} – ${b.getUTCDate()} ${mon(b)} ${b.getUTCFullYear()}`;
 }
 
@@ -490,13 +726,15 @@ function formatLongDate(date: string): string {
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()] ?? ""} ${d.getUTCFullYear()}`;
 }
 
+function shortDate(date: string): string {
+  const d = new Date(date);
+  const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getUTCDay()];
+  return `${weekday} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]?.slice(0, 3) ?? ""}`;
+}
+
+/** Dubai time regardless of the device clock, so office and customer agree. */
 function formatStamp(iso: string): string {
-  const d = new Date(iso);
-  // Rendered in Dubai time regardless of the traveller's device clock. A
-  // customer in Dubai reading "driver arrived 10:12" wants Dubai's 10:12, and a
-  // family member following from Kabul should see the same number the office
-  // sees, not one shifted by an hour.
-  return d.toLocaleString("en-GB", {
+  return new Date(iso).toLocaleString("en-GB", {
     timeZone: "Asia/Dubai",
     day: "numeric",
     month: "short",
@@ -508,8 +746,7 @@ function formatStamp(iso: string): string {
 
 function timeAgo(iso: string): string {
   const seconds = Math.floor((Date.now() - Date.parse(iso)) / 1000);
-  if (!Number.isFinite(seconds) || seconds < 0) return "just now";
-  if (seconds < 90) return "just now";
+  if (!Number.isFinite(seconds) || seconds < 90) return "just now";
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes} min ago`;
   const hours = Math.floor(minutes / 60);
