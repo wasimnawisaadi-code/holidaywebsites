@@ -199,10 +199,13 @@ function Portal() {
               <p className="text-[10px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
                 Live status
               </p>
-              <p className="mt-2 flex items-center gap-2.5 font-display text-2xl leading-tight text-navy">
+              {/* items-start with the dot nudged to the first line's middle: a
+                  long status wraps to two lines, and centring the dot put it
+                  between them, detached from the words it marks as live. */}
+              <p className="mt-2 flex items-start gap-2.5 font-display text-2xl leading-tight text-navy">
                 <span
                   aria-hidden="true"
-                  className="ns-pulse inline-block size-2.5 shrink-0 rounded-full bg-live"
+                  className="ns-pulse mt-[0.6rem] inline-block size-2.5 shrink-0 rounded-full bg-live"
                 />
                 <span>{stage?.customerLabel ?? "Your trip is confirmed"}</span>
               </p>
