@@ -1,9 +1,15 @@
-import { createFileRoute, Link, useRouter, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter, notFound, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import type { Json } from "@/lib/views";
 import {
+  balanceOf,
+  money,
+  toFils,
+  type Amount,
+  type Invoice,
+  type InvoiceItem,
   BLOCK_KINDS,
   BLOCK_LABELS,
   stageMeta,
@@ -47,19 +53,27 @@ async function requireSession(): Promise<{ email: string }> {
 const loadTrip = createServerFn({ method: "GET" })
   .validator((id: string) => id)
   .handler(async ({ data: id }) => {
-    await requireSession();
+    // A signed-out read returns a marker rather than throwing. A session that
+    // expires mid-shift is routine — twelve hours is one long day at an airport
+    // desk — and throwing sent the consultant to "This page didn't load",
+    // which reads as the system being broken rather than as "sign in again".
+    const { getCookie } = await import("@tanstack/react-start/server");
+    const { sessionFromToken, SESSION_COOKIE } = await import("@/lib/auth");
+    if (!(await sessionFromToken(getCookie(SESSION_COOKIE)))) {
+      return { signedOut: true as const };
+    }
     const { tripForAdmin } = await import("@/lib/trips");
     const { viewsForTrip, auditForTrip } = await import("@/lib/views");
     const { portalBaseUrl } = await import("@/lib/urls");
 
-    const trip = await tripForAdmin(id);
+    // One batch: the trip and its activity only need the id we already hold.
+    const [trip, views, audit] = await Promise.all([
+      tripForAdmin(id),
+      viewsForTrip(id, 60),
+      auditForTrip(id, 40),
+    ]);
     if (!trip) return null;
-    return {
-      ...trip,
-      views: await viewsForTrip(id, 60),
-      audit: await auditForTrip(id, 40),
-      base: portalBaseUrl(),
-    };
+    return { ...trip, views, audit, base: portalBaseUrl() };
   });
 
 const saveDay = createServerFn({ method: "POST" })
@@ -178,74 +192,416 @@ const deleteRow = createServerFn({ method: "POST" })
     // An allowlist, not the caller's string. Without it this endpoint deletes
     // any row in any table for anyone who can reach it — including `trips`
     // itself, which cascades away a customer's whole itinerary.
-    const allowed = ["trip_days", "trip_steps", "trip_blocks", "trip_documents"];
+    const allowed = [
+      "trip_days",
+      "trip_steps",
+      "trip_blocks",
+      "trip_documents",
+      "trip_invoices",
+      "trip_invoice_items",
+    ];
     if (!allowed.includes(data.table)) return { ok: false as const };
-    const { remove } = await import("@/lib/db");
+    if (!UUID.test(data.id)) return { ok: false as const };
+    const { remove, select, deleteObject } = await import("@/lib/db");
+
+    // Deleting a row used to leave its file in the bucket for good: a voucher
+    // "deleted" from a trip still sat in storage, reachable by nobody without a
+    // row pointing at it, but not gone. Deleted should mean deleted, so the
+    // files a row owns are collected before the row goes and removed after.
+    // Days and steps are left to the cascade — their blocks' files are an
+    // accepted leak until a trip-level cleanup exists, and are unreachable.
+    const files: { bucket: "trip-media" | "trip-docs"; path: string }[] = [];
+    if (data.table === "trip_documents") {
+      const rows = await select<{ file_path: string }[]>(
+        `trip_documents?id=eq.${data.id}&select=file_path`,
+      );
+      for (const r of rows) if (r.file_path) files.push({ bucket: "trip-docs", path: r.file_path });
+    } else if (data.table === "trip_blocks") {
+      const rows = await select<{ payload: BlockPayload }[]>(
+        `trip_blocks?id=eq.${data.id}&select=payload`,
+      );
+      for (const r of rows) {
+        const p = r.payload ?? {};
+        for (const path of [p.path, p.poster, ...(p.paths ?? [])]) {
+          if (path) files.push({ bucket: "trip-media", path });
+        }
+      }
+    }
+
     await remove(data.table, `id=eq.${data.id}`);
+    // After the row, not before: if the delete fails the file must still exist
+    // for the row that still points at it.
+    await Promise.all(files.map((f) => deleteObject(f.bucket, f.path)));
+    return { ok: true as const };
+  });
+
+/* -------------------------------------------------------------------------
+ * Invoices
+ * ---------------------------------------------------------------------- */
+
+/**
+ * Creates an invoice with the next number in this year's sequence.
+ *
+ * The number comes from a database function rather than being counted in
+ * JavaScript, because two consultants pressing "New invoice" at the same moment
+ * would otherwise both read the same maximum and mint the same number — and
+ * `invoice_number` is unique, so the second one would simply fail with a
+ * constraint error nobody could explain.
+ */
+const createInvoice = createServerFn({ method: "POST" })
+  .validator((tripId: string) => tripId)
+  .handler(async ({ data: tripId }) => {
+    const { email } = await requireSession();
+    const { insert, select } = await import("@/lib/db");
+
+    // PostgREST returns a scalar function's result as a bare JSON value — the
+    // string itself — not as `[{ next_invoice_number: "…" }]`. The first version
+    // of this read `numbered?.[0]?.next_invoice_number`, which is always
+    // undefined against a scalar, so every invoice silently fell through to the
+    // timestamp fallback below and the sequence never advanced. Both shapes are
+    // accepted so a future change of the function to `returns table` does not
+    // reintroduce the same silent failure.
+    const numbered = await select<unknown>("rpc/next_invoice_number").catch(() => null);
+    const fromRpc =
+      typeof numbered === "string"
+        ? numbered
+        : Array.isArray(numbered)
+          ? (numbered[0] as { next_invoice_number?: string } | undefined)?.next_invoice_number
+          : undefined;
+    const number =
+      fromRpc && /^NSI-\d{4}-\d+$/.test(fromRpc)
+        ? fromRpc
+        : // Fallback if the RPC is unavailable: a timestamp is ugly but unique,
+          // and a usable invoice with an odd number beats no invoice at all.
+          //
+          // The "T" is deliberate. The fallback used to be four digits, exactly
+          // the shape of a real sequence number — so nothing, not a test and not
+          // a person reading the invoice, could tell that numbering had broken.
+          // It had, silently, for every invoice (see the note above). Now a
+          // fallback number announces itself.
+          `NSI-${new Date().getFullYear()}-T${Date.now().toString().slice(-6)}`;
+
+    const rows = await insert<{ id: string }[]>("trip_invoices", {
+      trip_id: tripId,
+      invoice_number: number,
+      currency: "AED",
+      status: "draft",
+      created_by: email,
+    });
+    return { ok: true as const, id: rows?.[0]?.id ?? null, number };
+  });
+
+const saveInvoice = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      id: string;
+      status: string;
+      currency: string;
+      issuedDate: string;
+      dueDate: string;
+      discount: string;
+      amountPaid: string;
+      notes: string;
+      published: boolean;
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    await requireSession();
+    const { update, select } = await import("@/lib/db");
+
+    // Totals are recomputed from the stored line items on every save, so the
+    // figure the customer sees can never drift from the lines that justify it —
+    // nobody types a total. The arithmetic runs here on the server in integer
+    // fils (see toFils): summing raw amounts as doubles is how an invoice ends up
+    // showing 4699.969999999999.
+    const items = await select<{ amount: Amount }[]>(
+      `trip_invoice_items?invoice_id=eq.${data.id}&select=amount`,
+    );
+    const subtotalFils = items.reduce((sum, i) => sum + toFils(i.amount), 0);
+    const discountFils = Math.max(0, toFils(data.discount));
+    const totalFils = Math.max(0, subtotalFils - discountFils);
+
+    const paidFils = Math.max(0, toFils(data.amountPaid));
+    /*
+     * The status is derived, never chosen, except for cancellation.
+     *
+     * The office decides two things: whether the customer can see the invoice,
+     * and whether it is cancelled. Everything else is arithmetic. An earlier
+     * version let the office pick any status from a dropdown and kept "draft" if
+     * it was left there — so ticking "show to customer" and recording a payment,
+     * without also touching the dropdown, showed the customer an invoice badged
+     * DRAFT with money already paid against it. A visible draft is a
+     * contradiction, and so is "paid in full" with a balance outstanding; neither
+     * can be expressed now.
+     */
+    const status =
+      data.status === "void"
+        ? "void"
+        : !data.published
+          ? "draft"
+          : paidFils <= 0
+            ? "sent"
+            : paidFils >= totalFils
+              ? "paid"
+              : "part_paid";
+
+    await update("trip_invoices", `id=eq.${data.id}`, {
+      status,
+      currency: data.currency.toUpperCase().slice(0, 3) || "AED",
+      issued_date: data.issuedDate || null,
+      due_date: data.dueDate || null,
+      subtotal: (subtotalFils / 100).toFixed(2),
+      discount: (discountFils / 100).toFixed(2),
+      total: (totalFils / 100).toFixed(2),
+      amount_paid: (paidFils / 100).toFixed(2),
+      notes: data.notes.trim().slice(0, 2000) || null,
+      published: data.published,
+    });
+    return { ok: true as const };
+  });
+
+const saveInvoiceItem = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      id?: string;
+      invoiceId: string;
+      position: number;
+      description: string;
+      quantity: string;
+      unitPrice: string;
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    await requireSession();
+    const { insert, update } = await import("@/lib/db");
+
+    const qty = Math.max(0, Number(data.quantity) || 0);
+    const unitFils = Math.max(0, toFils(data.unitPrice));
+    // The unit price becomes integer fils before multiplying, and the product is
+    // rounded once. Multiplying the raw double instead — 3 x 1499.99 is
+    // 4499.969999999999 — happens to round correctly here, but any code that
+    // truncates, or sums several such products before rounding, drifts by a fils
+    // and the invoice stops agreeing with its own lines.
+    const amount = (Math.round(qty * unitFils) / 100).toFixed(2);
+    const unit = unitFils / 100;
+
+    const row = {
+      invoice_id: data.invoiceId,
+      position: data.position,
+      description: data.description.trim().slice(0, 300) || "Item",
+      quantity: qty.toFixed(2),
+      unit_price: unit.toFixed(2),
+      amount,
+    };
+    if (data.id) await update("trip_invoice_items", `id=eq.${data.id}`, row);
+    else await insert("trip_invoice_items", row);
+    return { ok: true as const };
+  });
+
+/* -------------------------------------------------------------------------
+ * Uploads
+ *
+ * The file goes from the browser straight to Supabase Storage; see
+ * signedUploadUrl in lib/db.ts for why it cannot pass through this function.
+ * These two server functions never touch the bytes. One decides where a file
+ * may go and signs a ticket for exactly that place; the other records a
+ * document once it has landed.
+ * ---------------------------------------------------------------------- */
+
+/** Mirrors the bucket configuration in 0002, so a refusal is explained up front. */
+const BUCKETS = {
+  "trip-media": {
+    maxBytes: 200 * 1024 * 1024,
+    types: [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/avif",
+      "image/heic",
+      "video/mp4",
+      "video/quicktime",
+      "video/webm",
+    ],
+  },
+  "trip-docs": {
+    maxBytes: 25 * 1024 * 1024,
+    types: ["application/pdf", "image/jpeg", "image/png", "image/webp"],
+  },
+} as const;
+
+type Bucket = keyof typeof BUCKETS;
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const createUploadTicket = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      tripId: string;
+      bucket: string;
+      fileName: string;
+      contentType: string;
+      size: number;
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    await requireSession();
+
+    // The trip id becomes the first segment of the storage path, so it is held
+    // to the exact shape of a UUID. Anything else — "../", a slash, an empty
+    // string — could otherwise steer the upload outside the trip's own folder.
+    if (!UUID.test(data.tripId)) return { ok: false as const, reason: "Unknown trip." };
+
+    const bucket = data.bucket as Bucket;
+    const rules = BUCKETS[bucket];
+    if (!rules) return { ok: false as const, reason: "Unknown upload type." };
+
+    // Checked here as well as by storage, because storage's refusal arrives as
+    // an opaque error after the whole file has been sent. A 180 MB video that
+    // is rejected after two minutes of uploading is a wasted two minutes; this
+    // says no before a byte moves, and says why.
+    const type = data.contentType.toLowerCase();
+    if (!(rules.types as readonly string[]).includes(type)) {
+      return {
+        ok: false as const,
+        reason:
+          bucket === "trip-docs"
+            ? "Documents must be a PDF or an image (JPEG, PNG, WebP)."
+            : "Use a photo (JPEG, PNG, WebP, HEIC) or a video (MP4, MOV, WebM).",
+      };
+    }
+    if (!Number.isFinite(data.size) || data.size <= 0) {
+      return { ok: false as const, reason: "That file is empty." };
+    }
+    if (data.size > rules.maxBytes) {
+      return {
+        ok: false as const,
+        reason: `That file is ${Math.ceil(data.size / 1048576)} MB. The limit is ${
+          rules.maxBytes / 1048576
+        } MB — try trimming the clip or exporting at a lower resolution.`,
+      };
+    }
+
+    // The server chooses the name; the browser only suggests one. A filename
+    // carrying a slash would write outside the trip's prefix, and one carrying
+    // spaces or Arabic script breaks the signed-URL path.
+    const safe =
+      data.fileName
+        .toLowerCase()
+        .replace(/[^a-z0-9.\-_]+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^[-.]+/, "")
+        .slice(-80) || "file";
+    const path = `${data.tripId}/${Date.now()}-${safe}`;
+
+    const { signedUploadUrl } = await import("@/lib/db");
+    const uploadUrl = await signedUploadUrl(bucket, path);
+    if (!uploadUrl)
+      return { ok: false as const, reason: "Storage did not issue an upload ticket." };
+    return { ok: true as const, uploadUrl, path };
+  });
+
+/** Records a document once its file is in storage. */
+const registerDocument = createServerFn({ method: "POST" })
+  .validator(
+    (input: { tripId: string; path: string; name: string; contentType: string; size: number }) =>
+      input,
+  )
+  .handler(async ({ data }) => {
+    await requireSession();
+    // The path must be one this trip's ticket could have produced. Without the
+    // check, a document row could point at another trip's voucher, and the
+    // portal would sign it for the wrong customer.
+    if (!UUID.test(data.tripId) || !data.path.startsWith(`${data.tripId}/`)) {
+      return { ok: false as const };
+    }
+    const { insert } = await import("@/lib/db");
+    await insert("trip_documents", {
+      trip_id: data.tripId,
+      name: data.name.slice(0, 120),
+      file_path: data.path,
+      doc_type: data.contentType.includes("pdf") ? "PDF" : "Image",
+      visibility: "always",
+      bytes: Math.round(data.size),
+    });
     return { ok: true as const };
   });
 
 /**
- * Media upload.
+ * Sends a file straight to storage, reporting progress.
  *
- * Takes FormData so the file never round-trips through base64 in JSON, which
- * would inflate a 40MB video to 54MB and blow the serverless body limit.
+ * XMLHttpRequest rather than fetch, deliberately: fetch has no upload-progress
+ * event, and a 40 MB video on office wifi is a minute of a frozen-looking
+ * screen without one. People close the tab during that minute.
  */
-const uploadFile = createServerFn({ method: "POST" })
-  .validator((form: FormData) => form)
-  .handler(async ({ data: form }) => {
-    await requireSession();
-    const { uploadObject, insert } = await import("@/lib/db");
-
-    const file = form.get("file");
-    const tripId = String(form.get("tripId") ?? "");
-    const bucket = String(form.get("bucket") ?? "trip-media") as "trip-media" | "trip-docs";
-    if (!(file instanceof File) || !tripId) {
-      return { ok: false as const, reason: "No file received." };
-    }
-
-    // The stored name is sanitised rather than trusted. A filename carrying a
-    // slash would write outside the trip's prefix, and one carrying spaces or
-    // Arabic characters breaks the signed-URL path.
-    const safe = file.name
-      .toLowerCase()
-      .replace(/[^a-z0-9.\-_]+/g, "-")
-      .replace(/-+/g, "-")
-      .slice(-80);
-    const path = `${tripId}/${Date.now()}-${safe}`;
-
-    const result = await uploadObject(
-      bucket,
-      path,
-      await file.arrayBuffer(),
-      file.type || "application/octet-stream",
-    );
-    if (!result.ok) return { ok: false as const, reason: result.error ?? "Upload failed." };
-
-    // A document also gets a row, so it can be attached to a block by name and
-    // listed in the customer's Documents section.
-    if (bucket === "trip-docs") {
-      const rows = await insert<{ id: string }[]>("trip_documents", {
-        trip_id: tripId,
-        name: file.name.slice(0, 120),
-        file_path: path,
-        doc_type: file.type.includes("pdf") ? "PDF" : "Image",
-        visibility: "always",
-        bytes: file.size,
-      });
-      return { ok: true as const, path, documentId: rows?.[0]?.id ?? null };
-    }
-
-    return { ok: true as const, path, documentId: null };
+async function uploadDirect(
+  file: File,
+  opts: { tripId: string; bucket: Bucket; onProgress?: (pct: number) => void },
+): Promise<{ ok: true; path: string } | { ok: false; reason: string }> {
+  const ticket = await createUploadTicket({
+    data: {
+      tripId: opts.tripId,
+      bucket: opts.bucket,
+      fileName: file.name,
+      // Some phones hand over HEIC or MOV with an empty type; infer it from the
+      // extension rather than refusing a perfectly good file.
+      contentType: file.type || guessType(file.name),
+      size: file.size,
+    },
   });
+  if (!ticket.ok) return { ok: false, reason: ticket.reason };
+
+  return new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", ticket.uploadUrl);
+    xhr.setRequestHeader("Content-Type", file.type || guessType(file.name));
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) opts.onProgress?.(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) resolve({ ok: true, path: ticket.path });
+      else resolve({ ok: false, reason: `Upload refused by storage (${xhr.status}).` });
+    };
+    xhr.onerror = () => resolve({ ok: false, reason: "The connection dropped during upload." });
+    xhr.send(file);
+  });
+}
+
+function guessType(name: string): string {
+  const ext = name.toLowerCase().split(".").pop() ?? "";
+  const map: Record<string, string> = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp",
+    avif: "image/avif",
+    heic: "image/heic",
+    mp4: "video/mp4",
+    mov: "video/quicktime",
+    webm: "video/webm",
+    pdf: "application/pdf",
+  };
+  return map[ext] ?? "application/octet-stream";
+}
 
 /* -------------------------------------------------------------------------
  * Route
  * ---------------------------------------------------------------------- */
 
-export const Route = createFileRoute("/admin/trips/$id")({
+/**
+ * `admin_` rather than `admin`, and the underscore is load-bearing.
+ *
+ * TanStack's flat-file routing nests `admin.trips.$id.tsx` *inside* the
+ * `/admin` route, rendering it through the dashboard's <Outlet />. The dashboard
+ * has no Outlet — it is a page, not a layout — so the URL changed to
+ * /admin/trips/… while the dashboard went on rendering and the editor never
+ * appeared. No error, no warning; "Edit itinerary" simply did nothing. The
+ * trailing underscore keeps the URL at /admin/trips/$id but detaches the route
+ * from the /admin layout, which is what an independent page needs.
+ */
+export const Route = createFileRoute("/admin_/trips/$id")({
   loader: async ({ params }) => {
     const data = await loadTrip({ data: params.id });
+    if (data && "signedOut" in data) throw redirect({ to: "/admin" });
     if (!data) throw notFound();
     return data;
   },
@@ -277,16 +633,38 @@ type LoaderData = {
     changes: Record<string, Json>;
     actor: string | null;
   }[];
+  invoices: Invoice[];
   base: string;
 };
 
 function Editor() {
   const data = Route.useLoaderData() as LoaderData;
-  const { trip, days, documents, drivers, progress, views, audit, base } = data;
+  const { trip, days, documents, drivers, progress, invoices, views, audit, base } = data;
   const router = useRouter();
-  const refresh = () => router.invalidate();
 
-  const [tab, setTab] = useState<"itinerary" | "documents" | "activity">("itinerary");
+  /*
+   * Every save ends in a refresh, and the editor is inert until it lands.
+   *
+   * Without this, a save's own button re-enabled the moment the write returned,
+   * while the screen still showed the data from before it — for as long as the
+   * reload took. That read as "my change didn't save", and it let the next
+   * action start while the previous reload was still in flight. Two reloads in
+   * flight can land in either order, and when the older one lands last it paints
+   * stale data over the newer: an invoice that was created, and then was not on
+   * the screen. Holding the page until the reload arrives makes the order the
+   * office sees the order that happened.
+   */
+  const [refreshing, setRefreshing] = useState(false);
+  const refresh = async () => {
+    setRefreshing(true);
+    try {
+      await router.invalidate();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const [tab, setTab] = useState<"itinerary" | "documents" | "invoices" | "activity">("itinerary");
   const url = `${base}/t/${trip.tracking_token}`;
 
   return (
@@ -315,12 +693,27 @@ function Editor() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-5 py-6">
+      {refreshing ? (
+        <p
+          role="status"
+          className="sticky top-0 z-10 bg-gold px-5 py-1.5 text-center text-xs font-bold text-navy"
+        >
+          Saving…
+        </p>
+      ) : null}
+
+      <main
+        aria-busy={refreshing}
+        className={`mx-auto max-w-5xl px-5 py-6 transition-opacity ${
+          refreshing ? "pointer-events-none opacity-60" : ""
+        }`}
+      >
         <nav className="flex gap-1 rounded-xl border border-hair bg-white p-1">
           {(
             [
               ["itinerary", `Itinerary (${days.length} days)`],
               ["documents", `Documents (${documents.length})`],
+              ["invoices", `Invoices (${invoices.length})`],
               ["activity", "Activity & history"],
             ] as const
           ).map(([id, label]) => (
@@ -343,12 +736,17 @@ function Editor() {
             days={days}
             drivers={drivers}
             documents={documents}
+            invoices={invoices}
             onChange={refresh}
           />
         ) : null}
 
         {tab === "documents" ? (
           <DocumentsTab trip={trip} documents={documents} onChange={refresh} />
+        ) : null}
+
+        {tab === "invoices" ? (
+          <InvoicesTab trip={trip} invoices={invoices} onChange={refresh} />
         ) : null}
 
         {tab === "activity" ? (
@@ -368,12 +766,14 @@ function ItineraryTab({
   days,
   drivers,
   documents,
+  invoices,
   onChange,
 }: {
   trip: Trip;
   days: Day[];
   drivers: Driver[];
   documents: TripDocument[];
+  invoices: Invoice[];
   onChange: () => void;
 }) {
   const [addingDay, setAddingDay] = useState(false);
@@ -387,6 +787,7 @@ function ItineraryTab({
           day={day}
           drivers={drivers}
           documents={documents}
+          invoices={invoices}
           onChange={onChange}
         />
       ))}
@@ -419,12 +820,14 @@ function DayCard({
   day,
   drivers,
   documents,
+  invoices,
   onChange,
 }: {
   trip: Trip;
   day: Day;
   drivers: Driver[];
   documents: TripDocument[];
+  invoices: Invoice[];
   onChange: () => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -498,6 +901,7 @@ function DayCard({
                 dayId={day.id}
                 drivers={drivers}
                 documents={documents}
+                invoices={invoices}
                 tripId={trip.id}
                 onChange={onChange}
               />
@@ -547,6 +951,9 @@ function DayForm({
   onDelete?: () => void;
 }) {
   const [busy, setBusy] = useState(false);
+  // Per-instance: editing Day 1 while adding Day 2 puts two of these forms on
+  // screen at once, and a fixed id would point both labels at the first form.
+  const summaryId = useId();
 
   return (
     <form
@@ -588,11 +995,11 @@ function DayForm({
         <SmallField label="Date" name="date" type="date" defaultValue={day?.date ?? ""} />
       </div>
 
-      <label className="mt-3 block text-xs font-semibold text-navy" htmlFor="day-summary">
+      <label className="mt-3 block text-xs font-semibold text-navy" htmlFor={summaryId}>
         Summary shown under the day title
       </label>
       <textarea
-        id="day-summary"
+        id={summaryId}
         name="summary"
         rows={2}
         defaultValue={day?.summary ?? ""}
@@ -647,6 +1054,7 @@ function StepCard({
   dayId,
   drivers,
   documents,
+  invoices,
   tripId,
   onChange,
 }: {
@@ -654,6 +1062,7 @@ function StepCard({
   dayId: string;
   drivers: Driver[];
   documents: TripDocument[];
+  invoices: Invoice[];
   tripId: string;
   onChange: () => void;
 }) {
@@ -719,6 +1128,7 @@ function StepCard({
               tripId={tripId}
               drivers={drivers}
               documents={documents}
+              invoices={invoices}
               onChange={onChange}
             />
           ))}
@@ -733,6 +1143,7 @@ function StepCard({
               position={step.blocks.length}
               drivers={drivers}
               documents={documents}
+              invoices={invoices}
               onDone={() => {
                 setAdding(null);
                 onChange();
@@ -782,6 +1193,7 @@ function StepForm({
   onDelete?: () => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const descriptionId = useId();
 
   return (
     <form
@@ -824,11 +1236,11 @@ function StepForm({
         />
       </div>
 
-      <label className="mt-3 block text-xs font-semibold text-navy" htmlFor={`sd-${dayId}`}>
+      <label className="mt-3 block text-xs font-semibold text-navy" htmlFor={descriptionId}>
         Description
       </label>
       <textarea
-        id={`sd-${dayId}`}
+        id={descriptionId}
         name="description"
         rows={3}
         defaultValue={step?.description ?? ""}
@@ -910,6 +1322,7 @@ function BlockRow({
   tripId,
   drivers,
   documents,
+  invoices,
   onChange,
 }: {
   block: Block;
@@ -917,6 +1330,7 @@ function BlockRow({
   tripId: string;
   drivers: Driver[];
   documents: TripDocument[];
+  invoices: Invoice[];
   onChange: () => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -965,6 +1379,7 @@ function BlockRow({
             position={block.position}
             drivers={drivers}
             documents={documents}
+            invoices={invoices}
             onDone={() => {
               setEditing(false);
               onChange();
@@ -1000,6 +1415,8 @@ function summarise(block: Block, drivers: Driver[], documents: TripDocument[]): 
       return drivers.find((d) => d.id === p.driverId)?.full_name ?? "no driver chosen";
     case "document":
       return documents.find((d) => d.id === p.documentId)?.name ?? "no document chosen";
+    case "invoice":
+      return p.invoiceId ? "invoice attached" : "no invoice chosen";
     case "checklist":
       return `${p.items?.length ?? 0} items`;
     default:
@@ -1024,6 +1441,7 @@ function BlockForm({
   position,
   drivers,
   documents,
+  invoices,
   onDone,
   onCancel,
 }: {
@@ -1034,36 +1452,44 @@ function BlockForm({
   position: number;
   drivers: Driver[];
   documents: TripDocument[];
+  invoices: Invoice[];
   onDone: () => void;
   onCancel: () => void;
 }) {
   const existing = block?.payload ?? {};
   const [payload, setPayload] = useState<BlockPayload>(existing);
   const [busy, setBusy] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  // null when idle, otherwise 0-100. One value, so the Save button and the
+  // progress text can never disagree about whether an upload is running.
+  const [progress, setProgress] = useState<number | null>(null);
+  const uploading = progress !== null;
   const [uploadError, setUploadError] = useState("");
 
   // Not Partial<BlockPayload>: under exactOptionalPropertyTypes, Partial lets a
   // key be absent but not explicitly undefined — and clearing a coordinate field
   // means writing undefined over it. This mapped type allows both.
+  const uid = useId();
   const set = (patch: { [K in keyof BlockPayload]?: BlockPayload[K] | undefined }) =>
     setPayload((p) => ({ ...p, ...patch }));
 
   const upload = async (file: File, field: "path" | "poster" | "gallery") => {
-    setUploading(true);
+    setProgress(0);
     setUploadError("");
-    const form = new FormData();
-    form.set("file", file);
-    form.set("tripId", tripId);
-    form.set("bucket", "trip-media");
-    const result = await uploadFile({ data: form });
-    setUploading(false);
+    const result = await uploadDirect(file, {
+      tripId,
+      bucket: "trip-media",
+      onProgress: setProgress,
+    });
+    setProgress(null);
     if (!result.ok) {
-      setUploadError(result.reason ?? "Upload failed.");
+      setUploadError(result.reason);
       return;
     }
-    if (field === "gallery") set({ paths: [...(payload.paths ?? []), result.path] });
-    else if (field === "poster") set({ poster: result.path });
+    // Functional update: a gallery upload finishing after another one must
+    // append to the latest list, not to the one captured when it started.
+    if (field === "gallery") {
+      setPayload((p) => ({ ...p, paths: [...(p.paths ?? []), result.path] }));
+    } else if (field === "poster") set({ poster: result.path });
     else set({ path: result.path });
   };
 
@@ -1087,8 +1513,11 @@ function BlockForm({
 
         {needs.includes("text") ? (
           <div>
-            <label className="block text-xs font-semibold text-navy">Text</label>
+            <label htmlFor={`${uid}-text`} className="block text-xs font-semibold text-navy">
+              Text
+            </label>
             <textarea
+              id={`${uid}-text`}
               rows={3}
               value={payload.text ?? ""}
               onChange={(e) => set({ text: e.target.value })}
@@ -1099,13 +1528,14 @@ function BlockForm({
 
         {needs.includes("file") ? (
           <div>
-            <label className="block text-xs font-semibold text-navy">
+            <label htmlFor={`${uid}-file`} className="block text-xs font-semibold text-navy">
               {kind === "video" ? "Video file" : "Image file"}
             </label>
             {payload.path ? (
               <p className="mt-1 font-mono text-[11px] break-all text-live">✓ {payload.path}</p>
             ) : null}
             <input
+              id={`${uid}-file`}
               type="file"
               accept={kind === "video" ? "video/*" : "image/*"}
               onChange={(e) => {
@@ -1119,7 +1549,9 @@ function BlockForm({
 
         {needs.includes("gallery") ? (
           <div>
-            <label className="block text-xs font-semibold text-navy">Images</label>
+            <label htmlFor={`${uid}-gallery`} className="block text-xs font-semibold text-navy">
+              Images
+            </label>
             {(payload.paths ?? []).map((p, i) => (
               <p
                 key={p + i}
@@ -1138,6 +1570,7 @@ function BlockForm({
               </p>
             ))}
             <input
+              id={`${uid}-gallery`}
               type="file"
               accept="image/*"
               onChange={(e) => {
@@ -1152,13 +1585,14 @@ function BlockForm({
 
         {needs.includes("poster") ? (
           <div>
-            <label className="block text-xs font-semibold text-navy">
+            <label htmlFor={`${uid}-poster`} className="block text-xs font-semibold text-navy">
               Cover image for the video (optional)
             </label>
             {payload.poster ? (
               <p className="mt-1 font-mono text-[11px] break-all text-live">✓ {payload.poster}</p>
             ) : null}
             <input
+              id={`${uid}-poster`}
               type="file"
               accept="image/*"
               onChange={(e) => {
@@ -1273,8 +1707,11 @@ function BlockForm({
         ) : null}
         {needs.includes("driver") ? (
           <div>
-            <label className="block text-xs font-semibold text-navy">Driver</label>
+            <label htmlFor={`${uid}-driver`} className="block text-xs font-semibold text-navy">
+              Driver
+            </label>
             <select
+              id={`${uid}-driver`}
               value={payload.driverId ?? ""}
               onChange={(e) => set({ driverId: e.target.value })}
               className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-sm outline-none focus:border-gold"
@@ -1297,8 +1734,11 @@ function BlockForm({
         ) : null}
         {needs.includes("document") ? (
           <div>
-            <label className="block text-xs font-semibold text-navy">Document</label>
+            <label htmlFor={`${uid}-document`} className="block text-xs font-semibold text-navy">
+              Document
+            </label>
             <select
+              id={`${uid}-document`}
               value={payload.documentId ?? ""}
               onChange={(e) => set({ documentId: e.target.value })}
               className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-sm outline-none focus:border-gold"
@@ -1317,10 +1757,40 @@ function BlockForm({
             ) : null}
           </div>
         ) : null}
+        {needs.includes("invoice") ? (
+          <div>
+            <label htmlFor={`${uid}-invoice`} className="block text-xs font-semibold text-navy">
+              Invoice
+            </label>
+            <select
+              id={`${uid}-invoice`}
+              value={payload.invoiceId ?? ""}
+              onChange={(e) => set({ invoiceId: e.target.value })}
+              className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-sm outline-none focus:border-gold"
+            >
+              <option value="">— choose an invoice —</option>
+              {invoices.map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.invoice_number} · {money(i.total, i.currency)}
+                  {i.published ? "" : " (draft)"}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-[11px] text-muted">
+              The customer only sees it here if the invoice itself is published. Every published
+              invoice already appears in their Payment section, so use this only to put one inside a
+              particular day.
+            </p>
+          </div>
+        ) : null}
+
         {needs.includes("tone") ? (
           <div>
-            <label className="block text-xs font-semibold text-navy">How urgent is this?</label>
+            <label htmlFor={`${uid}-tone`} className="block text-xs font-semibold text-navy">
+              How urgent is this?
+            </label>
             <select
+              id={`${uid}-tone`}
               value={payload.tone ?? "info"}
               onChange={(e) => set({ tone: e.target.value as BlockPayload["tone"] })}
               className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-sm outline-none focus:border-gold"
@@ -1333,10 +1803,11 @@ function BlockForm({
         ) : null}
         {needs.includes("items") ? (
           <div>
-            <label className="block text-xs font-semibold text-navy">
+            <label htmlFor={`${uid}-items`} className="block text-xs font-semibold text-navy">
               Checklist items, one per line
             </label>
             <textarea
+              id={`${uid}-items`}
               rows={4}
               value={(payload.items ?? []).join("\n")}
               onChange={(e) =>
@@ -1353,7 +1824,7 @@ function BlockForm({
         ) : null}
       </div>
 
-      {uploading ? <p className="mt-3 text-xs text-gold-deep">Uploading…</p> : null}
+      {uploading ? <UploadBar pct={progress ?? 0} /> : null}
       {uploadError ? (
         <p role="alert" className="mt-3 rounded bg-alert/8 p-2 text-xs text-alert">
           {uploadError}
@@ -1417,6 +1888,7 @@ const FIELDS: Record<BlockKind, string[]> = {
   emergency: ["heading", "text", "name", "phone"],
   link: ["label", "href"],
   checklist: ["heading", "items"],
+  invoice: ["invoice"],
 };
 
 function Inline({
@@ -1430,10 +1902,16 @@ function Inline({
   onChange: (v: string) => void;
   placeholder?: string;
 }) {
+  // useId, not a hand-built id: stable across server and client render, and
+  // unique per instance even when two blocks share a field name.
+  const id = useId();
   return (
     <div>
-      <label className="block text-xs font-semibold text-navy">{label}</label>
+      <label htmlFor={id} className="block text-xs font-semibold text-navy">
+        {label}
+      </label>
       <input
+        id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
@@ -1451,6 +1929,7 @@ function SmallField({
   required,
   placeholder,
   min,
+  money,
 }: {
   label: string;
   name: string;
@@ -1459,8 +1938,22 @@ function SmallField({
   required?: boolean;
   placeholder?: string;
   min?: string;
+  /**
+   * An amount in dirhams and fils. Use this rather than `type="number"`.
+   *
+   * A bare number input defaults to step="1", and the browser then treats any
+   * price with fils as invalid — 1499.99 is refused with "the two nearest valid
+   * values are 1499 and 1500" and the form silently declines to submit. Every
+   * money field on the invoice screen shipped that way: no line item or discount
+   * with fils could be saved. `money` sets the step, forbids negatives, and asks
+   * phones for a decimal keypad.
+   */
+  money?: boolean;
 }) {
-  const id = `sf-${name}-${Math.random().toString(36).slice(2, 7)}`;
+  // Previously `sf-${name}-${Math.random()…}`, which renders one id on the
+  // server and a different one in the browser — a hydration mismatch, and a
+  // label pointing at an id that no longer exists after hydration.
+  const id = useId();
   return (
     <div>
       <label htmlFor={id} className="block text-xs font-semibold text-navy">
@@ -1469,13 +1962,44 @@ function SmallField({
       <input
         id={id}
         name={name}
-        type={type}
+        type={money ? "number" : type}
+        step={money ? "0.01" : undefined}
+        inputMode={money ? "decimal" : undefined}
         defaultValue={defaultValue}
         required={required}
         placeholder={placeholder}
-        min={min}
+        min={money ? "0" : min}
         className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-sm outline-none focus:border-gold"
       />
+    </div>
+  );
+}
+
+/**
+ * Upload progress. A real percentage, because a 40 MB video on office wifi takes
+ * long enough that a static "Uploading…" reads as frozen, and a frozen-looking
+ * page is one people close.
+ */
+function UploadBar({ pct }: { pct: number }) {
+  return (
+    <div className="mt-3" role="status" aria-live="polite">
+      <div className="flex items-center justify-between text-xs font-semibold text-gold-deep">
+        <span>{pct >= 100 ? "Finishing…" : "Uploading…"}</span>
+        <span className="font-mono tabular-nums">{pct}%</span>
+      </div>
+      <div
+        className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-paper"
+        role="progressbar"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Upload progress"
+      >
+        <div
+          className="h-full rounded-full bg-gold transition-[width]"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
     </div>
   );
 }
@@ -1493,8 +2017,9 @@ function DocumentsTab({
   documents: TripDocument[];
   onChange: () => void;
 }) {
-  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const inputId = useId();
 
   return (
     <div className="mt-5 rounded-2xl border border-hair bg-white p-5">
@@ -1505,28 +2030,46 @@ function DocumentsTab({
         group chat stops working rather than staying public forever.
       </p>
 
+      <label htmlFor={inputId} className="mt-4 block text-xs font-semibold text-navy">
+        Upload a document (PDF or image, up to 25 MB)
+      </label>
       <input
+        id={inputId}
         type="file"
         accept="application/pdf,image/*"
-        disabled={uploading}
+        disabled={progress !== null}
         onChange={async (e) => {
-          const file = e.target.files?.[0];
+          const input = e.currentTarget;
+          const file = input.files?.[0];
           if (!file) return;
-          setUploading(true);
+          setProgress(0);
           setError("");
-          const form = new FormData();
-          form.set("file", file);
-          form.set("tripId", trip.id);
-          form.set("bucket", "trip-docs");
-          const result = await uploadFile({ data: form });
-          setUploading(false);
-          e.target.value = "";
-          if (!result.ok) setError(result.reason ?? "Upload failed.");
-          else onChange();
+          const result = await uploadDirect(file, {
+            tripId: trip.id,
+            bucket: "trip-docs",
+            onProgress: setProgress,
+          });
+          if (result.ok) {
+            const saved = await registerDocument({
+              data: {
+                tripId: trip.id,
+                path: result.path,
+                name: file.name,
+                contentType: file.type || "application/pdf",
+                size: file.size,
+              },
+            });
+            if (!saved.ok) setError("The file uploaded but could not be recorded. Try again.");
+          } else {
+            setError(result.reason);
+          }
+          setProgress(null);
+          input.value = "";
+          if (result.ok) onChange();
         }}
-        className="mt-4 w-full rounded-lg border border-dashed border-hair bg-paper px-3 py-4 text-sm"
+        className="mt-1.5 w-full rounded-lg border border-dashed border-hair bg-paper px-3 py-4 text-sm"
       />
-      {uploading ? <p className="mt-2 text-xs text-gold-deep">Uploading…</p> : null}
+      {progress !== null ? <UploadBar pct={progress} /> : null}
       {error ? (
         <p role="alert" className="mt-2 rounded bg-alert/8 p-2 text-xs text-alert">
           {error}
@@ -1566,6 +2109,383 @@ function DocumentsTab({
         ) : null}
       </div>
     </div>
+  );
+}
+
+/* -------------------------------------------------------------------------
+ * Invoices
+ * ---------------------------------------------------------------------- */
+
+function InvoicesTab({
+  trip,
+  invoices,
+  onChange,
+}: {
+  trip: Trip;
+  invoices: Invoice[];
+  onChange: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  return (
+    <div className="mt-5 flex flex-col gap-4">
+      <div className="rounded-2xl border border-hair bg-white p-5">
+        <h2 className="font-display text-lg text-navy">Invoices</h2>
+        <p className="mt-1 text-xs leading-relaxed text-muted">
+          An invoice stays a draft until you tick &ldquo;Show to customer&rdquo;, so you can price a
+          trip up without the customer watching you do it. Totals are recalculated from the line
+          items every time you save — you never type the total yourself.
+        </p>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            await createInvoice({ data: trip.id });
+            setBusy(false);
+            onChange();
+          }}
+          className="mt-4 rounded-xl bg-navy px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+        >
+          {busy ? "Creating…" : "+ New invoice"}
+        </button>
+      </div>
+
+      {invoices.map((invoice) => (
+        <InvoiceEditor key={invoice.id} invoice={invoice} onChange={onChange} />
+      ))}
+    </div>
+  );
+}
+
+function InvoiceEditor({ invoice, onChange }: { invoice: Invoice; onChange: () => void }) {
+  const uid = useId();
+  const [busy, setBusy] = useState(false);
+  const [addingItem, setAddingItem] = useState(false);
+  const balance = balanceOf(invoice);
+
+  return (
+    <section className="overflow-hidden rounded-2xl border border-hair bg-white">
+      <header className="flex flex-wrap items-center gap-2.5 border-b border-hair bg-paper p-4">
+        <span className="font-mono text-sm font-bold text-navy">{invoice.invoice_number}</span>
+        <span
+          className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase ${
+            invoice.published ? "bg-live/12 text-live" : "bg-gold/18 text-gold-deep"
+          }`}
+        >
+          {invoice.published ? "Visible to customer" : "Draft"}
+        </span>
+        <span className="ml-auto font-mono text-sm font-bold tabular-nums text-navy">
+          {money(invoice.total, invoice.currency)}
+        </span>
+        {Number(balance) > 0 ? (
+          <span className="font-mono text-xs tabular-nums text-alert">
+            {money(balance, invoice.currency)} due
+          </span>
+        ) : (
+          <span className="text-xs font-semibold text-live">settled</span>
+        )}
+      </header>
+
+      {/* ---- line items ---- */}
+      <div className="p-4">
+        <h3 className="text-[10px] font-semibold tracking-[0.14em] text-muted uppercase">
+          Line items
+        </h3>
+        <div className="mt-2.5 flex flex-col gap-2">
+          {invoice.items.map((item) => (
+            <InvoiceItemRow
+              key={item.id}
+              item={item}
+              invoiceId={invoice.id}
+              currency={invoice.currency}
+              onChange={onChange}
+            />
+          ))}
+          {!invoice.items.length ? (
+            <p className="rounded-lg bg-paper p-3 text-center text-xs text-muted">
+              No items yet. Add one — flights, hotel, transfers, visa.
+            </p>
+          ) : null}
+        </div>
+
+        {addingItem ? (
+          <div className="mt-2.5 rounded-lg border border-gold bg-paper p-3">
+            <InvoiceItemForm
+              invoiceId={invoice.id}
+              position={invoice.items.length}
+              onDone={() => {
+                setAddingItem(false);
+                onChange();
+              }}
+              onCancel={() => setAddingItem(false)}
+            />
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setAddingItem(true)}
+            className="mt-2.5 w-full rounded-lg border border-dashed border-hair py-2.5 text-xs font-bold text-navy hover:border-gold"
+          >
+            + Add line item
+          </button>
+        )}
+      </div>
+
+      {/* ---- totals and status ---- */}
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.currentTarget);
+          setBusy(true);
+          await saveInvoice({
+            data: {
+              id: invoice.id,
+              status: String(f.get("status") ?? "sent"),
+              currency: String(f.get("currency") ?? "AED"),
+              issuedDate: String(f.get("issuedDate") ?? ""),
+              dueDate: String(f.get("dueDate") ?? ""),
+              discount: String(f.get("discount") ?? "0"),
+              amountPaid: String(f.get("amountPaid") ?? "0"),
+              notes: String(f.get("notes") ?? ""),
+              published: f.get("published") === "on",
+            },
+          });
+          setBusy(false);
+          onChange();
+        }}
+        className="border-t border-hair bg-paper p-4"
+      >
+        <div className="grid gap-3 sm:grid-cols-4">
+          <SmallField label="Currency" name="currency" defaultValue={invoice.currency} />
+          <SmallField
+            label="Issued"
+            name="issuedDate"
+            type="date"
+            defaultValue={invoice.issued_date}
+          />
+          <SmallField
+            label="Due"
+            name="dueDate"
+            type="date"
+            defaultValue={invoice.due_date ?? ""}
+          />
+          <div>
+            <label htmlFor={`${uid}-status`} className="block text-xs font-semibold text-navy">
+              Invoice is
+            </label>
+            {/* Only the decision the office actually makes. Payment status is
+                worked out from the amounts; see saveInvoice. */}
+            <select
+              id={`${uid}-status`}
+              name="status"
+              defaultValue={invoice.status === "void" ? "void" : "active"}
+              className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-sm outline-none focus:border-gold"
+            >
+              <option value="active">Active</option>
+              <option value="void">Cancelled</option>
+            </select>
+          </div>
+          <SmallField
+            label="Discount"
+            name="discount"
+            money
+            defaultValue={Number(invoice.discount).toFixed(2)}
+          />
+          <SmallField
+            label="Amount paid"
+            name="amountPaid"
+            money
+            defaultValue={Number(invoice.amount_paid).toFixed(2)}
+          />
+        </div>
+
+        <label htmlFor={`${uid}-notes`} className="mt-3 block text-xs font-semibold text-navy">
+          Notes shown on the invoice
+        </label>
+        <textarea
+          id={`${uid}-notes`}
+          name="notes"
+          rows={2}
+          defaultValue={invoice.notes ?? ""}
+          placeholder="Bank transfer details, payment deadline, what the price excludes."
+          className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-sm outline-none focus:border-gold"
+        />
+
+        <label className="mt-3 flex items-center gap-2 text-xs font-semibold text-navy">
+          <input
+            type="checkbox"
+            name="published"
+            defaultChecked={invoice.published}
+            className="size-4 accent-[#00365F]"
+          />
+          <span>Show this invoice to the customer</span>
+        </label>
+        <p className="mt-1 text-[11px] text-muted">
+          The customer sees &ldquo;Awaiting payment&rdquo;, &ldquo;Part paid&rdquo; or &ldquo;Paid
+          in full&rdquo; — worked out from the line items and the amount paid, so it is always
+          right. You only record the payment; you never set the status by hand.
+        </p>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="submit"
+            disabled={busy}
+            className="rounded-lg bg-navy px-5 py-2 text-xs font-bold text-white disabled:opacity-60"
+          >
+            {busy ? "Saving…" : "Save invoice"}
+          </button>
+          <button
+            type="button"
+            onClick={async () => {
+              if (!window.confirm(`Delete invoice ${invoice.invoice_number}?`)) return;
+              await deleteRow({ data: { table: "trip_invoices", id: invoice.id } });
+              onChange();
+            }}
+            className="ml-auto rounded-lg border border-alert/40 px-4 py-2 text-xs font-semibold text-alert"
+          >
+            Delete invoice
+          </button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function InvoiceItemRow({
+  item,
+  invoiceId,
+  currency,
+  onChange,
+}: {
+  item: InvoiceItem;
+  invoiceId: string;
+  currency: string;
+  onChange: () => void;
+}) {
+  const [editing, setEditing] = useState(false);
+
+  if (editing) {
+    return (
+      <div className="rounded-lg border border-gold bg-paper p-3">
+        <InvoiceItemForm
+          invoiceId={invoiceId}
+          item={item}
+          position={item.position}
+          onDone={() => {
+            setEditing(false);
+            onChange();
+          }}
+          onCancel={() => setEditing(false)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-hair bg-paper p-2.5">
+      <span className="min-w-0 flex-1 truncate text-sm text-ink">{item.description}</span>
+      <span className="shrink-0 font-mono text-xs tabular-nums text-muted">
+        {Number(item.quantity)} × {money(item.unit_price, currency)}
+      </span>
+      <span className="shrink-0 font-mono text-sm font-bold tabular-nums text-navy">
+        {money(item.amount, currency)}
+      </span>
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="shrink-0 rounded border border-hair bg-white px-2 py-1 text-[10px] font-semibold text-navy"
+      >
+        Edit
+      </button>
+      <button
+        type="button"
+        onClick={async () => {
+          await deleteRow({ data: { table: "trip_invoice_items", id: item.id } });
+          onChange();
+        }}
+        aria-label="Delete line item"
+        className="shrink-0 rounded border border-alert/35 px-2 py-1 text-[10px] font-semibold text-alert"
+      >
+        ✕
+      </button>
+    </div>
+  );
+}
+
+function InvoiceItemForm({
+  invoiceId,
+  item,
+  position,
+  onDone,
+  onCancel,
+}: {
+  invoiceId: string;
+  item?: InvoiceItem;
+  position: number;
+  onDone: () => void;
+  onCancel: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.currentTarget);
+        setBusy(true);
+        await saveInvoiceItem({
+          data: {
+            ...(item ? { id: item.id } : {}),
+            invoiceId,
+            position,
+            description: String(f.get("description") ?? ""),
+            quantity: String(f.get("quantity") ?? "1"),
+            unitPrice: String(f.get("unitPrice") ?? "0"),
+          },
+        });
+        setBusy(false);
+        onDone();
+      }}
+    >
+      <div className="grid gap-3 sm:grid-cols-[1fr_90px_130px]">
+        <SmallField
+          label="Description"
+          name="description"
+          defaultValue={item?.description ?? ""}
+          required
+          placeholder="Return flights, Dubai – Tbilisi"
+        />
+        <SmallField
+          label="Qty"
+          name="quantity"
+          money
+          defaultValue={item ? String(Number(item.quantity)) : "1"}
+        />
+        <SmallField
+          label="Unit price"
+          name="unitPrice"
+          money
+          defaultValue={item ? Number(item.unit_price).toFixed(2) : "0"}
+        />
+      </div>
+      <div className="mt-3 flex gap-2">
+        <button
+          type="submit"
+          disabled={busy}
+          className="rounded-lg bg-navy px-4 py-2 text-xs font-bold text-white disabled:opacity-60"
+        >
+          {busy ? "Saving…" : "Save item"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-lg border border-hair bg-white px-4 py-2 text-xs font-semibold text-navy"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }
 

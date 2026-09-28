@@ -14,6 +14,8 @@ import {
   type CustomerTrip,
   type Day,
   type Driver,
+  type Invoice,
+  type InvoiceItem,
   type ProgressEntry,
   type Step,
   type Trip,
@@ -40,6 +42,23 @@ export async function tripByToken(token: string): Promise<CustomerTrip | null> {
   // also stops a bot probing /t/1, /t/2 from costing a database round trip each.
   if (!token || token.length < 32) return null;
 
+  /*
+   * Four round trips, whatever the size of the trip.
+   *
+   * The first version awaited everything in sequence — every day's cover, every
+   * block's photo, every driver's picture and every document was signed one
+   * after another, and each signing is its own network call to Supabase. A
+   * five-day trip with a few photos a day came to thirty-odd round trips to the
+   * database region, one after another, on the page a customer opens on airport
+   * wifi. The work here is the same; only the waiting is batched:
+   *
+   *   1. the trip tree, which needs the token
+   *   2. progress, documents and invoices together, which need the trip id
+   *   3. drivers, which need ids found in the blocks and in the progress
+   *   4. every signed URL in the page, all at once
+   */
+
+  // ---- 1 ----
   const rows = await select<Record<string, unknown>[]>(
     `trips?tracking_token=eq.${encodeURIComponent(token)}&select=${encodeURIComponent(TRIP_TREE)}&limit=1`,
   );
@@ -53,80 +72,111 @@ export async function tripByToken(token: string): Promise<CustomerTrip | null> {
   // Only published days reach the customer. An unpublished day is one the office
   // is still writing, and a half-written day is worse than no day at all — it
   // reads as though the trip has a hole in it.
-  const dayRows = ((raw["trip_days"] as Record<string, unknown>[]) ?? [])
-    .map((d) => d as unknown as Day & { trip_steps?: Record<string, unknown>[] })
-    .filter((d) => d.published)
-    .sort((a, b) => a.day_number - b.day_number);
-
-  const days: Day[] = [];
-  for (const d of dayRows) {
-    const steps = ((d.trip_steps ?? []) as unknown[])
-      .map((s) => s as Step & { trip_blocks?: Record<string, unknown>[] })
-      .sort((a, b) => a.step_number - b.step_number);
-
-    const outSteps: Step[] = [];
-    for (const s of steps) {
-      const blocks = ((s.trip_blocks ?? []) as unknown[])
-        .map((b) => b as Block)
-        .sort((a, b) => a.position - b.position);
-      outSteps.push({ ...s, blocks: await Promise.all(blocks.map(signBlock)) });
-    }
-
-    days.push({
-      ...d,
-      coverUrl: await signedUrl("trip-media", d.cover_image ?? ""),
-      steps: outSteps,
-    });
-  }
-
-  const progress = await select<ProgressEntry[]>(
-    `trip_progress?trip_id=eq.${trip.id}&visible=is.true` +
-      `&select=id,stage,note,created_at,driver_id,visible&order=created_at.desc`,
+  const dayRows = shapeDays((raw["trip_days"] as Record<string, unknown>[]) ?? []).filter(
+    (d) => d.published,
   );
 
+  // ---- 2 ----
+  const [progress, docRows, invoices] = await Promise.all([
+    select<ProgressEntry[]>(
+      `trip_progress?trip_id=eq.${trip.id}&visible=is.true` +
+        `&select=id,stage,note,created_at,driver_id,visible&order=created_at.desc`,
+    ),
+    // staff_only never leaves the office, whatever the URL says.
+    select<TripDocument[]>(
+      `trip_documents?trip_id=eq.${trip.id}&visibility=neq.staff_only` +
+        `&select=id,name,file_path,doc_type,visibility,position&order=position.asc`,
+    ),
+    // Only published, non-void invoices. A draft invoice appearing in someone's
+    // portal mid-negotiation is the kind of mistake that costs a booking.
+    select<Invoice[]>(
+      `trip_invoices?trip_id=eq.${trip.id}&published=is.true&status=neq.void` +
+        `&select=*,items:trip_invoice_items(*)&order=issued_date.desc`,
+    ),
+  ]);
+  sortInvoiceItems(invoices);
+
+  // ---- 3 ----
   // Drivers are fetched by the ids the blocks reference, plus any attached to a
   // progress entry — a driver can be named in the timeline without appearing as
   // a block, and a customer told "your driver has arrived" needs to know who by.
   const driverIds = new Set<string>();
-  for (const d of days) {
+  for (const d of dayRows) {
     for (const s of d.steps) {
       for (const b of s.blocks) if (b.payload?.driverId) driverIds.add(b.payload.driverId);
     }
   }
   for (const p of progress) if (p.driver_id) driverIds.add(p.driver_id);
 
-  const drivers: Driver[] = [];
-  if (driverIds.size) {
-    const list = await select<Driver[]>(
-      `trip_drivers?id=in.(${[...driverIds].join(",")})` +
-        `&select=id,full_name,photo,phone,whatsapp,vehicle,plate_number,languages`,
-    );
-    for (const dr of list) {
-      drivers.push({ ...dr, photoUrl: await signedUrl("trip-media", dr.photo ?? "") });
-    }
-  }
+  const driverRows = driverIds.size
+    ? await select<Driver[]>(
+        `trip_drivers?id=in.(${[...driverIds].join(",")})` +
+          `&select=id,full_name,photo,phone,whatsapp,vehicle,plate_number,languages`,
+      )
+    : [];
 
-  // staff_only never leaves the office, whatever the URL says.
-  const docRows = await select<TripDocument[]>(
-    `trip_documents?trip_id=eq.${trip.id}&visibility=neq.staff_only` +
-      `&select=id,name,file_path,doc_type,visibility,position&order=position.asc`,
-  );
-  const documents: TripDocument[] = [];
-  for (const doc of docRows) {
-    documents.push({ ...doc, url: await signedUrl("trip-docs", doc.file_path) });
-  }
+  // ---- 4 ----
+  // One Promise.all across the whole page. Nothing inside it depends on
+  // anything else inside it, so there is no reason for any of it to wait.
+  const [days, drivers, documents, heroUrl] = await Promise.all([
+    Promise.all(
+      dayRows.map(async (d) => ({
+        ...d,
+        coverUrl: await signedUrl("trip-media", d.cover_image ?? ""),
+        steps: await Promise.all(
+          d.steps.map(async (s) => ({ ...s, blocks: await Promise.all(s.blocks.map(signBlock)) })),
+        ),
+      })),
+    ),
+    Promise.all(
+      driverRows.map(async (dr) => ({
+        ...dr,
+        photoUrl: await signedUrl("trip-media", dr.photo ?? ""),
+      })),
+    ),
+    Promise.all(
+      docRows.map(async (doc) => ({ ...doc, url: await signedUrl("trip-docs", doc.file_path) })),
+    ),
+    signedUrl("trip-media", trip.hero_image ?? ""),
+  ]);
 
   const currentStage = progress[0]?.stage ?? null;
 
   return {
-    trip: { ...trip, heroUrl: await signedUrl("trip-media", trip.hero_image ?? "") },
+    trip: { ...trip, heroUrl },
     days,
     drivers,
     documents,
     progress,
+    invoices,
     currentStage,
     percent: stagePercent(currentStage),
   };
+}
+
+/** Days → steps → blocks, each level sorted. Shared by the customer and admin reads. */
+function shapeDays(rawDays: Record<string, unknown>[]): Day[] {
+  return rawDays
+    .map((d) => {
+      const day = d as unknown as Day & { trip_steps?: Record<string, unknown>[] };
+      const steps = ((day.trip_steps ?? []) as unknown[])
+        .map((s) => {
+          const step = s as unknown as Step & { trip_blocks?: Record<string, unknown>[] };
+          const blocks = ((step.trip_blocks ?? []) as unknown[])
+            .map((b) => b as Block)
+            .sort((a, b) => a.position - b.position);
+          return { ...step, blocks };
+        })
+        .sort((a, b) => a.step_number - b.step_number);
+      return { ...day, steps };
+    })
+    .sort((a, b) => a.day_number - b.day_number);
+}
+
+function sortInvoiceItems(invoices: Invoice[]): void {
+  for (const inv of invoices) {
+    inv.items = (inv.items ?? []).sort((a: InvoiceItem, b: InvoiceItem) => a.position - b.position);
+  }
 }
 
 /**
@@ -138,13 +188,19 @@ export async function tripByToken(token: string): Promise<CustomerTrip | null> {
  */
 async function signBlock(block: Block): Promise<Block> {
   const p = block.payload ?? {};
-  const payload = { ...p };
+  // A video block carries both a clip and a poster; sign them together.
+  const [url, posterUrl, urls] = await Promise.all([
+    p.path ? signedUrl("trip-media", p.path) : Promise.resolve(undefined),
+    p.poster ? signedUrl("trip-media", p.poster) : Promise.resolve(undefined),
+    p.paths?.length
+      ? Promise.all(p.paths.map((path) => signedUrl("trip-media", path)))
+      : Promise.resolve(undefined),
+  ]);
 
-  if (p.path) payload.url = await signedUrl("trip-media", p.path);
-  if (p.poster) payload.posterUrl = await signedUrl("trip-media", p.poster);
-  if (p.paths?.length) {
-    payload.urls = await Promise.all(p.paths.map((path) => signedUrl("trip-media", path)));
-  }
+  const payload = { ...p };
+  if (url !== undefined) payload.url = url;
+  if (posterUrl !== undefined) payload.posterUrl = posterUrl;
+  if (urls !== undefined) payload.urls = urls;
   return { ...block, payload };
 }
 
@@ -164,42 +220,35 @@ export async function tripForAdmin(id: string): Promise<{
   documents: TripDocument[];
   progress: ProgressEntry[];
   drivers: Driver[];
+  invoices: Invoice[];
 } | null> {
-  const rows = await select<Record<string, unknown>[]>(
-    `trips?id=eq.${id}&select=${encodeURIComponent(TRIP_TREE)}&limit=1`,
-  );
+  // All five reads need only the id the caller already has, so they go out
+  // together. Sequentially this was five round trips to the database region on
+  // every single save in the editor — about three seconds during which the
+  // office watched their change not appear.
+  const [rows, documents, progress, drivers, invoices] = await Promise.all([
+    select<Record<string, unknown>[]>(
+      `trips?id=eq.${id}&select=${encodeURIComponent(TRIP_TREE)}&limit=1`,
+    ),
+    // The admin sees every document, staff_only included.
+    select<TripDocument[]>(`trip_documents?trip_id=eq.${id}&select=*&order=position.asc`),
+    select<ProgressEntry[]>(`trip_progress?trip_id=eq.${id}&select=*&order=created_at.desc`),
+    select<Driver[]>(
+      `trip_drivers?active=is.true&select=id,full_name,photo,phone,whatsapp,vehicle,plate_number,languages&order=full_name.asc`,
+    ),
+    // The office sees drafts and voided invoices too.
+    select<Invoice[]>(
+      `trip_invoices?trip_id=eq.${id}&select=*,items:trip_invoice_items(*)&order=issued_date.desc`,
+    ),
+  ]);
   const raw = rows?.[0];
   if (!raw) return null;
 
   const trip = raw as unknown as Trip;
-  const days = ((raw["trip_days"] as Record<string, unknown>[]) ?? [])
-    .map((d) => {
-      const day = d as unknown as Day & { trip_steps?: Record<string, unknown>[] };
-      const steps = ((day.trip_steps ?? []) as unknown[])
-        .map((s) => {
-          const step = s as unknown as Step & { trip_blocks?: Record<string, unknown>[] };
-          const blocks = ((step.trip_blocks ?? []) as unknown[])
-            .map((b) => b as Block)
-            .sort((a, b) => a.position - b.position);
-          return { ...step, blocks };
-        })
-        .sort((a, b) => a.step_number - b.step_number);
-      return { ...day, steps };
-    })
-    .sort((a, b) => a.day_number - b.day_number);
+  const days = shapeDays((raw["trip_days"] as Record<string, unknown>[]) ?? []);
+  sortInvoiceItems(invoices);
 
-  // The admin sees every document, staff_only included.
-  const documents = await select<TripDocument[]>(
-    `trip_documents?trip_id=eq.${id}&select=*&order=position.asc`,
-  );
-  const progress = await select<ProgressEntry[]>(
-    `trip_progress?trip_id=eq.${id}&select=*&order=created_at.desc`,
-  );
-  const drivers = await select<Driver[]>(
-    `trip_drivers?active=is.true&select=id,full_name,photo,phone,whatsapp,vehicle,plate_number,languages&order=full_name.asc`,
-  );
-
-  return { trip, days, documents, progress, drivers };
+  return { trip, days, documents, progress, drivers, invoices };
 }
 
 /* -------------------------------------------------------------------------

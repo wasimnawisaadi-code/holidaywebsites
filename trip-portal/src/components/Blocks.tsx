@@ -1,4 +1,5 @@
-import type { Block, Driver, TripDocument } from "@/lib/types";
+import { InvoiceCard } from "./InvoiceCard";
+import type { Block, Driver, Invoice, TripDocument } from "@/lib/types";
 
 /**
  * Renders the content the office built in the admin.
@@ -16,6 +17,7 @@ import type { Block, Driver, TripDocument } from "@/lib/types";
 type Ctx = {
   drivers: Driver[];
   documents: TripDocument[];
+  invoices?: Invoice[];
   /** Fired when a customer plays a video or opens a document. */
   onEngage?: (event: string, detail: string) => void;
 };
@@ -264,6 +266,14 @@ function BlockView({ block, ctx }: { block: Block; ctx: Ctx }) {
           </span>
         </a>
       ) : null;
+
+    case "invoice": {
+      // Looked up by id rather than embedded in the payload, so that editing an
+      // invoice updates every place it appears. A copy stored in the block would
+      // keep showing the old balance after a payment was recorded.
+      const invoice = ctx.invoices?.find((i) => i.id === p.invoiceId);
+      return invoice ? <InvoiceCard invoice={invoice} onEngage={ctx.onEngage} /> : null;
+    }
 
     case "checklist": {
       const items = p.items ?? [];

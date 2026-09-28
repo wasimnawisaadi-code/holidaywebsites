@@ -171,33 +171,47 @@ export async function signedUrl(
   }
 }
 
-/** Uploads a file server-side. The browser posts to a server function, never here. */
-export async function uploadObject(
+/**
+ * A one-time ticket for the browser to upload one file straight to storage.
+ *
+ * Why the file does not go through a server function: Vercel caps a serverless
+ * function's request body at 4.5 MB. The first version streamed uploads through
+ * one, which works on a laptop — there is no such limit locally — and fails in
+ * production for nearly every real file. A 15-second phone video of an airport
+ * exit is 20-50 MB; a single phone photo is often 4-8 MB. The feature the office
+ * needs most, a clip showing where to meet the driver, would simply not have
+ * worked once deployed.
+ *
+ * So the server does the part that needs a secret and the browser does the part
+ * that needs bandwidth. The server decides the path and signs a ticket for it;
+ * the browser PUTs the bytes to Supabase directly. Verified against the live
+ * project before this was written:
+ *
+ *   - the PUT needs no API key at all, so no key ever reaches the browser
+ *   - the ticket is locked to the one path it was issued for (another path: 400)
+ *   - it cannot overwrite (a second PUT to the same ticket: 409)
+ *   - it expires after two hours
+ *
+ * The bucket's own size limit and MIME allowlist are enforced by storage on the
+ * upload itself, whatever the browser claims.
+ */
+export async function signedUploadUrl(
   bucket: "trip-media" | "trip-docs",
   path: string,
-  body: ArrayBuffer | Uint8Array,
-  contentType: string,
-): Promise<{ ok: boolean; path: string; error?: string }> {
+): Promise<string | null> {
   try {
     const { url, key } = creds();
-    const res = await fetch(`${url}/storage/v1/object/${bucket}/${path}`, {
+    const res = await fetch(`${url}/storage/v1/object/upload/sign/${bucket}/${path}`, {
       method: "POST",
-      headers: {
-        apikey: key,
-        Authorization: `Bearer ${key}`,
-        "Content-Type": contentType,
-        // Overwrite rather than 409 on a re-upload of the same name. The office
-        // replacing a photograph should not have to invent a new filename.
-        "x-upsert": "true",
-      },
-      body: body as BodyInit,
+      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: "{}",
     });
-    if (!res.ok) {
-      return { ok: false, path, error: `${res.status} ${await res.text().catch(() => "")}` };
-    }
-    return { ok: true, path };
-  } catch (err) {
-    return { ok: false, path, error: String(err) };
+    if (!res.ok) return null;
+    const data = (await res.json()) as { url?: string };
+    if (!data.url) return null;
+    return `${url}/storage/v1${data.url.startsWith("/") ? "" : "/"}${data.url}`;
+  } catch {
+    return null;
   }
 }
 

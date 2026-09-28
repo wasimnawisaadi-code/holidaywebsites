@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import {
   PROGRESS_STAGES,
+  money,
   stageMeta,
   stagePercent,
   type ProgressStage,
@@ -341,6 +342,19 @@ function Dashboard() {
   const [creating, setCreating] = useState(false);
   const [filter, setFilter] = useState<"active" | "all">("active");
 
+  // Same reasoning as the editor: the list is inert until a save's reload lands,
+  // so a progress update followed at once by "Publish" cannot race two reloads
+  // and paint the older one last.
+  const [refreshing, setRefreshing] = useState(false);
+  const refresh = async () => {
+    setRefreshing(true);
+    try {
+      await router.invalidate();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   // "Active" is the default view because a fifty-trip list sorted by date buries
   // the three people travelling today, which is the only thing the morning shift
   // needs.
@@ -374,7 +388,21 @@ function Dashboard() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-5 py-7">
+      {refreshing ? (
+        <p
+          role="status"
+          className="sticky top-0 z-10 bg-gold px-5 py-1.5 text-center text-xs font-bold text-navy"
+        >
+          Saving…
+        </p>
+      ) : null}
+
+      <main
+        aria-busy={refreshing}
+        className={`mx-auto max-w-6xl px-5 py-7 transition-opacity ${
+          refreshing ? "pointer-events-none opacity-60" : ""
+        }`}
+      >
         {/* ---- summary ---- */}
         <div className="grid gap-3 sm:grid-cols-4">
           <Stat
@@ -426,7 +454,7 @@ function Dashboard() {
           <NewTripForm
             onDone={() => {
               setCreating(false);
-              router.invalidate();
+              void refresh();
             }}
           />
         ) : null}
@@ -434,7 +462,7 @@ function Dashboard() {
         {/* ---- the list ---- */}
         <div className="mt-6 flex flex-col gap-3">
           {shown.map((trip) => (
-            <TripRow key={trip.id} trip={trip} base={base} onChange={() => router.invalidate()} />
+            <TripRow key={trip.id} trip={trip} base={base} onChange={refresh} />
           ))}
           {!shown.length ? (
             <p className="rounded-2xl border border-hair bg-white p-6 text-center text-sm text-muted">
@@ -676,6 +704,14 @@ function TripRow({
           <span className="text-muted">
             {trip.published_day_count}/{trip.day_count} days published
           </span>
+          {Number(trip.balance_due) > 0 ? (
+            // The only money signal on this screen, deliberately. The office's
+            // question in the morning is "who still owes us", not "what is the
+            // invoice total" — so it shows only when something is outstanding.
+            <span className="font-mono font-semibold tabular-nums text-alert">
+              {money(trip.balance_due)} due
+            </span>
+          ) : null}
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}

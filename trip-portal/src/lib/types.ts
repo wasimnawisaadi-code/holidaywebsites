@@ -147,6 +147,7 @@ export const BLOCK_KINDS = [
   "emergency",
   "link",
   "checklist",
+  "invoice",
 ] as const;
 
 export type BlockKind = (typeof BLOCK_KINDS)[number];
@@ -169,6 +170,7 @@ export const BLOCK_LABELS: Record<BlockKind, { label: string; icon: string; hint
   emergency: { label: "Emergency", icon: "🆘", hint: "Emergency contact panel" },
   link: { label: "Link", icon: "🔗", hint: "An external link" },
   checklist: { label: "Checklist", icon: "✅", hint: "A list of things to bring or do" },
+  invoice: { label: "Invoice", icon: "🧾", hint: "A published invoice for this trip" },
 };
 
 /**
@@ -206,6 +208,7 @@ export type BlockPayload = {
   locationName?: string | undefined;
   driverId?: string | undefined;
   documentId?: string | undefined;
+  invoiceId?: string | undefined;
   items?: string[] | undefined;
   name?: string | undefined;
   phone?: string | undefined;
@@ -301,12 +304,91 @@ export type Trip = {
   customer: { full_name: string; phone: string | null; whatsapp: string | null } | null;
 };
 
+/* -------------------------------------------------------------------------
+ * Invoices
+ *
+ * How money moves, stated precisely because an earlier version of this comment
+ * got it wrong. The columns are Postgres numeric(12,2), which is exact. PostgREST
+ * serialises numeric as a JSON *number* — `"subtotal": 1234.35`, not
+ * `"1234.35"` — so on arrival every amount has passed through a JavaScript
+ * double. That is harmless for storage and display: a two-decimal amount below
+ * a trillion always round-trips through a double to the same nearest value.
+ *
+ * It is not harmless for arithmetic. 0.1 + 0.2 is 0.30000000000000004, and
+ * subtracting two ordinary invoice amounts can leave 0.009999999999990905 on the
+ * screen. So nothing here does arithmetic on the raw values: `balanceOf` and the
+ * server's totals convert to integer fils first, subtract integers, and convert
+ * back once. The type is `number | string` so that a PostgREST configured to
+ * send numeric as strings would still work unchanged.
+ * ---------------------------------------------------------------------- */
+
+export type InvoiceStatus = "draft" | "sent" | "part_paid" | "paid" | "void";
+
+/** An amount as it arrives over the wire. See the note above. */
+export type Amount = number | string;
+
+export type InvoiceItem = {
+  id: string;
+  position: number;
+  description: string;
+  quantity: Amount;
+  unit_price: Amount;
+  amount: Amount;
+};
+
+export type Invoice = {
+  id: string;
+  invoice_number: string;
+  currency: string;
+  status: InvoiceStatus;
+  issued_date: string;
+  due_date: string | null;
+  subtotal: Amount;
+  discount: Amount;
+  total: Amount;
+  amount_paid: Amount;
+  notes: string | null;
+  published: boolean;
+  items: InvoiceItem[];
+};
+
+/** Integer fils (hundredths) from an amount, the only safe unit for arithmetic. */
+export function toFils(v: Amount | null | undefined): number {
+  const n = Number(v ?? 0);
+  return Number.isFinite(n) ? Math.round(n * 100) : 0;
+}
+
+export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
+  draft: "Draft",
+  sent: "Awaiting payment",
+  part_paid: "Part paid",
+  paid: "Paid in full",
+  void: "Cancelled",
+};
+
+/** Balance outstanding, in integer fils so the subtraction is exact. */
+export function balanceOf(invoice: Pick<Invoice, "total" | "amount_paid">): string {
+  const diff = toFils(invoice.total) - toFils(invoice.amount_paid);
+  return (diff / 100).toFixed(2);
+}
+
+/** "AED 4,499.00" — grouped, two decimals, never locale-surprising. */
+export function money(amount: string | number, currency = "AED"): string {
+  const n = Number(amount || 0);
+  if (!Number.isFinite(n)) return `${currency} 0.00`;
+  return `${currency} ${n.toLocaleString("en-AE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
 export type CustomerTrip = {
   trip: Trip;
   days: Day[];
   drivers: Driver[];
   documents: TripDocument[];
   progress: ProgressEntry[];
+  invoices: Invoice[];
   currentStage: ProgressStage | null;
   percent: number;
 };
@@ -332,4 +414,6 @@ export type TripOverview = {
   last_seen_at: string | null;
   day_count: number;
   published_day_count: number;
+  invoice_count: number;
+  balance_due: string;
 };

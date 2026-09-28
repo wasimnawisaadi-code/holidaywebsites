@@ -56,12 +56,18 @@ check(
 // trip. The page must be the generic not-found, revealing nothing.
 await page.goto(`${BASE}/t/short-token-123`, { waitUntil: "domcontentloaded" });
 const body = (await page.locator("body").innerText()).toLowerCase();
-check("a too-short token renders the not-found page", body.includes("can't find this trip") || body.includes("can’t find this trip"));
+check(
+  "a too-short token renders the not-found page",
+  body.includes("can't find this trip") || body.includes("can’t find this trip"),
+);
 check(
   "not-found page leaks no internals",
   !body.includes("supabase") && !body.includes("service") && !body.includes("sql"),
 );
-check("not-found page offers a way to reach the office", body.includes("whatsapp") || body.includes("971"));
+check(
+  "not-found page offers a way to reach the office",
+  body.includes("whatsapp") || body.includes("971"),
+);
 
 // ---- admin is gated --------------------------------------------------------
 await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
@@ -71,15 +77,26 @@ check("admin shows a sign-in form when unauthenticated", hasPassword);
 check("admin shows no trip data when unauthenticated", !adminBody.includes("new trip"));
 
 // ---- the editor is gated too ----------------------------------------------
-// A direct URL to a trip editor must not render the editor for a signed-out
-// visitor. The loader throws, so this should be an error or a sign-in, never
-// the page itself.
+// A signed-out visit to a trip editor must land on the sign-in form.
+//
+// This check used to assert only that the editor's text was absent, and it
+// passed for the wrong reason: the editor route was accidentally nested inside
+// the dashboard, which has no <Outlet />, so the editor never rendered for
+// ANYONE — signed in or not. "Editor not visible" was true because the editor
+// was broken. Asserting where the visitor actually ends up is what would have
+// caught that.
 await page.goto(`${BASE}/admin/trips/00000000-0000-0000-0000-000000000000`, {
-  waitUntil: "domcontentloaded",
+  waitUntil: "networkidle",
 });
 const editorBody = (await page.locator("body").innerText()).toLowerCase();
 check(
-  "trip editor is not reachable while signed out",
+  "signed-out editor visit redirects to the sign-in form",
+  new URL(page.url()).pathname === "/admin" &&
+    (await page.locator('input[type="password"]').count()) > 0,
+  new URL(page.url()).pathname,
+);
+check(
+  "no trip content leaks on that redirect",
   !editorBody.includes("add day") && !editorBody.includes("preview as customer"),
 );
 

@@ -208,7 +208,8 @@ do $$ begin
     'notice',      -- "please be ready 10 minutes early"
     'emergency',
     'link',
-    'checklist'
+    'checklist',
+    'invoice'      -- embeds a published invoice; the table is in 0002
   );
 exception when duplicate_object then null;
 end $$;
@@ -432,7 +433,7 @@ begin
   begin
     if tg_table_name = 'trips' then
       owner := coalesce((new_j ->> 'id')::uuid, (old_j ->> 'id')::uuid);
-    elsif tg_table_name = 'trip_days' then
+    elsif tg_table_name in ('trip_days', 'trip_documents', 'trip_invoices') then
       owner := coalesce((new_j ->> 'trip_id')::uuid, (old_j ->> 'trip_id')::uuid);
     elsif tg_table_name = 'trip_steps' then
       select d.trip_id into owner from public.trip_days d
@@ -441,8 +442,6 @@ begin
       select d.trip_id into owner from public.trip_steps s
         join public.trip_days d on d.id = s.trip_day_id
        where s.id = coalesce((new_j ->> 'trip_step_id')::uuid, (old_j ->> 'trip_step_id')::uuid);
-    elsif tg_table_name = 'trip_documents' then
-      owner := coalesce((new_j ->> 'trip_id')::uuid, (old_j ->> 'trip_id')::uuid);
     end if;
   exception when others then
     owner := null;
@@ -566,39 +565,5 @@ revoke all on public.trip_documents from anon, authenticated;
 revoke all on public.trip_views     from anon, authenticated;
 revoke all on public.trip_audit     from anon, authenticated;
 
--- ---------------------------------------------------------------------------
--- One convenience view for the admin trip list
--- ---------------------------------------------------------------------------
---
--- The list needs, per trip: the customer's name, where the trip has got to,
--- and how much the customer has actually looked at it. Three joins the admin
--- screen would otherwise repeat on every render, and getting the "latest
--- progress row" right in application code is the kind of thing that is subtly
--- wrong for months.
-
-create or replace view public.trip_overview as
-select
-  t.id,
-  t.trip_code,
-  t.title,
-  t.destination,
-  t.start_date,
-  t.end_date,
-  t.status,
-  t.tracking_token,
-  t.published_at,
-  t.created_at,
-  t.updated_at,
-  c.full_name   as customer_name,
-  c.phone       as customer_phone,
-  c.whatsapp    as customer_whatsapp,
-  (select p.stage      from public.trip_progress p where p.trip_id = t.id order by p.created_at desc limit 1) as current_stage,
-  (select p.created_at from public.trip_progress p where p.trip_id = t.id order by p.created_at desc limit 1) as current_stage_at,
-  (select count(*)     from public.trip_views  v where v.trip_id = t.id and v.event = 'open')                 as portal_opens,
-  (select max(v.created_at) from public.trip_views v where v.trip_id = t.id)                                  as last_seen_at,
-  (select count(*)     from public.trip_days   d where d.trip_id = t.id)                                      as day_count,
-  (select count(*)     from public.trip_days   d where d.trip_id = t.id and d.published)                      as published_day_count
-from public.trips t
-left join public.trip_customers c on c.id = t.customer_id;
-
-revoke all on public.trip_overview from anon, authenticated;
+-- The admin list view, `trip_overview`, lives in 0002: it reports each trip's
+-- outstanding balance, so it has to be created after the invoice tables exist.

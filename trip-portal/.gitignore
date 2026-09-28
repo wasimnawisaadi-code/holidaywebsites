@@ -6,3 +6,6 @@ dist
 .env
 .env.local
 *.log
+
+# Test artefacts: screenshots and scratch scripts from the e2e suites.
+scripts/__*

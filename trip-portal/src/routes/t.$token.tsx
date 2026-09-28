@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 
 import { BlockList, DriverCard, DocumentLink } from "@/components/Blocks";
+import { InvoiceCard } from "@/components/InvoiceCard";
 import { stageMeta, type CustomerTrip } from "@/lib/types";
 
 /**
@@ -65,7 +66,7 @@ export const Route = createFileRoute("/t/$token")({
 
 function Portal() {
   const data = Route.useLoaderData() as CustomerTrip;
-  const { trip, days, drivers, documents, progress, currentStage, percent } = data;
+  const { trip, days, drivers, documents, progress, invoices, currentStage, percent } = data;
   const token = Route.useParams().token;
 
   const engage = (event: string, detail: string) => {
@@ -296,7 +297,7 @@ function Portal() {
                     <div className="mt-3">
                       <BlockList
                         blocks={step.blocks}
-                        ctx={{ drivers, documents, onEngage: engage }}
+                        ctx={{ drivers, documents, invoices, onEngage: engage }}
                       />
                     </div>
                   ) : null}
@@ -320,6 +321,18 @@ function Portal() {
             </p>
           </section>
         )}
+
+        {/* ---- invoices ---- */}
+        {invoices.length ? (
+          <section aria-label="Invoices" className="mt-9">
+            <SectionHeading>Payment</SectionHeading>
+            <div className="mt-3 flex flex-col gap-3">
+              {invoices.map((invoice) => (
+                <InvoiceCard key={invoice.id} invoice={invoice} onEngage={engage} />
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {/* ---- documents ---- */}
         {documents.length ? (

@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as TTokenRouteImport } from './routes/t.$token'
-import { Route as AdminTripsIdRouteImport } from './routes/admin.trips.$id'
+import { Route as AdminTripsIdRouteImport } from './routes/admin_.trips.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,42 +30,43 @@ const TTokenRoute = TTokenRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminTripsIdRoute = AdminTripsIdRouteImport.update({
-  id: '/trips/$id',
-  path: '/trips/$id',
-  getParentRoute: () => AdminRoute,
+  id: '/admin_/trips/$id',
+  path: '/admin/trips/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminRoute
   '/t/$token': typeof TTokenRoute
   '/admin/trips/$id': typeof AdminTripsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminRoute
   '/t/$token': typeof TTokenRoute
   '/admin/trips/$id': typeof AdminTripsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminRoute
   '/t/$token': typeof TTokenRoute
-  '/admin/trips/$id': typeof AdminTripsIdRoute
+  '/admin_/trips/$id': typeof AdminTripsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths: '/' | '/admin' | '/t/$token' | '/admin/trips/$id'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/admin' | '/t/$token' | '/admin/trips/$id'
-  id: '__root__' | '/' | '/admin' | '/t/$token' | '/admin/trips/$id'
+  id: '__root__' | '/' | '/admin' | '/t/$token' | '/admin_/trips/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRouteWithChildren
+  AdminRoute: typeof AdminRoute
   TTokenRoute: typeof TTokenRoute
+  AdminTripsIdRoute: typeof AdminTripsIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -91,30 +92,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/trips/$id': {
-      id: '/admin/trips/$id'
-      path: '/trips/$id'
+    '/admin_/trips/$id': {
+      id: '/admin_/trips/$id'
+      path: '/admin/trips/$id'
       fullPath: '/admin/trips/$id'
       preLoaderRoute: typeof AdminTripsIdRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AdminRouteChildren {
-  AdminTripsIdRoute: typeof AdminTripsIdRoute
-}
-
-const AdminRouteChildren: AdminRouteChildren = {
-  AdminTripsIdRoute: AdminTripsIdRoute,
-}
-
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRouteWithChildren,
+  AdminRoute: AdminRoute,
   TTokenRoute: TTokenRoute,
+  AdminTripsIdRoute: AdminTripsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
