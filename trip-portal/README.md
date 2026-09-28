@@ -29,9 +29,10 @@ client-safe half — components import from there.
 ## Setup
 
 1. Run `supabase/migrations/0001_trip_portal.sql`, then
-   `0002_invoices_and_hardening.sql`, in the Supabase SQL editor. Both are
-   additive and namespaced; neither touches the website's tables. (Already
-   applied to the `nawisaadiholidays` project on 2026-09-28.)
+   `0002_invoices_and_hardening.sql` and `0003_guide_block.sql`, in the
+   Supabase SQL editor. All are additive and namespaced; none touches the
+   website's tables. (Already applied to the `nawisaadiholidays` project on
+   2026-09-28.)
 2. Copy `.env.example` to `.env.local` and fill it in.
 3. `npm install && npm run dev` — <http://localhost:5200>
 4. Sign in at `/admin` with an address in `TRIP_ADMIN_EMAILS`.
@@ -51,6 +52,16 @@ before printing QR codes if a custom domain is added.
    (192 bits, not guessable) and returns the link and QR immediately.
 2. **Edit itinerary** → add days → add steps → add blocks. A day stays invisible
    to the customer until its "Show this day" box is ticked.
+   - **Pin a step** by searching a name, pasting a Google Maps link (short
+     `maps.app.goo.gl` links work), or tapping the map — then drag the pin to
+     the exact exit or kiosk. The customer sees the day's stops on one map,
+     joined in order, and Google Maps / Apple Maps / Waze buttons on each.
+     Search is OpenStreetMap's free geocoder: no key, no bill, one search a
+     second.
+   - **Photo guide** block: choose all the photos of the walk at once (they go
+     in camera order), write one line under each, reorder with the arrows, and
+     pin the meeting point. The customer swipes through it step by step and
+     ends on the meeting point with its map, directions and the driver.
 3. **Publish to customer**, then **Send on WhatsApp**.
 4. During the trip, drive the status from the trip row: pick a stage, add a note
    like "Ahmed is waiting at Exit 3", save. The customer sees it on refresh.
@@ -62,7 +73,9 @@ before printing QR codes if a custom domain is added.
    office from the editor (drafts carry a DRAFT watermark).
 6. **Trip details** edits everything set at creation, sets the cover photo, and
    cancels (link stops working, record kept) or deletes the trip (every row and
-   every file in storage). Each day can carry its own photo.
+   every file in storage). Each day can carry its own photo. A trip can also be
+   deleted straight from its dashboard row (the bin icon), by typing its
+   reference to confirm.
 7. **Drivers** (`/admin/drivers`) — add once with photo, vehicle and plate, pick
    on any trip; edit, deactivate or delete.
 8. **Activity & history** shows what the customer has actually opened, a
@@ -71,7 +84,7 @@ before printing QR codes if a custom domain is added.
 
 ## Verification
 
-Four suites, all driving a real browser. Run them one at a time — applying a
+Five suites, all driving a real browser. Run them one at a time — applying a
 migration while a suite runs makes PostgREST reload its schema cache mid-test,
 and requests landing in that window fail for reasons unrelated to the code.
 
@@ -88,6 +101,10 @@ and requests landing in that window fail for reasons unrelated to the code.
   cover and day photos, invoice PDFs for customer and office (and a wrong link
   refused), deleting a progress update, the drivers page, and deleting a trip
   with proof its files leave storage. Saves screenshots to `scripts/__shot-*`.
+- `node scripts/e2e-location.mjs` — **writes to the database.** Pins placed by
+  search and by pasted link, a photo guide uploaded, reordered and swiped
+  through on a phone, the route map and directions, a deleted guide taking its
+  photos with it, and a trip deleted from the dashboard row.
 
 The e2e suites need `.env.local` exported (`set -a; . ./.env.local; set +a`) and
 a preview running on port 4201. They name everything they create `DEMO — …`;

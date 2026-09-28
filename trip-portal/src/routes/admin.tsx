@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import { Icon, type IconName } from "@/components/Icon";
 import { destinationPhoto } from "@/lib/destinations";
+import { deleteTrip } from "@/lib/trip-admin";
 import {
   PROGRESS_STAGES,
   money,
@@ -753,6 +754,33 @@ function TripRow({
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  // Deleting asks for the trip reference to be typed, not an "are you sure":
+  // a confirm box is clicked through by reflex, and this cannot be undone.
+  const [confirming, setConfirming] = useState(false);
+  const [typed, setTyped] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const confirmId = useId();
+  const matches = typed.trim().toUpperCase() === trip.trip_code.toUpperCase();
+
+  const remove = async () => {
+    if (!matches || deleting) return;
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      const result = await deleteTrip({ data: trip.id });
+      if (!result.ok) {
+        setDeleteError("That trip could not be found — it may already have been deleted.");
+        return;
+      }
+      onChange();
+    } catch {
+      setDeleteError("Deleting failed. Nothing was removed; try again.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const url = `${base}/t/${trip.tracking_token}`;
   const percent = stagePercent(trip.current_stage);
   const stage = trip.current_stage ? stageMeta(trip.current_stage) : null;
@@ -823,15 +851,93 @@ function TripRow({
               {money(trip.balance_due)} due
             </span>
           ) : null}
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="mt-1 rounded-lg border border-hair px-3 py-1.5 font-semibold text-navy"
-          >
-            {open ? "Close" : "Link & progress"}
-          </button>
+          <div className="mt-1 flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              className="rounded-lg border border-hair px-3 py-1.5 font-semibold text-navy hover:border-navy"
+            >
+              {open ? "Close" : "Link & progress"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setConfirming((v) => !v);
+                setTyped("");
+                setDeleteError("");
+              }}
+              aria-label={`Delete trip ${trip.trip_code}`}
+              aria-expanded={confirming}
+              title="Delete trip"
+              className={`grid size-[30px] place-items-center rounded-lg border transition ${
+                confirming
+                  ? "border-alert bg-alert text-white"
+                  : "border-hair text-muted hover:border-alert hover:text-alert"
+              }`}
+            >
+              <Icon name="trash" className="size-3.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      {confirming ? (
+        <div
+          role="group"
+          aria-label={`Delete trip ${trip.trip_code}`}
+          className="border-t border-alert/25 bg-alert/5 px-4 py-4"
+        >
+          <p className="flex items-center gap-2 text-sm font-semibold text-alert">
+            <Icon name="alert" className="size-4" />
+            Delete {trip.customer_name ? `${trip.customer_name}'s` : "this"} trip permanently?
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-muted">
+            Removes the itinerary, progress updates, documents, invoices and every photo and video.
+            The customer&apos;s link stops working. This cannot be undone — to keep a record
+            instead, tick &ldquo;Trip cancelled&rdquo; in the trip&apos;s details.
+          </p>
+          <form
+            className="mt-3 flex flex-wrap items-center gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void remove();
+            }}
+          >
+            <label htmlFor={confirmId} className="w-full text-xs font-semibold text-navy">
+              Type <span className="font-mono text-alert">{trip.trip_code}</span> to confirm
+            </label>
+            <input
+              id={confirmId}
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+              placeholder={trip.trip_code}
+              className="w-52 rounded-lg border border-alert/40 bg-white px-3 py-2 font-mono text-xs outline-none focus:border-alert"
+            />
+            <button
+              type="submit"
+              disabled={!matches || deleting}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-alert px-4 py-2 text-xs font-bold text-white disabled:opacity-40"
+            >
+              <Icon name="trash" className="size-3.5" />
+              {deleting ? "Deleting…" : "Delete forever"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirming(false)}
+              className="rounded-lg border border-hair bg-white px-4 py-2 text-xs font-semibold text-navy"
+            >
+              Keep it
+            </button>
+          </form>
+          {deleteError ? (
+            <p role="alert" className="mt-2 text-xs text-alert">
+              {deleteError}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       {open ? (
         <div className="grid gap-5 border-t border-hair bg-paper p-4 lg:grid-cols-2">

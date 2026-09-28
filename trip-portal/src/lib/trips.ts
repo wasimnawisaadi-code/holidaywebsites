@@ -186,14 +186,23 @@ function sortInvoiceItems(invoices: Invoice[]): void {
  * component and signing is an async network call. Every attempt to make those
  * two mix ends in a component that renders before its images resolve.
  */
-async function signBlock(block: Block): Promise<Block> {
+export async function signBlock(block: Block): Promise<Block> {
   const p = block.payload ?? {};
   // A video block carries both a clip and a poster; sign them together.
-  const [url, posterUrl, urls] = await Promise.all([
+  const [url, posterUrl, urls, steps] = await Promise.all([
     p.path ? signedUrl("trip-media", p.path) : Promise.resolve(undefined),
     p.poster ? signedUrl("trip-media", p.poster) : Promise.resolve(undefined),
     p.paths?.length
       ? Promise.all(p.paths.map((path) => signedUrl("trip-media", path)))
+      : Promise.resolve(undefined),
+    // A photo guide: each step's photo, all at once.
+    p.steps?.length
+      ? Promise.all(
+          p.steps.map(async (s) => ({
+            ...s,
+            url: s.path ? await signedUrl("trip-media", s.path) : null,
+          })),
+        )
       : Promise.resolve(undefined),
   ]);
 
@@ -201,6 +210,7 @@ async function signBlock(block: Block): Promise<Block> {
   if (url !== undefined) payload.url = url;
   if (posterUrl !== undefined) payload.posterUrl = posterUrl;
   if (urls !== undefined) payload.urls = urls;
+  if (steps !== undefined) payload.steps = steps;
   return { ...block, payload };
 }
 

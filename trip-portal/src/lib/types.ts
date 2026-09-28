@@ -150,6 +150,7 @@ export const BLOCK_KINDS = [
   "link",
   "checklist",
   "invoice",
+  "guide",
 ] as const;
 
 export type BlockKind = (typeof BLOCK_KINDS)[number];
@@ -173,6 +174,11 @@ export const BLOCK_LABELS: Record<BlockKind, { label: string; icon: IconName; hi
   link: { label: "Link", icon: "link", hint: "An external link" },
   checklist: { label: "Checklist", icon: "list", hint: "A list of things to bring or do" },
   invoice: { label: "Invoice", icon: "receipt", hint: "A published invoice for this trip" },
+  guide: {
+    label: "Photo guide",
+    icon: "images",
+    hint: "Step-by-step photos to a meeting point, e.g. the driver pickup",
+  },
 };
 
 /**
@@ -211,6 +217,11 @@ export type BlockPayload = {
   driverId?: string | undefined;
   documentId?: string | undefined;
   invoiceId?: string | undefined;
+  /**
+   * Photo-guide steps, in order. `path` is a storage path; `url` is filled in
+   * when the trip is read (signed), never stored.
+   */
+  steps?: GuideStep[] | undefined;
   items?: string[] | undefined;
   name?: string | undefined;
   phone?: string | undefined;
@@ -222,6 +233,12 @@ export type BlockPayload = {
   departure?: string | undefined;
   arrival?: string | undefined;
   tone?: "info" | "warning" | "critical" | undefined;
+};
+
+export type GuideStep = {
+  path?: string | undefined;
+  url?: string | null | undefined;
+  text: string;
 };
 
 export type Block = {

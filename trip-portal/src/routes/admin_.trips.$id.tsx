@@ -10,7 +10,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { useId, useState } from "react";
 
 import { Icon, type IconName } from "@/components/Icon";
+import { LocationPicker, type PickedLocation } from "@/components/LocationPicker";
 import { destinationPhoto } from "@/lib/destinations";
+import { isLatLng } from "@/lib/geo";
+import { deleteTrip } from "@/lib/trip-admin";
 import { UUID, uploadDirect } from "@/lib/uploads";
 import type { Json } from "@/lib/views";
 import {
@@ -28,6 +31,7 @@ import {
   type BlockPayload,
   type Day,
   type Driver,
+  type GuideStep,
   type ProgressEntry,
   type Step,
   type Trip,
@@ -87,13 +91,24 @@ const loadTrip = createServerFn({ method: "GET" })
     // Covers are signed so the office sees the actual photo it chose, not a
     // storage path. Block photos stay as paths here; the customer preview shows
     // those rendered.
+    // Photo guides are signed too: a guide is edited by looking at its photos
+    // in order, and a list of file names cannot be reordered by eye.
     const { signedUrl } = await import("@/lib/db");
+    const { signBlock } = await import("@/lib/trips");
     const [heroUrl, days] = await Promise.all([
       signedUrl("trip-media", trip.trip.hero_image ?? ""),
       Promise.all(
         trip.days.map(async (d) => ({
           ...d,
           coverUrl: await signedUrl("trip-media", d.cover_image ?? ""),
+          steps: await Promise.all(
+            d.steps.map(async (st) => ({
+              ...st,
+              blocks: await Promise.all(
+                st.blocks.map((b) => (b.kind === "guide" ? signBlock(b) : Promise.resolve(b))),
+              ),
+            })),
+          ),
         })),
       ),
     ]);
@@ -197,6 +212,14 @@ const saveBlock = createServerFn({ method: "POST" })
     delete clean["url"];
     delete clean["urls"];
     delete clean["posterUrl"];
+    // The same for each guide step, whose `url` is a signed link or, straight
+    // after an upload, a blob: preview that only exists in this browser tab.
+    if (Array.isArray(clean["steps"])) {
+      clean["steps"] = (clean["steps"] as GuideStep[]).map((st) => ({
+        ...(st.path ? { path: st.path } : {}),
+        text: String(st.text ?? "").trim(),
+      }));
+    }
 
     const row = {
       trip_step_id: data.stepId,
@@ -246,7 +269,8 @@ const deleteRow = createServerFn({ method: "POST" })
       );
       for (const r of rows) {
         const p = r.payload ?? {};
-        for (const path of [p.path, p.poster, ...(p.paths ?? [])]) {
+        const guide = (p.steps ?? []).map((st) => st.path);
+        for (const path of [p.path, p.poster, ...(p.paths ?? []), ...guide]) {
           if (path) files.push({ bucket: "trip-media", path });
         }
       }
@@ -389,46 +413,6 @@ const setCover = createServerFn({ method: "POST" })
     await update("trip_days", `id=eq.${data.dayId}`, { cover_image: data.path });
     const old = rows[0].cover_image;
     if (old && old !== data.path) await deleteObject("trip-media", old);
-    return { ok: true as const };
-  });
-
-/**
- * Deletes a trip for good: every day, step, block, progress entry, document,
- * invoice and page view, and every file in storage.
- *
- * Files first, then rows. The other order leaves photos and vouchers in the
- * bucket with no row pointing at them — unreachable, but not gone, and "deleted"
- * should mean deleted when it is a customer's passport-adjacent paperwork. The
- * audit trail is deliberately kept: it has no foreign key to the trip, so the
- * record of who deleted it, and when, survives the deletion.
- */
-const deleteTrip = createServerFn({ method: "POST" })
-  .validator((tripId: string) => tripId)
-  .handler(async ({ data: tripId }) => {
-    const { email } = await requireSession();
-    if (!UUID.test(tripId)) return { ok: false as const };
-    const { select, remove, listObjects, deleteObjects } = await import("@/lib/db");
-
-    const rows = await select<{ customer_id: string | null; trip_code: string }[]>(
-      `trips?id=eq.${tripId}&select=customer_id,trip_code&limit=1`,
-    );
-    const trip = rows[0];
-    if (!trip) return { ok: false as const };
-
-    for (const bucket of ["trip-media", "trip-docs"] as const) {
-      const paths = await listObjects(bucket, `${tripId}/`);
-      await deleteObjects(bucket, paths);
-    }
-    await remove("trips", `id=eq.${tripId}`);
-
-    // The customer row goes too, unless another trip still belongs to them.
-    if (trip.customer_id) {
-      const others = await select<{ id: string }[]>(
-        `trips?customer_id=eq.${trip.customer_id}&select=id&limit=1`,
-      );
-      if (!others.length) await remove("trip_customers", `id=eq.${trip.customer_id}`);
-    }
-    console.info(`trip ${trip.trip_code} deleted by ${email}`);
     return { ok: true as const };
   });
 
@@ -1587,6 +1571,11 @@ function StepCard({
               "No time or location set"}
           </p>
         </div>
+        {isLatLng(step.latitude, step.longitude) ? (
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-live/10 px-2 py-0.5 text-[10px] font-bold text-live">
+            <Icon name="pin" className="size-3" /> On the map
+          </span>
+        ) : null}
         <span className="shrink-0 text-[11px] text-muted">
           {step.blocks.length} {step.blocks.length === 1 ? "block" : "blocks"}
         </span>
@@ -1696,6 +1685,11 @@ function StepForm({
 }) {
   const [busy, setBusy] = useState(false);
   const descriptionId = useId();
+  const [place, setPlace] = useState<PickedLocation>({
+    name: step?.location_name ?? "",
+    lat: step?.latitude ?? undefined,
+    lng: step?.longitude ?? undefined,
+  });
 
   return (
     <form
@@ -1712,9 +1706,11 @@ function StepForm({
             description: String(f.get("description") ?? ""),
             timeLabel: String(f.get("timeLabel") ?? ""),
             duration: String(f.get("duration") ?? ""),
-            locationName: String(f.get("locationName") ?? ""),
-            latitude: String(f.get("latitude") ?? ""),
-            longitude: String(f.get("longitude") ?? ""),
+            locationName: place.name,
+            // Half a pin is no pin: a latitude without its longitude would
+            // put the customer's map somewhere on the equator.
+            latitude: isLatLng(place.lat, place.lng) ? String(place.lat) : "",
+            longitude: isLatLng(place.lat, place.lng) ? String(place.lng) : "",
           },
         });
         setBusy(false);
@@ -1764,25 +1760,8 @@ function StepForm({
           placeholder="about 45 minutes"
         />
       </div>
-      <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_120px_120px]">
-        <SmallField
-          label="Location name"
-          name="locationName"
-          defaultValue={step?.location_name ?? ""}
-          placeholder="DXB Terminal 3, Exit 2"
-        />
-        <SmallField
-          label="Latitude"
-          name="latitude"
-          defaultValue={step?.latitude?.toString() ?? ""}
-          placeholder="25.2532"
-        />
-        <SmallField
-          label="Longitude"
-          name="longitude"
-          defaultValue={step?.longitude?.toString() ?? ""}
-          placeholder="55.3657"
-        />
+      <div className="mt-3">
+        <LocationPicker value={place} onChange={setPlace} inputName="locationName" />
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -1921,6 +1900,12 @@ function summarise(block: Block, drivers: Driver[], documents: TripDocument[]): 
       return p.invoiceId ? "invoice attached" : "no invoice chosen";
     case "checklist":
       return `${p.items?.length ?? 0} items`;
+    case "guide": {
+      const n = p.steps?.length ?? 0;
+      return `${p.heading ? `${p.heading} · ` : ""}${n} photo ${n === 1 ? "step" : "steps"}${
+        isLatLng(p.latitude, p.longitude) ? " · meeting point pinned" : ""
+      }`;
+    }
     default:
       return p.name ?? p.label ?? p.reference ?? p.flightNumber ?? "—";
   }
@@ -1974,7 +1959,7 @@ function BlockForm({
   const set = (patch: { [K in keyof BlockPayload]?: BlockPayload[K] | undefined }) =>
     setPayload((p) => ({ ...p, ...patch }));
 
-  const upload = async (file: File, field: "path" | "poster" | "gallery") => {
+  const store = async (file: File): Promise<string | null> => {
     setProgress(0);
     setUploadError("");
     const result = await uploadDirect(file, {
@@ -1985,14 +1970,20 @@ function BlockForm({
     setProgress(null);
     if (!result.ok) {
       setUploadError(result.reason);
-      return;
+      return null;
     }
+    return result.path;
+  };
+
+  const upload = async (file: File, field: "path" | "poster" | "gallery") => {
+    const path = await store(file);
+    if (!path) return;
     // Functional update: a gallery upload finishing after another one must
     // append to the latest list, not to the one captured when it started.
     if (field === "gallery") {
-      setPayload((p) => ({ ...p, paths: [...(p.paths ?? []), result.path] }));
-    } else if (field === "poster") set({ poster: result.path });
-    else set({ path: result.path });
+      setPayload((p) => ({ ...p, paths: [...(p.paths ?? []), path] }));
+    } else if (field === "poster") set({ poster: path });
+    else set({ path });
   };
 
   const needs = FIELDS[kind];
@@ -2007,16 +1998,17 @@ function BlockForm({
       <div className="mt-3 flex flex-col gap-3">
         {needs.includes("heading") ? (
           <Inline
-            label="Heading"
+            label={kind === "guide" ? "Guide title" : "Heading"}
             value={payload.heading ?? ""}
             onChange={(v) => set({ heading: v })}
+            {...(kind === "guide" ? { placeholder: "How to find your driver at Terminal 3" } : {})}
           />
         ) : null}
 
         {needs.includes("text") ? (
           <div>
             <label htmlFor={`${uid}-text`} className="block text-xs font-semibold text-navy">
-              Text
+              {kind === "guide" ? "Introduction (optional)" : "Text"}
             </label>
             <textarea
               id={`${uid}-text`}
@@ -2047,6 +2039,15 @@ function BlockForm({
               className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-xs"
             />
           </div>
+        ) : null}
+
+        {needs.includes("guide") ? (
+          <GuideStepsEditor
+            steps={payload.steps ?? []}
+            update={(fn) => setPayload((p) => ({ ...p, steps: fn(p.steps ?? []) }))}
+            store={store}
+            busy={uploading}
+          />
         ) : null}
 
         {needs.includes("gallery") ? (
@@ -2189,28 +2190,27 @@ function BlockForm({
           </div>
         ) : null}
         {needs.includes("location") ? (
-          <div className="grid gap-3 sm:grid-cols-[1fr_110px_110px]">
-            <Inline
-              label="Location name"
-              value={payload.locationName ?? ""}
-              onChange={(v) => set({ locationName: v })}
-            />
-            <Inline
-              label="Latitude"
-              value={payload.latitude?.toString() ?? ""}
-              onChange={(v) => set(v.trim() ? { latitude: Number(v) } : { latitude: undefined })}
-            />
-            <Inline
-              label="Longitude"
-              value={payload.longitude?.toString() ?? ""}
-              onChange={(v) => set(v.trim() ? { longitude: Number(v) } : { longitude: undefined })}
-            />
-          </div>
+          <LocationPicker
+            nameLabel={kind === "guide" ? "Meeting point (the last stop)" : "Location name"}
+            namePlaceholder={
+              kind === "guide"
+                ? "Terminal 3 car park, level 1, pillar B4"
+                : "DXB Terminal 3, Exit 2"
+            }
+            value={{
+              name: payload.locationName ?? "",
+              lat: payload.latitude,
+              lng: payload.longitude,
+            }}
+            onChange={(v) =>
+              set({ locationName: v.name || undefined, latitude: v.lat, longitude: v.lng })
+            }
+          />
         ) : null}
         {needs.includes("driver") ? (
           <div>
             <label htmlFor={`${uid}-driver`} className="block text-xs font-semibold text-navy">
-              Driver
+              {kind === "guide" ? "Driver waiting there (optional)" : "Driver"}
             </label>
             <select
               id={`${uid}-driver`}
@@ -2229,7 +2229,7 @@ function BlockForm({
             </select>
             {!drivers.length ? (
               <p className="mt-1 text-[11px] text-gold-deep">
-                No drivers on file yet. Add them in Supabase → trip_drivers, then they appear here.
+                No drivers on file yet. Add them on the Drivers page, then they appear here.
               </p>
             ) : null}
           </div>
@@ -2391,7 +2391,181 @@ const FIELDS: Record<BlockKind, string[]> = {
   link: ["label", "href"],
   checklist: ["heading", "items"],
   invoice: ["invoice"],
+  guide: ["heading", "text", "guide", "location", "driver"],
 };
+
+/**
+ * The steps of a photo guide: one photo and one line of instruction each.
+ *
+ * Photos can be chosen several at a time, because that is how the office has
+ * them — a colleague walks the route once, photographs each turn, and sends
+ * the lot. They are added in file-name order, which on every phone camera is
+ * the order they were taken, and can be reordered with the arrows after.
+ */
+function GuideStepsEditor({
+  steps,
+  update,
+  store,
+  busy,
+}: {
+  steps: GuideStep[];
+  update: (fn: (steps: GuideStep[]) => GuideStep[]) => void;
+  store: (file: File) => Promise<string | null>;
+  busy: boolean;
+}) {
+  const id = useId();
+
+  const addPhotos = async (files: File[]) => {
+    const sorted = [...files].sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { numeric: true }),
+    );
+    // One at a time: the upload bar shows one file's progress, and a failed
+    // file stops the batch at the step it failed on instead of leaving holes.
+    for (const file of sorted) {
+      const path = await store(file);
+      if (!path) return;
+      update((list) => [...list, { path, url: URL.createObjectURL(file), text: "" }]);
+    }
+  };
+
+  const replacePhoto = async (index: number, file: File) => {
+    const path = await store(file);
+    if (!path) return;
+    update((list) =>
+      list.map((st, i) => (i === index ? { ...st, path, url: URL.createObjectURL(file) } : st)),
+    );
+  };
+
+  const move = (index: number, by: number) =>
+    update((list) => {
+      const next = [...list];
+      const [item] = next.splice(index, 1);
+      if (item) next.splice(index + by, 0, item);
+      return next;
+    });
+
+  return (
+    <div>
+      <p className="text-xs font-semibold text-navy">Photo steps, in walking order</p>
+      <p className="mt-0.5 text-[11px] text-muted">
+        One photo per turn or landmark, with one line saying what to do there.
+      </p>
+
+      {steps.length ? (
+        <ol className="mt-2 flex flex-col gap-2">
+          {steps.map((st, i) => (
+            <li
+              key={`${st.path ?? "text"}-${i}`}
+              className="flex gap-3 rounded-lg border border-hair bg-paper p-2.5"
+            >
+              <div className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-white">
+                {st.url ? (
+                  <img src={st.url} alt="" className="size-full object-cover" />
+                ) : (
+                  <span className="grid size-full place-items-center text-[10px] text-muted">
+                    {st.path ? "Photo" : "No photo"}
+                  </span>
+                )}
+                <span className="absolute top-1 left-1 grid size-5 place-items-center rounded-full bg-navy text-[10px] font-bold text-white">
+                  {i + 1}
+                </span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <label htmlFor={`${id}-step-${i}`} className="sr-only">
+                  Step {i + 1} instruction
+                </label>
+                <textarea
+                  id={`${id}-step-${i}`}
+                  rows={2}
+                  value={st.text}
+                  onChange={(e) => {
+                    const text = e.target.value;
+                    update((list) => list.map((x, j) => (j === i ? { ...x, text } : x)));
+                  }}
+                  placeholder={
+                    i === 0
+                      ? "After customs, walk out through Exit 2"
+                      : "Turn left and walk past the coffee shop"
+                  }
+                  className="w-full rounded-lg border border-hair bg-white px-2.5 py-1.5 text-sm outline-none focus:border-gold"
+                />
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  <label className="inline-flex cursor-pointer items-center gap-1 rounded border border-hair bg-white px-2 py-1 text-[10px] font-semibold text-navy hover:border-gold">
+                    <Icon name="camera" className="size-3" />
+                    {st.path ? "Replace photo" : "Add photo"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      disabled={busy}
+                      onChange={(e) => {
+                        const file = e.currentTarget.files?.[0];
+                        e.currentTarget.value = "";
+                        if (file) void replacePhoto(i, file);
+                      }}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => move(i, -1)}
+                    disabled={i === 0}
+                    aria-label={`Move step ${i + 1} up`}
+                    className="rounded border border-hair bg-white p-1 text-navy disabled:opacity-30"
+                  >
+                    <Icon name="arrowUp" className="size-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(i, 1)}
+                    disabled={i === steps.length - 1}
+                    aria-label={`Move step ${i + 1} down`}
+                    className="rounded border border-hair bg-white p-1 text-navy disabled:opacity-30"
+                  >
+                    <Icon name="arrowDown" className="size-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => update((list) => list.filter((_, j) => j !== i))}
+                    aria-label={`Remove step ${i + 1}`}
+                    className="ml-auto rounded border border-alert/35 bg-white p-1 text-alert"
+                  >
+                    <Icon name="trash" className="size-3" />
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ol>
+      ) : null}
+
+      <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto]">
+        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gold/60 bg-sand px-3 py-3 text-xs font-bold text-navy hover:border-gold">
+          <Icon name="camera" className="size-4 text-gold-deep" />
+          {busy ? "Uploading…" : "Add photos — choose several at once"}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="sr-only"
+            disabled={busy}
+            onChange={(e) => {
+              const files = Array.from(e.currentTarget.files ?? []);
+              e.currentTarget.value = "";
+              if (files.length) void addPhotos(files);
+            }}
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => update((list) => [...list, { text: "" }])}
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-hair bg-white px-3 py-2 text-xs font-semibold text-navy hover:border-gold"
+        >
+          <Icon name="plus" className="size-3.5" /> Step without a photo
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function Inline({
   label,

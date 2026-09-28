@@ -1,12 +1,15 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
 import { BlockList, DriverCard, DocumentLink } from "@/components/Blocks";
+import { Directions } from "@/components/Directions";
 import { Icon, type IconName } from "@/components/Icon";
 import { InvoiceCard } from "@/components/InvoiceCard";
 import { JourneyTracker } from "@/components/JourneyTracker";
+import { MapView, type MapPoint } from "@/components/MapView";
 import { destinationPhoto } from "@/lib/destinations";
+import { isLatLng } from "@/lib/geo";
 import { stageMeta, type CustomerTrip } from "@/lib/types";
 
 /**
@@ -126,19 +129,59 @@ function Portal() {
     engage("day", `Day ${d.day_number}`);
   };
 
+  // The section bar follows the reader: whichever section holds the middle of
+  // the screen is the one lit up, so the bar doubles as "you are here".
+  const [inView, setInView] = useState("itinerary");
+  useEffect(() => {
+    const targets = sections
+      .filter((s) => s.show)
+      .map((s) => document.getElementById(s.id))
+      .filter((el): el is HTMLElement => Boolean(el));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) setInView(e.target.id);
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+    // Sections only change when the trip does.
+  }, [invoices.length, documents.length]);
+
+  // Every step of the open day that has a pin, in order: the day on a map.
+  const route: MapPoint[] = (day?.steps ?? []).flatMap((st) =>
+    isLatLng(st.latitude, st.longitude)
+      ? [
+          {
+            lat: st.latitude!,
+            lng: st.longitude!,
+            number: st.step_number,
+            label: st.location_name ?? st.title,
+          },
+        ]
+      : [],
+  );
+
   return (
     <div className="min-h-screen bg-white pb-24">
+      <div
+        aria-hidden="true"
+        className="ns-read fixed inset-x-0 top-0 z-50 h-[3px] bg-gradient-to-r from-gold to-gold-light"
+      />
+
       {/* ================================================================
           Hero: the destination, the traveller, the dates.
           The one dark area in the portal, and it is a photograph.
           ============================================================== */}
       <header className="relative isolate min-h-[27rem] overflow-hidden text-white sm:min-h-[31rem]">
-        <img
-          src={heroPhoto}
-          alt=""
-          fetchPriority="high"
-          className="absolute inset-0 -z-20 size-full object-cover"
-        />
+        <div aria-hidden="true" className="ns-parallax absolute inset-0 -z-20">
+          <img
+            src={heroPhoto}
+            alt=""
+            fetchPriority="high"
+            className="ns-kenburns size-full object-cover"
+          />
+        </div>
         {/* Legibility, not mood: dark enough behind the logo at the top and the
             title at the bottom, and clear through the middle so the place shows. */}
         <div
@@ -158,26 +201,35 @@ function Portal() {
             </span>
           </div>
 
-          <div className="mt-auto">
-            <p className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.24em] text-gold-light uppercase">
+          <div className="ns-hero-out mt-auto">
+            <p
+              className="ns-rise flex items-center gap-2 text-[11px] font-semibold tracking-[0.24em] text-gold-light uppercase"
+              style={delay(100)}
+            >
               <span className="h-px w-8 bg-gold-light" />
               Your journey
             </p>
-            <h1 className="mt-3 font-display text-[2.1rem] leading-[1.1] text-balance sm:text-5xl">
+            <h1
+              className="ns-rise mt-3 font-display text-[2.1rem] leading-[1.1] text-balance sm:text-5xl"
+              style={delay(220)}
+            >
               {trip.title ?? trip.destination}
             </h1>
             {trip.title ? (
-              <p className="mt-2 flex items-center gap-1.5 text-sm text-white/85">
+              <p
+                className="ns-rise mt-2 flex items-center gap-1.5 text-sm text-white/85"
+                style={delay(320)}
+              >
                 <Icon name="globe" className="size-4 text-gold-light" /> {trip.destination}
               </p>
             ) : null}
 
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="ns-rise mt-5 flex flex-wrap gap-2" style={delay(420)}>
               <HeroChip icon="calendar" text={formatRange(trip.start_date, trip.end_date)} />
               <HeroChip icon="users" text={paxLabel(trip.pax_adults, trip.pax_children)} />
             </div>
             {trip.customer?.full_name ? (
-              <p className="mt-4 text-sm text-white/80">
+              <p className="ns-rise mt-4 text-sm text-white/80" style={delay(520)}>
                 Prepared for{" "}
                 <span className="font-semibold text-white">{trip.customer.full_name}</span>
               </p>
@@ -192,7 +244,8 @@ function Portal() {
             ============================================================== */}
         <section
           aria-label="Trip progress"
-          className="relative -mt-14 rounded-3xl border border-hair bg-white p-5 shadow-[0_24px_60px_-28px_rgba(0,35,64,0.45)] sm:p-6"
+          className="ns-rise relative -mt-14 rounded-3xl border border-hair bg-white p-5 shadow-[0_24px_60px_-28px_rgba(0,35,64,0.45)] sm:p-6"
+          style={delay(380)}
         >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -221,7 +274,15 @@ function Portal() {
               ) : null}
             </div>
             <div className="shrink-0 text-right">
-              <p className="font-display text-3xl text-gold-deep tabular-nums">{percent}%</p>
+              <p className="font-display text-3xl text-gold-deep tabular-nums">
+                <span className="sr-only">{percent}%</span>
+                <span
+                  aria-hidden="true"
+                  className="ns-count"
+                  style={{ "--ns-n": percent } as CSSProperties}
+                />
+                <span aria-hidden="true">%</span>
+              </p>
               <p className="text-[10px] tracking-wider text-muted uppercase">complete</p>
             </div>
           </div>
@@ -235,7 +296,7 @@ function Portal() {
             aria-label="Trip progress"
           >
             <div
-              className="h-full rounded-full bg-gradient-to-r from-gold to-gold-light transition-[width] duration-700"
+              className="ns-bar h-full rounded-full bg-gradient-to-r from-gold to-gold-light transition-[width] duration-700"
               style={{ width: `${Math.max(percent, 3)}%` }}
             />
           </div>
@@ -266,7 +327,10 @@ function Portal() {
               <a
                 key={s.id}
                 href={`#${s.id}`}
-                className="shrink-0 rounded-full px-4 py-2 text-sm font-semibold text-navy transition hover:bg-sand"
+                aria-current={inView === s.id ? "location" : undefined}
+                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
+                  inView === s.id ? "bg-navy text-white" : "text-navy hover:bg-sand"
+                }`}
               >
                 {s.label}
               </a>
@@ -334,7 +398,12 @@ function Portal() {
               </div>
 
               {day ? (
-                <article role="tabpanel" aria-label={`Day ${day.day_number}`} className="mt-7">
+                <article
+                  key={day.id}
+                  role="tabpanel"
+                  aria-label={`Day ${day.day_number}`}
+                  className="ns-fade-in mt-7"
+                >
                   {day.coverUrl ? (
                     <img
                       src={day.coverUrl}
@@ -357,14 +426,33 @@ function Portal() {
                     <p className="mt-3 text-[15px] leading-relaxed text-muted">{day.summary}</p>
                   ) : null}
 
+                  {route.length ? (
+                    <div className="ns-reveal mt-6">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+                          <Icon name="route" className="size-4" /> Day {day.day_number} on the map
+                        </p>
+                        <span className="text-xs text-muted">
+                          {route.length} {route.length === 1 ? "stop" : "stops"}
+                        </span>
+                      </div>
+                      <MapView
+                        className="mt-3 h-64 shadow-sm sm:h-72"
+                        label={`Map of day ${day.day_number}`}
+                        points={route}
+                        route
+                      />
+                    </div>
+                  ) : null}
+
                   {day.steps.length ? (
                     <ol className="mt-8 flex flex-col">
                       {day.steps.map((step, n) => (
-                        <li key={step.id} className="relative pb-10 pl-12 last:pb-2">
+                        <li key={step.id} className="ns-reveal relative pb-10 pl-12 last:pb-2">
                           {n < day.steps.length - 1 ? (
                             <span
                               aria-hidden="true"
-                              className="absolute top-10 bottom-0 left-[1.1875rem] w-px bg-gradient-to-b from-gold/60 to-hair"
+                              className="ns-draw absolute top-10 bottom-0 left-[1.1875rem] w-px bg-gradient-to-b from-gold/60 to-hair"
                             />
                           ) : null}
                           <span
@@ -389,22 +477,21 @@ function Portal() {
                           </h4>
 
                           {step.location_name ? (
-                            step.latitude != null && step.longitude != null ? (
-                              <a
-                                href={`https://www.google.com/maps/search/?api=1&query=${step.latitude},${step.longitude}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => engage("map", step.location_name ?? "")}
-                                className="mt-1 inline-flex items-center gap-1.5 text-sm text-gold-deep underline decoration-gold/40 underline-offset-4"
-                              >
-                                <Icon name="pin" className="size-4" /> {step.location_name}
-                              </a>
-                            ) : (
-                              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted">
-                                <Icon name="pin" className="size-4 text-gold-deep" />{" "}
-                                {step.location_name}
-                              </p>
-                            )
+                            <p className="mt-1 flex items-start gap-1.5 text-sm text-muted">
+                              <Icon name="pin" className="mt-0.5 size-4 shrink-0 text-gold-deep" />
+                              <span>{step.location_name}</span>
+                            </p>
+                          ) : null}
+                          {isLatLng(step.latitude, step.longitude) ? (
+                            <div className="mt-3 max-w-sm">
+                              <Directions
+                                lat={step.latitude!}
+                                lng={step.longitude!}
+                                label={step.location_name ?? step.title}
+                                onEngage={engage}
+                                compact
+                              />
+                            </div>
                           ) : null}
 
                           {step.description ? (
@@ -505,12 +592,9 @@ function Portal() {
             <SectionOpener eyebrow="Payment" title="Invoices &" accent="balance" />
             <div className="mt-6 flex flex-col gap-4">
               {invoices.map((invoice) => (
-                <InvoiceCard
-                  key={invoice.id}
-                  invoice={invoice}
-                  pdfHref={pdfHref(invoice.id)}
-                  onEngage={engage}
-                />
+                <div key={invoice.id} className="ns-reveal">
+                  <InvoiceCard invoice={invoice} pdfHref={pdfHref(invoice.id)} onEngage={engage} />
+                </div>
               ))}
             </div>
           </section>
@@ -524,7 +608,9 @@ function Portal() {
             <SectionOpener eyebrow="Travel documents" title="Your" accent="documents" />
             <div className="mt-6 flex flex-col gap-2.5">
               {documents.map((doc) => (
-                <DocumentLink key={doc.id} doc={doc} onEngage={engage} />
+                <div key={doc.id} className="ns-reveal">
+                  <DocumentLink doc={doc} onEngage={engage} />
+                </div>
               ))}
             </div>
           </section>
@@ -538,7 +624,9 @@ function Portal() {
               {drivers
                 .filter((d) => d.id !== activeDriver?.id)
                 .map((d) => (
-                  <DriverCard key={d.id} driver={d} onEngage={engage} />
+                  <div key={d.id} className="ns-reveal">
+                    <DriverCard driver={d} onEngage={engage} />
+                  </div>
                 ))}
             </div>
           </section>
@@ -550,7 +638,10 @@ function Portal() {
             <SectionOpener eyebrow="From your consultant" title="Latest" accent="messages" />
             <ol className="mt-6 flex flex-col gap-3">
               {messages.map((m) => (
-                <li key={m.id} className="rounded-2xl border border-hair bg-white p-4 shadow-sm">
+                <li
+                  key={m.id}
+                  className="ns-reveal rounded-2xl border border-hair bg-white p-4 shadow-sm"
+                >
                   <p className="text-[11px] font-semibold tracking-wider text-gold-deep uppercase">
                     {stageMeta(m.stage)?.customerLabel ?? m.stage}
                   </p>
@@ -569,7 +660,7 @@ function Portal() {
             ============================================================== */}
         <section id="help" data-anchor aria-label="Help" className="pt-14">
           <SectionOpener eyebrow="We are with you" title="Need" accent="help?" />
-          <div className="mt-6 overflow-hidden rounded-3xl border border-hair bg-sand">
+          <div className="ns-reveal mt-6 overflow-hidden rounded-3xl border border-hair bg-sand">
             <div className="p-5">
               <p className="text-sm leading-relaxed text-ink">
                 Someone from the office is reachable at any hour of your trip. Mention your trip
@@ -677,7 +768,7 @@ function SectionOpener({
   accent: string;
 }) {
   return (
-    <div>
+    <div className="ns-reveal">
       <p className="flex items-center gap-2.5 text-[11px] font-semibold tracking-[0.22em] text-gold-deep uppercase">
         <span className="h-px w-10 bg-gold" />
         {eyebrow}
@@ -687,6 +778,11 @@ function SectionOpener({
       </h2>
     </div>
   );
+}
+
+/** A staggered entrance: each line of the hero arrives a beat after the last. */
+function delay(ms: number): CSSProperties {
+  return { "--ns-delay": `${ms}ms` } as CSSProperties;
 }
 
 function HeroChip({ icon, text }: { icon: IconName; text: string }) {

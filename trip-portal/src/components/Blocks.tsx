@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
+import { Directions } from "./Directions";
 import { Icon, type IconName } from "./Icon";
 import { InvoiceCard } from "./InvoiceCard";
 import { Lightbox, type LightboxPhoto } from "./Lightbox";
-import type { Block, Driver, Invoice, TripDocument } from "@/lib/types";
+import { MapView } from "./MapView";
+import { isLatLng, searchLink } from "@/lib/geo";
+import type { Block, BlockPayload, Driver, Invoice, TripDocument } from "@/lib/types";
 
 /**
  * Renders the content the office built in the admin.
@@ -125,7 +128,7 @@ function BlockView({
 
     case "map": {
       const { latitude: lat, longitude: lng, locationName } = p;
-      if (lat == null || lng == null) {
+      if (!isLatLng(lat, lng)) {
         return locationName ? (
           <p className="flex items-center gap-2 text-sm text-muted">
             <Icon name="pin" className="size-4 text-gold-deep" />
@@ -133,31 +136,33 @@ function BlockView({
           </p>
         ) : null;
       }
-      // A link to the customer's own maps app, not an embedded iframe. An embed
-      // needs a paid API key and is useless to the person who wants turn-by-turn
-      // directions from where they are standing.
+      // The map shows where; the buttons hand the "how do I get there" to the
+      // customer's own maps app, which knows where they are standing.
       return (
-        <a
-          href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => ctx.onEngage?.("map", locationName ?? `${lat},${lng}`)}
-          className="group flex items-center gap-3.5 rounded-2xl border border-hair bg-white p-3.5 shadow-sm transition hover:border-gold hover:shadow-md"
-        >
-          <IconBadge name="pin" />
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-semibold text-navy">
-              {locationName ?? "Open location"}
-            </span>
-            <span className="block text-xs text-muted">Open directions in Maps</span>
-          </span>
-          <Icon
-            name="arrowRight"
-            className="size-4 shrink-0 text-gold-deep transition group-hover:translate-x-0.5"
+        <div className="overflow-hidden rounded-2xl border border-hair bg-white shadow-sm">
+          <MapView
+            framed={false}
+            className="h-44"
+            label={locationName ? `Map: ${locationName}` : "Map"}
+            points={[{ lat: lat!, lng: lng!, label: locationName }]}
           />
-        </a>
+          <div className="p-3.5">
+            <div className="flex items-center gap-3">
+              <IconBadge name="pin" />
+              <p className="min-w-0 flex-1 text-sm font-semibold text-navy">
+                {locationName ?? "Meeting point"}
+              </p>
+            </div>
+            <div className="mt-3">
+              <Directions lat={lat!} lng={lng!} label={locationName} onEngage={ctx.onEngage} />
+            </div>
+          </div>
+        </div>
       );
     }
+
+    case "guide":
+      return <PhotoGuide p={p} ctx={ctx} openPhotos={openPhotos} />;
 
     case "driver": {
       const driver = ctx.drivers.find((d) => d.id === p.driverId);
@@ -177,6 +182,15 @@ function BlockView({
             ["Phone", p.phone],
           ]}
           note={p.text}
+          action={
+            p.name
+              ? {
+                  href: searchLink(p.name),
+                  label: "Directions to the hotel",
+                  onClick: () => ctx.onEngage?.("directions", `Hotel: ${p.name}`),
+                }
+              : undefined
+          }
         />
       );
 
@@ -441,6 +455,236 @@ function Gallery({
   );
 }
 
+/**
+ * The photo guide: "walk out of here, turn left at this, your driver waits
+ * by that".
+ *
+ * Built for the one moment the whole portal exists for — a customer who has
+ * never been to Dubai, standing in arrivals, looking for a person they have
+ * never met. So it reads like the walk itself: one photograph per decision,
+ * swiped through in order, with the step's instruction under the photo rather
+ * than beside it, where a thumb would cover it. It ends at the meeting point,
+ * with the pin, the directions and the driver who will be standing there.
+ */
+function PhotoGuide({
+  p,
+  ctx,
+  openPhotos,
+}: {
+  p: BlockPayload;
+  ctx: BlockCtx;
+  openPhotos: OpenPhotos;
+}) {
+  const steps = (p.steps ?? []).filter((s) => s.url || s.text?.trim());
+  const rail = useRef<HTMLDivElement>(null);
+  const [current, setCurrent] = useState(0);
+  if (!steps.length) return null;
+
+  const driver = p.driverId ? ctx.drivers.find((d) => d.id === p.driverId) : undefined;
+  const pinned = isLatLng(p.latitude, p.longitude);
+  const finish = pinned || Boolean(driver) || Boolean(p.locationName);
+  const total = steps.length + (finish ? 1 : 0);
+  const title = p.heading?.trim() || "Your step-by-step guide";
+
+  // The viewer shows only the steps that have a photo; this maps a step to its
+  // place in that list so "open" lands on the photo that was tapped.
+  const withPhotos = steps.flatMap((s, i) => (s.url ? [{ url: s.url, text: s.text, i }] : []));
+  const photos: LightboxPhoto[] = withPhotos.map(({ url, text, i }) => ({
+    url,
+    caption: `Step ${i + 1} of ${steps.length}${text ? ` — ${text}` : ""}`,
+  }));
+  const openAt = (stepIndex: number) => {
+    const at = withPhotos.findIndex((x) => x.i === stepIndex);
+    if (at >= 0) openPhotos(photos, at, `guide: ${title}`);
+  };
+
+  // The rail is positioned, so a slide's offsetLeft is measured from the rail
+  // itself; less the rail's 16px padding, that is the scroll position at which
+  // the slide snaps into place.
+  const slides = () => Array.from(rail.current?.children ?? []) as HTMLElement[];
+  const offsetOf = (child: HTMLElement) => child.offsetLeft - 16;
+  const go = (i: number) => {
+    const el = rail.current;
+    const target = slides()[Math.max(0, Math.min(total - 1, i))];
+    if (el && target) el.scrollTo({ left: offsetOf(target), behavior: "smooth" });
+  };
+  const onScroll = () => {
+    const el = rail.current;
+    if (!el) return;
+    // At the far end the last slide may never reach the left edge, so the end
+    // of the scroll counts as being on it.
+    if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 4) {
+      if (current !== total - 1) setCurrent(total - 1);
+      return;
+    }
+    let best = 0;
+    let bestGap = Infinity;
+    slides().forEach((child, i) => {
+      const gap = Math.abs(offsetOf(child) - el.scrollLeft);
+      if (gap < bestGap) {
+        bestGap = gap;
+        best = i;
+      }
+    });
+    if (best !== current) setCurrent(best);
+  };
+
+  return (
+    <section
+      aria-roledescription="carousel"
+      aria-label={title}
+      className="overflow-hidden rounded-3xl border border-hair bg-white shadow-[0_18px_44px_-26px_rgba(0,35,64,0.45)]"
+    >
+      <header className="px-4 pt-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="flex min-w-0 items-center gap-2 text-[10px] font-bold tracking-[0.16em] whitespace-nowrap text-gold-deep uppercase">
+            <Icon name="images" className="size-3.5 shrink-0" /> Photo guide · {steps.length}{" "}
+            {steps.length === 1 ? "step" : "steps"}
+          </p>
+          {photos.length ? (
+            <button
+              type="button"
+              onClick={() => openAt(Math.min(current, steps.length - 1))}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-hair px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap text-navy transition hover:border-gold"
+            >
+              <Icon name="expand" className="size-3.5" /> Full screen
+            </button>
+          ) : null}
+        </div>
+        <h4 className="mt-2 font-display text-xl leading-snug text-navy">{title}</h4>
+        {p.text ? (
+          <p className="mt-1.5 text-sm leading-relaxed whitespace-pre-line text-muted">{p.text}</p>
+        ) : null}
+
+        {/* Story-style segments: how far through the walk, at a glance. */}
+        <div className="mt-3.5 flex gap-1" aria-hidden="true">
+          {Array.from({ length: total }, (_, i) => (
+            <span
+              key={i}
+              className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
+                i <= current ? "bg-gold" : "bg-hair"
+              }`}
+            />
+          ))}
+        </div>
+      </header>
+
+      <div
+        ref={rail}
+        onScroll={onScroll}
+        className="no-scrollbar relative flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 py-4"
+      >
+        {steps.map((s, i) => (
+          <figure
+            key={i}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`Step ${i + 1} of ${steps.length}`}
+            className="w-[84%] shrink-0 snap-start sm:w-[68%]"
+          >
+            {s.url ? (
+              <button
+                type="button"
+                onClick={() => openAt(i)}
+                aria-label={`View step ${i + 1} full screen`}
+                className="group relative block w-full overflow-hidden rounded-2xl bg-paper"
+                style={{ aspectRatio: "4 / 5" }}
+              >
+                <img
+                  src={s.url}
+                  alt={s.text ? `Step ${i + 1}: ${s.text}` : `Step ${i + 1}`}
+                  loading="lazy"
+                  className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-[1.03]"
+                />
+                <span className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-navy-deep/55 to-transparent" />
+                <span className="absolute top-3 left-3 grid size-10 place-items-center rounded-full bg-white font-sans text-base font-bold text-navy shadow-lg">
+                  {i + 1}
+                </span>
+                <span className="absolute top-3.5 right-3 rounded-full bg-navy-deep/55 px-2.5 py-1 text-[10px] font-semibold tracking-wider text-white uppercase backdrop-blur">
+                  Step {i + 1} of {steps.length}
+                </span>
+              </button>
+            ) : (
+              <div
+                className="grid place-items-center rounded-2xl bg-sand"
+                style={{ aspectRatio: "4 / 5" }}
+              >
+                <span className="grid size-14 place-items-center rounded-full bg-white font-sans text-xl font-bold text-navy shadow">
+                  {i + 1}
+                </span>
+              </div>
+            )}
+            {s.text ? (
+              <figcaption className="mt-3 text-[15px] leading-relaxed whitespace-pre-line text-ink">
+                {s.text}
+              </figcaption>
+            ) : null}
+          </figure>
+        ))}
+
+        {finish ? (
+          <div
+            role="group"
+            aria-roledescription="slide"
+            aria-label="Meeting point"
+            className="flex w-[84%] shrink-0 snap-start flex-col gap-3 sm:w-[68%]"
+          >
+            <div className="rounded-2xl bg-sand p-4">
+              <p className="flex items-center gap-2 text-[10px] font-bold tracking-[0.18em] text-live uppercase">
+                <Icon name="flag" className="size-3.5" /> You have arrived
+              </p>
+              <p className="mt-1.5 font-display text-lg leading-snug text-navy">
+                {p.locationName ?? "The meeting point"}
+              </p>
+            </div>
+            {pinned ? (
+              <>
+                <MapView
+                  className="h-44"
+                  label={`Map: ${p.locationName ?? "meeting point"}`}
+                  points={[{ lat: p.latitude!, lng: p.longitude!, label: p.locationName }]}
+                />
+                <Directions
+                  lat={p.latitude!}
+                  lng={p.longitude!}
+                  label={p.locationName}
+                  onEngage={ctx.onEngage}
+                  compact
+                />
+              </>
+            ) : null}
+            {driver ? <DriverCard driver={driver} onEngage={ctx.onEngage} /> : null}
+          </div>
+        ) : null}
+      </div>
+
+      <footer className="flex items-center justify-between gap-3 border-t border-hair px-4 py-3">
+        <button
+          type="button"
+          onClick={() => go(current - 1)}
+          disabled={current === 0}
+          aria-label="Previous step"
+          className="grid size-10 place-items-center rounded-full border border-hair text-navy transition hover:border-gold disabled:opacity-35"
+        >
+          <Icon name="chevronLeft" className="size-4" />
+        </button>
+        <p className="text-xs font-semibold text-navy tabular-nums" aria-live="polite">
+          {current < steps.length ? `Step ${current + 1} of ${steps.length}` : "Meeting point"}
+        </p>
+        <button
+          type="button"
+          onClick={() => go(current + 1)}
+          disabled={current >= total - 1}
+          aria-label="Next step"
+          className="grid size-10 place-items-center rounded-full bg-navy text-white transition hover:bg-navy-deep disabled:opacity-35"
+        >
+          <Icon name="chevronRight" className="size-4" />
+        </button>
+      </footer>
+    </section>
+  );
+}
+
 function IconBadge({ name }: { name: IconName }) {
   return (
     <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-sand text-gold-deep">
@@ -486,12 +730,14 @@ function DetailCard({
   title,
   rows,
   note,
+  action,
 }: {
   icon: IconName;
   eyebrow: string;
   title: string;
   rows: [string, string | undefined][];
   note?: string | undefined;
+  action?: { href: string; label: string; onClick: () => void } | undefined;
 }) {
   const present = rows.filter(([, v]) => Boolean(v));
   return (
@@ -516,6 +762,17 @@ function DetailCard({
         </dl>
       ) : null}
       {note ? <p className="mt-3 text-sm leading-relaxed text-muted">{note}</p> : null}
+      {action ? (
+        <a
+          href={action.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={action.onClick}
+          className="mt-3.5 flex items-center justify-center gap-2 rounded-xl border border-hair py-2.5 text-xs font-semibold text-navy transition hover:border-gold"
+        >
+          <Icon name="navigation" className="size-3.5 text-gold-deep" /> {action.label}
+        </a>
+      ) : null}
     </div>
   );
 }
