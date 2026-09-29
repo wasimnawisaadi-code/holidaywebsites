@@ -478,6 +478,10 @@ function PhotoGuide({
   const steps = (p.steps ?? []).filter((s) => s.url || s.text?.trim());
   const rail = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
+  // Where a Next/Previous press is heading, while the smooth scroll gets there.
+  // Without it a quick double tap measured the half-scrolled rail and moved one
+  // step instead of two.
+  const aim = useRef<{ to: number; until: number } | null>(null);
   if (!steps.length) return null;
 
   const driver = p.driverId ? ctx.drivers.find((d) => d.id === p.driverId) : undefined;
@@ -503,14 +507,22 @@ function PhotoGuide({
   // the slide snaps into place.
   const slides = () => Array.from(rail.current?.children ?? []) as HTMLElement[];
   const offsetOf = (child: HTMLElement) => child.offsetLeft - 16;
-  const go = (i: number) => {
+  const go = (by: number) => {
     const el = rail.current;
-    const target = slides()[Math.max(0, Math.min(total - 1, i))];
-    if (el && target) el.scrollTo({ left: offsetOf(target), behavior: "smooth" });
+    const from = aim.current && aim.current.until > Date.now() ? aim.current.to : current;
+    const to = Math.max(0, Math.min(total - 1, from + by));
+    const target = slides()[to];
+    if (!el || !target) return;
+    aim.current = { to, until: Date.now() + 900 };
+    setCurrent(to);
+    el.scrollTo({ left: offsetOf(target), behavior: "smooth" });
   };
   const onScroll = () => {
     const el = rail.current;
     if (!el) return;
+    // Mid-way through a button's scroll, the position says nothing new.
+    if (aim.current && aim.current.until > Date.now()) return;
+    aim.current = null;
     // At the far end the last slide may never reach the left edge, so the end
     // of the scroll counts as being on it.
     if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 4) {
@@ -661,7 +673,7 @@ function PhotoGuide({
       <footer className="flex items-center justify-between gap-3 border-t border-hair px-4 py-3">
         <button
           type="button"
-          onClick={() => go(current - 1)}
+          onClick={() => go(-1)}
           disabled={current === 0}
           aria-label="Previous step"
           className="grid size-10 place-items-center rounded-full border border-hair text-navy transition hover:border-gold disabled:opacity-35"
@@ -673,7 +685,7 @@ function PhotoGuide({
         </p>
         <button
           type="button"
-          onClick={() => go(current + 1)}
+          onClick={() => go(1)}
           disabled={current >= total - 1}
           aria-label="Next step"
           className="grid size-10 place-items-center rounded-full bg-navy text-white transition hover:bg-navy-deep disabled:opacity-35"

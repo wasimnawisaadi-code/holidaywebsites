@@ -19,8 +19,8 @@ import appCss from "../styles.css?url";
  * 2. No analytics tags at all — no GTM, no GA4, no Ads. The marketing site
  *    measures visitors because that is what it is for. Sending a travelling
  *    customer's itinerary views to Google would be a different thing entirely,
- *    and nobody asked for it. The portal keeps its own narrow record in
- *    `trip_views`, server-side, and tells the customer it does.
+ *    and nobody asked for it. The portal records nothing about who opens it
+ *    either — the owner chose not to track customers reading their trip.
  */
 export const Route = createRootRoute({
   head: () => ({

@@ -15,7 +15,7 @@ import { destinationPhoto } from "@/lib/destinations";
 import { isLatLng } from "@/lib/geo";
 import { deleteTrip } from "@/lib/trip-admin";
 import { UUID, uploadDirect } from "@/lib/uploads";
-import type { Json } from "@/lib/views";
+import type { Json } from "@/lib/audit";
 import {
   balanceOf,
   money,
@@ -25,14 +25,12 @@ import {
   type InvoiceItem,
   BLOCK_KINDS,
   BLOCK_LABELS,
-  stageMeta,
   type Block,
   type BlockKind,
   type BlockPayload,
   type Day,
   type Driver,
   type GuideStep,
-  type ProgressEntry,
   type Step,
   type Trip,
   type TripDocument,
@@ -77,15 +75,11 @@ const loadTrip = createServerFn({ method: "GET" })
       return { signedOut: true as const };
     }
     const { tripForAdmin } = await import("@/lib/trips");
-    const { viewsForTrip, auditForTrip } = await import("@/lib/views");
+    const { auditForTrip } = await import("@/lib/audit");
     const { portalBaseUrl } = await import("@/lib/urls");
 
     // One batch: the trip and its activity only need the id we already hold.
-    const [trip, views, audit] = await Promise.all([
-      tripForAdmin(id),
-      viewsForTrip(id, 60),
-      auditForTrip(id, 40),
-    ]);
+    const [trip, audit] = await Promise.all([tripForAdmin(id), auditForTrip(id, 40)]);
     if (!trip) return null;
 
     // Covers are signed so the office sees the actual photo it chose, not a
@@ -112,7 +106,7 @@ const loadTrip = createServerFn({ method: "GET" })
         })),
       ),
     ]);
-    return { ...trip, trip: { ...trip.trip, heroUrl }, days, views, audit, base: portalBaseUrl() };
+    return { ...trip, trip: { ...trip.trip, heroUrl }, days, audit, base: portalBaseUrl() };
   });
 
 const saveDay = createServerFn({ method: "POST" })
@@ -143,6 +137,21 @@ const saveDay = createServerFn({ method: "POST" })
     };
     if (data.id) await update("trip_days", `id=eq.${data.id}`, row);
     else await insert("trip_days", row);
+    return { ok: true as const };
+  });
+
+/**
+ * Shows every hidden day at once. Days were once hidden until ticked one by
+ * one, and a whole itinerary went out to a customer as "being prepared"
+ * because five boxes had been left unticked.
+ */
+const showAllDays = createServerFn({ method: "POST" })
+  .validator((tripId: string) => tripId)
+  .handler(async ({ data: tripId }) => {
+    await requireSession();
+    if (!UUID.test(tripId)) return { ok: false as const };
+    const { update } = await import("@/lib/db");
+    await update("trip_days", `trip_id=eq.${tripId}&published=is.false`, { published: true });
     return { ok: true as const };
   });
 
@@ -287,15 +296,6 @@ const deleteRow = createServerFn({ method: "POST" })
  * Trip details, covers, and deleting a trip
  * ---------------------------------------------------------------------- */
 
-/** The trip's status from its latest progress stage — the same rule as the dashboard. */
-function statusForStage(
-  stage: string | null | undefined,
-): "confirmed" | "in_progress" | "completed" {
-  if (stage === "trip_complete") return "completed";
-  if (!stage || stage === "booked" || stage === "documents_ready") return "confirmed";
-  return "in_progress";
-}
-
 const updateTrip = createServerFn({ method: "POST" })
   .validator(
     (input: {
@@ -349,17 +349,9 @@ const updateTrip = createServerFn({ method: "POST" })
 
     // Cancelling is a status, not a delete: the trip, its history and its
     // invoices stay on file, and the customer's link stops working at once
-    // (the portal refuses a cancelled trip). Un-cancelling restores the status
-    // the progress timeline implies rather than guessing.
-    let status: string | undefined;
-    if (data.cancelled) {
-      status = "cancelled";
-    } else {
-      const latest = await select<{ stage: string }[]>(
-        `trip_progress?trip_id=eq.${data.id}&select=stage&order=created_at.desc&limit=1`,
-      );
-      status = statusForStage(latest[0]?.stage);
-    }
+    // (the portal refuses a cancelled trip). Whether a trip is upcoming, under
+    // way or finished is read from its dates, so un-cancelling needs no guess.
+    const status = data.cancelled ? "cancelled" : "confirmed";
 
     await update("trips", `id=eq.${data.id}`, {
       customer_id: customerId,
@@ -413,31 +405,6 @@ const setCover = createServerFn({ method: "POST" })
     await update("trip_days", `id=eq.${data.dayId}`, { cover_image: data.path });
     const old = rows[0].cover_image;
     if (old && old !== data.path) await deleteObject("trip-media", old);
-    return { ok: true as const };
-  });
-
-/**
- * Removes one progress update — the correction for "posted Driver arrived on the
- * wrong trip". The trip's status is then re-derived from whatever is now the
- * latest update, so the dashboard and the customer's page agree again.
- */
-const deleteProgress = createServerFn({ method: "POST" })
-  .validator((input: { tripId: string; id: number }) => input)
-  .handler(async ({ data }) => {
-    await requireSession();
-    if (!UUID.test(data.tripId) || !Number.isInteger(data.id)) return { ok: false as const };
-    const { select, update, remove } = await import("@/lib/db");
-    await remove("trip_progress", `id=eq.${data.id}&trip_id=eq.${data.tripId}`);
-
-    const trips = await select<{ status: string }[]>(
-      `trips?id=eq.${data.tripId}&select=status&limit=1`,
-    );
-    if (trips[0]?.status !== "cancelled") {
-      const latest = await select<{ stage: string }[]>(
-        `trip_progress?trip_id=eq.${data.tripId}&select=stage&order=created_at.desc&limit=1`,
-      );
-      await update("trips", `id=eq.${data.tripId}`, { status: statusForStage(latest[0]?.stage) });
-    }
     return { ok: true as const };
   });
 
@@ -677,9 +644,7 @@ type LoaderData = {
   trip: Trip;
   days: Day[];
   documents: TripDocument[];
-  progress: ProgressEntry[];
   drivers: Driver[];
-  views: { id: number; created_at: string; event: string; detail: string | null }[];
   audit: {
     id: number;
     created_at: string;
@@ -694,7 +659,7 @@ type LoaderData = {
 
 function Editor() {
   const data = Route.useLoaderData() as LoaderData;
-  const { trip, days, documents, drivers, progress, invoices, views, audit, base } = data;
+  const { trip, days, documents, drivers, invoices, audit, base } = data;
   const router = useRouter();
 
   /*
@@ -730,7 +695,7 @@ function Editor() {
     ["details", "Trip details", "globe"],
     ["documents", `Documents · ${documents.length}`, "file"],
     ["invoices", `Invoices · ${invoices.length}`, "receipt"],
-    ["activity", "Activity & history", "clock"],
+    ["activity", "Edit history", "clock"],
   ];
 
   return (
@@ -856,15 +821,7 @@ function Editor() {
           <InvoicesTab trip={trip} invoices={invoices} onChange={refresh} />
         ) : null}
 
-        {tab === "activity" ? (
-          <ActivityTab
-            tripId={trip.id}
-            views={views}
-            audit={audit}
-            progress={progress}
-            onChange={refresh}
-          />
-        ) : null}
+        {tab === "activity" ? <ActivityTab audit={audit} /> : null}
       </main>
     </div>
   );
@@ -1167,9 +1124,45 @@ function ItineraryTab({
   onChange: () => void;
 }) {
   const [addingDay, setAddingDay] = useState(false);
+  const [showing, setShowing] = useState(false);
+  const hidden = days.filter((d) => !d.published).length;
 
   return (
     <div className="mt-5 flex flex-col gap-4">
+      {hidden ? (
+        <div
+          role="status"
+          className="flex flex-wrap items-center gap-3 rounded-2xl border border-gold bg-gold/10 p-4"
+        >
+          <Icon name="alert" className="size-5 shrink-0 text-gold-deep" />
+          <p className="min-w-0 flex-1 text-sm leading-relaxed text-navy">
+            <strong>
+              {hidden === days.length ? "Every day is" : `${hidden} of ${days.length} days are`}{" "}
+              hidden from your customer.
+            </strong>{" "}
+            {hidden === days.length
+              ? "Their link says “Your itinerary is being prepared” until a day is shown."
+              : "Hidden days don't appear on their link."}
+          </p>
+          <button
+            type="button"
+            disabled={showing}
+            onClick={async () => {
+              setShowing(true);
+              try {
+                await showAllDays({ data: trip.id });
+                onChange();
+              } finally {
+                setShowing(false);
+              }
+            }}
+            className="rounded-xl bg-navy px-4 py-2.5 text-xs font-bold text-white disabled:opacity-60"
+          >
+            {showing ? "Showing…" : "Show all days to the customer"}
+          </button>
+        </div>
+      ) : null}
+
       {days.map((day) => (
         <DayCard
           key={day.id}
@@ -1496,14 +1489,14 @@ function DayForm({
         <input
           type="checkbox"
           name="published"
-          defaultChecked={day?.published ?? false}
+          defaultChecked={day?.published ?? true}
           className="size-4 accent-[#00365F]"
         />
         <span>Show this day to the customer</span>
       </label>
       <p className="mt-1 text-[11px] text-muted">
-        Leave unticked while you are still writing. Unpublished days are invisible in the
-        customer&apos;s portal — they do not appear as a gap.
+        Ticked, the day appears on the customer&apos;s link as soon as you save. Untick it only to
+        keep a day hidden while you are still writing it.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -3178,113 +3171,32 @@ function InvoiceItemForm({
  * Activity
  * ---------------------------------------------------------------------- */
 
-function ActivityTab({
-  tripId,
-  views,
-  audit,
-  progress,
-  onChange,
-}: {
-  tripId: string;
-  views: LoaderData["views"];
-  audit: LoaderData["audit"];
-  progress: ProgressEntry[];
-  onChange: () => void | Promise<void>;
-}) {
+function ActivityTab({ audit }: { audit: LoaderData["audit"] }) {
   return (
-    <div className="mt-5 grid gap-4 lg:grid-cols-2">
+    <div className="mt-5 max-w-3xl">
       <section className="rounded-2xl border border-hair bg-white p-5">
-        <h2 className="font-display text-lg text-navy">What the customer has looked at</h2>
-        <p className="mt-1 text-xs text-muted">
-          Newest first. Dubai time. The customer is told in their portal that the office can see
-          this.
+        <h2 className="font-display text-lg text-navy">Change history</h2>
+        <p className="mt-1 text-xs leading-relaxed text-muted">
+          Recorded by the database itself, so nothing can edit this trip without appearing here.
         </p>
         <ol className="mt-4 flex flex-col gap-2">
-          {views.map((v) => (
-            <li key={v.id} className="flex gap-3 border-b border-hair pb-2 last:border-0">
-              <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted">
-                {clock(v.created_at)}
+          {audit.map((a) => (
+            <li key={a.id} className="border-b border-hair pb-2 text-[11px] last:border-0">
+              <span className="font-mono tabular-nums text-muted">{clock(a.created_at)}</span>{" "}
+              <span className="font-semibold text-navy">
+                {a.action} {a.table_name.replace("trip_", "")}
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="text-xs font-semibold text-navy">{humanEvent(v.event)}</span>
-                {v.detail ? (
-                  <span className="block truncate text-[11px] text-muted">{v.detail}</span>
-                ) : null}
-              </span>
+              {a.actor ? <span className="text-muted"> by {a.actor}</span> : null}
+              <span className="mt-0.5 block truncate text-muted">{describeChange(a.changes)}</span>
             </li>
           ))}
-          {!views.length ? (
+          {!audit.length ? (
             <li className="rounded-lg bg-paper p-4 text-center text-xs text-muted">
-              The customer has not opened their link yet.
+              No changes recorded yet.
             </li>
           ) : null}
         </ol>
       </section>
-
-      <div className="flex flex-col gap-4">
-        <section className="rounded-2xl border border-hair bg-white p-5">
-          <h2 className="font-display text-lg text-navy">Progress history</h2>
-          <ol className="mt-4 flex flex-col gap-2.5">
-            {progress.map((p) => (
-              <li key={p.id} className="flex gap-3 border-b border-hair pb-2 last:border-0">
-                <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted">
-                  {clock(p.created_at)}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="text-xs font-semibold text-navy">
-                    {stageMeta(p.stage)?.label ?? p.stage}
-                  </span>
-                  {!p.visible ? (
-                    <span className="ml-1.5 rounded bg-paper px-1.5 py-0.5 text-[9px] font-bold uppercase text-muted">
-                      internal
-                    </span>
-                  ) : null}
-                  {p.note ? <span className="block text-[11px] text-muted">{p.note}</span> : null}
-                </span>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (!window.confirm("Remove this update? The customer will no longer see it."))
-                      return;
-                    await deleteProgress({ data: { tripId, id: p.id } });
-                    await onChange();
-                  }}
-                  aria-label="Delete this update"
-                  className="shrink-0 self-start rounded-lg border border-hair px-2 py-1 text-[10px] font-semibold text-muted hover:border-alert hover:text-alert"
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section className="rounded-2xl border border-hair bg-white p-5">
-          <h2 className="font-display text-lg text-navy">Change history</h2>
-          <p className="mt-1 text-xs leading-relaxed text-muted">
-            Recorded by the database itself, so nothing can edit this trip without appearing here.
-          </p>
-          <ol className="mt-4 flex flex-col gap-2">
-            {audit.map((a) => (
-              <li key={a.id} className="border-b border-hair pb-2 text-[11px] last:border-0">
-                <span className="font-mono tabular-nums text-muted">{clock(a.created_at)}</span>{" "}
-                <span className="font-semibold text-navy">
-                  {a.action} {a.table_name.replace("trip_", "")}
-                </span>
-                {a.actor ? <span className="text-muted"> by {a.actor}</span> : null}
-                <span className="mt-0.5 block truncate text-muted">
-                  {describeChange(a.changes)}
-                </span>
-              </li>
-            ))}
-            {!audit.length ? (
-              <li className="rounded-lg bg-paper p-4 text-center text-xs text-muted">
-                No changes recorded yet.
-              </li>
-            ) : null}
-          </ol>
-        </section>
-      </div>
     </div>
   );
 }
@@ -3298,24 +3210,6 @@ function clock(iso: string): string {
     minute: "2-digit",
     hour12: false,
   });
-}
-
-const EVENT_WORDS: Record<string, string> = {
-  open: "Opened the portal",
-  day: "Viewed a day",
-  video: "Watched a video",
-  map: "Opened a location",
-  document_open: "Opened a document",
-  driver_call: "Called the driver",
-  driver_whatsapp: "WhatsApped the driver",
-  help_whatsapp: "WhatsApped the office",
-  help_call: "Called the office",
-  emergency_call: "Used the emergency number",
-  link: "Followed a link",
-};
-
-function humanEvent(event: string): string {
-  return EVENT_WORDS[event] ?? event.replace(/_/g, " ");
 }
 
 /**

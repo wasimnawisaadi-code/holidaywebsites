@@ -3,7 +3,7 @@
  *
  * Covers what the other suites do not: editing a trip after creation, trip and
  * day cover photos, invoice PDFs for the customer and the office (and that a
- * wrong link gets nothing), deleting a progress update, the drivers page, and
+ * wrong link gets nothing), the drivers page, and
  * deleting a whole trip — including proof that its files leave storage.
  *
  * Writes to the database; everything is named "DEMO — …" and the trip it
@@ -79,18 +79,11 @@ check("dashboard search finds the trip by phone", await row.isVisible());
 await page.getByPlaceholder(/Search name, reference/).fill("");
 await page.screenshot({ path: "scripts/__shot-dashboard.png", fullPage: true });
 
-await row.getByRole("button", { name: "Link & progress" }).click();
+await row.getByRole("button", { name: "Share link" }).click();
 const link = await row.locator("input[readonly]").inputValue();
 const token = link.split("/t/")[1];
 await row.getByRole("button", { name: "Publish to customer" }).click();
 await row.getByRole("button", { name: "Unpublish" }).waitFor({ timeout: 45000 });
-await row.getByLabel("Progress stage").selectOption("driver_assigned");
-await row.getByPlaceholder(/Note for the customer/).fill("Wrong trip — this update is a mistake.");
-await row.getByRole("button", { name: "Save update" }).click();
-await page
-  .locator("article", { hasText: customer })
-  .getByText(/Driver assigned · \d+%/)
-  .waitFor({ timeout: 45000 });
 
 await page
   .locator("article", { hasText: customer })
@@ -173,14 +166,6 @@ check(
   `HTTP ${anon.status()}`,
 );
 
-// ---- delete a mistaken progress update --------------------------------------------
-await page.getByRole("button", { name: /^Activity/ }).click();
-await page.getByRole("heading", { name: "Progress history" }).waitFor({ timeout: 45000 });
-const mistaken = page.locator("li", { hasText: "Wrong trip — this update is a mistake." });
-await mistaken.getByRole("button", { name: "Delete this update" }).click();
-await mistaken.waitFor({ state: "detached", timeout: 45000 });
-check("a progress update can be deleted", true);
-
 // ---- the customer's view ------------------------------------------------------
 const phoneCtx = await browser.newContext({
   viewport: { width: 390, height: 844 },
@@ -191,7 +176,6 @@ phone.on("pageerror", (e) => console.log("  [customer page error]", e.message));
 await phone.goto(link, { waitUntil: "networkidle" });
 const body = await phone.locator("body").innerText();
 check("customer sees the edited title", body.includes("Maldives honeymoon, overwater villa"));
-check("customer no longer sees the deleted update", !body.includes("this update is a mistake"));
 const heroSrc = await phone.locator("header img").first().getAttribute("src");
 check(
   "hero shows the uploaded cover (signed URL)",
@@ -203,13 +187,8 @@ check(
   Boolean(dayCardImg?.includes("/object/sign/trip-media/")),
 );
 check(
-  "journey tracker shows all four phases",
-  ["Booked", "Transfer", "Your trip", "Home"].every((w) => body.includes(w)),
-);
-await phone.getByRole("button", { name: /Show all 13 stages/ }).click();
-check(
-  "every stage can be listed",
-  (await phone.locator("body").innerText()).includes("Trip complete — thank you"),
+  "no progress tracker or percentage is shown to the customer",
+  !/Show all \d+ stages|Live status|\d+\s*% ?complete/i.test(body),
 );
 
 const pdfLink = phone.getByRole("link", { name: /Download PDF/ });

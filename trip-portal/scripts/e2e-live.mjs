@@ -1,8 +1,8 @@
 /**
  * End-to-end test against a real Supabase project, through the real admin UI.
  *
- * Unlike verify-portal.mjs this writes data: it signs in, creates a trip, moves
- * its progress, publishes it, and then opens the customer link to check that
+ * Unlike verify-portal.mjs this writes data: it signs in, creates a trip,
+ * publishes it, and then opens the customer link to check that
  * what the office did is what the customer sees. It is the only check that
  * exercises the whole loop — auth, the service-role write path, token minting,
  * the customer read path and the draft/publish gate — in one pass.
@@ -24,6 +24,8 @@ const EMAIL = (process.env.TRIP_ADMIN_EMAILS || process.env.ADMIN_EMAILS || "")
   .split(",")[0]
   ?.trim();
 const PASSWORD = process.env.ADMIN_PASSWORD;
+const SB = process.env.SUPABASE_URL;
+const SK = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!EMAIL || !PASSWORD) {
   console.error("Export TRIP_ADMIN_EMAILS and ADMIN_PASSWORD first (see header).");
@@ -72,7 +74,7 @@ await row.waitFor({ timeout: 20000 });
 check("new trip appears in the dashboard list", (await row.count()) === 1);
 check("new trip starts as a draft", (await row.innerText()).toLowerCase().includes("draft"));
 
-await row.getByRole("button", { name: "Link & progress" }).click();
+await row.getByRole("button", { name: "Share link" }).click();
 const link = await row.locator("input[readonly]").inputValue();
 const token = link.split("/t/")[1] ?? "";
 check(
@@ -92,20 +94,11 @@ check(
 );
 await probe.close();
 
-// ---- 5. move progress -----------------------------------------------------
-await row.getByLabel("Progress stage").selectOption("driver_on_the_way");
-const note = "Ahmed is 10 minutes away, silver Toyota Hiace.";
-await row.getByPlaceholder(/Note for the customer/).fill(note);
-await row.getByRole("button", { name: "Save update" }).click();
-// Wait for the outcome, not for a guessed duration. A fixed pause was how an
-// earlier version of these tests went green or red depending on how fast the
-// database region answered that minute.
 const rowAgain = page.locator("article", { hasText: customer });
-await rowAgain.getByText(/Driver on the way · \d+%/).waitFor({ timeout: 45000 });
 
 // ---- 6. publish -----------------------------------------------------------
 if (!(await rowAgain.getByRole("button", { name: "Publish to customer" }).isVisible())) {
-  await rowAgain.getByRole("button", { name: "Link & progress" }).click();
+  await rowAgain.getByRole("button", { name: "Share link" }).click();
 }
 await rowAgain.getByRole("button", { name: "Publish to customer" }).click();
 await rowAgain.getByRole("button", { name: "Unpublish" }).waitFor({ timeout: 45000 });
@@ -121,27 +114,44 @@ check("customer link renders after publishing", !custBody.toLowerCase().includes
 check("customer sees the trip title", custBody.includes("Five nights in the UAE"));
 check("customer sees their trip code", custBody.includes(code));
 check("customer sees 'prepared for' their name", custBody.includes(customer));
+// Where the trip stands is worked out from its dates (28 Sep – 3 Oct), never
+// posted by the office — so the expected words depend on today in Dubai.
+const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(new Date());
+const expected =
+  today < "2026-09-28"
+    ? /Your trip starts (tomorrow|in \d+ days)/
+    : today > "2026-10-03"
+      ? /Thank you for travelling with Nawi Saadi/
+      : new RegExp(
+          `Day ${Math.round((Date.parse(today) - Date.parse("2026-09-28")) / 86_400_000) + 1} of 6`,
+        );
+check("customer sees where the trip stands, from its dates", expected.test(custBody));
 check(
-  "customer sees the live status in plain words",
-  custBody.includes("Your driver is on the way"),
+  "no percentage or progress stages are shown",
+  !/\d+\s*%/.test(custBody) && !/live status|complete\b/i.test(custBody),
+  custBody.match(/\d+\s*%/)?.[0],
 );
-check("customer sees the office's note", custBody.includes(note));
 check(
-  "progress bar reflects the stage",
-  /\b3\d%/.test(custBody),
-  custBody.match(/\b\d{1,3}%/)?.[0],
-);
-check(
-  "customer is told the office can see page opens",
-  custBody.toLowerCase().includes("can see when this page is opened"),
+  "the customer is not told they are being watched",
+  !custBody.toLowerCase().includes("can see when this page is opened"),
 );
 
 await phone.screenshot({ path: "scripts/__e2e-customer.png", fullPage: true });
 
-// ---- 8. analytics: the open was recorded ----------------------------------
+// ---- 8. nothing about the customer is recorded -----------------------------
 await page.reload({ waitUntil: "networkidle" });
 const rowFinal = await page.locator("article", { hasText: customer }).innerText();
-check("dashboard records that the customer opened the link", /Opened \d+×/.test(rowFinal));
+check(
+  "the dashboard shows no open count, just that the link is live",
+  !/Opened \d+×|Never opened/.test(rowFinal) && rowFinal.includes("Link is live"),
+);
+const rest = (path) =>
+  fetch(`${SB}/rest/v1/${path}`, { headers: { apikey: SK, Authorization: `Bearer ${SK}` } }).then(
+    (r) => r.json(),
+  );
+const [tripRow] = await rest(`trips?trip_code=eq.${code}&select=id`);
+const views = tripRow ? await rest(`trip_views?trip_id=eq.${tripRow.id}&select=id`) : null;
+check("opening the link records nothing", Array.isArray(views) && views.length === 0);
 
 console.log(`\nTRIP_CODE=${code}`);
 console.log(`TOKEN=${token}`);

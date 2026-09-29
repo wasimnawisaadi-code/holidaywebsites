@@ -20,7 +20,6 @@ export const Route = createFileRoute("/t/$token/invoice/{$invoiceId}.pdf")({
       GET: async ({ params }) => {
         const { invoiceForToken } = await import("@/lib/trips");
         const { buildInvoicePdf } = await import("@/lib/invoice-pdf");
-        const { recordView } = await import("@/lib/views");
 
         const facts = await invoiceForToken(params.token, params.invoiceId);
         if (!facts) {
@@ -31,9 +30,6 @@ export const Route = createFileRoute("/t/$token/invoice/{$invoiceId}.pdf")({
         }
 
         const bytes = await buildInvoicePdf({ ...facts, watermark: null });
-        // The office sees in the activity feed that the invoice was downloaded —
-        // useful when chasing a payment ("they have it, they opened it on Tuesday").
-        await recordView(facts.tripId, "invoice_download", facts.invoice.invoice_number);
 
         return new Response(bytes as unknown as BodyInit, {
           status: 200,

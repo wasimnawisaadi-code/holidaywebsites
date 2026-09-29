@@ -76,7 +76,7 @@ await page.getByRole("button", { name: "Done" }).click();
 
 const row = () => page.locator("article", { hasText: customer });
 await row().waitFor({ timeout: 30000 });
-await row().getByRole("button", { name: "Link & progress" }).click();
+await row().getByRole("button", { name: "Share link" }).click();
 const link = await row().locator("input[readonly]").inputValue();
 await row().getByRole("button", { name: "Publish to customer" }).click();
 await row().getByRole("button", { name: "Unpublish" }).waitFor({ timeout: 45000 });
@@ -117,6 +117,13 @@ check(
   /^\s*25\.\d{5}, 55\.\d{5}\s*$/.test(await pinText.innerText()),
   await pinText.innerText(),
 );
+// The map loads Leaflet on demand, so the pin can land a moment after the
+// coordinates do; wait for it rather than counting straight away.
+await page
+  .locator("form .leaflet-marker-icon")
+  .first()
+  .waitFor({ timeout: 20000 })
+  .catch(() => {});
 check(
   "the admin map draws the pin",
   (await page.locator("form .leaflet-marker-icon").count()) === 1,
@@ -173,7 +180,7 @@ await step2.waitFor({ timeout: 30000 });
 
 // ---- a photo guide inside step 2 ------------------------------------------------------
 await step2.getByRole("button", { name: /Photo guide/ }).click();
-const form = page.locator("div.border-gold").first();
+const form = page.locator("div.rounded-lg.border-gold").first();
 await form.getByLabel("Guide title").fill("Finding your driver at Terminal 3");
 await form.getByLabel("Introduction (optional)").fill("Five minutes' walk from baggage claim.");
 // Chosen out of order; the editor adds them in file-name (= camera) order.

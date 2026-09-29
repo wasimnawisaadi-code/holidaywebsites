@@ -1,7 +1,7 @@
 /**
  * Trip reads. Server-only — everything here goes through db.ts.
  *
- * Types and the progress ladder live in `types.ts`, which is safe to import
+ * Types live in `types.ts`, which is safe to import
  * from a component. Importing *this* file from a component pulls the
  * service-role client into the browser bundle and the page dies on hydration;
  * see the note at the top of types.ts for how that was found.
@@ -9,14 +9,12 @@
 
 import { select, signedUrl } from "./db";
 import {
-  stagePercent,
   type Block,
   type CustomerTrip,
   type Day,
   type Driver,
   type Invoice,
   type InvoiceItem,
-  type ProgressEntry,
   type Step,
   type Trip,
   type TripDocument,
@@ -53,8 +51,8 @@ export async function tripByToken(token: string): Promise<CustomerTrip | null> {
    * wifi. The work here is the same; only the waiting is batched:
    *
    *   1. the trip tree, which needs the token
-   *   2. progress, documents and invoices together, which need the trip id
-   *   3. drivers, which need ids found in the blocks and in the progress
+   *   2. documents and invoices together, which need the trip id
+   *   3. drivers, which need ids found in the blocks
    *   4. every signed URL in the page, all at once
    */
 
@@ -77,11 +75,7 @@ export async function tripByToken(token: string): Promise<CustomerTrip | null> {
   );
 
   // ---- 2 ----
-  const [progress, docRows, invoices] = await Promise.all([
-    select<ProgressEntry[]>(
-      `trip_progress?trip_id=eq.${trip.id}&visible=is.true` +
-        `&select=id,stage,note,created_at,driver_id,visible&order=created_at.desc`,
-    ),
+  const [docRows, invoices] = await Promise.all([
     // staff_only never leaves the office, whatever the URL says.
     select<TripDocument[]>(
       `trip_documents?trip_id=eq.${trip.id}&visibility=neq.staff_only` +
@@ -97,16 +91,14 @@ export async function tripByToken(token: string): Promise<CustomerTrip | null> {
   sortInvoiceItems(invoices);
 
   // ---- 3 ----
-  // Drivers are fetched by the ids the blocks reference, plus any attached to a
-  // progress entry — a driver can be named in the timeline without appearing as
-  // a block, and a customer told "your driver has arrived" needs to know who by.
+  // Drivers are fetched by the ids the blocks reference — a driver card, or the
+  // driver waiting at the end of a photo guide.
   const driverIds = new Set<string>();
   for (const d of dayRows) {
     for (const s of d.steps) {
       for (const b of s.blocks) if (b.payload?.driverId) driverIds.add(b.payload.driverId);
     }
   }
-  for (const p of progress) if (p.driver_id) driverIds.add(p.driver_id);
 
   const driverRows = driverIds.size
     ? await select<Driver[]>(
@@ -140,18 +132,7 @@ export async function tripByToken(token: string): Promise<CustomerTrip | null> {
     signedUrl("trip-media", trip.hero_image ?? ""),
   ]);
 
-  const currentStage = progress[0]?.stage ?? null;
-
-  return {
-    trip: { ...trip, heroUrl },
-    days,
-    drivers,
-    documents,
-    progress,
-    invoices,
-    currentStage,
-    percent: stagePercent(currentStage),
-  };
+  return { trip: { ...trip, heroUrl }, days, drivers, documents, invoices };
 }
 
 /** Days → steps → blocks, each level sorted. Shared by the customer and admin reads. */
@@ -228,21 +209,19 @@ export async function tripForAdmin(id: string): Promise<{
   trip: Trip;
   days: Day[];
   documents: TripDocument[];
-  progress: ProgressEntry[];
   drivers: Driver[];
   invoices: Invoice[];
 } | null> {
-  // All five reads need only the id the caller already has, so they go out
-  // together. Sequentially this was five round trips to the database region on
+  // All four reads need only the id the caller already has, so they go out
+  // together. Sequentially this was four round trips to the database region on
   // every single save in the editor — about three seconds during which the
   // office watched their change not appear.
-  const [rows, documents, progress, drivers, invoices] = await Promise.all([
+  const [rows, documents, drivers, invoices] = await Promise.all([
     select<Record<string, unknown>[]>(
       `trips?id=eq.${id}&select=${encodeURIComponent(TRIP_TREE)}&limit=1`,
     ),
     // The admin sees every document, staff_only included.
     select<TripDocument[]>(`trip_documents?trip_id=eq.${id}&select=*&order=position.asc`),
-    select<ProgressEntry[]>(`trip_progress?trip_id=eq.${id}&select=*&order=created_at.desc`),
     select<Driver[]>(
       `trip_drivers?active=is.true&select=id,full_name,photo,phone,whatsapp,vehicle,plate_number,languages&order=full_name.asc`,
     ),
@@ -258,7 +237,7 @@ export async function tripForAdmin(id: string): Promise<{
   const days = shapeDays((raw["trip_days"] as Record<string, unknown>[]) ?? []);
   sortInvoiceItems(invoices);
 
-  return { trip, days, documents, progress, drivers, invoices };
+  return { trip, days, documents, drivers, invoices };
 }
 
 /* -------------------------------------------------------------------------

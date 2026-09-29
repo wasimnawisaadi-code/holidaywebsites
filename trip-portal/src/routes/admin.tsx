@@ -5,14 +5,7 @@ import { useId, useState } from "react";
 import { Icon, type IconName } from "@/components/Icon";
 import { destinationPhoto } from "@/lib/destinations";
 import { deleteTrip } from "@/lib/trip-admin";
-import {
-  PROGRESS_STAGES,
-  money,
-  stageMeta,
-  stagePercent,
-  type ProgressStage,
-  type TripOverview,
-} from "@/lib/types";
+import { dubaiToday, money, tripTiming, type TripOverview } from "@/lib/types";
 
 /**
  * The operations dashboard.
@@ -169,51 +162,7 @@ const createTrip = createServerFn({ method: "POST" })
     const trip = trips?.[0];
     if (!trip) return { ok: false as const, reason: "The trip could not be created." };
 
-    // The first progress entry, so the customer's portal has something to show
-    // the moment the link is sent rather than an empty status card.
-    await insert("trip_progress", {
-      trip_id: trip.id,
-      stage: "booked",
-      note: "Your booking is confirmed. Your itinerary is being prepared.",
-      created_by: email,
-    });
-
     return { ok: true as const, id: trip.id, code: trip.trip_code, token: trip.tracking_token };
-  });
-
-/**
- * Advances a trip's progress.
- *
- * Appends rather than updates — the history is the point. "Driver arrived
- * 14:12, customer picked up 14:31" is what settles a dispute about a late
- * transfer three weeks later, and overwriting a single status column destroys
- * exactly the evidence worth keeping.
- */
-const setProgress = createServerFn({ method: "POST" })
-  .validator((input: { tripId: string; stage: string; note: string; visible: boolean }) => input)
-  .handler(async ({ data }) => {
-    const { email } = await requireSession();
-    const { insert, update } = await import("@/lib/db");
-
-    await insert("trip_progress", {
-      trip_id: data.tripId,
-      stage: data.stage,
-      note: data.note.trim().slice(0, 500) || null,
-      visible: data.visible,
-      created_by: email,
-    });
-
-    // Keep the trip's own status in step, so the admin list can be filtered
-    // without reading the progress table for every row.
-    const status =
-      data.stage === "trip_complete"
-        ? "completed"
-        : data.stage === "booked" || data.stage === "documents_ready"
-          ? "confirmed"
-          : "in_progress";
-    await update("trips", `id=eq.${data.tripId}`, { status });
-
-    return { ok: true as const };
   });
 
 const setPublished = createServerFn({ method: "POST" })
@@ -379,7 +328,7 @@ function Dashboard() {
   const [filter, setFilter] = useState<"active" | "all">("active");
 
   // Same reasoning as the editor: the list is inert until a save's reload lands,
-  // so a progress update followed at once by "Publish" cannot race two reloads
+  // so a save followed at once by "Publish" cannot race two reloads
   // and paint the older one last.
   const [refreshing, setRefreshing] = useState(false);
   const refresh = async () => {
@@ -397,9 +346,14 @@ function Dashboard() {
   // the three people travelling today, which is the only thing the morning shift
   // needs. Search covers name, reference, destination and phone — what someone
   // actually has in hand when a customer rings.
+  // Where each trip stands comes from its dates — nobody has to update it.
+  const today = dubaiToday();
+  const phase = (t: TripOverview) => tripTiming(t.start_date, t.end_date, today).phase;
+  const live = trips.filter((t) => t.status !== "cancelled");
+
   const q = query.trim().toLowerCase();
   const shown = trips.filter((t) => {
-    if (filter !== "all" && (t.status === "completed" || t.status === "cancelled")) return false;
+    if (filter !== "all" && (t.status === "cancelled" || phase(t) === "finished")) return false;
     if (!q) return true;
     return [t.customer_name, t.trip_code, t.destination, t.title, t.customer_phone]
       .filter(Boolean)
@@ -490,27 +444,24 @@ function Dashboard() {
         <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Stat
             icon="car"
-            label="On the road now"
-            value={trips.filter((t) => t.status === "in_progress").length}
+            label="Travelling now"
+            value={live.filter((t) => phase(t) === "travelling").length}
           />
           <Stat
             icon="calendar"
-            label="Travelling soon"
-            value={trips.filter((t) => t.status === "confirmed").length}
+            label="Upcoming"
+            value={live.filter((t) => phase(t) === "upcoming").length}
           />
           <Stat
             icon="file"
             label="Not published yet"
-            value={trips.filter((t) => !t.published_at && t.status !== "cancelled").length}
+            value={live.filter((t) => !t.published_at).length}
             tone="warn"
           />
           <Stat
-            icon="alert"
-            label="Link never opened"
-            value={
-              trips.filter((t) => t.published_at && !t.last_seen_at && t.status !== "cancelled")
-                .length
-            }
+            icon="receipt"
+            label="Payment due"
+            value={live.filter((t) => Number(t.balance_due) > 0).length}
             tone="warn"
           />
         </div>
@@ -782,8 +733,7 @@ function TripRow({
   };
 
   const url = `${base}/t/${trip.tracking_token}`;
-  const percent = stagePercent(trip.current_stage);
-  const stage = trip.current_stage ? stageMeta(trip.current_stage) : null;
+  const timing = tripTiming(trip.start_date, trip.end_date);
 
   const copy = async () => {
     try {
@@ -819,26 +769,25 @@ function TripRow({
             {trip.destination} · {trip.start_date} → {trip.end_date}
           </p>
 
-          <div className="mt-3 flex items-center gap-3">
-            <div className="h-1.5 w-full max-w-48 overflow-hidden rounded-full bg-paper">
-              <div
-                className="h-full rounded-full bg-gold"
-                style={{ width: `${Math.max(percent, 3)}%` }}
-              />
-            </div>
-            <span className="shrink-0 text-xs text-muted">
-              {stage?.label ?? "Not started"} · {percent}%
-            </span>
-          </div>
+          <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-navy">
+            <Icon name="clock" className="size-3.5 text-gold-deep" />
+            {trip.status === "cancelled"
+              ? "Cancelled"
+              : timing.phase === "upcoming"
+                ? timing.daysToGo === 1
+                  ? "Starts tomorrow"
+                  : `Starts in ${timing.daysToGo} days`
+                : timing.phase === "travelling"
+                  ? `Travelling · day ${timing.day} of ${timing.of}`
+                  : "Trip finished"}
+          </p>
         </div>
 
         <div className="flex shrink-0 flex-col items-end gap-1.5 text-right text-xs">
-          <span className={trip.last_seen_at ? "text-live" : "text-alert"}>
-            {trip.last_seen_at
-              ? `Opened ${trip.portal_opens}× · last ${shortStamp(trip.last_seen_at)}`
-              : trip.published_at
-                ? "Never opened"
-                : "Not published"}
+          <span
+            className={trip.published_at ? "font-semibold text-live" : "font-semibold text-alert"}
+          >
+            {trip.published_at ? "Link is live" : "Not published"}
           </span>
           <span className="text-muted">
             {trip.published_day_count}/{trip.day_count} days published
@@ -857,7 +806,7 @@ function TripRow({
               onClick={() => setOpen((v) => !v)}
               className="rounded-lg border border-hair px-3 py-1.5 font-semibold text-navy hover:border-navy"
             >
-              {open ? "Close" : "Link & progress"}
+              {open ? "Close" : "Share link"}
             </button>
             <button
               type="button"
@@ -892,9 +841,9 @@ function TripRow({
             Delete {trip.customer_name ? `${trip.customer_name}'s` : "this"} trip permanently?
           </p>
           <p className="mt-1 text-xs leading-relaxed text-muted">
-            Removes the itinerary, progress updates, documents, invoices and every photo and video.
-            The customer&apos;s link stops working. This cannot be undone — to keep a record
-            instead, tick &ldquo;Trip cancelled&rdquo; in the trip&apos;s details.
+            Removes the itinerary, documents, invoices and every photo and video. The
+            customer&apos;s link stops working. This cannot be undone — to keep a record instead,
+            tick &ldquo;Trip cancelled&rdquo; in the trip&apos;s details.
           </p>
           <form
             className="mt-3 flex flex-wrap items-center gap-2"
@@ -940,7 +889,7 @@ function TripRow({
       ) : null}
 
       {open ? (
-        <div className="grid gap-5 border-t border-hair bg-paper p-4 lg:grid-cols-2">
+        <div className="border-t border-hair bg-paper p-4">
           {/* ---- the link ---- */}
           <section>
             <h4 className="text-[10px] font-semibold tracking-[0.14em] text-muted uppercase">
@@ -1034,14 +983,6 @@ function TripRow({
               </p>
             ) : null}
           </section>
-
-          {/* ---- progress ---- */}
-          <section>
-            <h4 className="text-[10px] font-semibold tracking-[0.14em] text-muted uppercase">
-              Update progress
-            </h4>
-            <ProgressForm tripId={trip.id} current={trip.current_stage} onDone={onChange} />
-          </section>
         </div>
       ) : null}
     </article>
@@ -1049,114 +990,19 @@ function TripRow({
 }
 
 function StatusPill({ trip }: { trip: TripOverview }) {
-  const tone = !trip.published_at
-    ? "bg-gold/18 text-gold-deep"
-    : trip.status === "in_progress"
-      ? "bg-live/12 text-live"
-      : trip.status === "completed"
-        ? "bg-navy/8 text-muted"
-        : "bg-navy/8 text-navy";
-  const label = !trip.published_at ? "Draft" : trip.status.replace(/_/g, " ");
+  const phase = tripTiming(trip.start_date, trip.end_date).phase;
+  const [label, tone] = !trip.published_at
+    ? ["Draft", "bg-gold/18 text-gold-deep"]
+    : trip.status === "cancelled"
+      ? ["Cancelled", "bg-alert/10 text-alert"]
+      : phase === "travelling"
+        ? ["Travelling", "bg-live/12 text-live"]
+        : phase === "finished"
+          ? ["Finished", "bg-navy/8 text-muted"]
+          : ["Upcoming", "bg-navy/8 text-navy"];
   return (
     <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase ${tone}`}>
       {label}
     </span>
   );
-}
-
-/**
- * The progress control.
- *
- * Grouped by phase rather than presented as one thirteen-item dropdown, because
- * the office picks these under time pressure with a customer on the phone, and
- * scanning thirteen flat options for "driver arrived" is slower than reaching
- * into a group called Transfer.
- */
-function ProgressForm({
-  tripId,
-  current,
-  onDone,
-}: {
-  tripId: string;
-  current: ProgressStage | null;
-  onDone: () => void;
-}) {
-  const [stage, setStage] = useState<string>(current ?? "booked");
-  const [note, setNote] = useState("");
-  const [visible, setVisible] = useState(true);
-  const [busy, setBusy] = useState(false);
-
-  const groups = [...new Set(PROGRESS_STAGES.map((s) => s.group))];
-
-  return (
-    <form
-      onSubmit={async (e) => {
-        e.preventDefault();
-        setBusy(true);
-        await setProgress({ data: { tripId, stage, note, visible } });
-        setBusy(false);
-        setNote("");
-        onDone();
-      }}
-      className="mt-2"
-    >
-      <select
-        value={stage}
-        onChange={(e) => setStage(e.target.value)}
-        aria-label="Progress stage"
-        className="w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm text-navy outline-none focus:border-gold"
-      >
-        {groups.map((g) => (
-          <optgroup key={g} label={g}>
-            {PROGRESS_STAGES.filter((s) => s.group === g).map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.label}
-              </option>
-            ))}
-          </optgroup>
-        ))}
-      </select>
-
-      <input
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        maxLength={500}
-        placeholder="Note for the customer — e.g. 'Ahmed is waiting at Exit 3'"
-        className="mt-2 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm outline-none focus:border-gold"
-      />
-
-      <label className="mt-2.5 flex items-center gap-2 text-xs text-muted">
-        <input
-          type="checkbox"
-          checked={visible}
-          onChange={(e) => setVisible(e.target.checked)}
-          className="size-4 accent-[#00365F]"
-        />
-        <span>Show this update to the customer</span>
-      </label>
-
-      <button
-        type="submit"
-        disabled={busy}
-        className="mt-3 w-full rounded-lg bg-navy py-2.5 text-xs font-bold text-white disabled:opacity-60"
-      >
-        {busy ? "Saving…" : "Save update"}
-      </button>
-      <p className="mt-2 text-[11px] leading-relaxed text-muted">
-        The customer sees this the next time they open or refresh their link. Every update is kept
-        with a timestamp — nothing is overwritten.
-      </p>
-    </form>
-  );
-}
-
-function shortStamp(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", {
-    timeZone: "Asia/Dubai",
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
 }

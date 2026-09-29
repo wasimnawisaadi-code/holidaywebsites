@@ -6,7 +6,7 @@ import type { IconName } from "@/components/Icon";
  * This file exists because of a bug worth recording. All of this originally
  * lived in `lib/trips.ts` alongside the database reads — which import `db.ts`,
  * which throws on purpose if it is ever evaluated in a browser. The customer
- * portal needs `stageMeta` to render a status label, so importing it pulled
+ * portal needed one small helper from it, so importing it pulled
  * `db.ts` into the client bundle and the page died on hydration with
  * "db.ts is server-only". The guard was working exactly as designed; the import
  * graph was wrong.
@@ -17,113 +17,31 @@ import type { IconName } from "@/components/Icon";
  */
 
 /* -------------------------------------------------------------------------
- * Progress
+ * Timing
  *
- * The ordered ladder is declared once and drives three things: the dropdown the
- * office picks from, the bar the customer watches, and the percentage in the
- * admin list. Deriving all three from one array is what stops the portal
- * claiming a trip is 60% done while the admin says 40%.
- *
- * `customerLabel` is separate from `label` on purpose. The office thinks in
- * operational states; a customer reads "Your driver is on the way", not
- * "driver_on_the_way". Keeping both here keeps customer-facing wording out of
- * the JSX, where it would drift between screens.
+ * Where a trip stands is worked out from its dates, not posted by the office.
+ * An earlier version had staff step every trip through thirteen progress
+ * stages and showed the customer a percentage. Nobody can keep that current
+ * for every customer, and a status that says "driver on the way" two days
+ * after the trip ended is worse than no status at all. Dates are always right.
  * ---------------------------------------------------------------------- */
 
-export const PROGRESS_STAGES = [
-  { id: "booked", label: "Booked", customerLabel: "Booking confirmed", group: "Before you travel" },
-  {
-    id: "documents_ready",
-    label: "Documents ready",
-    customerLabel: "Your documents are ready",
-    group: "Before you travel",
-  },
-  {
-    id: "driver_assigned",
-    label: "Driver assigned",
-    customerLabel: "Your driver is assigned",
-    group: "Transfer",
-  },
-  {
-    id: "driver_on_the_way",
-    label: "Driver on the way",
-    customerLabel: "Your driver is on the way",
-    group: "Transfer",
-  },
-  {
-    id: "driver_arrived",
-    label: "Driver arrived",
-    customerLabel: "Your driver has arrived",
-    group: "Transfer",
-  },
-  {
-    id: "customer_picked_up",
-    label: "Customer picked up",
-    customerLabel: "You have been picked up",
-    group: "Transfer",
-  },
-  {
-    id: "transfer_started",
-    label: "Transfer started",
-    customerLabel: "On the way to your hotel",
-    group: "Transfer",
-  },
-  {
-    id: "destination_reached",
-    label: "Destination reached",
-    customerLabel: "You have arrived",
-    group: "Transfer",
-  },
-  {
-    id: "checked_in",
-    label: "Checked in",
-    customerLabel: "Checked in at your hotel",
-    group: "During the trip",
-  },
-  {
-    id: "activity_in_progress",
-    label: "Activity in progress",
-    customerLabel: "Your activity is under way",
-    group: "During the trip",
-  },
-  {
-    id: "activity_complete",
-    label: "Activity complete",
-    customerLabel: "Activity complete",
-    group: "During the trip",
-  },
-  {
-    id: "departure_transfer",
-    label: "Departure transfer",
-    customerLabel: "Departure transfer arranged",
-    group: "Departure",
-  },
-  {
-    id: "trip_complete",
-    label: "Trip complete",
-    customerLabel: "Trip complete — thank you",
-    group: "Departure",
-  },
-] as const;
-
-export type ProgressStage = (typeof PROGRESS_STAGES)[number]["id"];
-
-export function stageMeta(id: string) {
-  return PROGRESS_STAGES.find((s) => s.id === id) ?? null;
+/** Today in Dubai as YYYY-MM-DD — the office's calendar, whatever the device clock says. */
+export function dubaiToday(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(new Date());
 }
 
-/**
- * How far along a trip is, 0–100.
- *
- * Derived from the ladder's index rather than from how many days have elapsed,
- * because a trip's days are not evenly weighted — the airport transfer on day
- * one carries most of the customer's anxiety and almost none of the duration.
- */
-export function stagePercent(id: string | null | undefined): number {
-  if (!id) return 0;
-  const index = PROGRESS_STAGES.findIndex((s) => s.id === id);
-  if (index < 0) return 0;
-  return Math.round(((index + 1) / PROGRESS_STAGES.length) * 100);
+export type TripTiming =
+  | { phase: "upcoming"; daysToGo: number }
+  | { phase: "travelling"; day: number; of: number }
+  | { phase: "finished" };
+
+export function tripTiming(start: string, end: string, today = dubaiToday()): TripTiming {
+  const at = (d: string) => Date.parse(`${d}T00:00:00Z`) / 86_400_000;
+  const [now, from, to] = [at(today), at(start), at(end)];
+  if (now < from) return { phase: "upcoming", daysToGo: Math.round(from - now) };
+  if (now > to) return { phase: "finished" };
+  return { phase: "travelling", day: Math.round(now - from) + 1, of: Math.round(to - from) + 1 };
 }
 
 /* -------------------------------------------------------------------------
@@ -295,15 +213,6 @@ export type TripDocument = {
   url?: string | null;
 };
 
-export type ProgressEntry = {
-  id: number;
-  stage: ProgressStage;
-  note: string | null;
-  created_at: string;
-  driver_id: string | null;
-  visible: boolean;
-};
-
 export type Trip = {
   id: string;
   trip_code: string;
@@ -406,10 +315,7 @@ export type CustomerTrip = {
   days: Day[];
   drivers: Driver[];
   documents: TripDocument[];
-  progress: ProgressEntry[];
   invoices: Invoice[];
-  currentStage: ProgressStage | null;
-  percent: number;
 };
 
 export type TripOverview = {
@@ -427,10 +333,6 @@ export type TripOverview = {
   customer_name: string | null;
   customer_phone: string | null;
   customer_whatsapp: string | null;
-  current_stage: ProgressStage | null;
-  current_stage_at: string | null;
-  portal_opens: number;
-  last_seen_at: string | null;
   day_count: number;
   published_day_count: number;
   invoice_count: number;

@@ -6,11 +6,10 @@ import { BlockList, DriverCard, DocumentLink } from "@/components/Blocks";
 import { Directions } from "@/components/Directions";
 import { Icon, type IconName } from "@/components/Icon";
 import { InvoiceCard } from "@/components/InvoiceCard";
-import { JourneyTracker } from "@/components/JourneyTracker";
 import { MapView, type MapPoint } from "@/components/MapView";
 import { destinationPhoto } from "@/lib/destinations";
 import { isLatLng } from "@/lib/geo";
-import { stageMeta, type CustomerTrip } from "@/lib/types";
+import { tripTiming, type CustomerTrip } from "@/lib/types";
 
 /**
  * The customer portal. One route, one link, no login.
@@ -30,24 +29,7 @@ const loadTrip = createServerFn({ method: "GET" })
     // key ends up in a client chunk — the bundler follows the import even when
     // only the handler uses it.
     const { tripByToken } = await import("@/lib/trips");
-    const { recordView } = await import("@/lib/views");
-
-    const trip = await tripByToken(token);
-    if (!trip) return null;
-
-    // Counted server-side so it cannot be inflated by a refresh loop in the
-    // browser, and so it still records for a customer with JavaScript disabled.
-    await recordView(trip.trip.id, "open", null);
-    return trip;
-  });
-
-/** Engagement events. Fire-and-forget; a failure must never surface. */
-const logEngagement = createServerFn({ method: "POST" })
-  .validator((input: { token: string; event: string; detail?: string }) => input)
-  .handler(async ({ data }) => {
-    const { recordViewByToken } = await import("@/lib/views");
-    await recordViewByToken(data.token, data.event, data.detail ?? null);
-    return { ok: true };
+    return tripByToken(token);
   });
 
 export const Route = createFileRoute("/t/$token")({
@@ -71,15 +53,8 @@ const OFFICE_PHONE = "+971561228069";
 
 function Portal() {
   const data = Route.useLoaderData() as CustomerTrip;
-  const { trip, days, drivers, documents, progress, invoices, currentStage, percent } = data;
+  const { trip, days, drivers, documents, invoices } = data;
   const token = Route.useParams().token;
-
-  const engage = (event: string, detail: string) => {
-    // No await and no catch on the caller's side: this fires on a click that is
-    // usually also a navigation (a tel: link, a download), and anything that
-    // blocks or throws here delays the thing the customer actually pressed.
-    void logEngagement({ data: { token, event, detail } }).catch(() => {});
-  };
 
   /**
    * Which day to open on.
@@ -101,18 +76,8 @@ function Portal() {
 
   const [activeDay, setActiveDay] = useState(todayIndex);
   const day = days[activeDay];
-  const stage = currentStage ? stageMeta(currentStage) : null;
-  const latest = progress[0];
   const heroPhoto = trip.heroUrl ?? destinationPhoto(trip.destination);
-
-  // The driver named most recently in the timeline — who the customer is looking
-  // for when the status says "your driver has arrived".
-  const activeDriver = useMemo(() => {
-    const entry = progress.find((p) => p.driver_id);
-    return entry ? drivers.find((d) => d.id === entry.driver_id) : undefined;
-  }, [progress, drivers]);
-
-  const messages = progress.filter((p) => p.note);
+  const timing = tripTiming(trip.start_date, trip.end_date);
   const pdfHref = (invoiceId: string) => `/t/${token}/invoice/${invoiceId}.pdf`;
 
   const sections: { id: string; label: string; show: boolean }[] = [
@@ -126,7 +91,6 @@ function Portal() {
     const d = days[i];
     if (!d) return;
     setActiveDay(i);
-    engage("day", `Day ${d.day_number}`);
   };
 
   // The section bar follows the reader: whichever section holds the middle of
@@ -243,73 +207,95 @@ function Portal() {
             Live status and the whole journey
             ============================================================== */}
         <section
-          aria-label="Trip progress"
+          aria-label="Your trip"
           className="ns-rise relative -mt-14 rounded-3xl border border-hair bg-white p-5 shadow-[0_24px_60px_-28px_rgba(0,35,64,0.45)] sm:p-6"
           style={delay(380)}
         >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[10px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
-                Live status
+                {timing.phase === "upcoming"
+                  ? "Booking confirmed"
+                  : timing.phase === "travelling"
+                    ? "Enjoy your trip"
+                    : "Welcome home"}
               </p>
-              {/* items-start with the dot nudged to the first line's middle: a
-                  long status wraps to two lines, and centring the dot put it
-                  between them, detached from the words it marks as live. */}
-              <p className="mt-2 flex items-start gap-2.5 font-display text-2xl leading-tight text-navy">
-                <span
-                  aria-hidden="true"
-                  className="ns-pulse mt-[0.6rem] inline-block size-2.5 shrink-0 rounded-full bg-live"
-                />
-                <span>{stage?.customerLabel ?? "Your trip is confirmed"}</span>
+              <p className="mt-2 font-display text-2xl leading-tight text-navy">
+                {timing.phase === "upcoming"
+                  ? timing.daysToGo === 1
+                    ? "Your trip starts tomorrow"
+                    : `Your trip starts in ${timing.daysToGo} days`
+                  : timing.phase === "travelling"
+                    ? `Day ${timing.day} of ${timing.of} — today's plan is below`
+                    : "Thank you for travelling with Nawi Saadi"}
               </p>
-              {latest?.note ? (
-                <p className="mt-2.5 rounded-xl bg-sand px-3.5 py-2.5 text-sm leading-relaxed text-ink">
-                  {latest.note}
+            </div>
+            {timing.phase !== "finished" ? (
+              <div className="shrink-0 text-right">
+                <p className="font-display text-4xl leading-none text-gold-deep tabular-nums">
+                  <span className="sr-only">
+                    {timing.phase === "upcoming" ? timing.daysToGo : timing.day}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="ns-count"
+                    style={
+                      {
+                        "--ns-n": timing.phase === "upcoming" ? timing.daysToGo : timing.day,
+                      } as CSSProperties
+                    }
+                  />
                 </p>
-              ) : null}
-              {latest ? (
-                <p className="mt-2 flex items-center gap-1.5 text-xs text-muted">
-                  <Icon name="clock" className="size-3.5" /> Updated {timeAgo(latest.created_at)}
+                <p className="mt-1 text-[10px] tracking-wider text-muted uppercase">
+                  {timing.phase === "upcoming"
+                    ? timing.daysToGo === 1
+                      ? "day to go"
+                      : "days to go"
+                    : `of ${timing.of} days`}
                 </p>
-              ) : null}
-            </div>
-            <div className="shrink-0 text-right">
-              <p className="font-display text-3xl text-gold-deep tabular-nums">
-                <span className="sr-only">{percent}%</span>
-                <span
-                  aria-hidden="true"
-                  className="ns-count"
-                  style={{ "--ns-n": percent } as CSSProperties}
-                />
-                <span aria-hidden="true">%</span>
-              </p>
-              <p className="text-[10px] tracking-wider text-muted uppercase">complete</p>
-            </div>
+              </div>
+            ) : null}
           </div>
 
-          <div
-            className="mt-4 h-1.5 overflow-hidden rounded-full bg-paper"
-            role="progressbar"
-            aria-valuenow={percent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="Trip progress"
-          >
-            <div
-              className="ns-bar h-full rounded-full bg-gradient-to-r from-gold to-gold-light transition-[width] duration-700"
-              style={{ width: `${Math.max(percent, 3)}%` }}
-            />
+          <div className="mt-5 grid grid-cols-3 gap-2 border-t border-hair pt-4">
+            {(
+              [
+                ["itinerary", "calendar", days.length, "day", "Itinerary"],
+                ["payment", "receipt", invoices.length, "invoice", "Invoices"],
+                ["documents", "file", documents.length, "document", "Documents"],
+              ] as const
+            ).map(([id, icon, count, noun, label]) => {
+              const inner = (
+                <>
+                  <Icon name={icon} className="mx-auto size-4 text-gold-deep" />
+                  <span className="mt-1.5 block text-sm font-semibold text-navy">
+                    {count ? `${count} ${noun}${count === 1 ? "" : "s"}` : "None yet"}
+                  </span>
+                  <span className="block text-[10px] tracking-wider text-muted uppercase">
+                    {label}
+                  </span>
+                </>
+              );
+              // A tile only links when its section is on the page to jump to.
+              return count ? (
+                <a
+                  key={id}
+                  href={`#${id}`}
+                  className="rounded-2xl bg-sand px-2 py-3 text-center transition hover:bg-gold/15"
+                >
+                  {inner}
+                </a>
+              ) : (
+                <div key={id} className="rounded-2xl bg-paper px-2 py-3 text-center opacity-70">
+                  {inner}
+                </div>
+              );
+            })}
           </div>
-
-          <div className="mt-6">
-            <JourneyTracker progress={progress} current={currentStage} />
-          </div>
-
-          {activeDriver ? (
-            <div className="mt-5">
-              <DriverCard driver={activeDriver} onEngage={engage} />
-            </div>
-          ) : null}
+          <p className="mt-4 text-xs leading-relaxed text-muted">
+            Everything your consultant sends you appears on this page — the same link, always up to
+            date.
+          </p>
         </section>
       </div>
 
@@ -488,7 +474,7 @@ function Portal() {
                                 lat={step.latitude!}
                                 lng={step.longitude!}
                                 label={step.location_name ?? step.title}
-                                onEngage={engage}
+
                                 compact
                               />
                             </div>
@@ -509,7 +495,6 @@ function Portal() {
                                   documents,
                                   invoices,
                                   invoicePdfHref: pdfHref,
-                                  onEngage: engage,
                                 }}
                               />
                             </div>
@@ -593,7 +578,7 @@ function Portal() {
             <div className="mt-6 flex flex-col gap-4">
               {invoices.map((invoice) => (
                 <div key={invoice.id} className="ns-reveal">
-                  <InvoiceCard invoice={invoice} pdfHref={pdfHref(invoice.id)} onEngage={engage} />
+                  <InvoiceCard invoice={invoice} pdfHref={pdfHref(invoice.id)} />
                 </div>
               ))}
             </div>
@@ -609,7 +594,7 @@ function Portal() {
             <div className="mt-6 flex flex-col gap-2.5">
               {documents.map((doc) => (
                 <div key={doc.id} className="ns-reveal">
-                  <DocumentLink doc={doc} onEngage={engage} />
+                  <DocumentLink doc={doc} />
                 </div>
               ))}
             </div>
@@ -617,41 +602,16 @@ function Portal() {
         ) : null}
 
         {/* ---- drivers not already shown at the top ---- */}
-        {drivers.filter((d) => d.id !== activeDriver?.id).length ? (
+        {drivers.length ? (
           <section aria-label="Drivers" className="pt-14">
             <SectionOpener eyebrow="On the road" title="Your" accent="drivers" />
             <div className="mt-6 flex flex-col gap-3">
-              {drivers
-                .filter((d) => d.id !== activeDriver?.id)
-                .map((d) => (
-                  <div key={d.id} className="ns-reveal">
-                    <DriverCard driver={d} onEngage={engage} />
-                  </div>
-                ))}
-            </div>
-          </section>
-        ) : null}
-
-        {/* ---- messages from the office ---- */}
-        {messages.length ? (
-          <section aria-label="Messages" className="pt-14">
-            <SectionOpener eyebrow="From your consultant" title="Latest" accent="messages" />
-            <ol className="mt-6 flex flex-col gap-3">
-              {messages.map((m) => (
-                <li
-                  key={m.id}
-                  className="ns-reveal rounded-2xl border border-hair bg-white p-4 shadow-sm"
-                >
-                  <p className="text-[11px] font-semibold tracking-wider text-gold-deep uppercase">
-                    {stageMeta(m.stage)?.customerLabel ?? m.stage}
-                  </p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-ink">{m.note}</p>
-                  <p className="mt-2 text-xs text-muted tabular-nums">
-                    {formatStamp(m.created_at)}
-                  </p>
-                </li>
+              {drivers.map((d) => (
+                <div key={d.id} className="ns-reveal">
+                  <DriverCard driver={d} />
+                </div>
               ))}
-            </ol>
+            </div>
           </section>
         ) : null}
 
@@ -675,14 +635,12 @@ function Portal() {
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => engage("help_whatsapp", trip.trip_code)}
                   className="flex items-center justify-center gap-2 rounded-xl bg-gold py-3.5 text-sm font-semibold text-navy transition hover:bg-gold-light"
                 >
                   <Icon name="chat" className="size-4" /> WhatsApp the office
                 </a>
                 <a
                   href={`tel:${OFFICE_PHONE}`}
-                  onClick={() => engage("help_call", trip.trip_code)}
                   className="flex items-center justify-center gap-2 rounded-xl bg-navy py-3.5 text-sm font-semibold text-white transition hover:bg-navy-deep"
                 >
                   <Icon name="phone" className="size-4" /> Call +971 56 122 8069
@@ -692,7 +650,6 @@ function Portal() {
             {trip.emergency_phone ? (
               <a
                 href={`tel:${trip.emergency_phone}`}
-                onClick={() => engage("emergency_call", trip.emergency_name ?? "emergency")}
                 className="flex items-center gap-3 border-t border-alert/20 bg-alert/6 px-5 py-4 text-sm font-semibold text-alert"
               >
                 <Icon name="alert" className="size-5" />
@@ -718,9 +675,7 @@ function Portal() {
           <p className="mt-1 text-xs text-muted">Millenium Building, Naif Road, Deira, Dubai</p>
           <p className="mx-auto mt-5 max-w-md text-[11px] leading-relaxed text-muted">
             This is your private trip link — please don&apos;t share it, as it carries your
-            documents. So we can help you faster, our office can see when this page is opened and
-            which sections you viewed. We don&apos;t track your location and nothing you type here
-            is recorded.
+            documents. Anything your consultant adds or changes appears here automatically.
           </p>
         </footer>
       </main>
@@ -737,14 +692,12 @@ function Portal() {
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => engage("bar_whatsapp", trip.trip_code)}
             className="flex items-center justify-center gap-2 rounded-xl bg-gold py-3 text-sm font-semibold text-navy"
           >
             <Icon name="chat" className="size-4" /> WhatsApp
           </a>
           <a
             href={`tel:${OFFICE_PHONE}`}
-            onClick={() => engage("bar_call", trip.trip_code)}
             className="flex items-center justify-center gap-2 rounded-xl bg-navy py-3 text-sm font-semibold text-white"
           >
             <Icon name="phone" className="size-4" /> Call us
@@ -829,30 +782,6 @@ function shortDate(date: string): string {
   const d = new Date(date);
   const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getUTCDay()];
   return `${weekday} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]?.slice(0, 3) ?? ""}`;
-}
-
-/** Dubai time regardless of the device clock, so office and customer agree. */
-function formatStamp(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", {
-    timeZone: "Asia/Dubai",
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
-
-function timeAgo(iso: string): string {
-  const seconds = Math.floor((Date.now() - Date.parse(iso)) / 1000);
-  if (!Number.isFinite(seconds) || seconds < 90) return "just now";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} min ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days} ${days === 1 ? "day" : "days"} ago`;
-  return formatStamp(iso);
 }
 
 function paxLabel(adults: number, children: number): string {

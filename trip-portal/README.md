@@ -22,7 +22,7 @@ storage buckets are private and files are served as signed URLs minted per
 request, which means a voucher forwarded into a group chat expires instead of
 becoming permanently public.
 
-`src/lib/db.ts`, `trips.ts`, `auth.ts` and `views.ts` are server-only and throw
+`src/lib/db.ts`, `trips.ts`, `auth.ts` and `audit.ts` are server-only and throw
 on import if they ever reach the browser. `src/lib/types.ts` is the
 client-safe half — components import from there.
 
@@ -62,9 +62,14 @@ before printing QR codes if a custom domain is added.
      in camera order), write one line under each, reorder with the arrows, and
      pin the meeting point. The customer swipes through it step by step and
      ends on the meeting point with its map, directions and the driver.
-3. **Publish to customer**, then **Send on WhatsApp**.
-4. During the trip, drive the status from the trip row: pick a stage, add a note
-   like "Ahmed is waiting at Exit 3", save. The customer sees it on refresh.
+     New days are shown to the customer as soon as they are saved; untick
+     "Show this day" to keep one hidden while writing it. If any day is hidden, the
+     Itinerary tab says so, with a button to show them all.
+3. **Publish to customer**, then **Share link** → **Send on WhatsApp**.
+4. Nothing to update during the trip. Where each trip stands — starts in 12
+   days, day 2 of 5, finished — is worked out from its dates, on the dashboard
+   and on the customer's page. The portal shows what the office sends; it does
+   not track the customer (no open counts, no progress percentage).
 5. **Invoices** → **+ New invoice** mints the next `NSI-YYYY-NNNN`. Add line
    items, record what has been paid, tick "Show to customer". Totals, balance and
    status are recomputed from the lines on every save — nobody types a total, so
@@ -78,9 +83,8 @@ before printing QR codes if a custom domain is added.
    reference to confirm.
 7. **Drivers** (`/admin/drivers`) — add once with photo, vehicle and plate, pick
    on any trip; edit, deactivate or delete.
-8. **Activity & history** shows what the customer has actually opened, a
-   database-level record of every edit and who made it, and lets a mistaken
-   progress update be deleted.
+8. **Edit history** is the database's own record of every edit and who made
+   it.
 
 ## Verification
 
@@ -92,14 +96,14 @@ and requests landing in that window fail for reasons unrelated to the code.
   the sign-in redirect, and a scan of the built client bundle for the
   service-role key, server-only modules and PostgREST queries.
 - `node scripts/e2e-live.mjs` — **writes to the database.** Signs in, creates a
-  DEMO trip, checks the draft gate, moves progress, publishes, and checks what
-  the customer sees on a phone-sized screen.
+  DEMO trip, checks the draft gate, publishes, and checks what the customer
+  sees on a phone-sized screen — including that nothing about them is recorded.
 - `node scripts/e2e-editor.mjs` — **writes to the database.** Days, steps,
   blocks, the per-day draft gate, invoice arithmetic checked to the fils
   between the admin and the customer, and uploads going straight to storage.
 - `node scripts/e2e-crud.mjs` — **writes to the database.** Editing a trip,
   cover and day photos, invoice PDFs for customer and office (and a wrong link
-  refused), deleting a progress update, the drivers page, and deleting a trip
+  refused), the drivers page, and deleting a trip
   with proof its files leave storage. Saves screenshots to `scripts/__shot-*`.
 - `node scripts/e2e-location.mjs` — **writes to the database.** Pins placed by
   search and by pasted link, a photo guide uploaded, reordered and swiped

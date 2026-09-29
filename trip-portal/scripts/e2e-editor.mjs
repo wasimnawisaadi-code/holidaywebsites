@@ -62,7 +62,7 @@ await page.getByRole("button", { name: "Done" }).click();
 
 const row = page.locator("article", { hasText: customer });
 await row.waitFor({ timeout: 20000 });
-await row.getByRole("button", { name: "Link & progress" }).click();
+await row.getByRole("button", { name: "Share link" }).click();
 const link = await row.locator("input[readonly]").inputValue();
 // Published up front, so the day-level draft gate below is tested on its own:
 // the trip is visible, and only the unpublished day should be hidden.
@@ -85,6 +85,8 @@ await page.getByRole("button", { name: /\+ Add day 1/ }).click();
 await page.fill('input[name="title"]', "Arrival in Dubai");
 await page.fill('input[name="date"]', "2026-09-28");
 await page.fill('textarea[name="summary"]', "Land at DXB, meet your driver, check in and rest.");
+// New days are shown by default now; untick to exercise the hidden-day gate.
+await page.locator('input[name="published"]').first().uncheck();
 await page.getByRole("button", { name: "Save day" }).click();
 await page.getByText("Arrival in Dubai").first().waitFor({ timeout: 20000 });
 check("day is saved", true);
@@ -104,7 +106,7 @@ await page
   .getByRole("button", { name: /Notice/ })
   .first()
   .click();
-const form = page.locator("div.border-gold").first();
+const form = page.locator("div.rounded-lg.border-gold").first();
 await form.getByLabel("Heading").fill("Keep your phone on");
 await form.locator("textarea").first().fill("Your driver will WhatsApp you when he parks.");
 await form.locator("select").first().selectOption("warning");
@@ -219,7 +221,7 @@ const step = page.locator("li", { hasText: "Meet your driver" }).first();
 
 // An image block
 await step.getByRole("button", { name: /Image$/ }).click();
-let blockForm = page.locator("div.border-gold").first();
+let blockForm = page.locator("div.rounded-lg.border-gold").first();
 await blockForm.locator('input[type="file"]').first().setInputFiles({
   name: "Meeting Point, Exit 2.png",
   mimeType: "image/png",
@@ -239,7 +241,7 @@ check(
 // A video block, deliberately larger than the serverless body limit
 const before = traffic.length;
 await step.getByRole("button", { name: /Video$/ }).click();
-blockForm = page.locator("div.border-gold").first();
+blockForm = page.locator("div.rounded-lg.border-gold").first();
 await blockForm.locator('input[type="file"]').first().setInputFiles({
   name: "where-to-find-your-driver.mp4",
   mimeType: "video/mp4",
@@ -371,7 +373,7 @@ if (docHref) {
 }
 
 await phone.screenshot({ path: "scripts/__e2e-customer-full.png", fullPage: true });
-await page.getByRole("button", { name: /^Activity/ }).click();
+await page.getByRole("button", { name: /^Edit history/ }).click();
 await page.getByRole("heading", { name: "Change history" }).waitFor({ timeout: 45000 });
 const activity = await page.locator("main").innerText();
 check(
