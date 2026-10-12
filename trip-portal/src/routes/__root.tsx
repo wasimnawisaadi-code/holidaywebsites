@@ -117,7 +117,7 @@ function NotFound() {
   );
 }
 
-function ErrorBoundary({ error }: { error: Error }) {
+function ErrorBoundary({ error }: { error: unknown }) {
   const router = useRouter();
   useEffect(() => {
     console.error(error);
@@ -147,7 +147,7 @@ function ErrorBoundary({ error }: { error: Error }) {
         </div>
         {import.meta.env.DEV ? (
           <pre className="mt-4 max-h-48 overflow-auto rounded-lg bg-white p-3 text-left text-[11px] text-alert">
-            {error?.message}
+            {error instanceof Error ? error.message : String(error)}
           </pre>
         ) : null}
       </div>

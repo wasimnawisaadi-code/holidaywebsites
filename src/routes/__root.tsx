@@ -100,7 +100,7 @@ function NotFoundComponent() {
  * a holiday. It still prints to the console, and still renders on screen in
  * development, which is where anyone who needs it is looking.
  */
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   const router = useRouter();
   useEffect(() => {
     console.error(error);
@@ -115,7 +115,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p className="mt-2 text-sm text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
-        {import.meta.env.DEV && error?.message ? (
+        {import.meta.env.DEV && error instanceof Error && error.message ? (
           <div className="mt-4 max-h-48 overflow-auto rounded-xl border border-red-200 bg-red-50 p-3 text-left font-mono text-xs text-red-800">
             <strong>Error (development only):</strong> {error.message}
           </div>
