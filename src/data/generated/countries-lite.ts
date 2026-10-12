@@ -19,6 +19,16 @@ export type CountryLite = {
 
 export const countriesLite: CountryLite[] = [
   {
+    "slug": "afghanistan",
+    "name": "Afghanistan",
+    "region": "Asia",
+    "image": "/images/afghanistan/band-e-amir.webp",
+    "tagline": "Silk Road heritage and mountain journeys",
+    "blurb": "Discover 14 tours planned by our Kabul office, from a short cultural journey in Kabul to Bamyan, Herat, Nuristan and Wakhan. Full itineraries and USD starting prices are listed on each package.",
+    "nights": "2–14 nights",
+    "isNew": true
+  },
+  {
     "slug": "switzerland",
     "name": "Switzerland",
     "region": "Europe",

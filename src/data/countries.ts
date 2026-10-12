@@ -20,6 +20,20 @@ export type Country = {
 const c = (x: Country) => x;
 
 export const countries: Country[] = [
+  c({
+    slug: "afghanistan",
+    name: "Afghanistan",
+    region: "Asia",
+    image: "/images/afghanistan/band-e-amir.webp",
+    gallery: ["/images/afghanistan/band-e-amir.webp", "/images/afghanistan/bamyan-valley.webp", "/images/afghanistan/herat-friday-mosque.webp", "/images/afghanistan/mazar-blue-mosque.webp"],
+    tagline: "Silk Road heritage and mountain journeys",
+    blurb: "Discover 14 tours planned by our Kabul office, from a short cultural journey in Kabul to Bamyan, Herat, Nuristan and Wakhan. Full itineraries and USD starting prices are listed on each package.",
+    nights: "2–14 nights",
+    highlights: ["Kabul’s gardens and bazaars", "Bamyan and Band-e-Amir", "Herat and Silk Road heritage", "Nuristan and the Wakhan Corridor"],
+    bestTime: "Spring / Summer, subject to route conditions",
+    visa: "Letter of invitation included in tour packages; visa fees excluded. Confirm application requirements before booking.",
+    isNew: true,
+  }),
   // Europe
   c({
     slug: "switzerland",

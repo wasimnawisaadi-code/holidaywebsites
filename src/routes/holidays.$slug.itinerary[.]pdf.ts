@@ -179,7 +179,7 @@ export const Route = createFileRoute("/holidays/$slug/itinerary.pdf")({
 
         const price =
           pkg.priceStatus === "from" && pkg.priceFrom
-            ? `From AED ${pkg.priceFrom.toLocaleString("en-US")} per person`
+            ? `From ${pkg.currency ?? "AED"} ${pkg.priceFrom.toLocaleString("en-US")} per person`
             : "Price on request";
         sheet.text(`${pkg.country}  |  ${pkg.days} days / ${pkg.nights} nights  |  ${price}`, {
           size: 10,

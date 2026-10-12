@@ -15,7 +15,7 @@
  * anywhere the prefix is genuinely wanted.
  */
 export function dayTitle(title: string): string {
-  return title.replace(/^\s*Day\s*\d+\s*[:.–-]\s*/i, "").trim() || title;
+  return title.replace(/^\s*Day\s*\d+\s*[:.—–-]\s*/i, "").trim() || title;
 }
 
 /**

@@ -29,7 +29,7 @@ const under100 = [...inboundUnder100].sort((a, b) => (a.fromPrice ?? 0) - (b.fro
 const cheapest = under100[0]?.fromPrice ?? 25;
 
 const valueHolidays = packages
-  .filter((p) => typeof p.priceFrom === "number")
+  .filter((p) => typeof p.priceFrom === "number" && (p.currency ?? "AED") === "AED")
   .sort((a, b) => (a.priceFrom ?? 0) - (b.priceFrom ?? 0))
   .slice(0, 6);
 const cheapestHoliday = valueHolidays[0]?.priceFrom ?? 1299;

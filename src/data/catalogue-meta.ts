@@ -54,6 +54,8 @@ export type HolidayPackage = {
   styles: TravelStyle[];
   priceStatus: PriceStatus;
   priceFrom?: number;
+  currency?: "AED" | "USD";
+  maxGroupSize?: number;
   image: string;
   intro: string;
   story: string;
@@ -146,9 +148,13 @@ export const travelStyles: TravelStyle[] = [
   "Budget Friendly",
 ];
 
-export function priceLabel(p: { priceStatus: PriceStatus; priceFrom?: number }) {
+export function priceLabel(p: {
+  priceStatus: PriceStatus;
+  priceFrom?: number;
+  currency?: "AED" | "USD";
+}) {
   return p.priceStatus === "from" && p.priceFrom
-    ? "From AED " + p.priceFrom.toLocaleString()
+    ? `From ${p.currency ?? "AED"} ` + p.priceFrom.toLocaleString("en-US")
     : "Price on Request";
 }
 
@@ -176,11 +182,18 @@ export function discountPct(e: { priceFrom?: number; wasPrice?: number }) {
   return Math.round(((e.wasPrice - e.priceFrom) / e.wasPrice) * 100);
 }
 
-export function priceParts(p: { priceStatus: PriceStatus; priceFrom?: number }): {
+export function priceParts(p: {
+  priceStatus: PriceStatus;
+  priceFrom?: number;
+  currency?: "AED" | "USD";
+}): {
   eyebrow: string;
   amount: string;
 } {
   return p.priceStatus === "from" && p.priceFrom
-    ? { eyebrow: "Per person from", amount: "AED " + p.priceFrom.toLocaleString() }
+    ? {
+        eyebrow: "Per person from",
+        amount: `${p.currency ?? "AED"} ` + p.priceFrom.toLocaleString("en-US"),
+      }
     : { eyebrow: "Tailored quote", amount: "Price on request" };
 }

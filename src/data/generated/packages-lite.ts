@@ -18,6 +18,8 @@ export type PackageLite = {
   styles: TravelStyle[];
   priceStatus: PriceStatus;
   priceFrom?: number;
+  currency?: "AED" | "USD";
+  maxGroupSize?: number;
   image: string;
   intro: string;
   featured?: boolean;
@@ -1032,6 +1034,314 @@ export const packagesLite: PackageLite[] = [
     "image": "/images/destinations/bahrain-manama-skyline.webp",
     "intro": "Just 1 hour flight from UAE: explore ancient Dilmun civilizations, UNESCO Portuguese forts overlooking turquoise seas, and vibrant pearl souqs in the Kingdom of Bahrain.",
     "featured": true,
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-discover-kabul-3-days",
+    "title": "Discover Kabul – A 3-Day Cultural & Historical Journey",
+    "destination": "Kabul",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 3,
+    "nights": 2,
+    "styles": [
+      "Cultural",
+      "Historical",
+      "Nature"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 499,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/kabul-babur-gardens.webp",
+    "intro": "Discover the heart of Afghanistan on a 3-day exploration of Kabul, combining historic landmarks, cultural treasures, scenic viewpoints, and authentic local experiences. Wander through traditional bazaars, peaceful gardens, historic mosques, and vibrant neighborhoods while discovering the stories that have shaped the capital over centuries.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-hidden-highlands-6-days",
+    "title": "Afghanistan’s Hidden Highlands – 6-Day Journey",
+    "destination": "Kabul · Bamyan · Band-e-Amir · Ghazni",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 6,
+    "nights": 5,
+    "styles": [
+      "Cultural",
+      "Historical",
+      "Nature"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 849,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/band-e-amir.webp",
+    "intro": "Heart of Afghanistan – 6-Day Adventure is an immersive journey through the country’s remarkable central highlands, combining rich history, vibrant culture, and spectacular mountain landscapes. Beginning in Kabul, the adventure continues to the legendary Bamiyan Valley, the stunning blue lakes of Band-e Amir National Park, and the historic city of Ghazni. Along the way, discover ancient Silk Road heritage, remarkable Buddhist archaeological sites, dramatic valleys, and Afghanistan’s unique cultural traditions. This six-day journey is designed to showcase the beauty, history, and timeless character of central Afghanistan in one unforgettable experience.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-nuristan-7-days",
+    "title": "7-Day Nuristan Adventure & Cultural Tour",
+    "destination": "Kabul · Jalalabad · Kunar · Parun · Nuristan",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 7,
+    "nights": 6,
+    "styles": [
+      "Adventure",
+      "Cultural",
+      "Mountain"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1149,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/nuristan-river.webp",
+    "intro": "Experience the spectacular landscapes and distinctive culture of eastern Afghanistan on this carefully designed 7-day Nuristan Adventure Tour with Nawi Saadi Travel & Tourism.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-northern-discovery-7-days",
+    "title": "Northern Afghanistan – 7 Days of Discovery",
+    "destination": "Kabul · Mazar-i-Sharif · Balkh · Bamyan · Band-e-Amir",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 7,
+    "nights": 6,
+    "styles": [
+      "Cultural",
+      "Historical",
+      "Nature"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1149,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/mazar-blue-mosque.webp",
+    "intro": "Discover Afghanistan with Nawi Saadi Travel & Tourism. Experience Afghanistan’s rich history, breathtaking landscapes, ancient civilizations, vibrant bazaars, and warm local culture on a carefully planned 7-day journey through Kabul, Mazar-e-Sharif, Balkh, Bamyan, and Band-e-Amir.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-kabul-bamyan-herat-7-days",
+    "title": "Kabul, Bamyan & Herat – 7 Days of Discovery",
+    "destination": "Kabul · Bamyan · Band-e-Amir · Herat",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 7,
+    "nights": 6,
+    "styles": [
+      "Cultural",
+      "Historical",
+      "Nature"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1149,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/bamyan-valley.webp",
+    "intro": "Discover the history, culture, and natural beauty of Afghanistan on a carefully designed 7-day journey through some of the country’s most remarkable destinations. Explore the historic streets of Kabul, experience the breathtaking landscapes and ancient heritage of Bamiyan, and discover the architectural treasures of Herat.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-heritage-8-days",
+    "title": "Discover Afghanistan – An 8-Day Heritage & Cultural Adventure",
+    "destination": "Kabul · Bamyan · Band-e-Amir · Herat",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 8,
+    "nights": 7,
+    "styles": [
+      "Cultural",
+      "Historical",
+      "Nature"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1249,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/herat-friday-mosque.webp",
+    "intro": "Experience the diverse beauty and rich heritage of Afghanistan on an unforgettable 8-day journey through its historic cities, ancient landmarks, and spectacular landscapes. Explore the cultural heart of Kabul, discover the remarkable heritage of Bamiyan Valley, and experience the crystal-clear lakes of Band-e Amir National Park.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-grand-cultural-10-days",
+    "title": "10-Day Afghanistan Grand Cultural & Heritage Tour",
+    "destination": "Kabul · Ghazni · Kandahar · Herat · Bamyan · Band-e-Amir",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 10,
+    "nights": 9,
+    "styles": [
+      "Cultural",
+      "Historical",
+      "Nature"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1599,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/herat-friday-mosque.webp",
+    "intro": "Discover the history, culture, architecture, ancient civilizations, traditional markets, and breathtaking landscapes of Afghanistan on an unforgettable 10-day journey through Kabul, Ghazni, Kandahar, Herat, and Bamyan.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-silk-road-10-days",
+    "title": "10-Day Journey Through Afghanistan’s Silk Road Heritage",
+    "destination": "Kabul · Bamyan · Band-e-Amir · Mazar-i-Sharif · Herat",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 10,
+    "nights": 9,
+    "styles": [
+      "Cultural",
+      "Historical",
+      "Nature"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1599,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/mazar-blue-mosque.webp",
+    "intro": "Discover the rich heritage of Afghanistan on a 10-day journey through the historic Silk Road, where ancient civilizations, diverse cultures, and breathtaking landscapes come together. From the vibrant streets of Kabul to the spectacular Bamiyan Valley and the historic beauty of Herat, explore remarkable archaeological treasures, magnificent Islamic architecture, and landscapes shaped by centuries of history.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-grand-cultural-12-days",
+    "title": "12-Day Grand Afghanistan Cultural & Heritage Tour",
+    "destination": "Kabul · Ghazni · Kandahar · Herat · Bamyan · Band-e-Amir · Mazar-i-Sharif · Balkh",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 12,
+    "nights": 11,
+    "styles": [
+      "Cultural",
+      "Historical",
+      "Nature"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1649,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/herat-friday-mosque.webp",
+    "intro": "Discover the diverse history, ancient civilizations, cultural heritage, traditional markets, religious landmarks, and spectacular mountain landscapes of Afghanistan on an unforgettable 12-day journey with Nawi Saadi Travel & Tourism.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-wakhan-expedition-12-days",
+    "title": "Wakhan Beyond the Map – A 12-Day Afghan Expedition",
+    "destination": "Kabul · Faizabad · Baharak · Ishkashim · Khandud · Qala-e-Panj · Sarhad-e Broghil",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 12,
+    "nights": 11,
+    "styles": [
+      "Adventure",
+      "Cultural",
+      "Mountain"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1999,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/wakhan-mountains.webp",
+    "intro": "Journey deep into one of Afghanistan’s most remote and spectacular regions on a 12-day expedition through the Wakhan Corridor, a historic passage once connected to the ancient Silk Road. Beginning in Kabul and continuing toward the remote mountain settlement of Sarhad-e Broghil, the journey unfolds across dramatic valleys surrounded by the towering Pamir and Hindu Kush ranges.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-grand-heritage-14-days",
+    "title": "14-Day Afghanistan Grand Heritage & Cultural Tour",
+    "destination": "Kabul · Bamyan · Band-e-Amir · Yakawlang · Firuzkuh · Jam · Chisht-e-Sharif · Herat · Kandahar · Mazar-i-Sharif · Balkh",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 14,
+    "nights": 13,
+    "styles": [
+      "Adventure",
+      "Cultural",
+      "Mountain"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1749,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/minaret-of-jam.webp",
+    "intro": "Embark on an extraordinary 14-day journey through Afghanistan with Nawi Saadi Travel & Tourism, exploring the country’s remarkable history, ancient civilizations, Islamic architecture, UNESCO heritage sites, traditional bazaars, cultural landmarks, and breathtaking mountain landscapes.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-grand-silk-road-15-days",
+    "title": "15-Day Afghanistan Grand Tour – Journey Along the Silk Road",
+    "destination": "Kabul · Bamyan · Band-e-Amir · Mazar-i-Sharif · Samangan · Balkh · Herat · Kandahar · Ghazni",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 15,
+    "nights": 14,
+    "styles": [
+      "Cultural",
+      "Historical",
+      "Nature"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1799,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/mazar-blue-mosque.webp",
+    "intro": "Embark on a 15-day journey through Afghanistan’s legendary Silk Road, exploring ancient cities, remarkable heritage sites, breathtaking landscapes, and vibrant local culture. From Kabul and the spectacular Bamiyan Valley to the historic treasures of Herat and Mazar-i-Sharif, discover the crossroads where civilizations, cultures, and trade routes met for centuries. This immersive adventure combines history, architecture, nature, and authentic cultural experiences for an unforgettable exploration of Afghanistan.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-womens-journey-15-days",
+    "title": "The Women’s Journey – 15 Days Across Afghanistan",
+    "destination": "Kabul · Bamyan · Band-e-Amir · Firoz Koh · Jam · Herat · Helmand · Kandahar · Ghazni · Mazar-i-Sharif · Samangan · Balkh",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 15,
+    "nights": 14,
+    "styles": [
+      "Adventure",
+      "Cultural",
+      "Mountain"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1799,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/herat-friday-mosque.webp",
+    "intro": "Discover Afghanistan through a perspective few travelers have the opportunity to experience. Our Ladies-Only Tour is designed to create meaningful connections with Afghan culture, communities, and women, offering an authentic and respectful journey guided by experienced local female guides.",
+    "seasonal": "Spring / Summer",
+    "isNew": true
+  },
+  {
+    "slug": "afghanistan-beyond-the-roads-15-days",
+    "title": "15 Days Beyond the Roads – Afghanistan Off-Road Journey",
+    "destination": "Kabul · Ghazni · Bamyan · Band-e-Amir · Yakawlang · Chaghcharan · Jam · Herat · Maymana · Mazar-i-Sharif · Samangan",
+    "country": "Afghanistan",
+    "region": "International",
+    "days": 15,
+    "nights": 14,
+    "styles": [
+      "Adventure",
+      "Cultural",
+      "Mountain"
+    ],
+    "priceStatus": "from",
+    "priceFrom": 1999,
+    "currency": "USD",
+    "maxGroupSize": 8,
+    "image": "/images/afghanistan/minaret-of-jam.webp",
+    "intro": "Embark on an extraordinary 15-day overland adventure through some of Afghanistan’s most remote and spectacular landscapes. Designed for travelers seeking a deeper connection with the country, this journey ventures beyond the main routes, linking Kabul, Bamyan, Chaghcharan, the legendary Minaret of Jam, Herat, and Mazar-i-Sharif.",
+    "seasonal": "Spring / Summer",
     "isNew": true
   }
 ];

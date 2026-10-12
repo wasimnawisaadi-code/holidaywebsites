@@ -1,5 +1,6 @@
 import { packageDetailsA } from "./package-details-a";
 import { packageDetailsB } from "./package-details-b";
+import { afghanistanDetails } from "./afghanistan-details";
 import type { PackageDetail } from "./package-detail-types";
 
 export type { PackageDetail, DayBlocks } from "./package-detail-types";
@@ -8,6 +9,7 @@ export type { PackageDetail, DayBlocks } from "./package-detail-types";
 export const packageDetails: Record<string, PackageDetail> = {
   ...packageDetailsA,
   ...packageDetailsB,
+  ...afghanistanDetails,
 };
 
 export function packageDetail(slug: string): PackageDetail | undefined {

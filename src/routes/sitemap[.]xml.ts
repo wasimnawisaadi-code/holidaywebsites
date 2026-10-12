@@ -44,6 +44,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/holidays", changefreq: "weekly", priority: "0.9" },
+          { path: "/afghanistan", changefreq: "weekly", priority: "0.9", image: "/images/afghanistan/band-e-amir.webp" },
           { path: "/countries", changefreq: "weekly", priority: "0.9" },
           { path: "/dubai", changefreq: "weekly", priority: "0.9" },
           { path: "/uae", changefreq: "weekly", priority: "0.9" },

@@ -1,4 +1,5 @@
 import { BRAND, credentials, offices, serviceLines, waLink } from "./catalogue-brand";
+import { afghanistanPackages } from "./afghanistan-packages";
 export { BRAND, credentials, offices, serviceLines, waLink };
 export type { Office } from "./catalogue-brand";
 
@@ -6034,6 +6035,7 @@ export const packages: HolidayPackage[] = [
         "transport": "Included private airport transfer"
       }
     ]
-  }
+  },
+  ...afghanistanPackages,
 ];
 export { experiences, under100 } from "./experiences";

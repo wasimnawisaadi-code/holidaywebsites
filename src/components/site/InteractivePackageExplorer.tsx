@@ -150,7 +150,7 @@ export function InteractivePackageExplorer() {
                 </span>
                 {p.priceFrom ? (
                   <span className="absolute bottom-3.5 right-3.5 rounded-full bg-[#CAA42D] px-3 py-1 text-xs font-extrabold text-[#00243f] shadow-md">
-                    From AED {p.priceFrom.toLocaleString()}
+                    From {p.currency ?? "AED"} {p.priceFrom.toLocaleString("en-US")}
                   </span>
                 ) : null}
               </div>

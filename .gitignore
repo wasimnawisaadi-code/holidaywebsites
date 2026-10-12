@@ -46,3 +46,8 @@ scripts/__*
 .env
 .env.local
 .env.*.local
+
+# Original tour documents and local visual QA; imported content is tracked as JSON.
+source-content/afghanistan/*.docx
+source-content/afghanistan/*.png
+source-content/afghanistan/*.jpg

@@ -128,7 +128,7 @@ export function SiteHeader() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-1 xl:flex" aria-label="Primary">
           <MenuTrigger
             label="Holiday packages"
             isOpen={openMenu === "holidays"}
@@ -141,6 +141,9 @@ export function SiteHeader() {
             onOpen={() => open("destinations")}
             light={isLightText}
           />
+          <NavLink to="/afghanistan" onHover={scheduleClose} light={isLightText}>
+            Afghanistan Tours
+          </NavLink>
           <NavLink to="/activities" onHover={scheduleClose} light={isLightText}>
             Dubai & UAE
           </NavLink>
@@ -156,11 +159,11 @@ export function SiteHeader() {
         </nav>
 
         {/* Desktop actions */}
-        <div className="hidden shrink-0 items-center gap-4 lg:flex">
+        <div className="hidden shrink-0 items-center gap-4 xl:flex">
           <a
             href={`tel:${BRAND.phone.replace(/\s/g, "")}`}
             className={cn(
-              "flex items-center gap-2 text-sm font-semibold transition-colors",
+              "hidden 2xl:flex items-center gap-2 text-sm font-semibold transition-colors",
               isLightText
                 ? "text-white hover:text-[#DDBE5E]"
                 : "text-[#00365F] hover:text-[#7A641B]",
@@ -194,7 +197,7 @@ export function SiteHeader() {
           aria-expanded={mobileOpen}
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
           className={cn(
-            "flex size-11 items-center justify-center rounded-xl border lg:hidden transition-colors",
+            "flex size-11 items-center justify-center rounded-xl border xl:hidden transition-colors",
             isLightText
               ? "border-white/20 bg-white/5 text-white"
               : "border-[#00365F]/20 text-[#00365F]",
@@ -302,10 +305,11 @@ export function SiteHeader() {
 
       {/* Mobile sheet */}
       {mobileOpen ? (
-        <div className="max-h-[calc(100vh-4.75rem)] overflow-y-auto border-t border-[#E5E5E5] bg-[#FFFFFF] px-5 py-6 lg:hidden">
+        <div className="max-h-[calc(100vh-4.75rem)] overflow-y-auto border-t border-[#E5E5E5] bg-[#FFFFFF] px-5 py-6 xl:hidden">
           <nav className="flex flex-col" aria-label="Mobile">
             {[
               { to: "/holidays", label: "Holiday packages" },
+              { to: "/afghanistan", label: "Afghanistan Tours" },
               { to: "/countries", label: "Destinations" },
               { to: "/activities", label: "Dubai & UAE" },
               { to: "/customized-tours", label: "Tailor-made" },
@@ -366,7 +370,7 @@ function NavLink({
       to={to}
       onMouseEnter={onHover}
       className={cn(
-        "rounded-sm px-3.5 py-2 text-sm font-medium transition-colors",
+        "whitespace-nowrap rounded-sm px-2 py-2 text-sm font-medium transition-colors xl:px-3",
         light ? "text-white/90 hover:text-[#DDBE5E]" : "text-[#353844] hover:text-[#7A641B]",
       )}
     >
@@ -394,7 +398,7 @@ function MenuTrigger({
       onClick={onOpen}
       aria-expanded={isOpen}
       className={cn(
-        "flex items-center gap-1.5 rounded-sm px-3.5 py-2 text-sm font-medium transition-colors",
+        "flex items-center gap-1.5 whitespace-nowrap rounded-sm px-2 py-2 text-sm font-medium transition-colors xl:px-3",
         isOpen
           ? "text-[#7A641B]"
           : light
@@ -423,7 +427,7 @@ function Panel({
     <div
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
-      className="hidden border-t border-[#E5E5E5] bg-[#FFFFFF] shadow-[0_20px_40px_-32px_rgba(0,48,88,0.45)] lg:block"
+      className="hidden border-t border-[#E5E5E5] bg-[#FFFFFF] shadow-[0_20px_40px_-32px_rgba(0,48,88,0.45)] xl:block"
     >
       <div className="mx-auto max-w-[1400px] px-8 py-8">{children}</div>
     </div>

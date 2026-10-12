@@ -112,7 +112,7 @@ export const Route = createFileRoute("/holidays/$slug")({
                   offers: {
                     "@type": "Offer",
                     price: pkg.priceFrom,
-                    priceCurrency: "AED",
+                    priceCurrency: pkg.currency ?? "AED",
                     availability: "https://schema.org/InStock",
                     url: absoluteUrl(`/holidays/${params.slug}`),
                     // The page shows a per-person "from" price, so the offer
@@ -120,8 +120,8 @@ export const Route = createFileRoute("/holidays/$slug")({
                     priceSpecification: {
                       "@type": "UnitPriceSpecification",
                       price: pkg.priceFrom,
-                      priceCurrency: "AED",
-                      valueAddedTaxIncluded: true,
+                      priceCurrency: pkg.currency ?? "AED",
+                      ...(pkg.country !== "Afghanistan" ? { valueAddedTaxIncluded: true } : {}),
                       referenceQuantity: {
                         "@type": "QuantitativeValue",
                         value: 1,
@@ -249,7 +249,8 @@ function PackagePage() {
       (c.name === "United States of America" && pkg.country.includes("United States")),
   );
 
-  const countryGallery = countryRecord?.gallery?.length ? countryRecord.gallery : [];
+  const countryGallery =
+    pkg.country !== "Afghanistan" && countryRecord?.gallery?.length ? countryRecord.gallery : [];
   const rawGallery = detail?.gallery?.length ? detail.gallery : [];
   const combined = [...new Set([pkg.image, ...rawGallery, ...countryGallery])];
   const gallery =
@@ -258,7 +259,9 @@ function PackagePage() {
     .filter(
       (p) =>
         p.slug !== pkg.slug &&
-        (p.region === pkg.region || p.styles.some((s) => pkg.styles.includes(s))),
+        (pkg.country === "Afghanistan"
+          ? p.country === "Afghanistan"
+          : p.region === pkg.region || p.styles.some((s) => pkg.styles.includes(s))),
     )
     .slice(0, 3);
 
@@ -386,7 +389,9 @@ function PackagePage() {
             <p className="text-lg leading-relaxed text-slate-700">
               {detail?.overview ?? pkg.intro}
             </p>
-            <p className="mt-4 text-slate-600 leading-relaxed">{pkg.story}</p>
+            {pkg.story !== (detail?.overview ?? pkg.intro) && (
+              <p className="mt-4 text-slate-600 leading-relaxed">{pkg.story}</p>
+            )}
           </Section>
 
           <Section id="highlights" title="Top highlights">
@@ -403,6 +408,18 @@ function PackagePage() {
             </ul>
           </Section>
 
+          {pkg.country === "Afghanistan" && detail?.importantInfo.length ? (
+            <Section id="tour-details" title="Tour details & booking notes">
+              <dl className="grid gap-5 rounded-2xl border border-amber-200 bg-amber-50/60 p-6 sm:grid-cols-2">
+                {detail.importantInfo.map((note) => (
+                  <div key={note.title}>
+                    <dt className="font-semibold text-[#00365F]">{note.title}</dt>
+                    <dd className="mt-2 text-sm leading-relaxed text-slate-600">{note.body}</dd>
+                  </div>
+                ))}
+              </dl>
+            </Section>
+          ) : null}
           <Section id="itinerary" title="Day-by-day itinerary">
             <ol className="border-l-2 border-[#CAA42D]/40 pl-6 space-y-6">
               {pkg.itinerary.map((d) => {
@@ -662,6 +679,13 @@ function PackagePage() {
               <span className="font-semibold text-[#00365F]">We can customise this package</span>:
               change the nights, hotels, cities or pace and we will requote it.
             </p>
+            {pkg.country === "Afghanistan" && (
+              <p className="mt-3 rounded-xl bg-amber-50 p-3 text-xs leading-relaxed text-slate-700">
+                Spring / Summer · Maximum {pkg.maxGroupSize} travellers. Prices are in USD.
+                International flights and visa fees are excluded; domestic flights and final
+                arrangements require confirmation.
+              </p>
+            )}
 
             <div className="mt-5 space-y-4">
               {/* Hotel Tier Selector */}
@@ -670,7 +694,10 @@ function PackagePage() {
                   Hotel Preference
                 </label>
                 <div className="mt-1.5 grid grid-cols-3 gap-1.5">
-                  {(["3-Star Comfort", "4-Star Superior", "5-Star Luxury"] as const).map((tier) => (
+                  {(pkg.country === "Afghanistan"
+                    ? (["3-Star Comfort", "4-Star Superior"] as const)
+                    : (["3-Star Comfort", "4-Star Superior", "5-Star Luxury"] as const)
+                  ).map((tier) => (
                     <button
                       key={tier}
                       type="button"
@@ -707,7 +734,15 @@ function PackagePage() {
                     <span className="text-sm font-bold text-[#00365F]">{adults}</span>
                     <button
                       type="button"
-                      onClick={() => setAdults(adults + 1)}
+                      onClick={() =>
+                        setAdults(
+                          Math.min(
+                            pkg.maxGroupSize ? pkg.maxGroupSize - children : Infinity,
+                            adults + 1,
+                          ),
+                        )
+                      }
+                      disabled={Boolean(pkg.maxGroupSize && adults + children >= pkg.maxGroupSize)}
                       aria-label="One more adult"
                       className="size-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100"
                     >
@@ -733,7 +768,15 @@ function PackagePage() {
                     <span className="text-sm font-bold text-[#00365F]">{children}</span>
                     <button
                       type="button"
-                      onClick={() => setChildren(children + 1)}
+                      onClick={() =>
+                        setChildren(
+                          Math.min(
+                            pkg.maxGroupSize ? pkg.maxGroupSize - adults : Infinity,
+                            children + 1,
+                          ),
+                        )
+                      }
+                      disabled={Boolean(pkg.maxGroupSize && adults + children >= pkg.maxGroupSize)}
                       aria-label="One more child"
                       className="size-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100"
                     >
@@ -752,7 +795,11 @@ function PackagePage() {
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#00365F] py-3.5 text-sm font-bold text-white shadow-lg transition-transform hover:scale-102 hover:bg-[#00365F]"
             >
               <MessageCircle className="size-4 text-[#CAA42D]" />
-              <span>Instant WhatsApp Booking</span>
+              <span>
+                {pkg.country === "Afghanistan"
+                  ? "Enquire about this tour"
+                  : "Instant WhatsApp Booking"}
+              </span>
             </a>
 
             <Link
@@ -812,11 +859,19 @@ function PackagePage() {
               </li>
               <li className="flex items-center gap-2">
                 <ShieldCheck className="size-4 text-[#CAA42D] shrink-0" />
-                <span>Full Visa Assistance for UAE Residents</span>
+                <span>
+                  {pkg.country === "Afghanistan"
+                    ? "Letter of invitation & local permits"
+                    : "Full Visa Assistance for UAE Residents"}
+                </span>
               </li>
               <li className="flex items-center gap-2">
                 <Zap className="size-4 text-[#CAA42D] shrink-0" />
-                <span>24/7 Dedicated Concierge Support</span>
+                <span>
+                  {pkg.country === "Afghanistan"
+                    ? "Professional local tour guide"
+                    : "24/7 Dedicated Concierge Support"}
+                </span>
               </li>
             </ul>
           </div>

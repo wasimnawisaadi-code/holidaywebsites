@@ -14,7 +14,7 @@ export type PackageCardData = Pick<
   HolidayPackage,
   "slug" | "title" | "destination" | "country" | "days" | "nights" | "image" | "priceStatus"
 > &
-  Partial<Pick<HolidayPackage, "priceFrom" | "isNew" | "seasonal">>;
+  Partial<Pick<HolidayPackage, "priceFrom" | "currency" | "isNew" | "seasonal">>;
 import { cn } from "@/lib/utils";
 import { tileImage } from "@/lib/img";
 

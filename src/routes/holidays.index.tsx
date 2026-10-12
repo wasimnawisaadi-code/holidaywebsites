@@ -61,7 +61,7 @@ export const Route = createFileRoute("/holidays/")({
           "@type": "ItemList",
           name: "Holiday packages from Dubai",
           numberOfItems: packages.length,
-          itemListElement: packages.slice(0, 50).map((p, i) => ({
+          itemListElement: packages.map((p, i) => ({
             "@type": "ListItem",
             position: i + 1,
             name: p.title,
@@ -115,7 +115,7 @@ function HolidaysPage() {
             Handcrafted <span className="italic text-[#DDBE5E]">holiday packages</span>
           </>
         }
-        intro="Every itinerary is built by our own consultants and backed by IATA ticketing, verified 4★ and 5★ central hotels, private transfers and full visa assistance from Deira."
+        intro="Explore journeys planned by our consultants, with accommodation, transport and local experiences detailed in each itinerary. Our Dubai and Kabul teams will confirm your arrangements and quotation."
         image="/images/destinations/swiss-lauterbrunnen.webp"
         imageAlt="Alpine valley on a Nawi Saadi Switzerland itinerary"
         stats={[

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AfghanistanRouteImport } from './routes/afghanistan'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CustomizedToursRouteImport } from './routes/customized-tours'
 import { Route as DealsRouteImport } from './routes/deals'
@@ -42,6 +43,11 @@ const AboutRoute = AboutRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AfghanistanRoute = AfghanistanRouteImport.update({
+  id: '/afghanistan',
+  path: '/afghanistan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/afghanistan': typeof AfghanistanRoute
   '/contact': typeof ContactRoute
   '/customized-tours': typeof CustomizedToursRoute
   '/deals': typeof DealsRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/afghanistan': typeof AfghanistanRoute
   '/contact': typeof ContactRoute
   '/customized-tours': typeof CustomizedToursRoute
   '/deals': typeof DealsRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/afghanistan': typeof AfghanistanRoute
   '/contact': typeof ContactRoute
   '/customized-tours': typeof CustomizedToursRoute
   '/deals': typeof DealsRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/afghanistan'
     | '/contact'
     | '/customized-tours'
     | '/deals'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/afghanistan'
     | '/contact'
     | '/customized-tours'
     | '/deals'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/afghanistan'
     | '/contact'
     | '/customized-tours'
     | '/deals'
@@ -260,6 +272,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
+  AfghanistanRoute: typeof AfghanistanRoute
   ContactRoute: typeof ContactRoute
   CustomizedToursRoute: typeof CustomizedToursRoute
   DealsRoute: typeof DealsRoute
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/afghanistan': {
+      id: '/afghanistan'
+      path: '/afghanistan'
+      fullPath: '/afghanistan'
+      preLoaderRoute: typeof AfghanistanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -431,6 +451,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
+  AfghanistanRoute: AfghanistanRoute,
   ContactRoute: ContactRoute,
   CustomizedToursRoute: CustomizedToursRoute,
   DealsRoute: DealsRoute,

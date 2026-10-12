@@ -28,6 +28,7 @@ const COLUMNS = [
     heading: "Holidays",
     links: [
       { label: "All packages", to: "/holidays" },
+      { label: "Afghanistan Tours", to: "/afghanistan" },
       { label: "Country directory", to: "/countries" },
       { label: "Tailor-made trips", to: "/customized-tours" },
       { label: "Special deals", to: "/deals" },
@@ -267,6 +268,13 @@ export function SiteFooter() {
             </Link>
             <Link to="/terms" className="transition-colors hover:text-[#7A641B]">
               Terms &amp; booking
+            </Link>
+            <Link
+              to="/afghanistan"
+              hash="photo-credits"
+              className="transition-colors hover:text-[#7A641B]"
+            >
+              Afghanistan photo credits
             </Link>
             <span>IATA accredited · flydubai GSA · DTCM approved</span>
           </div>

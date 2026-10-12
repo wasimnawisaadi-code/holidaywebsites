@@ -237,7 +237,7 @@ export function ScrollCuratedShowcase() {
                     </div>
                     {pkg.priceFrom ? (
                       <span className="rounded-full bg-[#CAA42D] px-3 py-1 text-xs font-extrabold text-[#00243f] shadow-md">
-                        From AED {pkg.priceFrom.toLocaleString()}
+                        From {pkg.currency ?? "AED"} {pkg.priceFrom.toLocaleString("en-US")}
                       </span>
                     ) : null}
                   </div>

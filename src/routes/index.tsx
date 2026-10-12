@@ -29,13 +29,14 @@ import { ScrollCuratedShowcase } from "@/components/site/ScrollCuratedShowcase";
 import { TrustMetricsBar } from "@/components/site/TrustMetricsBar";
 import { ArrowBadgeLink } from "@/components/site/ArrowBadgeLink";
 import { Reveal } from "@/components/site/Reveal";
+import { AfghanistanFeature } from "@/components/site/AfghanistanFeature";
 import { cn } from "@/lib/utils";
 import { absoluteUrl } from "@/lib/site";
 
 const FAQS = [
   {
     q: "What is included in a package price?",
-    a: "Return flights, hotels with daily breakfast, private airport transfers, the excursions listed on the itinerary, entrance passes and visa processing. Anything not included is written on the quote, so there is nothing to discover later.",
+    a: "Inclusions vary by package. Each itinerary lists accommodation, meals, transport and sightseeing, alongside any exclusions. Check the package details and your written quotation for flights, visa fees and optional activities.",
   },
   {
     q: "Can I change the itinerary?",
@@ -120,6 +121,7 @@ function Home() {
       <ScrollJourneyFilm />
       <SignatureItineraries />
       <PackageGrid />
+      <AfghanistanFeature />
       <ScrollCuratedShowcase />
       <RegionalExplorer />
       <UaeRail />
