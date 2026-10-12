@@ -1,10 +1,42 @@
 [
-  {"id":"kabul-babur-gardens","title":"File:Babur Gardens.jpg","alt":"Terraced Babur Gardens in Kabul, Afghanistan"},
-  {"id":"bamyan-valley","title":"File:Bamyan Valley in 2012.jpg","alt":"Bamyan Valley and the historic Buddha niche, Afghanistan"},
-  {"id":"herat-friday-mosque","title":"File:Herat Masjidi Jami courtyard.jpg","alt":"Tiled courtyard of the Friday Mosque in Herat, Afghanistan"},
-  {"id":"mazar-blue-mosque","title":"File:Blue Mosque (general view), Mazar-i Sharif, Afghanistan.jpg","alt":"Blue Mosque in Mazar-i-Sharif, Afghanistan"},
-  {"id":"nuristan-river","title":"File:Looking toward zanchagle Waygale Nuristan - panoramio.jpg","alt":"Mountain landscape of Waygal, Nuristan, Afghanistan"},
-  {"id":"wakhan-mountains","title":"File:Wakhan, Badakhshan.jpg","alt":"Wakhan mountain landscape in Badakhshan, Afghanistan"},
-  {"id":"minaret-of-jam","title":"File:Minaret of jam 2009 ghor.jpg","alt":"Minaret of Jam in the mountain valleys of Ghor, Afghanistan"},
-  {"id":"band-e-amir","title":"File:Lake Band-e-Amir.jpg","alt":"Deep-blue lake and limestone cliffs at Band-e-Amir, Afghanistan"}
+  {
+    "id": "kabul-babur-gardens",
+    "title": "File:Babur Gardens.jpg",
+    "alt": "Terraced Babur Gardens in Kabul, Afghanistan"
+  },
+  {
+    "id": "bamyan-valley",
+    "title": "File:Bamyan Valley in 2012.jpg",
+    "alt": "Bamyan Valley and the historic Buddha niche, Afghanistan"
+  },
+  {
+    "id": "herat-friday-mosque",
+    "title": "File:Herat Masjidi Jami courtyard.jpg",
+    "alt": "Tiled courtyard of the Friday Mosque in Herat, Afghanistan"
+  },
+  {
+    "id": "mazar-blue-mosque",
+    "title": "File:Mazar-e Sharif - scene.jpg",
+    "alt": "Blue Mosque and its flower gardens in Mazar-i-Sharif, Afghanistan"
+  },
+  {
+    "id": "nuristan-river",
+    "title": "File:Payngale ( Parun ) - panoramio (4).jpg",
+    "alt": "River and forested valley at Parun, Nuristan, Afghanistan"
+  },
+  {
+    "id": "wakhan-mountains",
+    "title": "File:Sahrad.jpg",
+    "alt": "Summer landscape near Sarhad-e Broghil in the Wakhan Corridor, Afghanistan"
+  },
+  {
+    "id": "minaret-of-jam",
+    "title": "File:Minaret of jam 2009 ghor.jpg",
+    "alt": "Minaret of Jam in the mountain valleys of Ghor, Afghanistan"
+  },
+  {
+    "id": "band-e-amir",
+    "title": "File:Lake Band-e-Amir.jpg",
+    "alt": "Deep-blue lake and limestone cliffs at Band-e-Amir, Afghanistan"
+  }
 ]

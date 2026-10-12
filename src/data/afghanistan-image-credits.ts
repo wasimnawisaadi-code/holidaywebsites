@@ -29,29 +29,29 @@ export const afghanistanImageCredits = [
   },
   {
     "image": "/images/afghanistan/mazar-blue-mosque.webp",
-    "alt": "Blue Mosque in Mazar-i-Sharif, Afghanistan",
-    "author": "Saeedeh Joshaghani et al.",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Blue_Mosque_(general_view),_Mazar-i_Sharif,_Afghanistan.jpg",
+    "alt": "Blue Mosque and its flower gardens in Mazar-i-Sharif, Afghanistan",
+    "author": "Steve Evans from India and USA",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Mazar-e_Sharif_-_scene.jpg",
     "changes": "Resized and converted to WebP; displayed with cropping."
   },
   {
     "image": "/images/afghanistan/nuristan-river.webp",
-    "alt": "Mountain landscape of Waygal, Nuristan, Afghanistan",
+    "alt": "River and forested valley at Parun, Nuristan, Afghanistan",
     "author": "Abdul Qahar Nuristan…",
     "license": "CC BY-SA 3.0",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Looking_toward_zanchagle_Waygale_Nuristan_-_panoramio.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Payngale_(_Parun_)_-_panoramio_(4).jpg",
     "changes": "Resized and converted to WebP; displayed with cropping."
   },
   {
     "image": "/images/afghanistan/wakhan-mountains.webp",
-    "alt": "Wakhan mountain landscape in Badakhshan, Afghanistan",
-    "author": "Tom Hartley at English Wikipedia",
-    "license": "CC BY-SA 3.0",
-    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
-    "source": "https://commons.wikimedia.org/wiki/File:Wakhan,_Badakhshan.jpg",
+    "alt": "Summer landscape near Sarhad-e Broghil in the Wakhan Corridor, Afghanistan",
+    "author": "Benoît Vicart",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Sahrad.jpg",
     "changes": "Resized and converted to WebP; displayed with cropping."
   },
   {

@@ -203,28 +203,18 @@
         }
       },
       {
-        "title": "File:Blue Mosque (general view), Mazar-i Sharif, Afghanistan.jpg",
-        "thumburl": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Blue_Mosque_%28general_view%29%2C_Mazar-i_Sharif%2C_Afghanistan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-        "thumbwidth": 1600,
-        "thumbheight": 925,
-        "thumbattribs": {
-          "src": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Blue_Mosque_%28general_view%29%2C_Mazar-i_Sharif%2C_Afghanistan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-          "decoding": "async",
-          "loading": "lazy",
-          "width": 1600,
-          "height": 925
-        },
-        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Blue_Mosque_%28general_view%29%2C_Mazar-i_Sharif%2C_Afghanistan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-        "descriptionurl": "https://commons.wikimedia.org/wiki/File:Blue_Mosque_(general_view),_Mazar-i_Sharif,_Afghanistan.jpg",
-        "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=160029376",
+        "title": "File:Mazar-e Sharif - scene.jpg",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Mazar-e_Sharif_-_scene.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "descriptionurl": "https://commons.wikimedia.org/wiki/File:Mazar-e_Sharif_-_scene.jpg",
+        "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=673596",
         "extmetadata": {
           "DateTime": {
-            "value": "2025-02-19 08:12:36",
+            "value": "2006-04-01 03:11:13",
             "source": "mediawiki-metadata",
             "hidden": ""
           },
           "ObjectName": {
-            "value": "Blue Mosque (general view), Mazar-i Sharif, Afghanistan",
+            "value": "Mazar-e Sharif - scene",
             "source": "mediawiki-metadata"
           },
           "CommonsMetadataExtension": {
@@ -233,7 +223,7 @@
             "hidden": ""
           },
           "Categories": {
-            "value": "Blue Mosque, Mazar-i-Sharif",
+            "value": "Taken with Canon EOS 300D|Files from Flickr with changed licenses|Flickr images reviewed by FlickreviewR|Steve Evans photos of Afghanistan|Blue Mosque, Mazar-i-Sharif in 2005|Afghanistan photographs taken on 2005-06-16",
             "source": "commons-categories",
             "hidden": ""
           },
@@ -243,28 +233,33 @@
             "hidden": ""
           },
           "ImageDescription": {
-            "value": "Blue Mosque (general view), Mazar-i Sharif, Afghanistan",
+            "value": "The Blue Mosque in Mazar-e Sharif, which is a city in northern Afghanistan.",
             "source": "commons-desc-page"
           },
           "DateTimeOriginal": {
-            "value": "2023",
+            "value": "Taken on 16 June 2005, 18:07",
             "source": "commons-desc-page"
           },
           "Credit": {
-            "value": "<p><a rel=\"nofollow\" class=\"external text\" href=\"https://www.bagh-sj.com/jufile?ar_sfile=2475500\">A Comparative study</a><br>\n</p>\n\"Copyright for this article is retained by the author(s), with publication rights granted to the Bagh-e Nazar Journal. This is an open-access article distributed under the terms and conditions of the Creative Commons Attribution License (<a rel=\"nofollow\" class=\"external free\" href=\"https://creativecommons.org/licenses/by/4.0/\">https://creativecommons.org/licenses/by/4.0/</a>).\" <a rel=\"nofollow\" class=\"external autonumber\" href=\"https://www.bagh-sj.com/jufile?ar_sfile=2475500\">[1]</a>",
+            "value": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/photos/64749744@N00/20003005/\">Flickr</a>",
             "source": "commons-desc-page"
           },
           "Artist": {
-            "value": "Saeedeh Joshaghani et al.",
+            "value": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/64749744@N00\">Steve Evans</a> from India and USA",
             "source": "commons-desc-page"
           },
+          "Permission": {
+            "value": "When this file was uploaded to Wikimedia Commons, it was available from Flickr under the stated license. The Flickr user has since stopped distributing the file under this license. As Creative Commons licenses cannot be revoked in this manner, the file is still free to use under the terms of the license specified. See the Creative Commons FAQ on <a rel=\"nofollow\" class=\"external text\" href=\"https://creativecommons.org/faq/#what-if-i-change-my-mind-about-using-a-cc-license\">revoking licensing</a>.",
+            "source": "commons-desc-page",
+            "hidden": ""
+          },
           "LicenseShortName": {
-            "value": "CC BY-SA 4.0",
+            "value": "CC BY 2.0",
             "source": "commons-desc-page",
             "hidden": ""
           },
           "UsageTerms": {
-            "value": "Creative Commons Attribution-Share Alike 4.0",
+            "value": "Creative Commons Attribution 2.0",
             "source": "commons-desc-page"
           },
           "AttributionRequired": {
@@ -273,7 +268,7 @@
             "hidden": ""
           },
           "LicenseUrl": {
-            "value": "https://creativecommons.org/licenses/by-sa/4.0",
+            "value": "https://creativecommons.org/licenses/by/2.0",
             "source": "commons-desc-page"
           },
           "Copyrighted": {
@@ -287,40 +282,26 @@
             "hidden": ""
           },
           "License": {
-            "value": "cc-by-sa-4.0",
+            "value": "cc-by-2.0",
             "source": "commons-templates",
             "hidden": ""
           }
         }
       },
       {
-        "title": "File:Wakhan, Badakhshan.jpg",
-        "thumburl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Wakhan%2C_Badakhshan.jpg/1920px-Wakhan%2C_Badakhshan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "thumbwidth": 1600,
-        "thumbheight": 1200,
-        "responsiveUrls": {
-          "2": "https://upload.wikimedia.org/wikipedia/commons/4/47/Wakhan%2C_Badakhshan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
-        },
-        "thumbattribs": {
-          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Wakhan%2C_Badakhshan.jpg/1920px-Wakhan%2C_Badakhshan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-          "decoding": "async",
-          "loading": "lazy",
-          "width": 1600,
-          "height": 1200,
-          "srcset": "https://upload.wikimedia.org/wikipedia/commons/4/47/Wakhan%2C_Badakhshan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled 2x"
-        },
-        "url": "https://upload.wikimedia.org/wikipedia/commons/4/47/Wakhan%2C_Badakhshan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-        "descriptionurl": "https://commons.wikimedia.org/wiki/File:Wakhan,_Badakhshan.jpg",
-        "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=8515373",
+        "title": "File:Sahrad.jpg",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/d7/Sahrad.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "descriptionurl": "https://commons.wikimedia.org/wiki/File:Sahrad.jpg",
+        "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=161449083",
         "extmetadata": {
           "DateTime": {
-            "value": "2009-11-20 22:52:36",
+            "value": "2025-03-08 08:17:38",
             "source": "mediawiki-metadata",
             "hidden": ""
           },
           "ObjectName": {
-            "value": "Wakhan, Badakhshan",
-            "source": "mediawiki-metadata"
+            "value": "<div class=\"fn\">\nPaysage du corridor du Wakhan</div>",
+            "source": "commons-desc-page"
           },
           "CommonsMetadataExtension": {
             "value": 1.2,
@@ -328,7 +309,7 @@
             "hidden": ""
           },
           "Categories": {
-            "value": "GFDL|User-created GFDL images|License migration completed|Winter in Afghanistan|Self-published work|Snowy landscapes in Afghanistan|Paropamisus Xeric Woodlands Ecoregion|Wakhan District|Wakhi people",
+            "value": "Afghanistan|CC-Zero|Geography of Afghanistan|Wakhan Corridor|Self-published work|Files with coordinates missing SDC location of creation",
             "source": "commons-categories",
             "hidden": ""
           },
@@ -337,43 +318,56 @@
             "source": "commons-categories",
             "hidden": ""
           },
+          "GPSLatitude": {
+            "value": "37.003628",
+            "source": "commons-desc-page"
+          },
+          "GPSLongitude": {
+            "value": "73.440042",
+            "source": "commons-desc-page"
+          },
+          "GPSMapDatum": {
+            "value": "WGS-84",
+            "source": "commons-desc-page",
+            "hidden": ""
+          },
+          "Artist": {
+            "value": "<div class=\"fn value\">\n<a href=\"//commons.wikimedia.org/wiki/User:Vicartb\" title=\"User:Vicartb\">Benoît Vicart</a></div>",
+            "source": "commons-desc-page"
+          },
           "ImageDescription": {
-            "value": "<i>The Wakhan corridor under light snow, with a Wakhi man collecting firewood</i>",
+            "value": "Landscape of the valley close to Sahrad-e-Broghil, Wakhan corridor, Afghanistan.",
             "source": "commons-desc-page"
           },
           "DateTimeOriginal": {
-            "value": "Photo taken on earlier trip, 11 September 2007",
+            "value": "9 août 2019",
             "source": "commons-desc-page"
           },
           "Credit": {
-            "value": "<bdi lang=\"en\" dir=\"ltr\">Transferred from <span class=\"plainlinks\"><a class=\"external text\" data-mw-original-href=\"//en.wikipedia.org\" href=\"https://en.wikipedia.org\">en.wikipedia</a></span> to Commons.</bdi>",
+            "value": "Travail personnel",
             "source": "commons-desc-page"
           },
-          "Artist": {
-            "value": "<a href=\"https://en.wikipedia.org/wiki/User:Tom_Hartley\" class=\"extiw\" title=\"wikipedia:User:Tom Hartley\">Tom Hartley</a> at <a href=\"https://en.wikipedia.org/wiki/\" class=\"extiw\" title=\"wikipedia:\">English Wikipedia</a>",
-            "source": "commons-desc-page"
+          "Permission": {
+            "value": "I, the copyright holder of this work, hereby publish it under the following license:",
+            "source": "commons-desc-page",
+            "hidden": ""
           },
           "LicenseShortName": {
-            "value": "CC BY-SA 3.0",
+            "value": "CC0",
             "source": "commons-desc-page",
             "hidden": ""
           },
           "UsageTerms": {
-            "value": "Creative Commons Attribution-Share Alike 3.0",
+            "value": "Creative Commons Zero, Public Domain Dedication",
             "source": "commons-desc-page"
           },
           "AttributionRequired": {
-            "value": "true",
-            "source": "commons-desc-page",
-            "hidden": ""
-          },
-          "Attribution": {
-            "value": "<a href=\"https://en.wikipedia.org/wiki/User:Tom_Hartley\" class=\"extiw\" title=\"en:User:Tom Hartley\">Tom Hartley</a> at the <a href=\"https://en.wikipedia.org/wiki/\" class=\"extiw\" title=\"en:\">English Wikipedia</a>",
+            "value": "false",
             "source": "commons-desc-page",
             "hidden": ""
           },
           "LicenseUrl": {
-            "value": "http://creativecommons.org/licenses/by-sa/3.0/",
+            "value": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
             "source": "commons-desc-page"
           },
           "Copyrighted": {
@@ -387,7 +381,7 @@
             "hidden": ""
           },
           "License": {
-            "value": "cc-by-sa-3.0",
+            "value": "cc0",
             "source": "commons-templates",
             "hidden": ""
           }
@@ -663,32 +657,18 @@
         }
       },
       {
-        "title": "File:Looking toward zanchagle Waygale Nuristan - panoramio.jpg",
-        "thumburl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Looking_toward_zanchagle_Waygale_Nuristan_-_panoramio.jpg/1920px-Looking_toward_zanchagle_Waygale_Nuristan_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "thumbwidth": 1600,
-        "thumbheight": 1067,
-        "responsiveUrls": {
-          "2": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Looking_toward_zanchagle_Waygale_Nuristan_-_panoramio.jpg/3840px-Looking_toward_zanchagle_Waygale_Nuristan_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
-        },
-        "thumbattribs": {
-          "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Looking_toward_zanchagle_Waygale_Nuristan_-_panoramio.jpg/1920px-Looking_toward_zanchagle_Waygale_Nuristan_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-          "decoding": "async",
-          "loading": "lazy",
-          "width": 1600,
-          "height": 1067,
-          "srcset": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Looking_toward_zanchagle_Waygale_Nuristan_-_panoramio.jpg/3840px-Looking_toward_zanchagle_Waygale_Nuristan_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail 2x"
-        },
-        "url": "https://upload.wikimedia.org/wikipedia/commons/1/10/Looking_toward_zanchagle_Waygale_Nuristan_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-        "descriptionurl": "https://commons.wikimedia.org/wiki/File:Looking_toward_zanchagle_Waygale_Nuristan_-_panoramio.jpg",
-        "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=59613480",
+        "title": "File:Payngale ( Parun ) - panoramio (4).jpg",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Payngale_%28_Parun_%29_-_panoramio_%284%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+        "descriptionurl": "https://commons.wikimedia.org/wiki/File:Payngale_(_Parun_)_-_panoramio_(4).jpg",
+        "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=59679804",
         "extmetadata": {
           "DateTime": {
-            "value": "2017-06-05 10:58:36",
+            "value": "2017-06-06 22:53:52",
             "source": "mediawiki-metadata",
             "hidden": ""
           },
           "ObjectName": {
-            "value": "Looking toward zanchagle Waygale Nuristan - panoramio",
+            "value": "Payngale ( Parun ) - panoramio (4)",
             "source": "mediawiki-metadata"
           },
           "CommonsMetadataExtension": {
@@ -697,7 +677,7 @@
             "hidden": ""
           },
           "Categories": {
-            "value": "Nuristan Province|Panoramio files uploaded by Panoramio upload bot|Panoramio images reviewed by trusted users|Photos from Panoramio|Files with coordinates missing SDC location of creation|Afghanistan photographs taken on 2013-02-05|Photos from Panoramio ID 8787630",
+            "value": "Parun|Panoramio files uploaded by Panoramio upload bot|Panoramio images reviewed by trusted users|Photos from Panoramio|Files with coordinates missing SDC location of creation|Afghanistan photographs taken on 2014-08-01|East Afghan Montane Conifer Forests Ecoregion|Photos from Panoramio ID 8787630",
             "source": "commons-categories",
             "hidden": ""
           },
@@ -707,11 +687,11 @@
             "hidden": ""
           },
           "GPSLatitude": {
-            "value": "35.163424",
+            "value": "35.313178",
             "source": "commons-desc-page"
           },
           "GPSLongitude": {
-            "value": "70.921125",
+            "value": "70.868640",
             "source": "commons-desc-page"
           },
           "GPSMapDatum": {
@@ -720,23 +700,23 @@
             "hidden": ""
           },
           "ImageDescription": {
-            "value": "Looking toward zanchagle Waygale Nuristan",
+            "value": "Payngale ( Parun )",
             "source": "commons-desc-page"
           },
           "DateTimeOriginal": {
-            "value": "Taken on 5 February 2013",
+            "value": "Taken on 1 August 2014",
             "source": "commons-desc-page"
           },
           "Credit": {
-            "value": "<a rel=\"nofollow\" class=\"external free\" href=\"https://web.archive.org/web/20161102161310/http://www.panoramio.com/photo/122399846\">https://web.archive.org/web/20161102161310/http://www.panoramio.com/photo/122399846</a>",
+            "value": "<a rel=\"nofollow\" class=\"external free\" href=\"https://web.archive.org/web/20161031130539/http://www.panoramio.com/photo/122849275\">https://web.archive.org/web/20161031130539/http://www.panoramio.com/photo/122849275</a>",
             "source": "commons-desc-page"
           },
           "Artist": {
-            "value": "<a rel=\"nofollow\" class=\"external text\" href=\"https://web.archive.org/web/20161102161210/http://www.panoramio.com/user/8787630?with_photo_id=122399846\">Abdul Qahar Nuristan…</a>",
+            "value": "<a rel=\"nofollow\" class=\"external text\" href=\"https://web.archive.org/web/20161031130512/http://www.panoramio.com/user/8787630?with_photo_id=122849275\">Abdul Qahar Nuristan…</a>",
             "source": "commons-desc-page"
           },
           "Permission": {
-            "value": "<div class=\"responsive-license-cc layouttemplate licensetpl\" dir=\"ltr\" lang=\"en\"><div class=\"rlicense-icons\"><span class=\"skin-invert\" typeof=\"mw:File\"><span title=\"w:en:Creative Commons\"><img alt=\"w:en:Creative Commons\" src=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/CC_some_rights_reserved.svg/120px-CC_some_rights_reserved.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail\" decoding=\"async\" loading=\"lazy\" width=\"90\" height=\"36\" class=\"mw-file-element\" srcset=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/CC_some_rights_reserved.svg/250px-CC_some_rights_reserved.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"744\" data-file-height=\"300\"></span></span><br>\n<span class=\"skin-invert\" typeof=\"mw:File\"><span title=\"attribution\"><img alt=\"attribution\" src=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Cc-by_new_white.svg/40px-Cc-by_new_white.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail\" decoding=\"async\" loading=\"lazy\" width=\"24\" height=\"24\" class=\"mw-file-element\" srcset=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Cc-by_new_white.svg/60px-Cc-by_new_white.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"64\" data-file-height=\"64\"></span></span> <span class=\"skin-invert\" typeof=\"mw:File\"><span title=\"share alike\"><img alt=\"share alike\" src=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Cc-sa_white.svg/40px-Cc-sa_white.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail\" decoding=\"async\" loading=\"lazy\" width=\"24\" height=\"24\" class=\"mw-file-element\" srcset=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Cc-sa_white.svg/60px-Cc-sa_white.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"64\" data-file-height=\"64\"></span></span></div><div class=\"rlicense-text\"><div class=\"rlicense-declaration\">This file is licensed under the <a href=\"https://en.wikipedia.org/wiki/en:Creative_Commons\" class=\"extiw\" title=\"w:en:Creative Commons\">Creative Commons</a> <a href=\"//creativecommons.org/licenses/by-sa/3.0/deed.en\" class=\"extiw\" title=\"creativecommons:by-sa/3.0/deed.en\">Attribution-Share Alike 3.0 Unported</a> license.</div><div class=\"rlicense-attr\" style=\"font-weight: bold;\">Attribution: <div style=\"display:inline;font-size:larger;\" class=\"licensetpl_attr\">Abdul Qahar Nuristan…</div></div><div class=\"rlicense-desc\" style=\"text-align:start;\" lang=\"en\">\n<dl><dd>You are free:\n<ul><li><b>to share</b> – to copy, distribute and transmit the work</li>\n<li><b>to remix</b> – to adapt the work</li></ul></dd>\n<dd>Under the following conditions:\n<ul><li><b>attribution</b> – You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.</li>\n<li><b>share alike</b> – If you remix, transform, or build upon the material, you must distribute your contributions under the <a href=\"https://creativecommons.org/share-your-work/licensing-considerations/compatible-licenses\" class=\"extiw\" title=\"ccorg:share-your-work/licensing-considerations/compatible-licenses\">same or compatible license</a> as the original.</li></ul></dd></dl></div><span class=\"licensetpl_link\" style=\"display:none;\">https://creativecommons.org/licenses/by-sa/3.0</span><span class=\"licensetpl_short\" style=\"display:none;\">CC BY-SA 3.0 </span><span class=\"licensetpl_long\" style=\"display:none;\">Creative Commons Attribution-Share Alike 3.0 </span><span class=\"licensetpl_link_req\" style=\"display:none;\">true</span><span class=\"licensetpl_attr_req\" style=\"display:none;\">true</span></div></div>\n<style data-mw-deduplicate=\"TemplateStyles:r901585720\">.mw-parser-output .panoramioreview{width:100%;margin:0.5em 0;background-color:var(--background-color-warning-subtle,#fffff0);padding:5px;border:1px solid var(--border-color-warning,#aa8);color:inherit}.mw-parser-output .panoramioreview-failed{background-color:var(--background-color-error-subtle,#fcc);color:inherit}.mw-parser-output .panoramioreview-passed{background-color:var(--background-color-success-subtle,#efe);color:inherit}</style>\n<table class=\"panoramioreview panoramioreview-passed\" lang=\"en\" dir=\"ltr\">\n\n<tbody><tr>\n<td><span typeof=\"mw:File\"><span><img alt=\"\" src=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Checked_copyright_icon.svg/60px-Checked_copyright_icon.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail\" decoding=\"async\" loading=\"lazy\" width=\"50\" height=\"48\" class=\"mw-file-element\" srcset=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Checked_copyright_icon.svg/120px-Checked_copyright_icon.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"160\" data-file-height=\"153\"></span></span>\n</td>\n<td>This image, which was originally posted to <b><span lang=\"en\" dir=\"ltr\"><a href=\"https://en.wikipedia.org/wiki/Panoramio\" class=\"extiw\" title=\"en:Panoramio\">Panoramio</a></span></b>, was automatically reviewed on 5 June 2017 by <b><a href=\"//commons.wikimedia.org/wiki/User:Panoramio_upload_bot\" title=\"User:Panoramio upload bot\">Panoramio upload bot</a></b>, who confirmed that it was available on Panoramio under the above license on that date.\n</td>\n<td><span typeof=\"mw:File\"><a href=\"//commons.wikimedia.org/wiki/File:Star_and_ring.svg\" class=\"mw-file-description\"><img src=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Star_and_ring.svg/60px-Star_and_ring.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail\" decoding=\"async\" loading=\"lazy\" width=\"50\" height=\"50\" class=\"mw-file-element\" srcset=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Star_and_ring.svg/120px-Star_and_ring.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"75\" data-file-height=\"75\"></a></span>\n</td></tr></tbody></table>",
+            "value": "<div class=\"responsive-license-cc layouttemplate licensetpl\" dir=\"ltr\" lang=\"en\"><div class=\"rlicense-icons\"><span class=\"skin-invert\" typeof=\"mw:File\"><span title=\"w:en:Creative Commons\"><img alt=\"w:en:Creative Commons\" src=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/CC_some_rights_reserved.svg/120px-CC_some_rights_reserved.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail\" decoding=\"async\" loading=\"lazy\" width=\"90\" height=\"36\" class=\"mw-file-element\" srcset=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/CC_some_rights_reserved.svg/250px-CC_some_rights_reserved.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"744\" data-file-height=\"300\"></span></span><br>\n<span class=\"skin-invert\" typeof=\"mw:File\"><span title=\"attribution\"><img alt=\"attribution\" src=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Cc-by_new_white.svg/40px-Cc-by_new_white.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail\" decoding=\"async\" loading=\"lazy\" width=\"24\" height=\"24\" class=\"mw-file-element\" srcset=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Cc-by_new_white.svg/60px-Cc-by_new_white.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"64\" data-file-height=\"64\"></span></span> <span class=\"skin-invert\" typeof=\"mw:File\"><span title=\"share alike\"><img alt=\"share alike\" src=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Cc-sa_white.svg/40px-Cc-sa_white.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail\" decoding=\"async\" loading=\"lazy\" width=\"24\" height=\"24\" class=\"mw-file-element\" srcset=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Cc-sa_white.svg/60px-Cc-sa_white.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"64\" data-file-height=\"64\"></span></span></div><div class=\"rlicense-text\"><div class=\"rlicense-declaration\">This file is licensed under the <a href=\"https://en.wikipedia.org/wiki/en:Creative_Commons\" class=\"extiw\" title=\"w:en:Creative Commons\">Creative Commons</a> <a href=\"//creativecommons.org/licenses/by-sa/3.0/deed.en\" class=\"extiw\" title=\"creativecommons:by-sa/3.0/deed.en\">Attribution-Share Alike 3.0 Unported</a> license.</div><div class=\"rlicense-attr\" style=\"font-weight: bold;\">Attribution: <div style=\"display:inline;font-size:larger;\" class=\"licensetpl_attr\">Abdul Qahar Nuristan…</div></div><div class=\"rlicense-desc\" style=\"text-align:start;\" lang=\"en\">\n<dl><dd>You are free:\n<ul><li><b>to share</b> – to copy, distribute and transmit the work</li>\n<li><b>to remix</b> – to adapt the work</li></ul></dd>\n<dd>Under the following conditions:\n<ul><li><b>attribution</b> – You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.</li>\n<li><b>share alike</b> – If you remix, transform, or build upon the material, you must distribute your contributions under the <a href=\"https://creativecommons.org/share-your-work/licensing-considerations/compatible-licenses\" class=\"extiw\" title=\"ccorg:share-your-work/licensing-considerations/compatible-licenses\">same or compatible license</a> as the original.</li></ul></dd></dl></div><span class=\"licensetpl_link\" style=\"display:none;\">https://creativecommons.org/licenses/by-sa/3.0</span><span class=\"licensetpl_short\" style=\"display:none;\">CC BY-SA 3.0 </span><span class=\"licensetpl_long\" style=\"display:none;\">Creative Commons Attribution-Share Alike 3.0 </span><span class=\"licensetpl_link_req\" style=\"display:none;\">true</span><span class=\"licensetpl_attr_req\" style=\"display:none;\">true</span></div></div>\n<style data-mw-deduplicate=\"TemplateStyles:r901585720\">.mw-parser-output .panoramioreview{width:100%;margin:0.5em 0;background-color:var(--background-color-warning-subtle,#fffff0);padding:5px;border:1px solid var(--border-color-warning,#aa8);color:inherit}.mw-parser-output .panoramioreview-failed{background-color:var(--background-color-error-subtle,#fcc);color:inherit}.mw-parser-output .panoramioreview-passed{background-color:var(--background-color-success-subtle,#efe);color:inherit}</style>\n<table class=\"panoramioreview panoramioreview-passed\" lang=\"en\" dir=\"ltr\">\n\n<tbody><tr>\n<td><span typeof=\"mw:File\"><span><img alt=\"\" src=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Checked_copyright_icon.svg/60px-Checked_copyright_icon.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail\" decoding=\"async\" loading=\"lazy\" width=\"50\" height=\"48\" class=\"mw-file-element\" srcset=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Checked_copyright_icon.svg/120px-Checked_copyright_icon.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"160\" data-file-height=\"153\"></span></span>\n</td>\n<td>This image, which was originally posted to <b><span lang=\"en\" dir=\"ltr\"><a href=\"https://en.wikipedia.org/wiki/Panoramio\" class=\"extiw\" title=\"en:Panoramio\">Panoramio</a></span></b>, was automatically reviewed on 6 June 2017 by <b><a href=\"//commons.wikimedia.org/wiki/User:Panoramio_upload_bot\" title=\"User:Panoramio upload bot\">Panoramio upload bot</a></b>, who confirmed that it was available on Panoramio under the above license on that date.\n</td>\n<td><span typeof=\"mw:File\"><a href=\"//commons.wikimedia.org/wiki/File:Star_and_ring.svg\" class=\"mw-file-description\"><img src=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Star_and_ring.svg/60px-Star_and_ring.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail\" decoding=\"async\" loading=\"lazy\" width=\"50\" height=\"50\" class=\"mw-file-element\" srcset=\"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Star_and_ring.svg/120px-Star_and_ring.svg.png?utm_source=commons.wikimedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"75\" data-file-height=\"75\"></a></span>\n</td></tr></tbody></table>",
             "source": "commons-desc-page",
             "hidden": ""
           },
