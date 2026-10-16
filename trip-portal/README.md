@@ -36,6 +36,17 @@ client-safe half — components import from there.
 2. Copy `.env.example` to `.env.local` and fill it in.
 3. `npm install && npm run dev` — <http://localhost:5200>
 4. Sign in at `/admin` with an address in `TRIP_ADMIN_EMAILS`.
+5. Optional, for reading bookings and finding hotel photos: set
+   `GEMINI_API_KEY` (reads uploaded flight tickets and hotel vouchers) and
+   `GOOGLE_MAPS_API_KEY` (Places API (New), finds a hotel's photo by name; falls
+   back to `GEMINI_API_KEY`). Both are read on the server only. Without them the
+   editor still works; the reader and photo button just say they are not set up.
+
+   In the itinerary editor, a **Flight** or **Hotel** block has an "upload a
+   photo or PDF" box that fills the empty fields from the document. Check the
+   "What the reader saw" transcript before saving. **Find hotel photo** fetches
+   up to four photos from Google and stores copies in the private bucket with their
+   photographer credit; upload your own if the match is wrong.
 
 ## Deploying
 

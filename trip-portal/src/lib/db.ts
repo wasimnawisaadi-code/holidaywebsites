@@ -274,3 +274,34 @@ export async function deleteObject(
     return false;
   }
 }
+
+/**
+ * Writes bytes into a private bucket from the server.
+ *
+ * Used when the server itself produces a file — a hotel photo fetched from
+ * Google Places — rather than the browser. `x-upsert` stays off: a path is
+ * timestamped, so an overwrite would only ever be a bug.
+ */
+export async function uploadObject(
+  bucket: "trip-media" | "trip-docs",
+  path: string,
+  bytes: ArrayBuffer,
+  contentType: string,
+): Promise<boolean> {
+  try {
+    const { url, key } = creds();
+    const res = await fetch(`${url}/storage/v1/object/${bucket}/${path}`, {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": contentType,
+        "x-upsert": "false",
+      },
+      body: bytes,
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

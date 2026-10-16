@@ -148,8 +148,26 @@ export type BlockPayload = {
   checkIn?: string | undefined;
   checkOut?: string | undefined;
   flightNumber?: string | undefined;
+  /** Legacy single-line times ("KBL 08:15"). Newer flight blocks use the point-by-point fields below. */
   departure?: string | undefined;
   arrival?: string | undefined;
+  airline?: string | undefined;
+  /** Travel date as printed, e.g. "28 Sep 2026". */
+  date?: string | undefined;
+  fromAirport?: string | undefined;
+  departTime?: string | undefined;
+  toAirport?: string | undefined;
+  arriveTime?: string | undefined;
+  terminal?: string | undefined;
+  seat?: string | undefined;
+  baggage?: string | undefined;
+  /** Hotel street address, as on the confirmation. */
+  address?: string | undefined;
+  roomType?: string | undefined;
+  guests?: string | undefined;
+  nights?: string | undefined;
+  /** Photographer credit for a hotel photo fetched from Google, shown under it. */
+  credit?: string | undefined;
   tone?: "info" | "warning" | "critical" | undefined;
 };
 

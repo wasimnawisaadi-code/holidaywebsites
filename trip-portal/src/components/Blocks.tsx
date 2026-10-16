@@ -175,9 +175,15 @@ function BlockView({
           icon="hotel"
           eyebrow="Hotel"
           title={p.name ?? "Your hotel"}
+          images={(p.urls ?? []).filter((u): u is string => Boolean(u))}
+          credit={p.credit}
           rows={[
+            ["Address", p.address],
             ["Check in", p.checkIn],
             ["Check out", p.checkOut],
+            ["Nights", p.nights],
+            ["Room", p.roomType],
+            ["Guests", p.guests],
             ["Booking ref.", p.reference],
             ["Phone", p.phone],
           ]}
@@ -201,8 +207,15 @@ function BlockView({
           eyebrow="Flight"
           title={p.flightNumber ? p.flightNumber : "Your flight"}
           rows={[
-            ["Departs", p.departure],
-            ["Arrives", p.arrival],
+            ["Airline", p.airline],
+            ["Date", p.date],
+            ["From", p.fromAirport],
+            ["Departs", p.departTime ?? p.departure],
+            ["Terminal", p.terminal],
+            ["To", p.toAirport],
+            ["Arrives", p.arriveTime ?? p.arrival],
+            ["Seat", p.seat],
+            ["Baggage", p.baggage],
             ["Booking ref.", p.reference],
           ]}
           note={p.text}
@@ -743,6 +756,8 @@ function DetailCard({
   rows,
   note,
   action,
+  images,
+  credit,
 }: {
   icon: IconName;
   eyebrow: string;
@@ -750,41 +765,78 @@ function DetailCard({
   rows: [string, string | undefined][];
   note?: string | undefined;
   action?: { href: string; label: string; onClick: () => void } | undefined;
+  images?: string[] | undefined;
+  credit?: string | undefined;
 }) {
   const present = rows.filter(([, v]) => Boolean(v));
   return (
-    <div className="rounded-2xl border border-hair bg-white p-4 shadow-sm">
-      <div className="flex items-center gap-3">
-        <IconBadge name={icon} />
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
-            {eyebrow}
-          </p>
-          <p className="truncate text-base font-semibold text-navy">{title}</p>
-        </div>
-      </div>
-      {present.length ? (
-        <dl className="mt-3.5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-hair pt-3.5">
-          {present.map(([k, v]) => (
-            <div key={k} className="min-w-0">
-              <dt className="text-[11px] tracking-wide text-muted uppercase">{k}</dt>
-              <dd className="mt-0.5 text-sm font-semibold break-words text-ink">{v}</dd>
+    <div className="overflow-hidden rounded-2xl border border-hair bg-white shadow-sm">
+      {images?.length ? (
+        <figure className="m-0">
+          <div className="relative">
+            <img
+              src={images[0]}
+              alt={title}
+              loading="lazy"
+              className="h-56 w-full object-cover sm:h-64"
+            />
+            {images.length > 1 ? (
+              <span className="absolute right-3 bottom-3 rounded-full bg-navy/80 px-2.5 py-1 text-[11px] font-semibold text-white">
+                1 / {images.length}
+              </span>
+            ) : null}
+          </div>
+          {images.length > 1 ? (
+            <div className="grid grid-cols-3 gap-1 p-1 pb-0">
+              {images.slice(1, 4).map((src, i) => (
+                <img
+                  key={src}
+                  src={src}
+                  alt={`${title}, photo ${i + 2}`}
+                  loading="lazy"
+                  className="h-20 w-full rounded-lg object-cover"
+                />
+              ))}
             </div>
-          ))}
-        </dl>
+          ) : null}
+          {credit ? (
+            <figcaption className="px-4 pt-2 text-[10px] text-muted">{credit}</figcaption>
+          ) : null}
+        </figure>
       ) : null}
-      {note ? <p className="mt-3 text-sm leading-relaxed text-muted">{note}</p> : null}
-      {action ? (
-        <a
-          href={action.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={action.onClick}
-          className="mt-3.5 flex items-center justify-center gap-2 rounded-xl border border-hair py-2.5 text-xs font-semibold text-navy transition hover:border-gold"
-        >
-          <Icon name="navigation" className="size-3.5 text-gold-deep" /> {action.label}
-        </a>
-      ) : null}
+      <div className="p-4">
+        <div className="flex items-center gap-3">
+          <IconBadge name={icon} />
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+              {eyebrow}
+            </p>
+            <p className="truncate text-base font-semibold text-navy">{title}</p>
+          </div>
+        </div>
+        {present.length ? (
+          <dl className="mt-3.5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-hair pt-3.5">
+            {present.map(([k, v]) => (
+              <div key={k} className="min-w-0">
+                <dt className="text-[11px] tracking-wide text-muted uppercase">{k}</dt>
+                <dd className="mt-0.5 text-sm font-semibold break-words text-ink">{v}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
+        {note ? <p className="mt-3 text-sm leading-relaxed text-muted">{note}</p> : null}
+        {action ? (
+          <a
+            href={action.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={action.onClick}
+            className="mt-3.5 flex items-center justify-center gap-2 rounded-xl border border-hair py-2.5 text-xs font-semibold text-navy transition hover:border-gold"
+          >
+            <Icon name="navigation" className="size-3.5 text-gold-deep" /> {action.label}
+          </a>
+        ) : null}
+      </div>
     </div>
   );
 }
