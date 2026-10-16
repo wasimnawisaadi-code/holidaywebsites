@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { BlockList, DriverCard, DocumentLink } from "@/components/Blocks";
 import { Directions } from "@/components/Directions";
 import { Icon, type IconName } from "@/components/Icon";
+import { PrintableItinerary } from "@/components/PrintableItinerary";
 import { JourneyOverview } from "@/components/JourneyOverview";
 import { InvoiceCard } from "@/components/InvoiceCard";
 import { MapView, type MapPoint } from "@/components/MapView";
@@ -128,7 +129,7 @@ function Portal() {
   );
 
   return (
-    <div className="min-h-screen bg-white pb-24">
+    <div className="trip-page min-h-screen bg-white pb-24">
       <div
         aria-hidden="true"
         className="ns-read fixed inset-x-0 top-0 z-50 h-[3px] bg-gradient-to-r from-gold to-gold-light"
@@ -154,7 +155,7 @@ function Portal() {
           className="absolute inset-0 -z-10 bg-gradient-to-b from-navy-deep/70 via-navy-deep/10 to-navy-deep/90"
         />
 
-        <div className="mx-auto flex min-h-[27rem] max-w-2xl flex-col px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-20 sm:min-h-[31rem]">
+        <div className="mx-auto flex min-h-[27rem] max-w-5xl flex-col px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-20 sm:min-h-[31rem]">
           <div className="flex items-center justify-between">
             <img
               src="/brand/logo-white.webp"
@@ -203,7 +204,7 @@ function Portal() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-2xl px-4 sm:px-5">
+      <div className="mx-auto max-w-5xl px-4 sm:px-5">
         {/* ================================================================
             Live status and the whole journey
             ============================================================== */}
@@ -307,7 +308,7 @@ function Portal() {
         aria-label="Sections"
         className="sticky top-0 z-30 mt-8 border-y border-hair bg-white/90 backdrop-blur"
       >
-        <div className="no-scrollbar mx-auto flex max-w-2xl gap-1 overflow-x-auto px-4 py-2 sm:px-5">
+        <div className="no-scrollbar mx-auto flex max-w-5xl gap-1 overflow-x-auto px-4 py-2 sm:px-5">
           {sections
             .filter((s) => s.show)
             .map((s) => (
@@ -325,12 +326,21 @@ function Portal() {
         </div>
       </nav>
 
-      <main className="mx-auto max-w-2xl px-4 sm:px-5">
+      <main className="mx-auto max-w-5xl px-4 sm:px-5">
         {/* ================================================================
             Itinerary
             ============================================================== */}
         <section id="itinerary" data-anchor aria-label="Itinerary" className="pt-10">
-          <SectionOpener eyebrow="Day by day" title="Your" accent="itinerary" />
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <SectionOpener eyebrow="Day by day" title="Your" accent="itinerary" />
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="rounded-xl border border-hair bg-white px-4 py-2.5 text-xs font-semibold text-navy"
+            >
+              Print / Save PDF
+            </button>
+          </div>
 
           {days.length ? (
             <JourneyOverview
@@ -737,7 +747,7 @@ function Portal() {
           thumb-press from any point on the page.
           ============================================================== */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-hair bg-white/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
-        <div className="mx-auto grid max-w-2xl grid-cols-2 gap-2">
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-2">
           <a
             href={`https://wa.me/${OFFICE_WHATSAPP}?text=${encodeURIComponent(
               `Hello Nawi Saadi, this is about trip ${trip.trip_code}.`,
@@ -756,6 +766,7 @@ function Portal() {
           </a>
         </div>
       </div>
+      <PrintableItinerary data={data} />
     </div>
   );
 }

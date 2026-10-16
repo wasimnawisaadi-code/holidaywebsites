@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
+import type { BlockPayload } from "./types";
 import { UUID } from "./uploads";
 import { requireSession } from "./session";
 
@@ -294,10 +295,11 @@ function namesMatch(asked: string, found: string): boolean {
 }
 
 export type PhotoResult =
-  { ok: true; paths: string[]; credit: string } | { ok: false; reason: string };
+  | { ok: true; paths: string[]; urls: (string | null)[]; credit: string; details: BlockPayload }
+  | { ok: false; reason: string };
 
-/** How many photos a hotel gets from one search. Four fills a card strip without bloating storage. */
-const HOTEL_PHOTOS = 4;
+/** How many photos a hotel gets from one search. Six fills a card gallery without bloating storage. */
+const HOTEL_PHOTOS = 6;
 
 export const findHotelPhoto = createServerFn({ method: "POST" })
   .validator((input: { tripId: string; name: string; place: string }) => input)
@@ -325,7 +327,11 @@ export const findHotelPhoto = createServerFn({ method: "POST" })
     try {
       const search = await fetch("https://places.googleapis.com/v1/places:searchText", {
         method: "POST",
-        headers: { ...headers, "X-Goog-FieldMask": "places.id,places.displayName,places.photos" },
+        headers: {
+          ...headers,
+          "X-Goog-FieldMask":
+            "places.id,places.displayName,places.photos,places.formattedAddress,places.internationalPhoneNumber,places.websiteUri,places.googleMapsUri,places.rating,places.userRatingCount,places.editorialSummary",
+        },
         body: JSON.stringify({ textQuery: query, maxResultCount: 3 }),
         signal: AbortSignal.timeout(15_000),
       });
@@ -340,52 +346,71 @@ export const findHotelPhoto = createServerFn({ method: "POST" })
           (await search.json()) as {
             places?: {
               displayName?: { text?: string };
+              formattedAddress?: string;
+              internationalPhoneNumber?: string;
+              websiteUri?: string;
+              googleMapsUri?: string;
+              rating?: number;
+              userRatingCount?: number;
+              editorialSummary?: { text?: string };
               photos?: { name: string; authorAttributions?: { displayName?: string }[] }[];
             }[];
           }
         ).places ?? [];
 
-      const match = places.find(
+      const matches = places.filter(
         (p) => p.photos?.length && namesMatch(name, p.displayName?.text ?? ""),
       );
+      if (matches.length > 1)
+        return {
+          ok: false,
+          reason:
+            "Several hotels match this name. Add a city or a more specific address and try again.",
+        };
+      const match = matches[0];
       if (!match?.photos?.length) {
         return { ok: false, reason: `No confident photo for "${name}". Upload one instead.` };
       }
 
-      const { uploadObject } = await import("./db");
-      const paths: string[] = [];
+      const { uploadObject, signedUrl } = await import("./db");
+      const orderedPaths: (string | undefined)[] = [];
       const authors = new Set<string>();
 
       // Each photo is fetched and stored separately. One failing photo is
       // skipped rather than failing the whole set: a card with three photos
       // is still a good card.
-      for (const photo of match.photos.slice(0, HOTEL_PHOTOS)) {
-        // Places returns a short-lived photo URI when asked to skip the
-        // redirect, which lets the server download the bytes itself.
-        const meta = await fetch(
-          `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=1200&skipHttpRedirect=true`,
-          { headers: { "X-Goog-Api-Key": apiKey }, signal: AbortSignal.timeout(15_000) },
-        );
-        if (!meta.ok) continue;
-        const { photoUri } = (await meta.json()) as { photoUri?: string };
-        if (!photoUri || !photoUri.startsWith("https://")) continue;
+      await Promise.allSettled(
+        match.photos.slice(0, HOTEL_PHOTOS).map(async (photo, index) => {
+          // Places returns a short-lived photo URI when asked to skip the
+          // redirect, which lets the server download the bytes itself.
+          const meta = await fetch(
+            `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=1200&skipHttpRedirect=true`,
+            { headers: { "X-Goog-Api-Key": apiKey }, signal: AbortSignal.timeout(15_000) },
+          );
+          if (!meta.ok) return;
+          const { photoUri } = (await meta.json()) as { photoUri?: string };
+          if (!photoUri || !photoUri.startsWith("https://")) return;
 
-        const img = await fetch(photoUri, { signal: AbortSignal.timeout(20_000) });
-        if (!img.ok) continue;
-        const type = (img.headers.get("content-type") ?? "image/jpeg").split(";")[0] ?? "";
-        if (!type.startsWith("image/")) continue;
-        const bytes = await img.arrayBuffer();
+          const img = await fetch(photoUri, { signal: AbortSignal.timeout(20_000) });
+          if (!img.ok) return;
+          const type = (img.headers.get("content-type") ?? "image/jpeg").split(";")[0] ?? "";
+          if (!type.startsWith("image/")) return;
+          if (Number(img.headers.get("content-length")) > MAX_DOC_BYTES) return;
+          const bytes = await img.arrayBuffer();
+          if (bytes.byteLength > MAX_DOC_BYTES) return;
 
-        const path = `${data.tripId}/hotel-${Date.now()}-${paths.length}.${
-          type === "image/png" ? "png" : "jpg"
-        }`;
-        if (!(await uploadObject("trip-media", path, bytes, type))) continue;
-        paths.push(path);
-        for (const a of photo.authorAttributions ?? []) {
-          if (a.displayName) authors.add(a.displayName);
-        }
-      }
+          const path = `${data.tripId}/hotel-${Date.now()}-${index}.${
+            type === "image/png" ? "png" : "jpg"
+          }`;
+          if (!(await uploadObject("trip-media", path, bytes, type))) return;
+          orderedPaths[index] = path;
+          for (const a of photo.authorAttributions ?? []) {
+            if (a.displayName) authors.add(a.displayName);
+          }
+        }),
+      );
 
+      const paths = orderedPaths.filter((path): path is string => Boolean(path));
       if (!paths.length) {
         return {
           ok: false,
@@ -395,8 +420,49 @@ export const findHotelPhoto = createServerFn({ method: "POST" })
       const credit = authors.size
         ? `Photos: ${[...authors].join(", ")} / Google`
         : "Photos: Google";
-      return { ok: true, paths, credit };
+      const safeLink = (value?: string) => {
+        try {
+          const url = new URL(value ?? "");
+          return url.protocol === "https:" || url.protocol === "http:" ? url.href : undefined;
+        } catch {
+          return undefined;
+        }
+      };
+      const details: BlockPayload = {
+        name: match.displayName?.text,
+        address: match.formattedAddress,
+        phone: match.internationalPhoneNumber,
+        hotelSummary: match.editorialSummary?.text,
+        hotelAddress: match.formattedAddress,
+        hotelRating: typeof match.rating === "number" ? String(match.rating) : undefined,
+        hotelReviewCount:
+          typeof match.userRatingCount === "number" ? String(match.userRatingCount) : undefined,
+        hotelWebsite: safeLink(match.websiteUri),
+        hotelMapsUrl: safeLink(match.googleMapsUri),
+        hotelSourceName: match.displayName?.text,
+        hotelFetchedAt: new Date().toISOString().slice(0, 10),
+      };
+      return {
+        ok: true,
+        paths,
+        urls: await Promise.all(paths.map((path) => signedUrl("trip-media", path))),
+        credit,
+        details,
+      };
     } catch {
       return { ok: false, reason: "Google Places did not answer in time. Upload a photo instead." };
     }
   });
+
+export const bookingCapabilities = createServerFn({ method: "GET" }).handler(async () => {
+  await requireSession();
+  return {
+    reader: Boolean(
+      env("GEMINI_API_KEY") ||
+      env("GOOGLE_SERVICE_ACCOUNT_JSON") ||
+      env("GOOGLE_APPLICATION_CREDENTIALS"),
+    ),
+    structuredReader: Boolean(env("GEMINI_API_KEY")),
+    hotelLookup: Boolean(env("GOOGLE_MAPS_API_KEY") || env("GEMINI_API_KEY")),
+  };
+});

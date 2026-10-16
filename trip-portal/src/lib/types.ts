@@ -166,6 +166,14 @@ export type BlockPayload = {
   roomType?: string | undefined;
   guests?: string | undefined;
   nights?: string | undefined;
+  hotelSummary?: string | undefined;
+  hotelAddress?: string | undefined;
+  hotelRating?: string | undefined;
+  hotelReviewCount?: string | undefined;
+  hotelWebsite?: string | undefined;
+  hotelMapsUrl?: string | undefined;
+  hotelSourceName?: string | undefined;
+  hotelFetchedAt?: string | undefined;
   /** Photographer credit for a hotel photo fetched from Google, shown under it. */
   credit?: string | undefined;
   tone?: "info" | "warning" | "critical" | undefined;

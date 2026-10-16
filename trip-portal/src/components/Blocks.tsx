@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 
+import { HotelHighlights } from "./HotelHighlights";
 import { Directions } from "./Directions";
 import { Icon, type IconName } from "./Icon";
 import { InvoiceCard } from "./InvoiceCard";
@@ -177,6 +178,7 @@ function BlockView({
           title={p.name ?? "Your hotel"}
           images={(p.urls?.length ? p.urls : [p.url]).filter((u): u is string => Boolean(u))}
           credit={p.credit}
+          hotel={p}
           openPhotos={openPhotos}
           rows={[
             ["Address", p.address],
@@ -815,6 +817,7 @@ function DetailCard({
   images,
   credit,
   openPhotos,
+  hotel,
 }: {
   icon: IconName;
   eyebrow: string;
@@ -825,6 +828,7 @@ function DetailCard({
   images?: string[] | undefined;
   credit?: string | undefined;
   openPhotos?: OpenPhotos;
+  hotel?: BlockPayload;
 }) {
   const present = rows.filter(([, v]) => Boolean(v));
   return (
@@ -861,6 +865,7 @@ function DetailCard({
             ))}
           </dl>
         ) : null}
+        {hotel ? <HotelHighlights hotel={hotel} /> : null}
         {note ? <p className="mt-3 text-sm leading-relaxed text-muted">{note}</p> : null}
         {action ? (
           <a

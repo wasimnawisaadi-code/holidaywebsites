@@ -323,3 +323,60 @@ body {
     grid-column: 1 / -1;
   }
 }
+
+.trip-print {
+  display: none;
+}
+@media print {
+  .trip-screen,
+  .trip-page > :not(.trip-print) {
+    display: none !important;
+  }
+  .trip-page {
+    padding: 0 !important;
+  }
+  .trip-print {
+    display: block;
+    color: #172b3a;
+    font-size: 10pt;
+  }
+  .trip-print h1 {
+    font-size: 24pt;
+    margin: 16px 0;
+  }
+  .trip-print h2 {
+    font-size: 18pt;
+    margin: 24px 0 8px;
+  }
+  .trip-print h3 {
+    font-size: 13pt;
+    margin: 16px 0 8px;
+  }
+  .trip-print header {
+    border-bottom: 2px solid #caa42d;
+    padding-bottom: 16px;
+  }
+  .trip-print-day {
+    break-before: page;
+  }
+  .trip-print-day:first-of-type {
+    break-before: auto;
+  }
+  .trip-print-step {
+    break-inside: auto;
+    margin-bottom: 18px;
+  }
+  .trip-print figure,
+  .trip-print video,
+  .trip-print .leaflet-container {
+    display: none !important;
+  }
+  .trip-print .shadow-sm {
+    box-shadow: none;
+  }
+  .trip-print footer {
+    margin-top: 24px;
+    border-top: 1px solid #ddd;
+    padding-top: 12px;
+  }
+}
