@@ -564,12 +564,12 @@ function Portal() {
                         </li>
                       ))}
                     </ol>
-                  ) : (
+                  ) : !day.summary ? (
                     <p className="mt-6 rounded-2xl bg-paper p-5 text-sm leading-relaxed text-muted">
                       Your consultant is still finalising this day. It will appear here as soon as
                       it is ready — on this same link.
                     </p>
-                  )}
+                  ) : null}
 
                   {days.length > 1 ? (
                     <div className="mt-6 grid grid-cols-2 gap-3 border-t border-hair pt-6">

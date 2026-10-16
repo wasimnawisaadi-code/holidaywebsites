@@ -873,7 +873,13 @@ function DetailCard({
           {openPhotos ? (
             <Gallery urls={images} caption={title} openPhotos={openPhotos} />
           ) : (
-            <img src={images[0]} alt={title} className="h-56 w-full object-cover" />
+            <img
+              src={images[0]}
+              alt={title}
+              loading="lazy"
+              decoding="async"
+              className="h-56 w-full object-cover"
+            />
           )}
           {credit ? (
             <figcaption className="px-4 pt-2 text-[10px] text-muted">{credit}</figcaption>
@@ -940,6 +946,8 @@ export function DriverCard({
           <img
             src={driver.photoUrl}
             alt={driver.full_name}
+            loading="lazy"
+            decoding="async"
             className="size-16 shrink-0 rounded-2xl object-cover ring-2 ring-gold/40"
           />
         ) : (
