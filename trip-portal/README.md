@@ -45,7 +45,7 @@ client-safe half — components import from there.
    In the itinerary editor, a **Flight** or **Hotel** block has an "upload a
    photo or PDF" box that fills the empty fields from the document. Check the
    "What the reader saw" transcript before saving. **Find hotel photo** fetches
-   up to four photos from Google and stores copies in the private bucket with their
+   up to six photos from Google and stores copies in the private bucket with their
    photographer credit; upload your own if the match is wrong.
 
 ## Deploying
@@ -168,3 +168,25 @@ key with Places API enabled). Service-account OCR credentials do not configure
 Places. Manual hotel photo uploads work independently.
 
 Provider reference: [Google Cloud Vision small-batch OCR](https://docs.cloud.google.com/vision/docs/file-small-batch).
+
+## Hotel discovery and customer print view
+
+In a hotel block, enter its name and city/address. Automatic discovery waits
+1.5 seconds after typing and runs once per query while the collection is empty.
+Staff can disable automatic discovery or trigger it manually. Google Places
+returns up to six photos, a listing description, guest rating/review count,
+address, phone and website when available. Multiple matching hotels require
+a more specific address; review the match and photos before saving. Existing
+booking fields are preserved. Hotel highlights show Google Maps attribution
+and retrieval date; they are not live ratings or a hotel star classification.
+
+Automatic lookup requires a configured Google Places API key and an enabled,
+billed Places API project. The editor checks server capabilities and explicitly
+shows when OCR or hotel lookup is not connected. These controls do not set up
+external accounts or credentials. Richer Places fields can use different billing
+tiers; see the official [field documentation](https://developers.google.com/maps/documentation/places/web-service/data-fields).
+
+The customer page uses a wider desktop layout and offers Print / Save PDF.
+Printing includes every published day and booking, independently of the selected
+on-screen day. It is a text-focused itinerary summary; videos, maps and photo
+galleries stay in the online version. Shared customer links remain private.

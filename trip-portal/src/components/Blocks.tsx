@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 
+import { HotelHighlights } from "./HotelHighlights";
 import { Directions } from "./Directions";
 import { Icon, type IconName } from "./Icon";
 import { InvoiceCard } from "./InvoiceCard";
@@ -166,7 +167,42 @@ function BlockView({
 
     case "driver": {
       const driver = ctx.drivers.find((d) => d.id === p.driverId);
-      return driver ? <DriverCard driver={driver} onEngage={ctx.onEngage} /> : null;
+      return (
+        <div className="overflow-hidden rounded-2xl border border-hair bg-white">
+          <div className="bg-navy p-5 text-white">
+            <p className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase">
+              <Icon name="car" className="size-4" /> Your transfer
+            </p>
+            <p className="mt-3 font-display text-2xl">
+              {p.pickupTime || "Pickup time to be confirmed"}
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div>
+                <p className="text-xs text-white/60">Pickup</p>
+                <p className="mt-1 text-sm">
+                  {p.pickupLocation || "Meeting point to be confirmed"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-white/60">Drop-off</p>
+                <p className="mt-1 text-sm">{p.dropoffLocation || "Destination to be confirmed"}</p>
+              </div>
+            </div>
+            {p.transferNotes ? (
+              <p className="mt-4 border-t border-white/20 pt-3 text-sm whitespace-pre-line text-white/80">
+                {p.transferNotes}
+              </p>
+            ) : null}
+          </div>
+          {driver ? (
+            <DriverCard driver={driver} onEngage={ctx.onEngage} />
+          ) : (
+            <p className="p-4 text-sm text-muted">
+              Your consultant will share driver details when assigned.
+            </p>
+          )}
+        </div>
+      );
     }
 
     case "hotel":
@@ -177,6 +213,7 @@ function BlockView({
           title={p.name ?? "Your hotel"}
           images={(p.urls?.length ? p.urls : [p.url]).filter((u): u is string => Boolean(u))}
           credit={p.credit}
+          hotel={p}
           openPhotos={openPhotos}
           rows={[
             ["Address", p.address],
@@ -815,6 +852,7 @@ function DetailCard({
   images,
   credit,
   openPhotos,
+  hotel,
 }: {
   icon: IconName;
   eyebrow: string;
@@ -825,6 +863,7 @@ function DetailCard({
   images?: string[] | undefined;
   credit?: string | undefined;
   openPhotos?: OpenPhotos;
+  hotel?: BlockPayload;
 }) {
   const present = rows.filter(([, v]) => Boolean(v));
   return (
@@ -861,6 +900,7 @@ function DetailCard({
             ))}
           </dl>
         ) : null}
+        {hotel ? <HotelHighlights hotel={hotel} /> : null}
         {note ? <p className="mt-3 text-sm leading-relaxed text-muted">{note}</p> : null}
         {action ? (
           <a

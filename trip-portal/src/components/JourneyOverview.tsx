@@ -12,11 +12,15 @@ export function JourneyOverview({
   ctx: BlockCtx;
   onSelect: (index: number) => void;
 }) {
-  const [view, setView] = useState<"journey" | "flight" | "hotel">("journey");
+  const [view, setView] = useState<"journey" | "flight" | "hotel" | "driver" | "schedule">(
+    "journey",
+  );
   const bookings = days.flatMap((day, index) =>
     day.steps.flatMap((step) =>
       step.blocks
-        .filter((block) => block.kind === "hotel" || block.kind === "flight")
+        .filter(
+          (block) => block.kind === "hotel" || block.kind === "flight" || block.kind === "driver",
+        )
         .map((block) => ({ block, day, index })),
     ),
   );
@@ -47,6 +51,8 @@ export function JourneyOverview({
               ["journey", "route", "Journey"],
               ["flight", "plane", "Flights"],
               ["hotel", "hotel", "Stays"],
+              ["driver", "car", "Transfers"],
+              ["schedule", "clock", "Schedule"],
             ] as const
           ).map(([key, icon, label]) => (
             <button
@@ -62,7 +68,53 @@ export function JourneyOverview({
           ))}
         </div>
       </div>
-      {view === "journey" ? (
+      {view === "schedule" ? (
+        <div className="space-y-5 px-5 pb-6 sm:px-6">
+          <p className="text-xs text-muted">
+            Times are provided by your consultant. Check each booking for its local time zone.
+          </p>
+          {days.map((day, index) => (
+            <div key={day.id} className="overflow-hidden rounded-2xl border border-hair bg-white">
+              <button
+                type="button"
+                onClick={() => onSelect(index)}
+                className="flex w-full items-center justify-between gap-3 bg-navy px-5 py-4 text-left text-white"
+              >
+                <span>
+                  <span className="text-xs text-white/60">
+                    Day {day.day_number} · {day.date || "Date to be confirmed"}
+                  </span>
+                  <strong className="mt-1 block">{day.title}</strong>
+                </span>
+                <Icon name="arrowRight" className="size-4 shrink-0" />
+              </button>
+              {day.steps.length ? (
+                day.steps.map((step) => (
+                  <div
+                    key={step.id}
+                    className="grid gap-2 border-b border-hair p-4 last:border-0 sm:grid-cols-[110px_1fr]"
+                  >
+                    <p className="text-sm font-semibold text-gold-deep">
+                      {step.time_label || "Time to confirm"}
+                    </p>
+                    <div>
+                      <p className="font-semibold text-navy">{step.title}</p>
+                      {step.description ? (
+                        <p className="mt-1 text-sm text-muted">{step.description}</p>
+                      ) : null}
+                      <p className="mt-2 text-xs text-muted">
+                        {[step.duration, step.location_name].filter(Boolean).join(" · ")}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="p-4 text-sm text-muted">Your daily schedule is being prepared.</p>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : view === "journey" ? (
         <div className="grid gap-3 px-5 pb-5 sm:grid-cols-2 sm:px-6 sm:pb-6 lg:grid-cols-3">
           {days.map((day, index) => (
             <button
@@ -114,8 +166,8 @@ export function JourneyOverview({
             ))}
           {!bookings.some((b) => b.block.kind === view) ? (
             <p className="rounded-xl bg-white p-4 text-sm text-muted">
-              Your {view === "flight" ? "flight" : "hotel"} details will appear here when added by
-              your consultant.
+              Your {view === "flight" ? "flight" : view === "driver" ? "transfer" : "hotel"} details
+              will appear here when added by your consultant.
             </p>
           ) : null}
         </div>

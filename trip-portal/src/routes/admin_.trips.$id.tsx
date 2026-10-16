@@ -7,13 +7,18 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { ItineraryReadiness } from "@/components/ItineraryReadiness";
 import { PhotoManager } from "@/components/PhotoManager";
 import { Icon, type IconName } from "@/components/Icon";
 import { LocationPicker, type PickedLocation } from "@/components/LocationPicker";
-import { findHotelPhoto, readBookingFile, type BookingKind } from "@/lib/booking-ai";
+import {
+  bookingCapabilities,
+  findHotelPhoto,
+  readBookingFile,
+  type BookingKind,
+} from "@/lib/booking-ai";
 import { destinationPhoto } from "@/lib/destinations";
 import { isLatLng } from "@/lib/geo";
 import { deleteTrip } from "@/lib/trip-admin";
@@ -2017,6 +2022,63 @@ function BlockForm({
   const [galleryBusy, setGalleryBusy] = useState(false);
   const [readBusy, setReadBusy] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
+  const [autoPhotos, setAutoPhotos] = useState(true);
+  const [capabilities, setCapabilities] = useState<{
+    reader: boolean;
+    structuredReader: boolean;
+    hotelLookup: boolean;
+  } | null>(null);
+  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
+  const [hotelNotice, setHotelNotice] = useState("");
+  const attemptedHotel = useRef("");
+  const latestHotel = useRef("");
+  const hotelQuery =
+    (payload.name ?? "").trim() + "|" + (payload.address ?? payload.locationName ?? "").trim();
+  latestHotel.current = hotelQuery;
+  useEffect(() => {
+    if (kind !== "hotel" && kind !== "flight") return;
+    let alive = true;
+    void bookingCapabilities({})
+      .then((value) => {
+        if (alive) setCapabilities(value);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [kind]);
+  useEffect(() => {
+    if (
+      kind !== "hotel" ||
+      !autoPhotos ||
+      !capabilities?.hotelLookup ||
+      photoBusy ||
+      galleryBusy ||
+      readBusy ||
+      payload.paths?.length ||
+      (payload.name?.trim().length ?? 0) < 3 ||
+      !(payload.address ?? payload.locationName)?.trim() ||
+      attemptedHotel.current === hotelQuery
+    )
+      return;
+    const timer = window.setTimeout(() => {
+      attemptedHotel.current = hotelQuery;
+      void findPhoto();
+    }, 1500);
+    return () => window.clearTimeout(timer);
+  }, [
+    kind,
+    autoPhotos,
+    capabilities,
+    photoBusy,
+    galleryBusy,
+    readBusy,
+    payload.name,
+    payload.address,
+    payload.locationName,
+    payload.paths?.length,
+    hotelQuery,
+  ]);
 
   /**
    * Reads a voucher or ticket and fills the empty fields from it.
@@ -2063,6 +2125,8 @@ function BlockForm({
 
   /** Finds the hotel's photo on Google by name and place, and keeps the photographer credit. */
   const findPhoto = async () => {
+    const requestedHotel = hotelQuery;
+    setHotelNotice("");
     setPhotoBusy(true);
     setUploadError("");
     try {
@@ -2073,13 +2137,25 @@ function BlockForm({
           place: payload.address ?? payload.locationName ?? "",
         },
       });
-      if (result.ok)
+      if (latestHotel.current !== requestedHotel) return;
+      if (result.ok) {
         setPayload((p) => ({
           ...p,
+          ...result.details,
+          name: p.name || result.details.name,
+          address: p.address || result.details.address,
+          phone: p.phone || result.details.phone,
           paths: [...(p.paths ?? []), ...result.paths],
           credit: [p.credit, result.credit].filter(Boolean).join(" · "),
         }));
-      else setUploadError(result.reason);
+        setPhotoUrls((p) => ({
+          ...p,
+          ...Object.fromEntries(result.paths.map((path, i) => [path, result.urls[i] ?? ""])),
+        }));
+        setHotelNotice(
+          `Matched: ${result.details.hotelSourceName ?? payload.name}. Check the photos and address before saving.`,
+        );
+      } else setUploadError(result.reason);
     } catch {
       setUploadError("Google Places did not answer. Upload a photo instead.");
     } finally {
@@ -2232,7 +2308,13 @@ function BlockForm({
             />
           </div>
         ) : null}
-        {needs.includes("bookingScan") ? (
+        {needs.includes("bookingScan") && capabilities && !capabilities.reader ? (
+          <p className="rounded-xl bg-sand p-3 text-xs text-gold-deep">
+            Booking OCR is not connected on this server yet. Enter booking details manually, or ask
+            your administrator to connect the document reader.
+          </p>
+        ) : null}
+        {needs.includes("bookingScan") && capabilities?.reader !== false ? (
           <BookingScan
             kind={kind as BookingKind}
             busy={readBusy || photoBusy || galleryBusy || uploading || busy}
@@ -2291,9 +2373,12 @@ function BlockForm({
         {needs.includes("gallery") || needs.includes("hotelPhoto") ? (
           <PhotoManager
             paths={payload.paths ?? []}
-            urls={Object.fromEntries(
-              (existing.paths ?? []).map((path, i) => [path, existing.urls?.[i] ?? ""]),
-            )}
+            urls={{
+              ...Object.fromEntries(
+                (existing.paths ?? []).map((path, i) => [path, existing.urls?.[i] ?? ""]),
+              ),
+              ...photoUrls,
+            }}
             disabled={busy || photoBusy || readBusy}
             onChange={(paths) => set({ paths })}
             onUpload={store}
@@ -2302,7 +2387,59 @@ function BlockForm({
         ) : null}
         {needs.includes("hotelPhoto") ? (
           <div className="rounded-xl border border-hair bg-white p-3">
-            <p className="text-xs font-semibold text-navy">Hotel photos</p>
+            <p className="text-xs font-semibold text-navy">Discover your hotel</p>
+            <label className="mt-2 flex items-center gap-2 text-xs text-navy">
+              <input
+                type="checkbox"
+                checked={autoPhotos}
+                onChange={(e) => setAutoPhotos(e.target.checked)}
+              />
+              Automatically find photos and hotel highlights
+            </label>
+            <p className="mt-1 text-[11px] text-muted">
+              Enter the hotel name and city/address. After you finish typing, we look for a matching
+              hotel. Review the result before saving.
+            </p>
+            {capabilities && !capabilities.hotelLookup ? (
+              <p className="mt-2 rounded-lg bg-sand p-2 text-xs text-gold-deep">
+                Automatic hotel lookup is not connected on this server. Manual photo uploads still
+                work. Ask your administrator to configure Google Places.
+              </p>
+            ) : null}
+            {hotelNotice ? (
+              <p role="status" className="mt-2 rounded-lg bg-live/10 p-2 text-xs text-live">
+                {hotelNotice}
+              </p>
+            ) : null}
+            {payload.hotelSummary ? (
+              <p className="mt-2 text-xs leading-relaxed text-muted">{payload.hotelSummary}</p>
+            ) : null}
+            {payload.hotelSourceName ? (
+              <button
+                type="button"
+                disabled={photoBusy}
+                onClick={() =>
+                  set({
+                    hotelSummary: undefined,
+                    hotelAddress: undefined,
+                    hotelRating: undefined,
+                    hotelReviewCount: undefined,
+                    hotelWebsite: undefined,
+                    hotelMapsUrl: undefined,
+                    hotelSourceName: undefined,
+                    hotelFetchedAt: undefined,
+                  })
+                }
+                className="mt-2 text-xs font-semibold text-muted"
+              >
+                Clear hotel highlights
+              </button>
+            ) : null}
+            {payload.hotelSourceName ? (
+              <p className="mt-1 text-[10px] text-muted">
+                Google Maps · {payload.hotelSourceName} · {payload.hotelFetchedAt}
+              </p>
+            ) : null}
             {payload.paths?.length ? (
               <p className="mt-1 text-[11px] text-live">
                 ✓ {payload.paths.length} photo{payload.paths.length === 1 ? "" : "s"} added
@@ -2310,7 +2447,7 @@ function BlockForm({
               </p>
             ) : (
               <p className="mt-1 text-[11px] text-muted">
-                Find up to four on Google by the hotel's name and address, or upload your own.
+                Find up to six on Google by the hotel's name and address, or upload your own.
               </p>
             )}
             <div className="mt-2 flex flex-wrap gap-2">
@@ -2322,12 +2459,12 @@ function BlockForm({
                   uploading ||
                   galleryBusy ||
                   readBusy ||
-                  (payload.paths?.length ?? 0) > 16 ||
+                  (payload.paths?.length ?? 0) > 14 ||
                   !payload.name
                 }
                 className="rounded-lg bg-navy px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
               >
-                {photoBusy ? "Finding…" : "Find hotel photos"}
+                {photoBusy ? "Finding your hotel…" : "Find hotel photos & details"}
               </button>
               {payload.paths?.length ? (
                 <button
@@ -2451,6 +2588,32 @@ function BlockForm({
               set({ locationName: v.name || undefined, latitude: v.lat, longitude: v.lng })
             }
           />
+        ) : null}
+        {kind === "driver" ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {(
+              [
+                ["pickupTime", "Pickup date & time", "22 Oct · 09:30 (local time)"],
+                ["pickupLocation", "Pickup / meeting point", "Airport arrivals, Exit 2"],
+                ["dropoffLocation", "Drop-off location", "Hotel name and address"],
+                [
+                  "transferNotes",
+                  "Transfer instructions",
+                  "Vehicle, luggage allowance, meeting instructions",
+                ],
+              ] as const
+            ).map(([field, label, placeholder]) => (
+              <label key={field} className="block text-xs font-semibold text-navy">
+                {label}
+                <input
+                  value={payload[field] ?? ""}
+                  onChange={(e) => set({ [field]: e.target.value })}
+                  placeholder={placeholder}
+                  className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-sm font-normal"
+                />
+              </label>
+            ))}
+          </div>
         ) : null}
         {needs.includes("driver") ? (
           <div>

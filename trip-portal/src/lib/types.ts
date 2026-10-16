@@ -81,7 +81,11 @@ export const BLOCK_LABELS: Record<BlockKind, { label: string; icon: IconName; hi
   gallery: { label: "Gallery", icon: "images", hint: "Several photos, opened full-screen" },
   video: { label: "Video", icon: "video", hint: "A short clip, e.g. how to find the driver" },
   map: { label: "Location", icon: "pin", hint: "Opens in the customer's maps app" },
-  driver: { label: "Driver", icon: "car", hint: "Photo, vehicle, plate, call and WhatsApp" },
+  driver: {
+    label: "Transfer & driver",
+    icon: "car",
+    hint: "Pickup time, route, meeting point and driver contact",
+  },
   hotel: { label: "Hotel", icon: "hotel", hint: "Check-in, check-out, reference" },
   flight: { label: "Flight", icon: "plane", hint: "Flight number and times" },
   ticket: { label: "Ticket", icon: "ticket", hint: "Attraction ticket or voucher" },
@@ -133,6 +137,10 @@ export type BlockPayload = {
   longitude?: number | undefined;
   locationName?: string | undefined;
   driverId?: string | undefined;
+  pickupTime?: string | undefined;
+  pickupLocation?: string | undefined;
+  dropoffLocation?: string | undefined;
+  transferNotes?: string | undefined;
   documentId?: string | undefined;
   invoiceId?: string | undefined;
   /**
@@ -166,6 +174,14 @@ export type BlockPayload = {
   roomType?: string | undefined;
   guests?: string | undefined;
   nights?: string | undefined;
+  hotelSummary?: string | undefined;
+  hotelAddress?: string | undefined;
+  hotelRating?: string | undefined;
+  hotelReviewCount?: string | undefined;
+  hotelWebsite?: string | undefined;
+  hotelMapsUrl?: string | undefined;
+  hotelSourceName?: string | undefined;
+  hotelFetchedAt?: string | undefined;
   /** Photographer credit for a hotel photo fetched from Google, shown under it. */
   credit?: string | undefined;
   tone?: "info" | "warning" | "critical" | undefined;
