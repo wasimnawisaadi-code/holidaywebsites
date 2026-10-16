@@ -3,15 +3,18 @@ import {
   Link,
   useNavigate,
   useRouter,
+  useBlocker,
   notFound,
   redirect,
 } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { ItineraryReadiness } from "@/components/ItineraryReadiness";
 import { PhotoManager } from "@/components/PhotoManager";
 import { DayPhotos } from "@/components/DayPhotos";
+import { QuickActivity } from "@/components/QuickActivity";
+import { activitySteps } from "@/lib/itinerary";
 import { Icon, type IconName } from "@/components/Icon";
 import { LocationPicker, type PickedLocation } from "@/components/LocationPicker";
 import {
@@ -696,6 +699,18 @@ function Editor() {
   const [tab, setTab] = useState<"itinerary" | "details" | "documents" | "invoices" | "activity">(
     "itinerary",
   );
+  const [pendingDays, setPendingDays] = useState<Record<string, boolean>>({});
+  const reportPending = useCallback((id: string, pending: boolean) => {
+    setPendingDays((current) =>
+      current[id] === pending ? current : { ...current, [id]: pending },
+    );
+  }, []);
+  useBlocker({
+    shouldBlockFn: () =>
+      Object.values(pendingDays).some(Boolean) &&
+      !window.confirm("Leave this trip without saving your new activities or day photos?"),
+    enableBeforeUnload: false,
+  });
   const url = `${base}/t/${trip.tracking_token}`;
   const cover = trip.heroUrl ?? destinationPhoto(trip.destination);
 
@@ -809,7 +824,7 @@ function Editor() {
           ))}
         </nav>
 
-        {tab === "itinerary" ? (
+        <div hidden={tab !== "itinerary"}>
           <ItineraryTab
             trip={trip}
             days={days}
@@ -817,8 +832,9 @@ function Editor() {
             documents={documents}
             invoices={invoices}
             onChange={refresh}
+            onPendingChange={reportPending}
           />
-        ) : null}
+        </div>
 
         {tab === "details" ? <TripDetailsTab trip={trip} onChange={refresh} /> : null}
 
@@ -1124,6 +1140,7 @@ function ItineraryTab({
   documents,
   invoices,
   onChange,
+  onPendingChange,
 }: {
   trip: Trip;
   days: Day[];
@@ -1131,6 +1148,7 @@ function ItineraryTab({
   documents: TripDocument[];
   invoices: Invoice[];
   onChange: () => void;
+  onPendingChange: (dayId: string, pending: boolean) => void;
 }) {
   const [addingDay, setAddingDay] = useState(false);
   const [showing, setShowing] = useState(false);
@@ -1182,6 +1200,7 @@ function ItineraryTab({
           documents={documents}
           invoices={invoices}
           onChange={onChange}
+          onPendingChange={onPendingChange}
         />
       ))}
 
@@ -1215,6 +1234,7 @@ function DayCard({
   documents,
   invoices,
   onChange,
+  onPendingChange,
 }: {
   trip: Trip;
   day: Day;
@@ -1222,10 +1242,18 @@ function DayCard({
   documents: TripDocument[];
   invoices: Invoice[];
   onChange: () => void;
+  onPendingChange: (dayId: string, pending: boolean) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [addingStep, setAddingStep] = useState(false);
   const [open, setOpen] = useState(true);
+  const [photoPending, setPhotoPending] = useState(false);
+  const [activityPending, setActivityPending] = useState(false);
+  const pending = photoPending || activityPending;
+  useEffect(() => {
+    onPendingChange(day.id, pending);
+    return () => onPendingChange(day.id, false);
+  }, [day.id, pending, onPendingChange]);
 
   return (
     <section
@@ -1247,6 +1275,11 @@ function DayCard({
           <span className="mt-0.5 block truncate font-display text-lg text-navy">{day.title}</span>
         </button>
 
+        {pending ? (
+          <span className="rounded-md bg-gold/15 px-2 py-1 text-xs font-semibold text-gold-deep">
+            Unsaved changes
+          </span>
+        ) : null}
         <span
           className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase ${
             day.published ? "bg-live/12 text-live" : "bg-gold/18 text-gold-deep"
@@ -1284,57 +1317,68 @@ function DayCard({
         </div>
       ) : null}
 
-      {open ? (
-        <div className="p-4">
-          <DayCover tripId={trip.id} day={day} onChange={onChange} />
-          <DayPhotos day={day} tripId={trip.id} onSaved={onChange} />
+      <div hidden={!open} className="p-4">
+        <DayCover tripId={trip.id} day={day} onChange={onChange} />
+        <QuickActivity
+          dayId={day.id}
+          dayNumber={day.day_number}
+          date={day.date}
+          tripId={trip.id}
+          drivers={drivers}
+          onSaved={onChange}
+          onPendingChange={setActivityPending}
+        />
+        <DayPhotos
+          day={day}
+          tripId={trip.id}
+          onSaved={onChange}
+          onPendingChange={setPhotoPending}
+        />
 
-          {day.summary ? (
-            <p className="mb-4 text-sm leading-relaxed text-muted">{day.summary}</p>
-          ) : null}
+        {day.summary ? (
+          <p className="mb-4 text-sm leading-relaxed whitespace-pre-line text-muted">
+            {day.summary}
+          </p>
+        ) : null}
 
-          <ol className="flex flex-col gap-3">
-            {day.steps
-              .filter(
-                (step) => !step.blocks.length || !step.blocks.every((b) => b.payload.dayGallery),
-              )
-              .map((step) => (
-                <StepCard
-                  key={step.id}
-                  step={step}
-                  dayId={day.id}
-                  drivers={drivers}
-                  documents={documents}
-                  invoices={invoices}
-                  tripId={trip.id}
-                  onChange={onChange}
-                />
-              ))}
-          </ol>
+        <ol className="flex flex-col gap-3">
+          {activitySteps(day).map((step, index) => (
+            <StepCard
+              key={step.id}
+              step={step}
+              displayNumber={index + 1}
+              dayId={day.id}
+              drivers={drivers}
+              documents={documents}
+              invoices={invoices}
+              tripId={trip.id}
+              onChange={onChange}
+            />
+          ))}
+        </ol>
 
-          {addingStep ? (
-            <div className="mt-3 rounded-xl border border-hair bg-paper p-4">
-              <StepForm
-                dayId={day.id}
-                stepNumber={Math.max(0, ...day.steps.map((s) => s.step_number)) + 1}
-                onDone={() => {
-                  setAddingStep(false);
-                  onChange();
-                }}
-                onCancel={() => setAddingStep(false)}
-              />
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setAddingStep(true)}
-              className="mt-3 w-full rounded-xl border border-dashed border-hair py-3 text-xs font-bold text-navy hover:border-gold"
-            >
-              + Add step {day.steps.length + 1}
-            </button>
-          )}
-        </div>
-      ) : null}
+        {addingStep ? (
+          <div className="mt-3 rounded-xl border border-hair bg-paper p-4">
+            <StepForm
+              dayId={day.id}
+              stepNumber={Math.max(0, ...day.steps.map((s) => s.step_number)) + 1}
+              onDone={() => {
+                setAddingStep(false);
+                onChange();
+              }}
+              onCancel={() => setAddingStep(false)}
+            />
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setAddingStep(true)}
+            className="mt-3 w-full rounded-xl border border-dashed border-hair py-3 text-xs font-bold text-navy hover:border-gold"
+          >
+            + Advanced activity editor
+          </button>
+        )}
+      </div>
     </section>
   );
 }
@@ -1449,6 +1493,7 @@ function DayForm({
   onDelete?: () => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const [saveError, setSaveError] = useState("");
   // Per-instance: editing Day 1 while adding Day 2 puts two of these forms on
   // screen at once, and a fixed id would point both labels at the first form.
   const summaryId = useId();
@@ -1459,19 +1504,25 @@ function DayForm({
         e.preventDefault();
         const f = new FormData(e.currentTarget);
         setBusy(true);
-        await saveDay({
-          data: {
-            ...(day ? { id: day.id } : {}),
-            tripId,
-            dayNumber: Number(f.get("dayNumber") ?? dayNumber),
-            title: String(f.get("title") ?? ""),
-            date: String(f.get("date") ?? ""),
-            summary: String(f.get("summary") ?? ""),
-            published: f.get("published") === "on",
-          },
-        });
-        setBusy(false);
-        onDone();
+        setSaveError("");
+        try {
+          await saveDay({
+            data: {
+              ...(day ? { id: day.id } : {}),
+              tripId,
+              dayNumber: Number(f.get("dayNumber") ?? dayNumber),
+              title: String(f.get("title") ?? ""),
+              date: String(f.get("date") ?? ""),
+              summary: String(f.get("summary") ?? ""),
+              published: f.get("published") === "on",
+            },
+          });
+          onDone();
+        } catch {
+          setSaveError("Could not save this day. Your text is still here; please retry.");
+        } finally {
+          setBusy(false);
+        }
       }}
       className="rounded-xl border border-hair bg-paper p-4"
     >
@@ -1499,7 +1550,8 @@ function DayForm({
       <textarea
         id={summaryId}
         name="summary"
-        rows={2}
+        rows={6}
+        placeholder={"• Airport pickup\n• Hotel check-in\n• Evening city tour"}
         defaultValue={day?.summary ?? ""}
         className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-sm outline-none focus:border-gold"
       />
@@ -1518,6 +1570,11 @@ function DayForm({
         keep a day hidden while you are still writing it.
       </p>
 
+      {saveError ? (
+        <p role="alert" className="mt-3 text-sm text-alert">
+          {saveError}
+        </p>
+      ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="submit"
@@ -1549,6 +1606,7 @@ function DayForm({
 
 function StepCard({
   step,
+  displayNumber,
   dayId,
   drivers,
   documents,
@@ -1557,6 +1615,7 @@ function StepCard({
   onChange,
 }: {
   step: Step;
+  displayNumber: number;
   dayId: string;
   drivers: Driver[];
   documents: TripDocument[];
@@ -1574,7 +1633,7 @@ function StepCard({
           aria-hidden="true"
           className="grid size-7 shrink-0 place-items-center rounded-full bg-navy font-mono text-[11px] font-bold text-white"
         >
-          {step.step_number}
+          {displayNumber}
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold text-navy">{step.title}</p>
@@ -1718,6 +1777,7 @@ function StepForm({
   onDelete?: () => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const descriptionId = useId();
   const [place, setPlace] = useState<PickedLocation>({
     name: step?.location_name ?? "",
@@ -1731,29 +1791,35 @@ function StepForm({
         e.preventDefault();
         const f = new FormData(e.currentTarget);
         setBusy(true);
-        await saveStep({
-          data: {
-            ...(step ? { id: step.id } : {}),
-            dayId,
-            stepNumber: Number(f.get("stepNumber") ?? stepNumber),
-            title: String(f.get("title") ?? ""),
-            description: String(f.get("description") ?? ""),
-            timeLabel: String(f.get("timeLabel") ?? ""),
-            duration: String(f.get("duration") ?? ""),
-            locationName: place.name,
-            // Half a pin is no pin: a latitude without its longitude would
-            // put the customer's map somewhere on the equator.
-            latitude: isLatLng(place.lat, place.lng) ? String(place.lat) : "",
-            longitude: isLatLng(place.lat, place.lng) ? String(place.lng) : "",
-          },
-        });
-        setBusy(false);
-        onDone();
+        setSaveError("");
+        try {
+          await saveStep({
+            data: {
+              ...(step ? { id: step.id } : {}),
+              dayId,
+              stepNumber: Number(f.get("stepNumber") ?? stepNumber),
+              title: String(f.get("title") ?? ""),
+              description: String(f.get("description") ?? ""),
+              timeLabel: String(f.get("timeLabel") ?? ""),
+              duration: String(f.get("duration") ?? ""),
+              locationName: place.name,
+              // Half a pin is no pin: a latitude without its longitude would
+              // put the customer's map somewhere on the equator.
+              latitude: isLatLng(place.lat, place.lng) ? String(place.lat) : "",
+              longitude: isLatLng(place.lat, place.lng) ? String(place.lng) : "",
+            },
+          });
+          onDone();
+        } catch {
+          setSaveError("Could not save this activity. Your text is still here; please retry.");
+        } finally {
+          setBusy(false);
+        }
       }}
     >
       <div className="grid gap-3 sm:grid-cols-[90px_1fr]">
         <SmallField
-          label="Step #"
+          label="Sort order"
           name="stepNumber"
           type="number"
           defaultValue={String(stepNumber)}
@@ -1798,6 +1864,11 @@ function StepForm({
         <LocationPicker value={place} onChange={setPlace} inputName="locationName" />
       </div>
 
+      {saveError ? (
+        <p role="alert" className="mt-3 text-sm text-alert">
+          {saveError}
+        </p>
+      ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="submit"

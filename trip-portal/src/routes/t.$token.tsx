@@ -12,6 +12,7 @@ import { MapView, type MapPoint } from "@/components/MapView";
 import { destinationPhoto } from "@/lib/destinations";
 import { isLatLng } from "@/lib/geo";
 import { tripTiming, type CustomerTrip } from "@/lib/types";
+import { activitySteps, activityTime, dayGalleryBlocks, galleryCover } from "@/lib/itinerary";
 
 /**
  * The customer portal. One route, one link, no login.
@@ -56,10 +57,15 @@ const OFFICE_PHONE = "+971561228069";
 function Portal() {
   const data = Route.useLoaderData() as CustomerTrip;
   const { trip, drivers, documents, invoices } = data;
-  const days = data.days.map((d) => ({
-    ...d,
-    steps: d.steps.filter((s) => !s.blocks.length || !s.blocks.every((b) => b.payload.dayGallery)),
-  }));
+  const days = useMemo(
+    () =>
+      data.days.map((d) => ({
+        ...d,
+        coverUrl: galleryCover(d) || d.coverUrl || null,
+        steps: activitySteps(d),
+      })),
+    [data.days],
+  );
   const token = Route.useParams().token;
 
   /**
@@ -82,8 +88,7 @@ function Portal() {
 
   const [activeDay, setActiveDay] = useState(todayIndex);
   const day = days[activeDay];
-  const dayPhotos =
-    data.days[activeDay]?.steps.flatMap((s) => s.blocks).filter((b) => b.payload.dayGallery) ?? [];
+  const dayPhotos = data.days[activeDay] ? dayGalleryBlocks(data.days[activeDay]) : [];
   const heroPhoto = trip.heroUrl ?? destinationPhoto(trip.destination);
   const timing = tripTiming(trip.start_date, trip.end_date);
   const pdfHref = (invoiceId: string) => `/t/${token}/invoice/${invoiceId}.pdf`;
@@ -121,13 +126,13 @@ function Portal() {
   }, [invoices.length, documents.length]);
 
   // Every step of the open day that has a pin, in order: the day on a map.
-  const route: MapPoint[] = (day?.steps ?? []).flatMap((st) =>
+  const route: MapPoint[] = (day?.steps ?? []).flatMap((st, index) =>
     isLatLng(st.latitude, st.longitude)
       ? [
           {
             lat: st.latitude!,
             lng: st.longitude!,
-            number: st.step_number,
+            number: index + 1,
             label: st.location_name ?? st.title,
           },
         ]
@@ -351,6 +356,7 @@ function Portal() {
           {days.length ? (
             <JourneyOverview
               days={days}
+              activeDay={activeDay}
               ctx={{ drivers, documents, invoices, invoicePdfHref: pdfHref }}
               onSelect={(index) => {
                 selectDay(index);
@@ -468,7 +474,7 @@ function Portal() {
                           className="min-w-36 shrink-0 rounded-xl border border-hair bg-paper px-3 py-3 transition hover:border-gold"
                         >
                           <span className="block text-[10px] font-semibold tracking-wide text-gold-deep uppercase">
-                            {step.time_label || `Stop ${index + 1}`}
+                            {activityTime(step) || `Stop ${index + 1}`}
                           </span>
                           <span className="mt-1 block max-w-52 truncate text-xs font-semibold text-navy">
                             {step.title}
@@ -520,13 +526,13 @@ function Portal() {
                             aria-hidden="true"
                             className="absolute top-0 left-0 grid size-10 place-items-center rounded-full bg-navy font-sans text-base font-bold text-white shadow-md ring-4 ring-white"
                           >
-                            {step.step_number}
+                            {n + 1}
                           </span>
 
                           <div className="flex flex-wrap items-center gap-2 pt-1.5">
-                            {step.time_label ? (
+                            {activityTime(step) ? (
                               <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold-deep tabular-nums">
-                                <Icon name="clock" className="size-3" /> {step.time_label}
+                                <Icon name="clock" className="size-3" /> {activityTime(step)}
                               </span>
                             ) : null}
                             {step.duration ? (
