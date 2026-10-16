@@ -22,7 +22,7 @@ export function PrintableItinerary({ data }: { data: CustomerTrip }) {
             Day {day.day_number} · {day.title}
           </h2>
           {day.date ? <p>{day.date}</p> : null}
-          {day.summary ? <p>{day.summary}</p> : null}
+          {day.summary ? <p style={{ whiteSpace: "pre-line" }}>{day.summary}</p> : null}
           {day.steps.map((step) => (
             <section key={step.id} className="trip-print-step">
               <h3>

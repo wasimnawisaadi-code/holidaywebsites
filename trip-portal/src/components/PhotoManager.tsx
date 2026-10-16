@@ -18,6 +18,7 @@ export function PhotoManager({
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
   const owned = useRef<string[]>([]);
   useEffect(() => () => owned.current.forEach((url) => URL.revokeObjectURL(url)), []);
   const move = (index: number, to: number) => {
@@ -39,6 +40,8 @@ export function PhotoManager({
               <img
                 src={previews[path] || urls[path]}
                 alt={`Itinerary photo ${i + 1}`}
+                loading="lazy"
+                decoding="async"
                 className="h-24 w-full object-cover"
               />
             ) : (
@@ -86,7 +89,11 @@ export function PhotoManager({
         ))}
       </div>
       <label className="mt-3 block text-xs font-semibold text-navy">
-        {busy ? "Uploading photos…" : "Add photos"}
+        <span role="status" aria-live="polite">
+          {busy
+            ? `Uploading photos · ${progress.done} of ${progress.total} complete`
+            : "Add photos"}
+        </span>
         <input
           type="file"
           multiple
@@ -113,13 +120,20 @@ export function PhotoManager({
               return;
             }
             setBusy(true);
+            setProgress({ done: 0, total: files.length });
             onBusy(true);
             const added: string[] = [];
             try {
               for (const file of files) {
                 const path = await onUpload(file);
-                if (!path) break;
+                if (!path) {
+                  setError(
+                    "Upload stopped. Completed photos have been kept; please retry the remaining photos.",
+                  );
+                  break;
+                }
                 added.push(path);
+                setProgress({ done: added.length, total: files.length });
                 const url = URL.createObjectURL(file);
                 owned.current.push(url);
                 setPreviews((p) => ({ ...p, [path]: url }));

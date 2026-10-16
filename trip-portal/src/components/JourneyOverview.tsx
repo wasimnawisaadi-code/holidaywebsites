@@ -100,7 +100,9 @@ export function JourneyOverview({
                     <div>
                       <p className="font-semibold text-navy">{step.title}</p>
                       {step.description ? (
-                        <p className="mt-1 text-sm text-muted">{step.description}</p>
+                        <p className="mt-1 text-sm whitespace-pre-line text-muted">
+                          {step.description}
+                        </p>
                       ) : null}
                       <p className="mt-2 text-xs text-muted">
                         {[step.duration, step.location_name].filter(Boolean).join(" · ")}
@@ -109,7 +111,14 @@ export function JourneyOverview({
                   </div>
                 ))
               ) : (
-                <p className="p-4 text-sm text-muted">Your daily schedule is being prepared.</p>
+                <div className="p-4 text-sm leading-relaxed whitespace-pre-line text-muted">
+                  {day.summary || "Your daily schedule is being prepared."}
+                  {day.summary ? (
+                    <p className="mt-3 text-xs">
+                      Detailed timings will appear here when confirmed.
+                    </p>
+                  ) : null}
+                </div>
               )}
             </div>
           ))}
@@ -140,7 +149,9 @@ export function JourneyOverview({
                         .map((s) => s.title)
                         .slice(0, 3)
                         .join(" · ")
-                    : "Details coming soon"}
+                    : day.summary
+                      ? "View your day’s highlights"
+                      : "Details coming soon"}
                   {day.steps.length > 3 ? ` · +${day.steps.length - 3} more` : ""}
                 </span>
               </span>
