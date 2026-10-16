@@ -100,7 +100,9 @@ export function JourneyOverview({
                     <div>
                       <p className="font-semibold text-navy">{step.title}</p>
                       {step.description ? (
-                        <p className="mt-1 text-sm text-muted">{step.description}</p>
+                        <p className="mt-1 text-sm whitespace-pre-line text-muted">
+                          {step.description}
+                        </p>
                       ) : null}
                       <p className="mt-2 text-xs text-muted">
                         {[step.duration, step.location_name].filter(Boolean).join(" · ")}

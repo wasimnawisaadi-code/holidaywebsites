@@ -440,7 +440,9 @@ function Portal() {
                     {day.title}
                   </h3>
                   {day.summary ? (
-                    <p className="mt-3 text-[15px] leading-relaxed text-muted">{day.summary}</p>
+                    <p className="mt-3 text-[15px] leading-relaxed whitespace-pre-line text-muted">
+                      {day.summary}
+                    </p>
                   ) : null}
 
                   {day.steps.length ? (
