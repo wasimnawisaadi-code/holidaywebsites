@@ -9,6 +9,7 @@ import {
 import { createServerFn } from "@tanstack/react-start";
 import { useId, useState } from "react";
 
+import { PhotoManager } from "@/components/PhotoManager";
 import { Icon, type IconName } from "@/components/Icon";
 import { LocationPicker, type PickedLocation } from "@/components/LocationPicker";
 import { findHotelPhoto, readBookingFile, type BookingKind } from "@/lib/booking-ai";
@@ -1983,6 +1984,9 @@ function BlockForm({
   // What the reader found, kept beside the form so the office can check the
   // transcript against the fields it filled. Empty until a document is read.
   const [transcript, setTranscript] = useState("");
+  const [suggestions, setSuggestions] = useState<Record<string, string> | null>(null);
+  const [readWarning, setReadWarning] = useState("");
+  const [galleryBusy, setGalleryBusy] = useState(false);
   const [readBusy, setReadBusy] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
 
@@ -1993,6 +1997,13 @@ function BlockForm({
    * never overwritten by the reader, so a correction survives a re-read.
    */
   const readDocument = async (file: File, bookingKind: BookingKind) => {
+    if (file.size > 12 * 1024 * 1024) {
+      setUploadError("Choose a document smaller than 12 MB.");
+      return;
+    }
+    setSuggestions(null);
+    setTranscript("");
+    setReadWarning("");
     setReadBusy(true);
     setUploadError("");
     try {
@@ -2012,13 +2023,8 @@ function BlockForm({
       if (!read.ok) return setUploadError(read.reason);
 
       setTranscript(read.rawText);
-      setPayload((p) => {
-        const next: Record<string, unknown> = { ...p };
-        for (const [key, value] of Object.entries(read.fields)) {
-          if (!next[key]) next[key] = value;
-        }
-        return next as BlockPayload;
-      });
+      setSuggestions(read.fields);
+      setReadWarning(read.warning ?? "");
     } catch {
       setProgress(null);
       setUploadError("The document could not be read. Fill the fields by hand.");
@@ -2039,7 +2045,12 @@ function BlockForm({
           place: payload.address ?? payload.locationName ?? "",
         },
       });
-      if (result.ok) set({ paths: result.paths, credit: result.credit });
+      if (result.ok)
+        setPayload((p) => ({
+          ...p,
+          paths: [...(p.paths ?? []), ...result.paths],
+          credit: [p.credit, result.credit].filter(Boolean).join(" · "),
+        }));
       else setUploadError(result.reason);
     } catch {
       setUploadError("Google Places did not answer. Upload a photo instead.");
@@ -2110,42 +2121,6 @@ function BlockForm({
             store={store}
             busy={uploading}
           />
-        ) : null}
-
-        {needs.includes("gallery") ? (
-          <div>
-            <label htmlFor={`${uid}-gallery`} className="block text-xs font-semibold text-navy">
-              Images
-            </label>
-            {(payload.paths ?? []).map((p, i) => (
-              <p
-                key={p + i}
-                className="mt-1 flex items-center gap-2 font-mono text-[11px] text-live"
-              >
-                <span className="min-w-0 flex-1 truncate">✓ {p}</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    set({ paths: (payload.paths ?? []).filter((_, idx) => idx !== i) })
-                  }
-                  className="shrink-0 text-alert"
-                >
-                  remove
-                </button>
-              </p>
-            ))}
-            <input
-              id={`${uid}-gallery`}
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) void upload(file, "gallery");
-                e.target.value = "";
-              }}
-              className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-xs"
-            />
-          </div>
         ) : null}
 
         {needs.includes("poster") ? (
@@ -2232,9 +2207,69 @@ function BlockForm({
         {needs.includes("bookingScan") ? (
           <BookingScan
             kind={kind as BookingKind}
-            busy={readBusy}
+            busy={readBusy || photoBusy || galleryBusy || uploading || busy}
             transcript={transcript}
             onFile={(file) => void readDocument(file, kind as BookingKind)}
+          />
+        ) : null}
+        {readWarning ? (
+          <p role="status" className="rounded-lg bg-sand p-3 text-xs text-gold-deep">
+            {readWarning}
+          </p>
+        ) : null}
+        {suggestions && Object.keys(suggestions).length ? (
+          <div className="rounded-xl border border-gold/40 bg-white p-4">
+            <p className="text-sm font-semibold text-navy">Review extracted details</p>
+            <p className="mt-1 text-xs text-muted">
+              Correct any values below. Applying fills empty fields only. For multi-leg tickets,
+              this reads the first flight; add each remaining flight separately.
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {Object.entries(suggestions).map(([key, value]) => (
+                <Inline
+                  key={key}
+                  label={key.replace(/([A-Z])/g, " $1")}
+                  value={value}
+                  onChange={(v) => setSuggestions((p) => ({ ...p, [key]: v }))}
+                />
+              ))}
+            </div>
+            <div className="mt-3 flex gap-3">
+              <button
+                type="button"
+                className="rounded-lg bg-navy px-3 py-2 text-xs font-semibold text-white"
+                onClick={() => {
+                  setPayload((p) => {
+                    const next: Record<string, unknown> = { ...p };
+                    for (const [key, value] of Object.entries(suggestions))
+                      if (!next[key]) next[key] = value.trim();
+                    return next as BlockPayload;
+                  });
+                  setSuggestions(null);
+                }}
+              >
+                Apply to empty fields
+              </button>
+              <button
+                type="button"
+                className="text-xs text-muted"
+                onClick={() => setSuggestions(null)}
+              >
+                Discard suggestions
+              </button>
+            </div>
+          </div>
+        ) : null}
+        {needs.includes("gallery") || needs.includes("hotelPhoto") ? (
+          <PhotoManager
+            paths={payload.paths ?? []}
+            urls={Object.fromEntries(
+              (existing.paths ?? []).map((path, i) => [path, existing.urls?.[i] ?? ""]),
+            )}
+            disabled={busy || photoBusy || readBusy}
+            onChange={(paths) => set({ paths })}
+            onUpload={store}
+            onBusy={setGalleryBusy}
           />
         ) : null}
         {needs.includes("hotelPhoto") ? (
@@ -2254,26 +2289,22 @@ function BlockForm({
               <button
                 type="button"
                 onClick={() => void findPhoto()}
-                disabled={photoBusy || uploading || !payload.name}
+                disabled={
+                  photoBusy ||
+                  uploading ||
+                  galleryBusy ||
+                  readBusy ||
+                  (payload.paths?.length ?? 0) > 16 ||
+                  !payload.name
+                }
                 className="rounded-lg bg-navy px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
               >
                 {photoBusy ? "Finding…" : "Find hotel photos"}
               </button>
-              <label className="cursor-pointer rounded-lg border border-hair bg-white px-3 py-2 text-xs font-semibold text-navy">
-                Add a photo
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) void upload(file, "gallery");
-                  }}
-                />
-              </label>
               {payload.paths?.length ? (
                 <button
                   type="button"
+                  disabled={galleryBusy || photoBusy}
                   onClick={() => set({ paths: undefined, credit: undefined })}
                   className="rounded-lg px-3 py-2 text-xs font-semibold text-muted"
                 >
@@ -2522,20 +2553,28 @@ function BlockForm({
       <div className="mt-4 flex gap-2">
         <button
           type="button"
-          disabled={busy || uploading}
+          disabled={busy || uploading || readBusy || photoBusy || galleryBusy}
           onClick={async () => {
             setBusy(true);
-            await saveBlock({
-              data: {
-                ...(block ? { id: block.id } : {}),
-                stepId,
-                position,
-                kind,
-                payload: payload as Record<string, unknown>,
-              },
-            });
-            setBusy(false);
-            onDone();
+            setUploadError("");
+            try {
+              await saveBlock({
+                data: {
+                  ...(block ? { id: block.id } : {}),
+                  stepId,
+                  position,
+                  kind,
+                  payload: payload as Record<string, unknown>,
+                },
+              });
+              onDone();
+            } catch {
+              setUploadError(
+                "This block could not be saved. Your changes are still here; try again.",
+              );
+            } finally {
+              setBusy(false);
+            }
           }}
           className="rounded-lg bg-navy px-5 py-2 text-xs font-bold text-white disabled:opacity-60"
         >
@@ -2786,8 +2825,8 @@ function BookingScan({
     <div className="rounded-xl border border-dashed border-gold bg-gold/5 p-3">
       <p className="text-xs font-semibold text-navy">Read details from a {noun}</p>
       <p className="mt-0.5 text-[11px] text-muted">
-        Upload the photo or PDF. The fields below are filled from it. Empty fields only, so anything
-        you have typed stays put. Check them before saving.
+        Upload a photo or PDF up to 12 MB. Review and edit the extracted details, then apply them to
+        empty fields. Existing entries are preserved.
       </p>
       <label
         htmlFor={id}

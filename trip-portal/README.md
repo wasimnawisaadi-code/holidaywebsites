@@ -133,3 +133,38 @@ delete from trip_customers where full_name like 'DEMO — %';
 
 Check exit codes directly. `node … | tail` reports tail's exit code, not the
 test's — a failing suite piped through tail exits 0.
+
+## Enhanced itinerary and document reader
+
+The customer itinerary includes a journey overview, flight/stay filters, direct day
+navigation, and a schedule linking to each stop. Flight cards separate departure
+and arrival; hotel galleries open the existing keyboard/touch photo viewer.
+The Today badge is only shown for a day whose date is today in Dubai.
+
+The photo editor supports multiple uploads, previews, individual removal,
+reordering and cover selection. Collections accept up to 20 photos, each up to
+12 MB. Removing a photo detaches it from the block; it does not delete the
+underlying storage object. Existing photographer credits are preserved.
+
+Booking OCR now presents editable suggestions before applying them to empty
+fields. It never overwrites existing manual entries. Multi-leg tickets currently
+extract the first flight only; add remaining flights as separate blocks.
+
+Google Cloud Vision supports service-account credentials through either
+`GOOGLE_APPLICATION_CREDENTIALS` (local absolute file path) or
+`GOOGLE_SERVICE_ACCOUNT_JSON` (hosted secret environment variable). Credentials
+are loaded only inside the server handler; do not add a JSON key to Git or use a
+VITE-prefixed variable. Enable Cloud Vision API and billing for that project.
+Replace previously exposed credentials before production use.
+
+With Vision only, staff receive the transcript to copy into the form. Adding
+`GEMINI_API_KEY` turns the transcript into editable booking suggestions. Without
+a service account, Gemini continues to read the original document directly.
+Vision's synchronous PDF reader covers at most the first five pages; the editor
+shows this limitation. Documents are limited to 12 MB and remain private.
+
+Google Places hotel search still requires `GOOGLE_MAPS_API_KEY` (or a Gemini API
+key with Places API enabled). Service-account OCR credentials do not configure
+Places. Manual hotel photo uploads work independently.
+
+Provider reference: [Google Cloud Vision small-batch OCR](https://docs.cloud.google.com/vision/docs/file-small-batch).

@@ -175,8 +175,9 @@ function BlockView({
           icon="hotel"
           eyebrow="Hotel"
           title={p.name ?? "Your hotel"}
-          images={(p.urls ?? []).filter((u): u is string => Boolean(u))}
+          images={(p.urls?.length ? p.urls : [p.url]).filter((u): u is string => Boolean(u))}
           credit={p.credit}
+          openPhotos={openPhotos}
           rows={[
             ["Address", p.address],
             ["Check in", p.checkIn],
@@ -191,7 +192,7 @@ function BlockView({
           action={
             p.name
               ? {
-                  href: searchLink(p.name),
+                  href: searchLink([p.name, p.address].filter(Boolean).join(", ")),
                   label: "Directions to the hotel",
                   onClick: () => ctx.onEngage?.("directions", `Hotel: ${p.name}`),
                 }
@@ -201,26 +202,7 @@ function BlockView({
       );
 
     case "flight":
-      return (
-        <DetailCard
-          icon="plane"
-          eyebrow="Flight"
-          title={p.flightNumber ? p.flightNumber : "Your flight"}
-          rows={[
-            ["Airline", p.airline],
-            ["Date", p.date],
-            ["From", p.fromAirport],
-            ["Departs", p.departTime ?? p.departure],
-            ["Terminal", p.terminal],
-            ["To", p.toAirport],
-            ["Arrives", p.arriveTime ?? p.arrival],
-            ["Seat", p.seat],
-            ["Baggage", p.baggage],
-            ["Booking ref.", p.reference],
-          ]}
-          note={p.text}
-        />
-      );
+      return <FlightCard p={p} />;
 
     case "ticket":
       return (
@@ -749,6 +731,80 @@ function ActionLink({
   );
 }
 
+function FlightCard({ p }: { p: BlockPayload }) {
+  return (
+    <section
+      className="overflow-hidden rounded-2xl border border-hair bg-white shadow-sm"
+      aria-label={p.flightNumber ? `Flight ${p.flightNumber}` : "Your flight"}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-hair bg-sand px-5 py-4">
+        <div className="flex items-center gap-3">
+          <IconBadge name="plane" />
+          <div>
+            <p className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+              Your flight
+            </p>
+            <p className="font-semibold text-navy">
+              {[p.airline, p.flightNumber].filter(Boolean).join(" · ") || "Flight details"}
+            </p>
+          </div>
+        </div>
+        {p.date ? (
+          <span className="rounded-full border border-hair bg-white px-3 py-1.5 text-xs font-semibold text-navy">
+            {p.date}
+          </span>
+        ) : null}
+      </div>
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 py-6">
+        <div>
+          <p className="text-[10px] tracking-widest text-muted uppercase">Departure</p>
+          <p className="mt-2 text-3xl font-semibold break-words text-navy">
+            {p.fromAirport || "—"}
+          </p>
+          <p className="mt-1 text-lg font-semibold text-ink">
+            {p.departTime || p.departure || "To be advised"}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-gold-deep">
+          <span className="w-5 border-t border-dashed border-gold sm:w-10" />
+          <Icon name="plane" className="size-5" />
+          <span className="w-5 border-t border-dashed border-gold sm:w-10" />
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] tracking-widest text-muted uppercase">Arrival</p>
+          <p className="mt-2 text-3xl font-semibold break-words text-navy">{p.toAirport || "—"}</p>
+          <p className="mt-1 text-lg font-semibold text-ink">
+            {p.arriveTime || p.arrival || "To be advised"}
+          </p>
+        </div>
+      </div>
+      <dl className="grid grid-cols-2 gap-4 border-t border-dashed border-hair px-5 py-4 sm:grid-cols-4">
+        {[
+          ["Terminal", p.terminal],
+          ["Seat", p.seat],
+          ["Baggage", p.baggage],
+          ["Booking reference", p.reference],
+        ]
+          .filter(([, value]) => value)
+          .map(([label, value]) => (
+            <div key={label}>
+              <dt className="text-[10px] tracking-wide text-muted uppercase">{label}</dt>
+              <dd className="mt-1 text-sm font-semibold break-words text-navy">{value}</dd>
+            </div>
+          ))}
+      </dl>
+      <p className="px-5 pb-4 text-[11px] text-muted">
+        Times shown as supplied in your booking. Check your airline for schedule changes.
+      </p>
+      {p.text ? (
+        <p className="border-t border-hair bg-paper px-5 py-4 text-sm leading-relaxed whitespace-pre-line text-ink">
+          {p.text}
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 function DetailCard({
   icon,
   eyebrow,
@@ -758,6 +814,7 @@ function DetailCard({
   action,
   images,
   credit,
+  openPhotos,
 }: {
   icon: IconName;
   eyebrow: string;
@@ -767,38 +824,18 @@ function DetailCard({
   action?: { href: string; label: string; onClick: () => void } | undefined;
   images?: string[] | undefined;
   credit?: string | undefined;
+  openPhotos?: OpenPhotos;
 }) {
   const present = rows.filter(([, v]) => Boolean(v));
   return (
     <div className="overflow-hidden rounded-2xl border border-hair bg-white shadow-sm">
       {images?.length ? (
         <figure className="m-0">
-          <div className="relative">
-            <img
-              src={images[0]}
-              alt={title}
-              loading="lazy"
-              className="h-56 w-full object-cover sm:h-64"
-            />
-            {images.length > 1 ? (
-              <span className="absolute right-3 bottom-3 rounded-full bg-navy/80 px-2.5 py-1 text-[11px] font-semibold text-white">
-                1 / {images.length}
-              </span>
-            ) : null}
-          </div>
-          {images.length > 1 ? (
-            <div className="grid grid-cols-3 gap-1 p-1 pb-0">
-              {images.slice(1, 4).map((src, i) => (
-                <img
-                  key={src}
-                  src={src}
-                  alt={`${title}, photo ${i + 2}`}
-                  loading="lazy"
-                  className="h-20 w-full rounded-lg object-cover"
-                />
-              ))}
-            </div>
-          ) : null}
+          {openPhotos ? (
+            <Gallery urls={images} caption={title} openPhotos={openPhotos} />
+          ) : (
+            <img src={images[0]} alt={title} className="h-56 w-full object-cover" />
+          )}
           {credit ? (
             <figcaption className="px-4 pt-2 text-[10px] text-muted">{credit}</figcaption>
           ) : null}
