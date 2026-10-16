@@ -9,8 +9,10 @@ import {
 import { createServerFn } from "@tanstack/react-start";
 import { useId, useState } from "react";
 
+import { PhotoManager } from "@/components/PhotoManager";
 import { Icon, type IconName } from "@/components/Icon";
 import { LocationPicker, type PickedLocation } from "@/components/LocationPicker";
+import { findHotelPhoto, readBookingFile, type BookingKind } from "@/lib/booking-ai";
 import { destinationPhoto } from "@/lib/destinations";
 import { isLatLng } from "@/lib/geo";
 import { deleteTrip } from "@/lib/trip-admin";
@@ -89,6 +91,8 @@ const loadTrip = createServerFn({ method: "GET" })
     // in order, and a list of file names cannot be reordered by eye.
     const { signedUrl } = await import("@/lib/db");
     const { signBlock } = await import("@/lib/trips");
+    // Every block is signed, not only guides: the editor shows a hotel's photo
+    // and a photo block's thumbnail, and a bare storage path shows nothing.
     const [heroUrl, days] = await Promise.all([
       signedUrl("trip-media", trip.trip.hero_image ?? ""),
       Promise.all(
@@ -98,9 +102,7 @@ const loadTrip = createServerFn({ method: "GET" })
           steps: await Promise.all(
             d.steps.map(async (st) => ({
               ...st,
-              blocks: await Promise.all(
-                st.blocks.map((b) => (b.kind === "guide" ? signBlock(b) : Promise.resolve(b))),
-              ),
+              blocks: await Promise.all(st.blocks.map(signBlock)),
             })),
           ),
         })),
@@ -1979,6 +1981,84 @@ function BlockForm({
     else set({ path });
   };
 
+  // What the reader found, kept beside the form so the office can check the
+  // transcript against the fields it filled. Empty until a document is read.
+  const [transcript, setTranscript] = useState("");
+  const [suggestions, setSuggestions] = useState<Record<string, string> | null>(null);
+  const [readWarning, setReadWarning] = useState("");
+  const [galleryBusy, setGalleryBusy] = useState(false);
+  const [readBusy, setReadBusy] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+
+  /**
+   * Reads a voucher or ticket and fills the empty fields from it.
+   *
+   * Only empty fields are filled. A value the office has already typed is
+   * never overwritten by the reader, so a correction survives a re-read.
+   */
+  const readDocument = async (file: File, bookingKind: BookingKind) => {
+    if (file.size > 12 * 1024 * 1024) {
+      setUploadError("Choose a document smaller than 12 MB.");
+      return;
+    }
+    setSuggestions(null);
+    setTranscript("");
+    setReadWarning("");
+    setReadBusy(true);
+    setUploadError("");
+    try {
+      // trip-docs, not trip-media: a booking is often a PDF, which only the
+      // documents bucket accepts. The file stays private to this trip.
+      const result = await uploadDirect(file, {
+        folder: tripId,
+        bucket: "trip-docs",
+        onProgress: setProgress,
+      });
+      setProgress(null);
+      if (!result.ok) return setUploadError(result.reason);
+
+      const read = await readBookingFile({
+        data: { tripId, bucket: "trip-docs", path: result.path, kind: bookingKind },
+      });
+      if (!read.ok) return setUploadError(read.reason);
+
+      setTranscript(read.rawText);
+      setSuggestions(read.fields);
+      setReadWarning(read.warning ?? "");
+    } catch {
+      setProgress(null);
+      setUploadError("The document could not be read. Fill the fields by hand.");
+    } finally {
+      setReadBusy(false);
+    }
+  };
+
+  /** Finds the hotel's photo on Google by name and place, and keeps the photographer credit. */
+  const findPhoto = async () => {
+    setPhotoBusy(true);
+    setUploadError("");
+    try {
+      const result = await findHotelPhoto({
+        data: {
+          tripId,
+          name: payload.name ?? "",
+          place: payload.address ?? payload.locationName ?? "",
+        },
+      });
+      if (result.ok)
+        setPayload((p) => ({
+          ...p,
+          paths: [...(p.paths ?? []), ...result.paths],
+          credit: [p.credit, result.credit].filter(Boolean).join(" · "),
+        }));
+      else setUploadError(result.reason);
+    } catch {
+      setUploadError("Google Places did not answer. Upload a photo instead.");
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
   const needs = FIELDS[kind];
 
   return (
@@ -2041,42 +2121,6 @@ function BlockForm({
             store={store}
             busy={uploading}
           />
-        ) : null}
-
-        {needs.includes("gallery") ? (
-          <div>
-            <label htmlFor={`${uid}-gallery`} className="block text-xs font-semibold text-navy">
-              Images
-            </label>
-            {(payload.paths ?? []).map((p, i) => (
-              <p
-                key={p + i}
-                className="mt-1 flex items-center gap-2 font-mono text-[11px] text-live"
-              >
-                <span className="min-w-0 flex-1 truncate">✓ {p}</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    set({ paths: (payload.paths ?? []).filter((_, idx) => idx !== i) })
-                  }
-                  className="shrink-0 text-alert"
-                >
-                  remove
-                </button>
-              </p>
-            ))}
-            <input
-              id={`${uid}-gallery`}
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) void upload(file, "gallery");
-                e.target.value = "";
-              }}
-              className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-xs"
-            />
-          </div>
         ) : null}
 
         {needs.includes("poster") ? (
@@ -2160,7 +2204,145 @@ function BlockForm({
             />
           </div>
         ) : null}
-        {needs.includes("flight") ? (
+        {needs.includes("bookingScan") ? (
+          <BookingScan
+            kind={kind as BookingKind}
+            busy={readBusy || photoBusy || galleryBusy || uploading || busy}
+            transcript={transcript}
+            onFile={(file) => void readDocument(file, kind as BookingKind)}
+          />
+        ) : null}
+        {readWarning ? (
+          <p role="status" className="rounded-lg bg-sand p-3 text-xs text-gold-deep">
+            {readWarning}
+          </p>
+        ) : null}
+        {suggestions && Object.keys(suggestions).length ? (
+          <div className="rounded-xl border border-gold/40 bg-white p-4">
+            <p className="text-sm font-semibold text-navy">Review extracted details</p>
+            <p className="mt-1 text-xs text-muted">
+              Correct any values below. Applying fills empty fields only. For multi-leg tickets,
+              this reads the first flight; add each remaining flight separately.
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {Object.entries(suggestions).map(([key, value]) => (
+                <Inline
+                  key={key}
+                  label={key.replace(/([A-Z])/g, " $1")}
+                  value={value}
+                  onChange={(v) => setSuggestions((p) => ({ ...p, [key]: v }))}
+                />
+              ))}
+            </div>
+            <div className="mt-3 flex gap-3">
+              <button
+                type="button"
+                className="rounded-lg bg-navy px-3 py-2 text-xs font-semibold text-white"
+                onClick={() => {
+                  setPayload((p) => {
+                    const next: Record<string, unknown> = { ...p };
+                    for (const [key, value] of Object.entries(suggestions))
+                      if (!next[key]) next[key] = value.trim();
+                    return next as BlockPayload;
+                  });
+                  setSuggestions(null);
+                }}
+              >
+                Apply to empty fields
+              </button>
+              <button
+                type="button"
+                className="text-xs text-muted"
+                onClick={() => setSuggestions(null)}
+              >
+                Discard suggestions
+              </button>
+            </div>
+          </div>
+        ) : null}
+        {needs.includes("gallery") || needs.includes("hotelPhoto") ? (
+          <PhotoManager
+            paths={payload.paths ?? []}
+            urls={Object.fromEntries(
+              (existing.paths ?? []).map((path, i) => [path, existing.urls?.[i] ?? ""]),
+            )}
+            disabled={busy || photoBusy || readBusy}
+            onChange={(paths) => set({ paths })}
+            onUpload={store}
+            onBusy={setGalleryBusy}
+          />
+        ) : null}
+        {needs.includes("hotelPhoto") ? (
+          <div className="rounded-xl border border-hair bg-white p-3">
+            <p className="text-xs font-semibold text-navy">Hotel photos</p>
+            {payload.paths?.length ? (
+              <p className="mt-1 text-[11px] text-live">
+                ✓ {payload.paths.length} photo{payload.paths.length === 1 ? "" : "s"} added
+                {payload.credit ? ` — ${payload.credit}` : ""}
+              </p>
+            ) : (
+              <p className="mt-1 text-[11px] text-muted">
+                Find up to four on Google by the hotel's name and address, or upload your own.
+              </p>
+            )}
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void findPhoto()}
+                disabled={
+                  photoBusy ||
+                  uploading ||
+                  galleryBusy ||
+                  readBusy ||
+                  (payload.paths?.length ?? 0) > 16 ||
+                  !payload.name
+                }
+                className="rounded-lg bg-navy px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+              >
+                {photoBusy ? "Finding…" : "Find hotel photos"}
+              </button>
+              {payload.paths?.length ? (
+                <button
+                  type="button"
+                  disabled={galleryBusy || photoBusy}
+                  onClick={() => set({ paths: undefined, credit: undefined })}
+                  className="rounded-lg px-3 py-2 text-xs font-semibold text-muted"
+                >
+                  Remove all photos
+                </button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+        {needs.includes("hotelDetails") ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Inline
+              label="Address"
+              value={payload.address ?? ""}
+              onChange={(v) => set({ address: v })}
+              placeholder="Marina Walk, Dubai Marina"
+            />
+            <Inline
+              label="Room"
+              value={payload.roomType ?? ""}
+              onChange={(v) => set({ roomType: v })}
+              placeholder="Deluxe sea view, king bed"
+            />
+            <Inline
+              label="Guests"
+              value={payload.guests ?? ""}
+              onChange={(v) => set({ guests: v })}
+              placeholder="2 adults, 1 child"
+            />
+            <Inline
+              label="Nights"
+              value={payload.nights ?? ""}
+              onChange={(v) => set({ nights: v })}
+              placeholder="5"
+            />
+          </div>
+        ) : null}
+        {needs.includes("flightDetails") ? (
           <div className="grid gap-3 sm:grid-cols-3">
             <Inline
               label="Flight no."
@@ -2169,16 +2351,58 @@ function BlockForm({
               placeholder="FZ 331"
             />
             <Inline
-              label="Departure"
-              value={payload.departure ?? ""}
-              onChange={(v) => set({ departure: v })}
-              placeholder="KBL 08:15"
+              label="Airline"
+              value={payload.airline ?? ""}
+              onChange={(v) => set({ airline: v })}
+              placeholder="flydubai"
             />
             <Inline
-              label="Arrival"
-              value={payload.arrival ?? ""}
-              onChange={(v) => set({ arrival: v })}
-              placeholder="DXB 11:05"
+              label="Date"
+              value={payload.date ?? ""}
+              onChange={(v) => set({ date: v })}
+              placeholder="28 Sep 2026"
+            />
+            <Inline
+              label="From (airport)"
+              value={payload.fromAirport ?? ""}
+              onChange={(v) => set({ fromAirport: v })}
+              placeholder="KBL"
+            />
+            <Inline
+              label="Departs"
+              value={payload.departTime ?? ""}
+              onChange={(v) => set({ departTime: v })}
+              placeholder="08:15"
+            />
+            <Inline
+              label="Terminal"
+              value={payload.terminal ?? ""}
+              onChange={(v) => set({ terminal: v })}
+              placeholder="T3"
+            />
+            <Inline
+              label="To (airport)"
+              value={payload.toAirport ?? ""}
+              onChange={(v) => set({ toAirport: v })}
+              placeholder="DXB"
+            />
+            <Inline
+              label="Arrives"
+              value={payload.arriveTime ?? ""}
+              onChange={(v) => set({ arriveTime: v })}
+              placeholder="11:05"
+            />
+            <Inline
+              label="Seat"
+              value={payload.seat ?? ""}
+              onChange={(v) => set({ seat: v })}
+              placeholder="12A"
+            />
+            <Inline
+              label="Baggage"
+              value={payload.baggage ?? ""}
+              onChange={(v) => set({ baggage: v })}
+              placeholder="30 kg checked + 7 kg cabin"
             />
           </div>
         ) : null}
@@ -2329,20 +2553,28 @@ function BlockForm({
       <div className="mt-4 flex gap-2">
         <button
           type="button"
-          disabled={busy || uploading}
+          disabled={busy || uploading || readBusy || photoBusy || galleryBusy}
           onClick={async () => {
             setBusy(true);
-            await saveBlock({
-              data: {
-                ...(block ? { id: block.id } : {}),
-                stepId,
-                position,
-                kind,
-                payload: payload as Record<string, unknown>,
-              },
-            });
-            setBusy(false);
-            onDone();
+            setUploadError("");
+            try {
+              await saveBlock({
+                data: {
+                  ...(block ? { id: block.id } : {}),
+                  stepId,
+                  position,
+                  kind,
+                  payload: payload as Record<string, unknown>,
+                },
+              });
+              onDone();
+            } catch {
+              setUploadError(
+                "This block could not be saved. Your changes are still here; try again.",
+              );
+            } finally {
+              setBusy(false);
+            }
           }}
           className="rounded-lg bg-navy px-5 py-2 text-xs font-bold text-white disabled:opacity-60"
         >
@@ -2374,8 +2606,17 @@ const FIELDS: Record<BlockKind, string[]> = {
   video: ["file", "poster", "label", "caption"],
   map: ["location"],
   driver: ["driver"],
-  hotel: ["name", "hotelDates", "reference", "phone", "text"],
-  flight: ["flight", "reference", "text"],
+  hotel: [
+    "bookingScan",
+    "name",
+    "hotelPhoto",
+    "hotelDetails",
+    "hotelDates",
+    "reference",
+    "phone",
+    "text",
+  ],
+  flight: ["bookingScan", "flight", "flightDetails", "reference", "text"],
   ticket: ["name", "reference", "label", "text"],
   document: ["document"],
   contact: ["name", "phone", "whatsapp", "text"],
@@ -2556,6 +2797,67 @@ function GuideStepsEditor({
           <Icon name="plus" className="size-3.5" /> Step without a photo
         </button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Upload a voucher or ticket, and let the reader fill the form from it.
+ *
+ * PDFs and photos both work. The transcript stays under the control so the
+ * office can see what the reader saw, which is how a wrong flight number is
+ * caught before it reaches a customer's phone.
+ */
+function BookingScan({
+  kind,
+  busy,
+  transcript,
+  onFile,
+}: {
+  kind: BookingKind;
+  busy: boolean;
+  transcript: string;
+  onFile: (file: File) => void;
+}) {
+  const id = useId();
+  const noun = kind === "flight" ? "flight ticket or itinerary" : "hotel voucher";
+  return (
+    <div className="rounded-xl border border-dashed border-gold bg-gold/5 p-3">
+      <p className="text-xs font-semibold text-navy">Read details from a {noun}</p>
+      <p className="mt-0.5 text-[11px] text-muted">
+        Upload a photo or PDF up to 12 MB. Review and edit the extracted details, then apply them to
+        empty fields. Existing entries are preserved.
+      </p>
+      <label
+        htmlFor={id}
+        className={`mt-2 inline-flex cursor-pointer items-center gap-2 rounded-lg bg-navy px-3 py-2 text-xs font-semibold text-white ${
+          busy ? "pointer-events-none opacity-50" : ""
+        }`}
+      >
+        {busy ? "Reading…" : "Choose photo or PDF"}
+      </label>
+      <input
+        id={id}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,application/pdf"
+        className="sr-only"
+        disabled={busy}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file) onFile(file);
+        }}
+      />
+      {transcript ? (
+        <details className="mt-2">
+          <summary className="cursor-pointer text-[11px] font-semibold text-navy">
+            What the reader saw
+          </summary>
+          <pre className="mt-1.5 max-h-48 overflow-auto rounded-lg bg-white p-2 font-mono text-[11px] whitespace-pre-wrap text-ink">
+            {transcript}
+          </pre>
+        </details>
+      ) : null}
     </div>
   );
 }

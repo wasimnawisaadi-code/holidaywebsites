@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { BlockList, DriverCard, DocumentLink } from "@/components/Blocks";
 import { Directions } from "@/components/Directions";
 import { Icon, type IconName } from "@/components/Icon";
+import { JourneyOverview } from "@/components/JourneyOverview";
 import { InvoiceCard } from "@/components/InvoiceCard";
 import { MapView, type MapPoint } from "@/components/MapView";
 import { destinationPhoto } from "@/lib/destinations";
@@ -332,6 +333,21 @@ function Portal() {
           <SectionOpener eyebrow="Day by day" title="Your" accent="itinerary" />
 
           {days.length ? (
+            <JourneyOverview
+              days={days}
+              ctx={{ drivers, documents, invoices, invoicePdfHref: pdfHref }}
+              onSelect={(index) => {
+                selectDay(index);
+                requestAnimationFrame(() =>
+                  document
+                    .getElementById("active-day")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                );
+              }}
+            />
+          ) : null}
+
+          {days.length ? (
             <>
               <div
                 role="tablist"
@@ -364,7 +380,10 @@ function Portal() {
                         <span className="absolute bottom-2 left-2.5 text-[10px] font-bold tracking-[0.16em] text-white uppercase">
                           Day {d.day_number}
                         </span>
-                        {i === todayIndex ? (
+                        {d.date ===
+                        new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(
+                          new Date(),
+                        ) ? (
                           <span className="absolute top-2 right-2 rounded-full bg-gold px-2 py-0.5 text-[9px] font-bold tracking-wider text-navy uppercase">
                             Today
                           </span>
@@ -386,6 +405,8 @@ function Portal() {
               {day ? (
                 <article
                   key={day.id}
+                  id="active-day"
+                  data-anchor
                   role="tabpanel"
                   aria-label={`Day ${day.day_number}`}
                   className="ns-fade-in mt-7"
@@ -412,6 +433,32 @@ function Portal() {
                     <p className="mt-3 text-[15px] leading-relaxed text-muted">{day.summary}</p>
                   ) : null}
 
+                  {day.steps.length ? (
+                    <nav
+                      aria-label="Today's schedule"
+                      className="mt-5 flex gap-2 overflow-x-auto pb-2"
+                    >
+                      {day.steps.map((step, index) => (
+                        <a
+                          key={step.id}
+                          href={`#stop-${step.id}`}
+                          className="min-w-36 shrink-0 rounded-xl border border-hair bg-paper px-3 py-3 transition hover:border-gold"
+                        >
+                          <span className="block text-[10px] font-semibold tracking-wide text-gold-deep uppercase">
+                            {step.time_label || `Stop ${index + 1}`}
+                          </span>
+                          <span className="mt-1 block max-w-52 truncate text-xs font-semibold text-navy">
+                            {step.title}
+                          </span>
+                          {step.duration ? (
+                            <span className="mt-1 block text-[10px] text-muted">
+                              {step.duration}
+                            </span>
+                          ) : null}
+                        </a>
+                      ))}
+                    </nav>
+                  ) : null}
                   {route.length ? (
                     <div className="ns-reveal mt-6">
                       <div className="flex items-center justify-between gap-3">
@@ -434,7 +481,12 @@ function Portal() {
                   {day.steps.length ? (
                     <ol className="mt-8 flex flex-col">
                       {day.steps.map((step, n) => (
-                        <li key={step.id} className="ns-reveal relative pb-10 pl-12 last:pb-2">
+                        <li
+                          key={step.id}
+                          id={`stop-${step.id}`}
+                          data-anchor
+                          className="ns-reveal relative pb-10 pl-12 last:pb-2"
+                        >
                           {n < day.steps.length - 1 ? (
                             <span
                               aria-hidden="true"

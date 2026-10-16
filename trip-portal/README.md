@@ -36,6 +36,17 @@ client-safe half — components import from there.
 2. Copy `.env.example` to `.env.local` and fill it in.
 3. `npm install && npm run dev` — <http://localhost:5200>
 4. Sign in at `/admin` with an address in `TRIP_ADMIN_EMAILS`.
+5. Optional, for reading bookings and finding hotel photos: set
+   `GEMINI_API_KEY` (reads uploaded flight tickets and hotel vouchers) and
+   `GOOGLE_MAPS_API_KEY` (Places API (New), finds a hotel's photo by name; falls
+   back to `GEMINI_API_KEY`). Both are read on the server only. Without them the
+   editor still works; the reader and photo button just say they are not set up.
+
+   In the itinerary editor, a **Flight** or **Hotel** block has an "upload a
+   photo or PDF" box that fills the empty fields from the document. Check the
+   "What the reader saw" transcript before saving. **Find hotel photo** fetches
+   up to four photos from Google and stores copies in the private bucket with their
+   photographer credit; upload your own if the match is wrong.
 
 ## Deploying
 
@@ -122,3 +133,38 @@ delete from trip_customers where full_name like 'DEMO — %';
 
 Check exit codes directly. `node … | tail` reports tail's exit code, not the
 test's — a failing suite piped through tail exits 0.
+
+## Enhanced itinerary and document reader
+
+The customer itinerary includes a journey overview, flight/stay filters, direct day
+navigation, and a schedule linking to each stop. Flight cards separate departure
+and arrival; hotel galleries open the existing keyboard/touch photo viewer.
+The Today badge is only shown for a day whose date is today in Dubai.
+
+The photo editor supports multiple uploads, previews, individual removal,
+reordering and cover selection. Collections accept up to 20 photos, each up to
+12 MB. Removing a photo detaches it from the block; it does not delete the
+underlying storage object. Existing photographer credits are preserved.
+
+Booking OCR now presents editable suggestions before applying them to empty
+fields. It never overwrites existing manual entries. Multi-leg tickets currently
+extract the first flight only; add remaining flights as separate blocks.
+
+Google Cloud Vision supports service-account credentials through either
+`GOOGLE_APPLICATION_CREDENTIALS` (local absolute file path) or
+`GOOGLE_SERVICE_ACCOUNT_JSON` (hosted secret environment variable). Credentials
+are loaded only inside the server handler; do not add a JSON key to Git or use a
+VITE-prefixed variable. Enable Cloud Vision API and billing for that project.
+Replace previously exposed credentials before production use.
+
+With Vision only, staff receive the transcript to copy into the form. Adding
+`GEMINI_API_KEY` turns the transcript into editable booking suggestions. Without
+a service account, Gemini continues to read the original document directly.
+Vision's synchronous PDF reader covers at most the first five pages; the editor
+shows this limitation. Documents are limited to 12 MB and remain private.
+
+Google Places hotel search still requires `GOOGLE_MAPS_API_KEY` (or a Gemini API
+key with Places API enabled). Service-account OCR credentials do not configure
+Places. Manual hotel photo uploads work independently.
+
+Provider reference: [Google Cloud Vision small-batch OCR](https://docs.cloud.google.com/vision/docs/file-small-batch).
