@@ -308,3 +308,18 @@ body {
     transform: scaleX(1);
   }
 }
+
+/* Compact list mode keeps the same trip actions and accessible document order. */
+@media (min-width: 768px) {
+  .ops-trip-list .ops-trip-card {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+  .ops-trip-list .ops-trip-card > :first-child {
+    height: 100%;
+    grid-row: span 2;
+  }
+  .ops-trip-list .ops-trip-card > :nth-child(n + 4) {
+    grid-column: 1 / -1;
+  }
+}

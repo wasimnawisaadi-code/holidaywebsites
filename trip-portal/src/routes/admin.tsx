@@ -2,10 +2,11 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useId, useState } from "react";
 
-import { Icon, type IconName } from "@/components/Icon";
+import { OperationsWorkspace } from "@/components/OperationsWorkspace";
+import { Icon } from "@/components/Icon";
 import { destinationPhoto } from "@/lib/destinations";
 import { deleteTrip } from "@/lib/trip-admin";
-import { dubaiToday, money, tripTiming, type TripOverview } from "@/lib/types";
+import { money, tripTiming, type TripOverview } from "@/lib/types";
 
 /**
  * The operations dashboard.
@@ -325,11 +326,6 @@ function Dashboard() {
   const { session, trips, base } = Route.useLoaderData();
   const router = useRouter();
   const [creating, setCreating] = useState(false);
-  const [filter, setFilter] = useState<"active" | "all">("active");
-
-  // Same reasoning as the editor: the list is inert until a save's reload lands,
-  // so a save followed at once by "Publish" cannot race two reloads
-  // and paint the older one last.
   const [refreshing, setRefreshing] = useState(false);
   const refresh = async () => {
     setRefreshing(true);
@@ -339,226 +335,28 @@ function Dashboard() {
       setRefreshing(false);
     }
   };
-
-  const [query, setQuery] = useState("");
-
-  // "Active" is the default view because a fifty-trip list sorted by date buries
-  // the three people travelling today, which is the only thing the morning shift
-  // needs. Search covers name, reference, destination and phone — what someone
-  // actually has in hand when a customer rings.
-  // Where each trip stands comes from its dates — nobody has to update it.
-  const today = dubaiToday();
-  const phase = (t: TripOverview) => tripTiming(t.start_date, t.end_date, today).phase;
-  const live = trips.filter((t) => t.status !== "cancelled");
-
-  const q = query.trim().toLowerCase();
-  const shown = trips.filter((t) => {
-    if (filter !== "all" && (t.status === "cancelled" || phase(t) === "finished")) return false;
-    if (!q) return true;
-    return [t.customer_name, t.trip_code, t.destination, t.title, t.customer_phone]
-      .filter(Boolean)
-      .some((v) => String(v).toLowerCase().includes(q));
-  });
-
-  const hour = Number(
-    new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Asia/Dubai",
-      hour: "numeric",
-      hour12: false,
-    }).format(new Date()),
-  );
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-
   return (
-    <div className="min-h-screen bg-paper">
-      <header className="sticky top-0 z-20 border-b border-hair bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center gap-5 px-5 py-3">
-          <img
-            src="/brand/logo-ink.webp"
-            alt="Nawi Saadi Travel & Tourism"
-            className="h-10 w-auto"
-          />
-          <nav className="flex gap-1 text-sm font-semibold">
-            <span className="rounded-lg bg-sand px-3 py-1.5 text-navy">Trips</span>
-            <Link
-              to="/admin/drivers"
-              className="rounded-lg px-3 py-1.5 text-muted hover:bg-sand hover:text-navy"
-            >
-              Drivers
-            </Link>
-          </nav>
-          <div className="ml-auto flex items-center gap-3 text-xs">
-            {/* A shared-password session carries no address — its internal
-                label is "shared-password", which is not something to show staff. */}
-            <span className="hidden text-muted sm:inline">
-              {session?.via === "password" ? "Staff" : session?.email}
-            </span>
-            <button
-              type="button"
-              onClick={async () => {
-                await doSignOut({});
-                router.invalidate();
-              }}
-              className="rounded-lg border border-hair px-3 py-1.5 font-semibold text-navy hover:border-navy"
-            >
-              Sign out
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {refreshing ? (
-        <p
-          role="status"
-          className="sticky top-[65px] z-10 bg-gold px-5 py-1.5 text-center text-xs font-bold text-navy"
-        >
-          Saving…
-        </p>
-      ) : null}
-
-      <main
-        aria-busy={refreshing}
-        className={`mx-auto max-w-6xl px-5 py-8 transition-opacity ${
-          refreshing ? "pointer-events-none opacity-60" : ""
-        }`}
-      >
-        <div className="flex flex-wrap items-end gap-4">
-          <div>
-            <p className="flex items-center gap-2.5 text-[11px] font-semibold tracking-[0.22em] text-gold-deep uppercase">
-              <span className="h-px w-10 bg-gold" /> {greeting}
-            </p>
-            <h1 className="mt-2 font-display text-4xl text-navy">
-              Trip <span className="text-gold-deep italic">operations</span>
-            </h1>
-          </div>
-          <button
-            type="button"
-            onClick={() => setCreating((v) => !v)}
-            className="ml-auto inline-flex items-center gap-2 rounded-xl bg-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-navy-deep"
-          >
-            {creating ? "Cancel" : "+ New trip"}
-          </button>
-        </div>
-
-        {/* ---- summary ---- */}
-        <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Stat
-            icon="car"
-            label="Travelling now"
-            value={live.filter((t) => phase(t) === "travelling").length}
-          />
-          <Stat
-            icon="calendar"
-            label="Upcoming"
-            value={live.filter((t) => phase(t) === "upcoming").length}
-          />
-          <Stat
-            icon="file"
-            label="Not published yet"
-            value={live.filter((t) => !t.published_at).length}
-            tone="warn"
-          />
-          <Stat
-            icon="receipt"
-            label="Payment due"
-            value={live.filter((t) => Number(t.balance_due) > 0).length}
-            tone="warn"
-          />
-        </div>
-
-        {creating ? (
-          <NewTripForm
-            onDone={() => {
-              setCreating(false);
-              void refresh();
-            }}
-          />
-        ) : null}
-
-        {/* ---- search + filter ---- */}
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <label className="relative min-w-0 flex-1 sm:max-w-sm">
-            <span className="sr-only">Search trips</span>
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search name, reference, destination, phone"
-              className="w-full rounded-xl border border-hair bg-white py-2.5 pr-3 pl-4 text-sm outline-none focus:border-gold focus:ring-4 focus:ring-gold/15"
-            />
-          </label>
-          <div className="ml-auto flex gap-1 rounded-xl border border-hair bg-white p-1">
-            {(["active", "all"] as const).map((f) => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setFilter(f)}
-                className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold capitalize ${
-                  filter === f ? "bg-navy text-white" : "text-navy"
-                }`}
-              >
-                {f === "active" ? "Active" : "All trips"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ---- the list ---- */}
-        <div className="mt-4 flex flex-col gap-3">
-          {shown.map((trip) => (
-            <TripRow key={trip.id} trip={trip} base={base} onChange={refresh} />
-          ))}
-          {!shown.length ? (
-            <div className="rounded-3xl border-2 border-dashed border-hair bg-white p-10 text-center">
-              <Icon name="globe" className="mx-auto size-10 text-gold-deep" />
-              <p className="mt-3 font-display text-xl text-navy">
-                {q ? "No trips match that search" : "No trips here yet"}
-              </p>
-              <p className="mt-1 text-sm text-muted">
-                {q
-                  ? "Try part of the name, the NST reference or the phone number."
-                  : "Press + New trip to create the first one and get its tracking link."}
-              </p>
-            </div>
-          ) : null}
-        </div>
-      </main>
-    </div>
-  );
-}
-
-function Stat({
-  icon,
-  label,
-  value,
-  tone = "plain",
-}: {
-  icon: IconName;
-  label: string;
-  value: number;
-  tone?: "plain" | "warn";
-}) {
-  const alert = tone === "warn" && value > 0;
-  return (
-    <div
-      className={`rounded-2xl border bg-white p-4 shadow-sm ${alert ? "border-gold" : "border-hair"}`}
+    <OperationsWorkspace
+      trips={trips}
+      email={session?.via === "password" ? "Staff" : (session?.email ?? "Staff")}
+      refreshing={refreshing}
+      creating={creating}
+      onCreate={() => setCreating((v) => !v)}
+      onRefresh={() => void refresh()}
+      onSignOut={() => {
+        void doSignOut({}).then(() => router.invalidate());
+      }}
+      renderTrip={(trip) => <TripRow key={trip.id} trip={trip} base={base} onChange={refresh} />}
     >
-      <div className="flex items-center justify-between">
-        <p className="text-[11px] font-semibold tracking-wide text-muted">{label}</p>
-        <span
-          className={`grid size-8 place-items-center rounded-lg ${
-            alert ? "bg-gold/15 text-gold-deep" : "bg-sand text-gold-deep"
-          }`}
-        >
-          <Icon name={icon} className="size-4" />
-        </span>
-      </div>
-      <p
-        className={`mt-2 font-display text-3xl tabular-nums ${alert ? "text-gold-deep" : "text-navy"}`}
-      >
-        {value}
-      </p>
-    </div>
+      {creating ? (
+        <NewTripForm
+          onDone={() => {
+            setCreating(false);
+            void refresh();
+          }}
+        />
+      ) : null}
+    </OperationsWorkspace>
   );
 }
 
@@ -749,20 +547,32 @@ function TripRow({
   };
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-hair bg-white shadow-sm transition hover:shadow-md">
-      <div className="flex flex-wrap items-start gap-4 p-4">
+    <article className="ops-trip-card overflow-hidden rounded-2xl border border-hair bg-white shadow-sm transition hover:shadow-md">
+      <div className="relative h-40 overflow-hidden bg-navy">
         <img
-          src={destinationPhoto(trip.destination, true)}
+          src={destinationPhoto(trip.destination)}
           alt=""
           loading="lazy"
-          className="hidden size-20 shrink-0 rounded-2xl object-cover sm:block"
+          className="h-full w-full object-cover"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/90 via-navy-deep/10 to-transparent" />
+        <span className="absolute top-3 left-3 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold text-navy">
+          {trip.destination}
+        </span>
+        <div className="absolute right-4 bottom-4 left-4 flex items-end justify-between gap-2">
+          <p className="font-display text-2xl text-white">{trip.title || trip.destination}</p>
+          <span className="shrink-0 rounded-lg bg-white/15 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur">
+            {trip.day_count} days
+          </span>
+        </div>
+      </div>
+      <div className="flex flex-col gap-4 p-4">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-xs font-semibold text-gold-deep">{trip.trip_code}</span>
             <StatusPill trip={trip} />
           </div>
-          <h3 className="mt-1.5 truncate font-display text-lg text-navy">
+          <h3 className="mt-1.5 break-words text-sm font-bold text-navy">
             {trip.customer_name ?? "Unnamed customer"}
           </h3>
           <p className="truncate text-sm text-muted">
@@ -783,7 +593,7 @@ function TripRow({
           </p>
         </div>
 
-        <div className="flex shrink-0 flex-col items-end gap-1.5 text-right text-xs">
+        <div className="flex w-full flex-wrap items-center gap-2 border-t border-hair pt-3 text-xs">
           <span
             className={trip.published_at ? "font-semibold text-live" : "font-semibold text-alert"}
           >
@@ -800,7 +610,7 @@ function TripRow({
               {money(trip.balance_due)} due
             </span>
           ) : null}
-          <div className="mt-1 flex items-center gap-1.5">
+          <div className="ml-auto flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
@@ -830,6 +640,32 @@ function TripRow({
         </div>
       </div>
 
+      <div className="border-t border-hair px-4 py-3">
+        <div className="mb-3 flex items-center gap-3">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-paper">
+            <div
+              className="h-full rounded-full bg-gold"
+              style={{
+                width:
+                  (trip.day_count
+                    ? Math.min(100, (trip.published_day_count / trip.day_count) * 100)
+                    : 0) + "%",
+              }}
+            />
+          </div>
+          <span className="text-[10px] text-muted">
+            {trip.published_day_count}/{trip.day_count} days ready
+          </span>
+        </div>
+        <Link
+          to="/admin/trips/$id"
+          params={{ id: trip.id }}
+          className="flex items-center justify-between rounded-xl bg-navy px-4 py-2.5 text-xs font-bold text-white"
+        >
+          Manage itinerary
+          <Icon name="arrowRight" className="size-4" />
+        </Link>
+      </div>
       {confirming ? (
         <div
           role="group"
