@@ -11,6 +11,7 @@ import { useEffect, useId, useRef, useState } from "react";
 
 import { ItineraryReadiness } from "@/components/ItineraryReadiness";
 import { PhotoManager } from "@/components/PhotoManager";
+import { DayPhotos } from "@/components/DayPhotos";
 import { Icon, type IconName } from "@/components/Icon";
 import { LocationPicker, type PickedLocation } from "@/components/LocationPicker";
 import {
@@ -1286,31 +1287,36 @@ function DayCard({
       {open ? (
         <div className="p-4">
           <DayCover tripId={trip.id} day={day} onChange={onChange} />
+          <DayPhotos day={day} tripId={trip.id} onSaved={onChange} />
 
           {day.summary ? (
             <p className="mb-4 text-sm leading-relaxed text-muted">{day.summary}</p>
           ) : null}
 
           <ol className="flex flex-col gap-3">
-            {day.steps.map((step) => (
-              <StepCard
-                key={step.id}
-                step={step}
-                dayId={day.id}
-                drivers={drivers}
-                documents={documents}
-                invoices={invoices}
-                tripId={trip.id}
-                onChange={onChange}
-              />
-            ))}
+            {day.steps
+              .filter(
+                (step) => !step.blocks.length || !step.blocks.every((b) => b.payload.dayGallery),
+              )
+              .map((step) => (
+                <StepCard
+                  key={step.id}
+                  step={step}
+                  dayId={day.id}
+                  drivers={drivers}
+                  documents={documents}
+                  invoices={invoices}
+                  tripId={trip.id}
+                  onChange={onChange}
+                />
+              ))}
           </ol>
 
           {addingStep ? (
             <div className="mt-3 rounded-xl border border-hair bg-paper p-4">
               <StepForm
                 dayId={day.id}
-                stepNumber={day.steps.length + 1}
+                stepNumber={Math.max(0, ...day.steps.map((s) => s.step_number)) + 1}
                 onDone={() => {
                   setAddingStep(false);
                   onChange();

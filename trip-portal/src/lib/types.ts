@@ -126,6 +126,7 @@ export type BlockPayload = {
   /** Storage path inside trip-media — never a URL. Signed at render time. */
   path?: string | undefined;
   paths?: string[] | undefined;
+  dayGallery?: boolean | undefined;
   /** Resolved from `path` when the trip is read; never stored. */
   url?: string | null | undefined;
   urls?: (string | null)[] | undefined;

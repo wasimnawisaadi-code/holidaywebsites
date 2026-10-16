@@ -55,7 +55,11 @@ const OFFICE_PHONE = "+971561228069";
 
 function Portal() {
   const data = Route.useLoaderData() as CustomerTrip;
-  const { trip, days, drivers, documents, invoices } = data;
+  const { trip, drivers, documents, invoices } = data;
+  const days = data.days.map((d) => ({
+    ...d,
+    steps: d.steps.filter((s) => !s.blocks.length || !s.blocks.every((b) => b.payload.dayGallery)),
+  }));
   const token = Route.useParams().token;
 
   /**
@@ -78,6 +82,8 @@ function Portal() {
 
   const [activeDay, setActiveDay] = useState(todayIndex);
   const day = days[activeDay];
+  const dayPhotos =
+    data.days[activeDay]?.steps.flatMap((s) => s.blocks).filter((b) => b.payload.dayGallery) ?? [];
   const heroPhoto = trip.heroUrl ?? destinationPhoto(trip.destination);
   const timing = tripTiming(trip.start_date, trip.end_date);
   const pdfHref = (invoiceId: string) => `/t/${token}/invoice/${invoiceId}.pdf`;
@@ -443,6 +449,11 @@ function Portal() {
                     <p className="mt-3 text-[15px] leading-relaxed whitespace-pre-line text-muted">
                       {day.summary}
                     </p>
+                  ) : null}
+                  {dayPhotos.length ? (
+                    <div className="mt-6">
+                      <BlockList blocks={dayPhotos} ctx={{ drivers, documents }} />
+                    </div>
                   ) : null}
 
                   {day.steps.length ? (
