@@ -11,6 +11,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { ItineraryReadiness } from "@/components/ItineraryReadiness";
+import { HotelFinder } from "@/components/HotelFinder";
 import { PhotoManager } from "@/components/PhotoManager";
 import { DayPhotos } from "@/components/DayPhotos";
 import { QuickActivity } from "@/components/QuickActivity";
@@ -2250,6 +2251,38 @@ function BlockForm({
       <p className="mt-0.5 text-[11px] text-muted">{BLOCK_LABELS[kind].hint}</p>
 
       <div className="mt-3 flex flex-col gap-3">
+        {kind === "hotel" ? (
+          <HotelFinder
+            tripId={tripId}
+            available={capabilities?.hotelLookup ?? true}
+            disabled={busy || readBusy || galleryBusy}
+            pickedName={payload.hotelSourceName}
+            onPick={(hotel) => {
+              // The office chose this hotel, so its facts replace the old ones.
+              // Photos the office uploaded themselves are kept after Google's.
+              setPayload((p) => ({
+                ...p,
+                ...hotel.details,
+                paths: [...hotel.paths, ...(p.paths ?? []).filter((x) => !hotel.paths.includes(x))],
+                credit: hotel.credit || p.credit,
+                ...(hotel.lat !== null && hotel.lng !== null
+                  ? { latitude: hotel.lat, longitude: hotel.lng, locationName: hotel.details.name }
+                  : {}),
+              }));
+              setPhotoUrls((p) => ({
+                ...p,
+                ...Object.fromEntries(
+                  hotel.paths.flatMap((path, i) => (hotel.urls[i] ? [[path, hotel.urls[i]!]] : [])),
+                ),
+              }));
+              setHotelNotice(
+                `Added ${hotel.details.name ?? "the hotel"}: ${hotel.paths.length} photo${
+                  hotel.paths.length === 1 ? "" : "s"
+                }, address and phone. Check them, then add the booking dates.`,
+              );
+            }}
+          />
+        ) : null}
         {needs.includes("heading") ? (
           <Inline
             label={kind === "guide" ? "Guide title" : "Heading"}

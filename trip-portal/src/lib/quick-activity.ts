@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSession } from "./session";
 import { UUID } from "./uploads";
+import { nightsBetween } from "./booking-fill";
 import { isLatLng } from "./geo";
 import type { BlockKind, BlockPayload } from "./types";
 
@@ -70,11 +71,32 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
             "departTime",
             "arriveTime",
             "terminal",
+            "seat",
             "baggage",
             "reference",
           ]
         : data.kind === "hotel"
-          ? ["name", "address", "checkIn", "checkOut", "roomType", "guests", "reference", "phone"]
+          ? [
+              "name",
+              "address",
+              "checkIn",
+              "checkOut",
+              "nights",
+              "roomType",
+              "guests",
+              "reference",
+              "phone",
+              // Filled by the hotel finder from Google, not typed.
+              "hotelSummary",
+              "hotelAddress",
+              "hotelRating",
+              "hotelReviewCount",
+              "hotelWebsite",
+              "hotelMapsUrl",
+              "hotelSourceName",
+              "hotelFetchedAt",
+              "credit",
+            ]
           : data.kind === "transfer"
             ? ["driverId", "pickupTime", "pickupLocation", "dropoffLocation", "transferNotes"]
             : [];
@@ -82,7 +104,20 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
       const value = text(data.fields[key] ?? "", key === "transferNotes" ? 2000 : 500);
       if (value) Object.assign(payload, { [key]: value });
     }
-    if (data.kind === "hotel") payload.name ||= title;
+    if (data.kind === "hotel") {
+      payload.name ||= title;
+      // Links are rendered as buttons on the customer's page: web addresses only.
+      for (const key of ["hotelWebsite", "hotelMapsUrl"] as const) {
+        if (payload[key] && !/^https?:\/\//i.test(payload[key]!)) delete payload[key];
+      }
+      if (!payload.nights) {
+        const nights = nightsBetween(payload.checkIn, payload.checkOut);
+        if (nights) payload.nights = String(nights);
+      }
+      // A hotel's photos belong on its own card, beside the credit Google
+      // requires, rather than in a separate gallery underneath.
+      if (data.paths.length) payload.paths = [...new Set(data.paths)];
+    }
     if (data.kind === "transfer") {
       payload.pickupTime ||= time;
       payload.pickupLocation ||= location;
@@ -181,12 +216,19 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
     };
     if (data.kind !== "activity")
       await saveBlock("booking", data.kind === "transfer" ? "driver" : data.kind, payload, 0);
-    const oldPhotos = data.paths.length
+    // Hotel photos are already on the hotel card above.
+    const galleryPaths = data.kind === "hotel" ? [] : data.paths;
+    const oldPhotos = galleryPaths.length
       ? []
       : await select<{ id: string }[]>(
           `trip_blocks?id=eq.${stableId("photos")}&trip_step_id=eq.${stepId}&select=id`,
         );
-    if (data.paths.length || oldPhotos.length)
-      await saveBlock("photos", "gallery", { paths: [...new Set(data.paths)], caption: title }, 1);
+    if (galleryPaths.length || oldPhotos.length)
+      await saveBlock(
+        "photos",
+        "gallery",
+        { paths: [...new Set(galleryPaths)], caption: title },
+        1,
+      );
     return { ok: true, stepId };
   });

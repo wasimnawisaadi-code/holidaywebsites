@@ -1,7 +1,12 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { BookingAutofill } from "./BookingAutofill";
+import { HotelFinder, type PickedHotel } from "./HotelFinder";
 import { Icon, type IconName } from "./Icon";
 import { LocationPicker, type PickedLocation } from "./LocationPicker";
 import { PhotoManager } from "./PhotoManager";
+import { bookingCapabilities } from "@/lib/booking-ai";
+import { nightsBetween, toIsoDate } from "@/lib/booking-fill";
+import { isLatLng } from "@/lib/geo";
 import {
   saveQuickActivity,
   type QuickActivityDraft,
@@ -12,10 +17,31 @@ import type { Driver } from "@/lib/types";
 
 const choices: { kind: QuickActivityKind; label: string; hint: string; icon: IconName }[] = [
   { kind: "activity", label: "Activity", hint: "Sightseeing, meals or free time", icon: "pin" },
-  { kind: "flight", label: "Flight", hint: "Route, times and booking", icon: "plane" },
-  { kind: "hotel", label: "Hotel stay", hint: "Check-in and room details", icon: "hotel" },
+  { kind: "flight", label: "Flight", hint: "Upload the e-ticket, we fill the rest", icon: "plane" },
+  {
+    kind: "hotel",
+    label: "Hotel stay",
+    hint: "Paste a hotel link, we add photos and details",
+    icon: "hotel",
+  },
   { kind: "transfer", label: "Transfer", hint: "Pickup, drop-off and driver", icon: "car" },
 ];
+
+/** Form inputs that are dates; a voucher's printed date is converted before it lands in one. */
+const DATE_FIELDS = new Set(["date", "checkIn", "checkOut"]);
+
+/** Hotel facts from Google that ride along with the booking but have no input of their own. */
+const HOTEL_EXTRAS = [
+  "hotelSummary",
+  "hotelAddress",
+  "hotelRating",
+  "hotelReviewCount",
+  "hotelWebsite",
+  "hotelMapsUrl",
+  "hotelSourceName",
+  "hotelFetchedAt",
+  "credit",
+] as const;
 
 export function QuickActivity({
   dayId,
@@ -132,8 +158,44 @@ function QuickActivityForm({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [paths, setPaths] = useState<string[]>([]);
+  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [place, setPlace] = useState<PickedLocation>({ name: "" });
   const [dirty, setDirty] = useState(false);
+
+  // Every input is controlled, so a hotel lookup or a voucher can fill it.
+  // `initial` remembers the defaults (the day's date) so a voucher's own date
+  // may replace a default the office never touched.
+  const initial = useRef<Record<string, string>>(
+    kind === "flight" ? { date: date ?? "" } : kind === "hotel" ? { checkIn: date ?? "" } : {},
+  );
+  const [values, setValues] = useState<Record<string, string>>(initial.current);
+  const setValue = (name: string, value: string) => {
+    setValues((current) => ({ ...current, [name]: value }));
+    setDirty(true);
+  };
+  /** Title written by the form itself; replaced by the next suggestion unless the office edited it. */
+  const autoTitle = useRef("");
+
+  // Google facts with no input of their own (rating, summary, credit…).
+  const [extras, setExtras] = useState<Record<string, string>>({});
+  const [pickedHotel, setPickedHotel] = useState("");
+  const [hotelSeed, setHotelSeed] = useState("");
+  const googlePaths = useRef<string[]>([]);
+
+  const [capabilities, setCapabilities] = useState({ reader: false, hotelLookup: false });
+  useEffect(() => {
+    if (kind !== "hotel" && kind !== "flight") return;
+    let alive = true;
+    void bookingCapabilities({})
+      .then((value) => {
+        if (alive) setCapabilities({ reader: value.reader, hotelLookup: value.hotelLookup });
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [kind]);
+
   const pending = dirty || busy || uploading;
   const pendingCallback = useRef(onPendingChange);
   pendingCallback.current = onPendingChange;
@@ -150,20 +212,106 @@ function QuickActivityForm({
     window.addEventListener("beforeunload", beforeUnload);
     return () => window.removeEventListener("beforeunload", beforeUnload);
   }, [pending]);
+
+  /** Suggests a title unless the office has written their own. */
+  const suggestTitle = (title: string) => {
+    if (!title) return;
+    const previous = autoTitle.current;
+    autoTitle.current = title;
+    setValues((current) =>
+      !current["title"] || current["title"] === previous ? { ...current, title } : current,
+    );
+  };
+
+  /** The hotel chosen in the finder fills everything it knows. */
+  const applyHotel = (hotel: PickedHotel) => {
+    const d = hotel.details;
+    setValues((current) => ({
+      ...current,
+      name: d.name ?? current["name"] ?? "",
+      address: d.address ?? current["address"] ?? "",
+      phone: d.phone || current["phone"] || "",
+    }));
+    if (d.name) suggestTitle(`Check in at ${d.name}`);
+    if (hotel.lat !== null && hotel.lng !== null && isLatLng(hotel.lat, hotel.lng)) {
+      setPlace({ name: d.name ?? "", lat: hotel.lat, lng: hotel.lng });
+    }
+    // Replace the previous hotel's Google photos; keep anything the office uploaded.
+    const previousGoogle = googlePaths.current;
+    googlePaths.current = hotel.paths;
+    setPaths((current) => [
+      ...hotel.paths,
+      ...current.filter((path) => !previousGoogle.includes(path) && !hotel.paths.includes(path)),
+    ]);
+    setPhotoUrls((current) => ({
+      ...current,
+      ...Object.fromEntries(
+        hotel.paths.flatMap((path, i) => (hotel.urls[i] ? [[path, hotel.urls[i]!]] : [])),
+      ),
+    }));
+    const next: Record<string, string> = {};
+    for (const key of HOTEL_EXTRAS) {
+      const value = d[key];
+      if (typeof value === "string" && value) next[key] = value.slice(0, 500);
+    }
+    setExtras(next);
+    setPickedHotel(d.name ?? "Hotel selected");
+    setDirty(true);
+  };
+
+  /** A voucher or ticket was read: fill what is empty (or still a default). */
+  const fillFromDocument = (fields: Record<string, string>): number => {
+    const year = Number((date ?? "").slice(0, 4)) || new Date().getFullYear();
+    const accepted: Record<string, string> = {};
+    for (const [key, raw] of Object.entries(fields)) {
+      const value = DATE_FIELDS.has(key) ? toIsoDate(raw, year) : raw.trim();
+      if (value) accepted[key] = value.slice(0, 500);
+    }
+    const isOpen = (key: string, current: Record<string, string>) =>
+      !current[key] || current[key] === initial.current[key];
+    let filled = 0;
+    setValues((current) => {
+      const next = { ...current };
+      for (const [key, value] of Object.entries(accepted)) {
+        if (isOpen(key, current)) next[key] = value;
+      }
+      return next;
+    });
+    for (const key of Object.keys(accepted)) if (isOpen(key, values)) filled += 1;
+
+    if (kind === "flight") {
+      const route = [accepted["fromAirport"], accepted["toAirport"]].filter(Boolean).join(" → ");
+      const number = accepted["flightNumber"];
+      if (number || route) suggestTitle(["Flight", number, route].filter(Boolean).join(" · "));
+      if (accepted["departTime"] && !values["time"]) setValue("time", accepted["departTime"]);
+    }
+    if (kind === "hotel" && accepted["name"]) {
+      suggestTitle(`Check in at ${accepted["name"]}`);
+      // Look the hotel up straight away, so its photos and pin follow the voucher.
+      if (!pickedHotel)
+        setHotelSeed([accepted["name"], accepted["address"]].filter(Boolean).join(", "));
+    }
+    if (filled) setDirty(true);
+    return filled;
+  };
+
   const choice = choices.find((item) => item.kind === kind)!;
-  const field = (name: string, label: string, placeholder = "", type = "text", value?: string) => (
+  const field = (name: string, label: string, placeholder = "", type = "text") => (
     <label className="block text-xs font-semibold text-navy">
       {label}
       <input
         name={name}
         type={type}
-        defaultValue={value}
+        value={values[name] ?? ""}
+        onChange={(e) => setValue(name, e.target.value)}
         placeholder={placeholder}
         maxLength={500}
         className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
       />
     </label>
   );
+  const nights = kind === "hotel" ? nightsBetween(values["checkIn"], values["checkOut"]) : null;
+
   return (
     <form
       onChange={() => setDirty(true)}
@@ -186,9 +334,12 @@ function QuickActivityForm({
           longitude: place.lng,
           description: value("description"),
           paths,
-          fields: Object.fromEntries(
-            Array.from(form.entries()).map(([key, val]) => [key, String(val)]),
-          ),
+          fields: {
+            ...(kind === "hotel" ? extras : {}),
+            ...Object.fromEntries(
+              Array.from(form.entries()).map(([key, val]) => [key, String(val)]),
+            ),
+          },
         };
         setBusy(true);
         setError("");
@@ -211,13 +362,41 @@ function QuickActivityForm({
         <legend className="mb-4 text-sm font-bold text-navy">
           New {choice.label.toLowerCase()}
         </legend>
+
+        {kind === "hotel" || kind === "flight" ? (
+          <div className="mb-5 grid gap-3">
+            <p className="text-[11px] font-semibold tracking-[0.12em] text-gold-deep uppercase">
+              Start here · the details fill themselves
+            </p>
+            {kind === "hotel" ? (
+              <HotelFinder
+                tripId={tripId}
+                available={capabilities.hotelLookup}
+                disabled={busy}
+                seed={hotelSeed}
+                pickedName={pickedHotel || undefined}
+                onPick={applyHotel}
+              />
+            ) : null}
+            <BookingAutofill
+              tripId={tripId}
+              kind={kind}
+              available={capabilities.reader}
+              disabled={busy}
+              onRead={fillFromDocument}
+            />
+          </div>
+        ) : null}
+
         <label className="block text-xs font-semibold text-navy">
           Title <span className="text-muted">(required)</span>
           <input
             name="title"
             required
             maxLength={200}
-            autoFocus
+            autoFocus={kind !== "hotel" && kind !== "flight"}
+            value={values["title"] ?? ""}
+            onChange={(e) => setValue("title", e.target.value)}
             placeholder={
               kind === "hotel"
                 ? "Check in at your hotel"
@@ -234,15 +413,6 @@ function QuickActivityForm({
           {field("time", "Timeline time", "09:00, or on arrival")}
           {field("duration", "Duration", "About 1 hour")}
         </div>
-        <div className="mt-3">
-          <LocationPicker
-            value={place}
-            onChange={(next) => {
-              setPlace(next);
-              setDirty(true);
-            }}
-          />
-        </div>
         {kind !== "activity" ? (
           <div className="mt-4 rounded-xl border border-hair bg-white/70 p-3">
             <p className="mb-3 text-xs font-bold text-navy">{choice.label} details</p>
@@ -251,21 +421,29 @@ function QuickActivityForm({
                 <>
                   {field("airline", "Airline", "Emirates")}
                   {field("flightNumber", "Flight number", "EK 500")}
-                  {field("date", "Flight date", "", "date", date ?? "")}
+                  {field("date", "Flight date", "", "date")}
                   {field("reference", "Booking reference")}
                   {field("fromAirport", "From airport", "DXB · Dubai")}
                   {field("toAirport", "To airport", "BOM · Mumbai")}
                   {field("departTime", "Departure · local time", "10:30")}
                   {field("arriveTime", "Arrival · local time", "15:00")}
                   {field("terminal", "Terminal")}
+                  {field("seat", "Seat", "12A")}
                   {field("baggage", "Baggage allowance", "23 kg per person")}
                 </>
               ) : kind === "hotel" ? (
                 <>
                   {field("name", "Hotel name", "Full property name")}
                   {field("address", "Hotel address", "Street and city")}
-                  {field("checkIn", "Check-in", "", "date", date ?? "")}
-                  {field("checkOut", "Check-out", "", "date")}
+                  {field("checkIn", "Check-in", "", "date")}
+                  <div>
+                    {field("checkOut", "Check-out", "", "date")}
+                    {nights ? (
+                      <p className="mt-1 text-[11px] font-semibold text-live">
+                        {nights} night{nights === 1 ? "" : "s"}
+                      </p>
+                    ) : null}
+                  </div>
                   {field("roomType", "Room / meal plan", "Deluxe room · breakfast included")}
                   {field("guests", "Guests", "2 adults")}
                   {field("reference", "Booking reference")}
@@ -295,8 +473,24 @@ function QuickActivityForm({
                 </>
               )}
             </div>
+            {kind === "hotel" && extras["hotelSummary"] ? (
+              <p className="mt-3 rounded-lg bg-paper p-3 text-xs leading-relaxed text-muted">
+                <strong className="text-navy">About the hotel · </strong>
+                {extras["hotelSummary"]}
+                {extras["hotelRating"] ? ` · ★ ${extras["hotelRating"]}` : ""}
+              </p>
+            ) : null}
           </div>
         ) : null}
+        <div className="mt-3">
+          <LocationPicker
+            value={place}
+            onChange={(next) => {
+              setPlace(next);
+              setDirty(true);
+            }}
+          />
+        </div>
         <label
           htmlFor={`${id}-instructions`}
           className="mt-4 block text-xs font-semibold text-navy"
@@ -308,18 +502,28 @@ function QuickActivityForm({
           name="description"
           rows={4}
           maxLength={6000}
-          placeholder={"Meet in the hotel lobby\nVisit the waterfront\nFree time for lunch"}
+          placeholder={
+            kind === "hotel"
+              ? "Show your passport at reception\nBreakfast is served 7–10 am in the main restaurant\nCheck-out is at 12:00"
+              : kind === "flight"
+                ? "Be at the airport 3 hours before departure\nOnline check-in opens 48 hours before\nKeep your passport in your hand luggage"
+                : "Meet in the hotel lobby\nVisit the waterfront\nFree time for lunch"
+          }
           className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm outline-none focus:border-gold"
         />
       </fieldset>
-      <details className="mt-3 rounded-xl border border-hair bg-white p-3">
+      <details
+        className="mt-3 rounded-xl border border-hair bg-white p-3"
+        open={kind === "hotel" && paths.length > 0 ? true : undefined}
+      >
         <summary className="cursor-pointer text-xs font-semibold text-navy">
-          Photos for this activity {paths.length ? `· ${paths.length}` : "(optional)"}
+          {kind === "hotel" ? "Hotel photos" : "Photos for this activity"}{" "}
+          {paths.length ? `· ${paths.length}` : "(optional)"}
         </summary>
         <div className="mt-3">
           <PhotoManager
             paths={paths}
-            urls={{}}
+            urls={photoUrls}
             disabled={busy}
             onBusy={setUploading}
             onChange={(next) => {
@@ -336,6 +540,9 @@ function QuickActivityForm({
               return result.path;
             }}
           />
+          {kind === "hotel" && extras["credit"] ? (
+            <p className="mt-2 text-[10px] text-muted">{extras["credit"]}</p>
+          ) : null}
         </div>
       </details>
       {error ? (
