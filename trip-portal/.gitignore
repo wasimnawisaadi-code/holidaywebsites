@@ -9,3 +9,6 @@ dist
 
 # Test artefacts: screenshots and scratch scripts from the e2e suites.
 scripts/__*
+
+.vercel
+.env*

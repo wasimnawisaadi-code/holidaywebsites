@@ -2589,6 +2589,32 @@ function BlockForm({
             }
           />
         ) : null}
+        {kind === "driver" ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {(
+              [
+                ["pickupTime", "Pickup date & time", "22 Oct · 09:30 (local time)"],
+                ["pickupLocation", "Pickup / meeting point", "Airport arrivals, Exit 2"],
+                ["dropoffLocation", "Drop-off location", "Hotel name and address"],
+                [
+                  "transferNotes",
+                  "Transfer instructions",
+                  "Vehicle, luggage allowance, meeting instructions",
+                ],
+              ] as const
+            ).map(([field, label, placeholder]) => (
+              <label key={field} className="block text-xs font-semibold text-navy">
+                {label}
+                <input
+                  value={payload[field] ?? ""}
+                  onChange={(e) => set({ [field]: e.target.value })}
+                  placeholder={placeholder}
+                  className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2 text-sm font-normal"
+                />
+              </label>
+            ))}
+          </div>
+        ) : null}
         {needs.includes("driver") ? (
           <div>
             <label htmlFor={`${uid}-driver`} className="block text-xs font-semibold text-navy">
