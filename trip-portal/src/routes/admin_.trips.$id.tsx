@@ -9,6 +9,7 @@ import {
 import { createServerFn } from "@tanstack/react-start";
 import { useId, useState } from "react";
 
+import { ItineraryReadiness } from "@/components/ItineraryReadiness";
 import { PhotoManager } from "@/components/PhotoManager";
 import { Icon, type IconName } from "@/components/Icon";
 import { LocationPicker, type PickedLocation } from "@/components/LocationPicker";
@@ -1131,6 +1132,7 @@ function ItineraryTab({
 
   return (
     <div className="mt-5 flex flex-col gap-4">
+      <ItineraryReadiness days={days} />
       {hidden ? (
         <div
           role="status"
@@ -1220,7 +1222,11 @@ function DayCard({
   const [open, setOpen] = useState(true);
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-hair bg-white">
+    <section
+      id={`editor-day-${day.id}`}
+      data-anchor
+      className="overflow-hidden rounded-2xl border border-hair bg-white"
+    >
       <header className="flex flex-wrap items-center gap-3 border-b border-hair bg-paper p-4">
         <button
           type="button"
@@ -1639,8 +1645,30 @@ function StepCard({
           </div>
         ) : (
           <div className="mt-3">
+            <div className="mb-4 grid gap-2 sm:grid-cols-3">
+              {(["flight", "hotel", "gallery"] as const).map((kind) => (
+                <button
+                  key={kind}
+                  type="button"
+                  onClick={() => setAdding(kind)}
+                  className="flex items-center gap-3 rounded-xl border border-gold/25 bg-white p-3 text-left transition hover:border-gold hover:bg-sand"
+                >
+                  <Icon name={BLOCK_LABELS[kind].icon} className="size-5 shrink-0 text-gold-deep" />
+                  <span>
+                    <strong className="block text-xs text-navy">
+                      {kind === "gallery" ? "Photo gallery" : BLOCK_LABELS[kind].label}
+                    </strong>
+                    <span className="mt-1 block text-[10px] text-muted">
+                      {kind === "gallery"
+                        ? "Upload and arrange photos"
+                        : "Enter details or scan a booking"}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
             <p className="text-[10px] font-semibold tracking-[0.12em] text-muted uppercase">
-              Add content
+              More content
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {BLOCK_KINDS.map((kind) => (
