@@ -215,6 +215,35 @@ const saveStep = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+/**
+ * A new item at the end of a day, for the "More options" row: a notice, a
+ * checklist, a ticket… Returns its id so the content form can attach to it
+ * straight away. The number is the day's last plus one, read here rather
+ * than trusted from a page that may be out of date.
+ */
+const createItem = createServerFn({ method: "POST" })
+  .validator(
+    (input: { dayId: string; title: string; timeLabel: string; duration: string }) => input,
+  )
+  .handler(async ({ data }) => {
+    await requireSession();
+    if (!UUID.test(data.dayId)) throw new Error("Unknown day");
+    const { insert } = await import("@/lib/db");
+    const { makeRoomFor } = await import("@/lib/step-order");
+    // In time order: a 07:00 item lands before an 08:00 one already there.
+    const stepNumber = await makeRoomFor(data.dayId, data.timeLabel);
+    const rows = await insert<{ id: string }[]>("trip_steps", {
+      trip_day_id: data.dayId,
+      step_number: stepNumber,
+      title: data.title.trim().slice(0, 200) || `Item ${stepNumber}`,
+      time_label: data.timeLabel.trim().slice(0, 100) || null,
+      duration: data.duration.trim().slice(0, 100) || null,
+    });
+    const id = rows[0]?.id;
+    if (!id) throw new Error("The item could not be created");
+    return { id };
+  });
+
 const saveBlock = createServerFn({ method: "POST" })
   .validator(
     (input: {
@@ -1262,7 +1291,6 @@ function DayCard({
   onPendingChange: (dayId: string, pending: boolean) => void;
 }) {
   const [editing, setEditing] = useState(false);
-  const [addingStep, setAddingStep] = useState(false);
   const [photoPending, setPhotoPending] = useState(false);
   const [activityPending, setActivityPending] = useState(false);
   const [request, setRequest] = useState<{ kind: QuickActivityKind; nonce: number }>();
@@ -1350,6 +1378,18 @@ function DayCard({
       missing: "Photos",
       onClick: showPhotos,
     },
+    // Only once there are some: notices, checklists, tickets from "More options".
+    ...(e.extras.length
+      ? [
+          {
+            key: "extras",
+            icon: "list" as const,
+            done: `${e.extras.length} extra${e.extras.length === 1 ? "" : "s"}`,
+            missing: "Extras",
+            onClick: () => onToggle(true),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -1537,27 +1577,14 @@ function DayCard({
           </div>
         </details>
 
-        {addingStep ? (
-          <div className="rounded-xl border border-hair bg-paper p-4">
-            <StepForm
-              dayId={day.id}
-              stepNumber={Math.max(0, ...day.steps.map((s) => s.step_number)) + 1}
-              onDone={() => {
-                setAddingStep(false);
-                onChange();
-              }}
-              onCancel={() => setAddingStep(false)}
-            />
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setAddingStep(true)}
-            className="w-full rounded-xl border border-dashed border-hair py-3 text-xs font-semibold text-muted hover:border-gold hover:text-navy"
-          >
-            + Advanced editor (notices, documents, videos, photo guides…)
-          </button>
-        )}
+        <MoreOptions
+          day={day}
+          tripId={trip.id}
+          drivers={drivers}
+          documents={documents}
+          invoices={invoices}
+          onChange={onChange}
+        />
       </div>
     </section>
   );
@@ -1572,6 +1599,276 @@ function formatDayDate(date: string): string {
     month: "short",
     timeZone: "UTC",
   }).format(new Date(`${date}T12:00:00Z`));
+}
+
+/**
+ * Everything beyond the five main choices, one click each: a headline, a
+ * notice, the emergency panel, a checklist, a ticket… Each becomes its own
+ * item on the day, with its own time, so it sits in the right place in the
+ * plan the customer reads.
+ *
+ * Two short steps: what and when (title, time, duration), then the option's
+ * own fields. The item is created on "Next"; cancelling the second step
+ * removes it again, so an abandoned option leaves nothing behind.
+ */
+const MORE_OPTIONS: { kind: BlockKind; label: string; title: string }[] = [
+  { kind: "heading", label: "Headline", title: "Headline" },
+  { kind: "notice", label: "Notice", title: "Important notice" },
+  { kind: "emergency", label: "Emergency", title: "Emergency contacts" },
+  { kind: "checklist", label: "Checklist", title: "Checklist" },
+  { kind: "ticket", label: "Ticket", title: "Entry ticket" },
+  { kind: "document", label: "Document", title: "Travel document" },
+  { kind: "contact", label: "Contact", title: "Contact" },
+  { kind: "map", label: "Location", title: "Meeting point" },
+  { kind: "link", label: "Link", title: "Useful link" },
+  { kind: "video", label: "Video", title: "Video" },
+  { kind: "image", label: "Photo", title: "Photo" },
+  { kind: "gallery", label: "Gallery", title: "Photos" },
+  { kind: "guide", label: "Photo guide", title: "How to find your driver" },
+  { kind: "invoice", label: "Invoice", title: "Invoice" },
+  { kind: "text", label: "Note", title: "Note" },
+];
+
+type MoreChoice = { kind: BlockKind | null; label: string; title: string };
+
+/** A custom item: what and when first, then any content at all, picked from the full list. */
+const CUSTOM_ITEM: MoreChoice = { kind: null, label: "Custom item", title: "" };
+
+function MoreOptions({
+  day,
+  tripId,
+  drivers,
+  documents,
+  invoices,
+  onChange,
+}: {
+  day: Day;
+  tripId: string;
+  drivers: Driver[];
+  documents: TripDocument[];
+  invoices: Invoice[];
+  onChange: () => void;
+}) {
+  const id = useId();
+  const [choice, setChoice] = useState<MoreChoice | null>(null);
+  const [stepId, setStepId] = useState<string | null>(null);
+  // For a custom item: the content picked after the item was created.
+  const [picked, setPicked] = useState<BlockKind | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const close = () => {
+    setChoice(null);
+    setStepId(null);
+    setPicked(null);
+    setError("");
+  };
+  /** Cancelled before any content was saved: the empty item goes too. */
+  const discard = async () => {
+    const empty = stepId;
+    close();
+    if (!empty) return;
+    try {
+      await deleteRow({ data: { table: "trip_steps", id: empty } });
+    } finally {
+      onChange();
+    }
+  };
+
+  const kind = choice?.kind ?? picked;
+  const icon: IconName = choice?.kind ? BLOCK_LABELS[choice.kind].icon : "plus";
+
+  return (
+    <section
+      aria-label={`More options for day ${day.day_number}`}
+      className="rounded-2xl border border-hair bg-white p-4"
+    >
+      <p className="text-[11px] font-semibold tracking-[0.16em] text-navy uppercase">
+        More options
+      </p>
+      {!choice ? (
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          {MORE_OPTIONS.map((option) => (
+            <button
+              key={option.kind}
+              type="button"
+              title={BLOCK_LABELS[option.kind].hint}
+              onClick={() => setChoice(option)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-hair bg-white px-2.5 py-1.5 text-[11px] font-semibold text-navy transition hover:border-gold hover:bg-sand"
+            >
+              <Icon name={BLOCK_LABELS[option.kind].icon} className="size-3.5 text-gold-deep" />
+              {option.label}
+            </button>
+          ))}
+          <button
+            type="button"
+            title="Your own item: a title and time, then any content"
+            onClick={() => setChoice(CUSTOM_ITEM)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-hair px-2.5 py-1.5 text-[11px] font-semibold text-muted hover:border-gold hover:text-navy"
+          >
+            <Icon name="plus" className="size-3.5" /> Custom item
+          </button>
+        </div>
+      ) : !stepId ? (
+        <form
+          className="mt-3 rounded-xl border border-gold/50 bg-paper p-4"
+          onSubmit={async (event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            setBusy(true);
+            setError("");
+            try {
+              const made = await createItem({
+                data: {
+                  dayId: day.id,
+                  title: String(form.get("title") ?? ""),
+                  timeLabel: String(form.get("time") ?? ""),
+                  duration: String(form.get("duration") ?? ""),
+                },
+              });
+              setStepId(made.id);
+            } catch {
+              setError("The item could not be created. Try again.");
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          <p className="flex items-center gap-2 text-sm font-bold text-navy">
+            <Icon name={icon} className="size-4 text-gold-deep" />
+            New {choice.label.toLowerCase()} · Day {day.day_number}
+            {day.date ? ` · ${formatDayDate(day.date)}` : ""}
+          </p>
+          <p className="mt-0.5 text-[11px] text-muted">
+            {choice.kind
+              ? BLOCK_LABELS[choice.kind].hint
+              : "Step 1 of 2: what and when. Next you choose its content: text, photos, notice, ticket, checklist and more."}
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
+            <label className="block text-xs font-semibold text-navy" htmlFor={`${id}-title`}>
+              Title
+              <input
+                id={`${id}-title`}
+                name="title"
+                defaultValue={choice.title}
+                required={!choice.kind}
+                placeholder="Free time at the beach"
+                maxLength={200}
+                autoFocus
+                className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
+              />
+            </label>
+            <label className="block text-xs font-semibold text-navy" htmlFor={`${id}-time`}>
+              Time <span className="font-normal text-muted">(optional)</span>
+              <input
+                id={`${id}-time`}
+                name="time"
+                maxLength={100}
+                placeholder="09:00"
+                className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
+              />
+            </label>
+            <label className="block text-xs font-semibold text-navy" htmlFor={`${id}-duration`}>
+              Duration <span className="font-normal text-muted">(optional)</span>
+              <input
+                id={`${id}-duration`}
+                name="duration"
+                maxLength={100}
+                placeholder="2 hours"
+                className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
+              />
+            </label>
+          </div>
+          <p className="mt-2 text-[11px] text-muted">
+            The date is the day&apos;s date. To put this on another day, add it from that day.
+            Place, map pin and description can be added later with Edit.
+          </p>
+          {error ? (
+            <p role="alert" className="mt-2 text-xs text-alert">
+              {error}
+            </p>
+          ) : null}
+          <div className="mt-3 flex gap-2">
+            <button
+              type="submit"
+              disabled={busy}
+              className="rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {busy ? "Creating…" : choice.kind ? "Next: add the details" : "Next: choose content"}
+            </button>
+            <button
+              type="button"
+              onClick={close}
+              className="rounded-xl border border-hair bg-white px-4 py-2.5 text-sm font-semibold text-navy"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : !kind ? (
+        // A custom item was created: every kind of content, one click each.
+        <div className="mt-3 rounded-xl border border-gold/50 bg-paper p-4">
+          <p className="text-sm font-bold text-navy">Step 2 of 2: what goes in it?</p>
+          <p className="mt-0.5 text-[11px] text-muted">Pick one. You can add more later.</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {BLOCK_KINDS.map((k) => (
+              <button
+                key={k}
+                type="button"
+                title={BLOCK_LABELS[k].hint}
+                onClick={() => setPicked(k)}
+                className="flex items-center gap-2 rounded-lg border border-hair bg-white px-3 py-2.5 text-left text-xs font-semibold text-navy transition hover:border-gold hover:bg-sand"
+              >
+                <Icon name={BLOCK_LABELS[k].icon} className="size-4 shrink-0 text-gold-deep" />
+                {BLOCK_LABELS[k].label}
+              </button>
+            ))}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                close();
+                onChange();
+              }}
+              className="rounded-xl bg-navy px-4 py-2.5 text-xs font-semibold text-white"
+            >
+              Keep it as a plain item
+            </button>
+            <button
+              type="button"
+              onClick={() => void discard()}
+              className="rounded-xl border border-hair bg-white px-4 py-2.5 text-xs font-semibold text-navy"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-3 rounded-xl border border-gold/50 bg-white p-4">
+          <BlockForm
+            stepId={stepId}
+            tripId={tripId}
+            kind={kind}
+            position={0}
+            drivers={drivers}
+            documents={documents}
+            invoices={invoices}
+            onDone={() => {
+              close();
+              onChange();
+            }}
+            onCancel={() => {
+              // A custom item goes back to its content list; any other option
+              // was only ever this content, so the empty item is removed.
+              if (!choice.kind) setPicked(null);
+              else void discard();
+            }}
+          />
+        </div>
+      )}
+    </section>
+  );
 }
 
 /**
@@ -1817,12 +2114,15 @@ function StepCard({
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState<BlockKind | null>(null);
   const [moreContent, setMoreContent] = useState(false);
+  // The content options on their own, without the item's title/time form.
+  const [contentOpen, setContentOpen] = useState(false);
+  const open = editing || contentOpen;
   const summary = stepSummary(step);
   const time = activityTime(step);
 
   return (
     <li
-      className={`rounded-xl border bg-white transition ${editing ? "border-gold/60 shadow-sm" : "border-hair"}`}
+      className={`rounded-xl border bg-white transition ${open ? "border-gold/60 shadow-sm" : "border-hair"}`}
     >
       {/* One line per item: what it is, when, and the detail that matters. */}
       <div className="flex flex-wrap items-center gap-3 p-3">
@@ -1858,12 +2158,31 @@ function StepCard({
             <Icon name="pin" className="size-3" /> Map
           </span>
         ) : null}
+        {/* An item with nothing in it yet (a custom item, a plain activity)
+            offers its content options directly, not two clicks deep. */}
+        {!step.blocks.length && !open ? (
+          <button
+            type="button"
+            onClick={() => {
+              setContentOpen(true);
+              setMoreContent(true);
+            }}
+            className="shrink-0 rounded-lg bg-navy px-3 py-1.5 text-xs font-semibold text-white"
+          >
+            + Add content
+          </button>
+        ) : null}
         <button
           type="button"
-          onClick={() => setEditing((v) => !v)}
+          onClick={() => {
+            if (open) {
+              setEditing(false);
+              setContentOpen(false);
+            } else setEditing(true);
+          }}
           className="shrink-0 rounded-lg border border-hair bg-white px-3 py-1.5 text-xs font-semibold text-navy"
         >
-          {editing ? "Done" : "Edit"}
+          {open ? "Done" : "Edit"}
         </button>
       </div>
 
@@ -1879,7 +2198,7 @@ function StepCard({
             }}
             onCancel={() => setEditing(false)}
             onDelete={async () => {
-              if (!window.confirm(`Delete step "${step.title}" and its content?`)) return;
+              if (!window.confirm(`Delete "${step.title}" and its content?`)) return;
               await deleteRow({ data: { table: "trip_steps", id: step.id } });
               onChange();
             }}
@@ -1888,7 +2207,7 @@ function StepCard({
       ) : null}
 
       {/* ---- blocks: only while editing, so the day reads as a plan ---- */}
-      <div hidden={!editing} className="border-t border-hair p-3.5">
+      <div hidden={!open} className="border-t border-hair p-3.5">
         <p className="mb-2 text-[10px] font-semibold tracking-[0.12em] text-muted uppercase">
           Content of this item
         </p>
@@ -2094,7 +2413,7 @@ function StepForm({
           disabled={busy}
           className="rounded-lg bg-navy px-5 py-2 text-xs font-bold text-white disabled:opacity-60"
         >
-          {busy ? "Saving…" : "Save step"}
+          {busy ? "Saving…" : "Save item"}
         </button>
         <button
           type="button"
@@ -2109,7 +2428,7 @@ function StepForm({
             onClick={onDelete}
             className="ml-auto rounded-lg border border-alert/40 px-4 py-2 text-xs font-semibold text-alert"
           >
-            Delete step
+            Delete item
           </button>
         ) : null}
       </div>
@@ -3097,7 +3416,7 @@ function BlockForm({
           }}
           className="rounded-lg bg-navy px-5 py-2 text-xs font-bold text-white disabled:opacity-60"
         >
-          {busy ? "Saving…" : "Save block"}
+          {busy ? "Saving…" : "Save to itinerary"}
         </button>
         <button
           type="button"

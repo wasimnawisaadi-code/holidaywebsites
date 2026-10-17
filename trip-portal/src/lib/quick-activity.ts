@@ -4,6 +4,7 @@ import { UUID } from "./uploads";
 import { nightsBetween } from "./booking-fill";
 import { isLatLng } from "./geo";
 import { TOUR_GUIDE_ROLE } from "./itinerary";
+import { makeRoomFor } from "./step-order";
 import type { BlockKind, BlockPayload } from "./types";
 
 export type QuickActivityKind = "activity" | "flight" | "hotel" | "transfer" | "tourguide";
@@ -179,13 +180,16 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
       // Another staff member may append a stop at the same moment. Re-read the
       // last position on a unique-order collision, at most three attempts.
       for (let attempt = 0; attempt < 3; attempt++) {
-        const last = await select<{ step_number: number }[]>(
-          `trip_steps?trip_day_id=eq.${data.dayId}&select=step_number&order=step_number.desc&limit=1`,
+        // In time order: an 08:15 flight added after a 19:00 dinner still
+        // comes first in the day.
+        const position = await makeRoomFor(
+          data.dayId,
+          time || payload.departTime || payload.pickupTime || "",
         );
         try {
           await insert("trip_steps", {
             id: stepId,
-            step_number: (last[0]?.step_number ?? 0) + 1,
+            step_number: position,
             ...stepRow,
           });
           existing = { id: stepId, trip_day_id: data.dayId };
