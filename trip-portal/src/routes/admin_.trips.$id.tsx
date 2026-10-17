@@ -1629,6 +1629,11 @@ const MORE_OPTIONS: { kind: BlockKind; label: string; title: string }[] = [
   { kind: "text", label: "Note", title: "Note" },
 ];
 
+type MoreChoice = { kind: BlockKind | null; label: string; title: string };
+
+/** A custom item: what and when first, then any content at all, picked from the full list. */
+const CUSTOM_ITEM: MoreChoice = { kind: null, label: "Custom item", title: "" };
+
 function MoreOptions({
   day,
   tripId,
@@ -1645,16 +1650,33 @@ function MoreOptions({
   onChange: () => void;
 }) {
   const id = useId();
-  const [choice, setChoice] = useState<(typeof MORE_OPTIONS)[number] | "custom" | null>(null);
+  const [choice, setChoice] = useState<MoreChoice | null>(null);
   const [stepId, setStepId] = useState<string | null>(null);
+  // For a custom item: the content picked after the item was created.
+  const [picked, setPicked] = useState<BlockKind | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
   const close = () => {
     setChoice(null);
     setStepId(null);
+    setPicked(null);
     setError("");
   };
+  /** Cancelled before any content was saved: the empty item goes too. */
+  const discard = async () => {
+    const empty = stepId;
+    close();
+    if (!empty) return;
+    try {
+      await deleteRow({ data: { table: "trip_steps", id: empty } });
+    } finally {
+      onChange();
+    }
+  };
+
+  const kind = choice?.kind ?? picked;
+  const icon: IconName = choice?.kind ? BLOCK_LABELS[choice.kind].icon : "plus";
 
   return (
     <section
@@ -1680,24 +1702,12 @@ function MoreOptions({
           ))}
           <button
             type="button"
-            title="A blank item with time, place, map pin and description"
-            onClick={() => setChoice("custom")}
+            title="Your own item: a title and time, then any content"
+            onClick={() => setChoice(CUSTOM_ITEM)}
             className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-hair px-2.5 py-1.5 text-[11px] font-semibold text-muted hover:border-gold hover:text-navy"
           >
             <Icon name="plus" className="size-3.5" /> Custom item
           </button>
-        </div>
-      ) : choice === "custom" ? (
-        <div className="mt-3 rounded-xl border border-gold/50 bg-paper p-4">
-          <StepForm
-            dayId={day.id}
-            stepNumber={Math.max(0, ...day.steps.map((s) => s.step_number)) + 1}
-            onDone={() => {
-              close();
-              onChange();
-            }}
-            onCancel={close}
-          />
         </div>
       ) : !stepId ? (
         <form
@@ -1725,11 +1735,15 @@ function MoreOptions({
           }}
         >
           <p className="flex items-center gap-2 text-sm font-bold text-navy">
-            <Icon name={BLOCK_LABELS[choice.kind].icon} className="size-4 text-gold-deep" />
+            <Icon name={icon} className="size-4 text-gold-deep" />
             New {choice.label.toLowerCase()} · Day {day.day_number}
             {day.date ? ` · ${formatDayDate(day.date)}` : ""}
           </p>
-          <p className="mt-0.5 text-[11px] text-muted">{BLOCK_LABELS[choice.kind].hint}</p>
+          <p className="mt-0.5 text-[11px] text-muted">
+            {choice.kind
+              ? BLOCK_LABELS[choice.kind].hint
+              : "Step 1 of 2: what and when. Next you choose its content: text, photos, notice, ticket, checklist and more."}
+          </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
             <label className="block text-xs font-semibold text-navy" htmlFor={`${id}-title`}>
               Title
@@ -1737,6 +1751,8 @@ function MoreOptions({
                 id={`${id}-title`}
                 name="title"
                 defaultValue={choice.title}
+                required={!choice.kind}
+                placeholder="Free time at the beach"
                 maxLength={200}
                 autoFocus
                 className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
@@ -1765,6 +1781,7 @@ function MoreOptions({
           </div>
           <p className="mt-2 text-[11px] text-muted">
             The date is the day&apos;s date. To put this on another day, add it from that day.
+            Place, map pin and description can be added later with Edit.
           </p>
           {error ? (
             <p role="alert" className="mt-2 text-xs text-alert">
@@ -1777,7 +1794,7 @@ function MoreOptions({
               disabled={busy}
               className="rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
             >
-              {busy ? "Creating…" : "Next: add the details"}
+              {busy ? "Creating…" : choice.kind ? "Next: add the details" : "Next: choose content"}
             </button>
             <button
               type="button"
@@ -1788,12 +1805,51 @@ function MoreOptions({
             </button>
           </div>
         </form>
+      ) : !kind ? (
+        // A custom item was created: every kind of content, one click each.
+        <div className="mt-3 rounded-xl border border-gold/50 bg-paper p-4">
+          <p className="text-sm font-bold text-navy">Step 2 of 2: what goes in it?</p>
+          <p className="mt-0.5 text-[11px] text-muted">Pick one. You can add more later.</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {BLOCK_KINDS.map((k) => (
+              <button
+                key={k}
+                type="button"
+                title={BLOCK_LABELS[k].hint}
+                onClick={() => setPicked(k)}
+                className="flex items-center gap-2 rounded-lg border border-hair bg-white px-3 py-2.5 text-left text-xs font-semibold text-navy transition hover:border-gold hover:bg-sand"
+              >
+                <Icon name={BLOCK_LABELS[k].icon} className="size-4 shrink-0 text-gold-deep" />
+                {BLOCK_LABELS[k].label}
+              </button>
+            ))}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                close();
+                onChange();
+              }}
+              className="rounded-xl bg-navy px-4 py-2.5 text-xs font-semibold text-white"
+            >
+              Keep it as a plain item
+            </button>
+            <button
+              type="button"
+              onClick={() => void discard()}
+              className="rounded-xl border border-hair bg-white px-4 py-2.5 text-xs font-semibold text-navy"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="mt-3 rounded-xl border border-gold/50 bg-white p-4">
           <BlockForm
             stepId={stepId}
             tripId={tripId}
-            kind={choice.kind}
+            kind={kind}
             position={0}
             drivers={drivers}
             documents={documents}
@@ -1802,16 +1858,11 @@ function MoreOptions({
               close();
               onChange();
             }}
-            onCancel={async () => {
-              // The item was created on "Next"; without its content it is an
-              // empty line in the customer's plan, so it goes too.
-              const empty = stepId;
-              close();
-              try {
-                await deleteRow({ data: { table: "trip_steps", id: empty } });
-              } finally {
-                onChange();
-              }
+            onCancel={() => {
+              // A custom item goes back to its content list; any other option
+              // was only ever this content, so the empty item is removed.
+              if (!choice.kind) setPicked(null);
+              else void discard();
             }}
           />
         </div>
