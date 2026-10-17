@@ -12,7 +12,10 @@ function webLink(value?: string) {
 export function HotelHighlights({ hotel }: { hotel: BlockPayload }) {
   const website = webLink(hotel.hotelWebsite);
   const maps = webLink(hotel.hotelMapsUrl);
-  if (!hotel.hotelSummary && !hotel.hotelRating && !hotel.hotelAddress && !website) return null;
+  if (!hotel.hotelSummary && !hotel.hotelRating && !hotel.hotelAddress && !website && !maps)
+    return null;
+  // Facts read from Google carry their source; links the office typed do not.
+  const fromGoogle = Boolean(hotel.hotelSourceName || hotel.hotelRating || hotel.hotelFetchedAt);
   return (
     <section
       className="mt-4 rounded-2xl border border-gold/20 bg-sand p-4"
@@ -50,16 +53,18 @@ export function HotelHighlights({ hotel }: { hotel: BlockPayload }) {
             rel="noopener noreferrer"
             className="rounded-lg border border-hair bg-white px-3 py-2"
           >
-            Explore on Google Maps ↗
+            Hotel location on the map ↗
           </a>
         ) : null}
       </div>
-      <p className="mt-3 text-[10px] leading-relaxed text-muted">
-        Source: Google Maps{hotel.hotelSourceName ? ` · ${hotel.hotelSourceName}` : ""}
-        {hotel.hotelReviewCount ? ` · ${hotel.hotelReviewCount} reviews` : ""}
-        {hotel.hotelFetchedAt ? ` · Retrieved ${hotel.hotelFetchedAt}` : ""}. Details and ratings
-        may change.
-      </p>
+      {fromGoogle ? (
+        <p className="mt-3 text-[10px] leading-relaxed text-muted">
+          Source: Google Maps{hotel.hotelSourceName ? ` · ${hotel.hotelSourceName}` : ""}
+          {hotel.hotelReviewCount ? ` · ${hotel.hotelReviewCount} reviews` : ""}
+          {hotel.hotelFetchedAt ? ` · Retrieved ${hotel.hotelFetchedAt}` : ""}. Details and ratings
+          may change.
+        </p>
+      ) : null}
     </section>
   );
 }

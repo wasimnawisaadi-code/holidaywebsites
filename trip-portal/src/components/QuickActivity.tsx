@@ -7,6 +7,7 @@ import { PhotoManager } from "./PhotoManager";
 import { bookingCapabilities } from "@/lib/booking-ai";
 import { nightsBetween, toIsoDate } from "@/lib/booking-fill";
 import { isLatLng } from "@/lib/geo";
+import { resolveMapsLink } from "@/lib/places";
 import {
   saveQuickActivity,
   type QuickActivityDraft,
@@ -249,6 +250,32 @@ function QuickActivityForm({
   };
 
   /** The hotel chosen in the finder fills everything it knows. */
+  /**
+   * A pasted Google Maps link: kept as the hotel's "Map" button for the
+   * customer, and read for its pin, so the day's map shows the hotel too.
+   */
+  const [mapsNote, setMapsNote] = useState("");
+  const pinFromMapsLink = async (raw: string) => {
+    const link = webAddress(raw);
+    setValue("hotelMapsUrl", link);
+    setMapsNote("");
+    if (!link) return;
+    try {
+      const hit = await resolveMapsLink({ data: link });
+      if (!hit.ok) return setMapsNote(hit.reason);
+      setPlace((current) => ({
+        name: current.name || values["name"] || hit.name || "Hotel",
+        lat: hit.lat,
+        lng: hit.lng,
+      }));
+      setMapsNote("Pin set on the map from this link.");
+    } catch {
+      setMapsNote(
+        "Saved as the hotel's map link. The pin could not be read; set it on the map below.",
+      );
+    }
+  };
+
   const applyHotel = (hotel: PickedHotel) => {
     const d = hotel.details;
     setValues((current) => ({
@@ -256,6 +283,8 @@ function QuickActivityForm({
       name: d.name ?? current["name"] ?? "",
       address: d.address ?? current["address"] ?? "",
       phone: d.phone || current["phone"] || "",
+      hotelWebsite: d.hotelWebsite || current["hotelWebsite"] || "",
+      hotelMapsUrl: d.hotelMapsUrl || current["hotelMapsUrl"] || "",
     }));
     if (d.name) suggestTitle(`Check in at ${d.name}`);
     if (hotel.lat !== null && hotel.lng !== null && isLatLng(hotel.lat, hotel.lng)) {
@@ -480,6 +509,35 @@ function QuickActivityForm({
                   {field("guests", "Guests", "2 adults")}
                   {field("reference", "Booking reference")}
                   {field("phone", "Hotel phone", "+971…", "tel")}
+                  <label className="block text-xs font-semibold text-navy">
+                    Hotel website
+                    <input
+                      name="hotelWebsite"
+                      value={values["hotelWebsite"] ?? ""}
+                      onChange={(e) => setValue("hotelWebsite", e.target.value)}
+                      onBlur={(e) => setValue("hotelWebsite", webAddress(e.target.value))}
+                      placeholder="https://www.ihg.com/…"
+                      maxLength={500}
+                      className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
+                    />
+                  </label>
+                  <label className="block text-xs font-semibold text-navy">
+                    Hotel location · Google Maps link
+                    <input
+                      name="hotelMapsUrl"
+                      value={values["hotelMapsUrl"] ?? ""}
+                      onChange={(e) => setValue("hotelMapsUrl", e.target.value)}
+                      onBlur={(e) => void pinFromMapsLink(e.target.value)}
+                      placeholder="https://maps.app.goo.gl/…"
+                      maxLength={500}
+                      className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
+                    />
+                    {mapsNote ? (
+                      <span className="mt-1 block text-[11px] font-normal text-muted">
+                        {mapsNote}
+                      </span>
+                    ) : null}
+                  </label>
                 </>
               ) : kind === "tourguide" ? (
                 <>
@@ -649,4 +707,11 @@ function QuickActivityForm({
       </div>
     </form>
   );
+}
+
+/** "www.hotel.com" → "https://www.hotel.com"; empty stays empty; a full address is kept. */
+function webAddress(raw: string): string {
+  const text = raw.trim();
+  if (!text) return "";
+  return /^https?:\/\//i.test(text) ? text : `https://${text.replace(/^\/+/, "")}`;
 }
