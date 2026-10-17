@@ -46,16 +46,50 @@ export function DayPhotos({
     window.addEventListener("beforeunload", warnBeforeLeaving);
     return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
   }, [pending]);
+  // Saved automatically: a short pause after the last change, and never
+  // while a file is still uploading. Nobody has to remember a Save button.
+  const saveNow = useRef<() => Promise<void>>(async () => {});
+  saveNow.current = async () => {
+    setSaving(true);
+    setMessage("");
+    try {
+      await saveDayGallery({ data: { dayId: day.id, tripId, paths } });
+      // A loader refresh may have arrived while these edits were dirty. It is
+      // older than the save that just succeeded, so do not apply it.
+      lastSyncedPaths.current = persistedPaths;
+      setDirty(false);
+      setMessage(
+        paths.length
+          ? `Saved · ${paths.length} photo${paths.length === 1 ? "" : "s"} in the day ${day.day_number} slideshow.`
+          : "Saved · no banner photos for this day.",
+      );
+      try {
+        await onSaved();
+      } catch {
+        setMessage("Saved. Refresh this page to see the latest preview.");
+      }
+    } catch {
+      setMessage("Could not save the photos. They are still here; change anything to retry.");
+    } finally {
+      setSaving(false);
+    }
+  };
+  useEffect(() => {
+    if (!dirty || uploading || saving) return;
+    const timer = window.setTimeout(() => void saveNow.current(), 700);
+    return () => window.clearTimeout(timer);
+  }, [dirty, uploading, saving, paths]);
+
   return (
     <section
       aria-label={`Day ${day.day_number} photos`}
       className="mb-5 rounded-2xl border border-gold/30 bg-sand/40 p-4"
     >
-      <h3 className="font-display text-xl text-navy">Day {day.day_number} · Banner slideshow</h3>
+      <h3 className="font-display text-xl text-navy">Day {day.day_number} · Banner photos</h3>
       <p className="mt-1 mb-3 text-xs text-muted">
-        Select up to 20 photos at once. They play as a slideshow at the top of day {day.day_number}:
-        customers swipe through them, or tap one to see it full-screen. The first photo is the
-        cover. Put them in order, then save.
+        Click <strong>Choose Files</strong> and select several photos at once (up to 20). They play
+        as a slideshow at the top of day {day.day_number}; the first is the cover. Saved
+        automatically.
       </p>
       <PhotoManager
         paths={paths}
@@ -79,45 +113,9 @@ export function DayPhotos({
           return result.path;
         }}
       />
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          disabled={saving || uploading || !dirty}
-          onClick={async () => {
-            setSaving(true);
-            setMessage("");
-            try {
-              await saveDayGallery({ data: { dayId: day.id, tripId, paths } });
-              // A loader refresh may have arrived while these edits were dirty.
-              // It is older than the save that just succeeded, so do not apply it
-              // if the follow-up refresh fails.
-              lastSyncedPaths.current = persistedPaths;
-              setDirty(false);
-              setMessage("Day photos saved.");
-              try {
-                await onSaved();
-              } catch {
-                setMessage("Day photos saved. Refresh this page to see the latest preview.");
-              }
-            } catch {
-              setMessage("Could not save. Your selected photos are still here; please retry.");
-            } finally {
-              setSaving(false);
-            }
-          }}
-          className="min-h-11 rounded-xl bg-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
-        >
-          {saving ? "Saving…" : "Save day photos"}
-        </button>
-        <p role="status" className="text-xs text-muted">
-          {message ||
-            (uploading
-              ? "Keep this page open while photos upload."
-              : dirty
-                ? "Unsaved photo changes — save to update the customer’s gallery."
-                : "")}
-        </p>
-      </div>
+      <p role="status" className="mt-2 text-xs text-muted">
+        {uploading ? "Uploading… keep this page open." : saving ? "Saving…" : message}
+      </p>
     </section>
   );
 }

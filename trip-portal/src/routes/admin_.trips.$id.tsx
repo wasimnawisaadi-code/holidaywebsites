@@ -1300,7 +1300,7 @@ function DayCard({
   const [photoPending, setPhotoPending] = useState(false);
   const [activityPending, setActivityPending] = useState(false);
   const [request, setRequest] = useState<{ kind: QuickActivityKind; nonce: number }>();
-  const photosRef = useRef<HTMLDetailsElement>(null);
+  const photosRef = useRef<HTMLDivElement>(null);
   const pending = photoPending || activityPending;
   useEffect(() => {
     onPendingChange(day.id, pending);
@@ -1318,10 +1318,7 @@ function DayCard({
   const showPhotos = () => {
     onToggle(true);
     requestAnimationFrame(() => {
-      if (photosRef.current) {
-        photosRef.current.open = true;
-        photosRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      photosRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   };
 
@@ -1514,6 +1511,18 @@ function DayCard({
 
       {/* Kept mounted while closed, so a half-filled form survives opening another day. */}
       <div hidden={!open} className="flex flex-col gap-5 border-t border-hair p-4">
+        <div ref={photosRef} className="scroll-mt-24">
+          <DayPhotos
+            day={day}
+            tripId={trip.id}
+            onSaved={onChange}
+            onPendingChange={setPhotoPending}
+          />
+          {/* The older single cover photo: shown only where a day still has
+              one, so it can be replaced or removed. It leads the slideshow. */}
+          {day.cover_image ? <DayCover tripId={trip.id} day={day} onChange={onChange} /> : null}
+        </div>
+
         {day.summary ? (
           <div className="rounded-xl bg-paper p-4">
             <p className="text-[10px] font-semibold tracking-[0.16em] text-gold-deep uppercase">
@@ -1563,27 +1572,6 @@ function DayCard({
           onPendingChange={setActivityPending}
           request={request}
         />
-
-        <details ref={photosRef} className="group rounded-2xl border border-hair bg-white">
-          <summary className="flex cursor-pointer items-center gap-2 p-4 text-sm font-bold text-navy">
-            <Icon name="images" className="size-4 text-gold-deep" />
-            Day banner slideshow
-            <span className="font-normal text-muted">
-              · {e.photos ? `${e.photos} photo${e.photos === 1 ? "" : "s"}` : "none yet"}
-            </span>
-          </summary>
-          <div className="px-4 pb-4">
-            <DayPhotos
-              day={day}
-              tripId={trip.id}
-              onSaved={onChange}
-              onPendingChange={setPhotoPending}
-            />
-            {/* The older single cover photo: shown only where a day still has
-                one, so it can be replaced or removed. It leads the slideshow. */}
-            {day.cover_image ? <DayCover tripId={trip.id} day={day} onChange={onChange} /> : null}
-          </div>
-        </details>
 
         <MoreOptions
           day={day}
@@ -3136,6 +3124,23 @@ function BlockForm({
         ) : null}
         {needs.includes("hotelDetails") ? (
           <div className="grid gap-3 sm:grid-cols-2">
+            <Inline
+              label="Hotel website"
+              value={payload.hotelWebsite ?? ""}
+              onChange={(v) =>
+                set({
+                  hotelWebsite:
+                    v.trim() && !/^https?:\/\//i.test(v.trim()) ? `https://${v.trim()}` : v,
+                })
+              }
+              placeholder="https://www.ihg.com/…"
+            />
+            <Inline
+              label="Hotel location · Google Maps link"
+              value={payload.hotelMapsUrl ?? ""}
+              onChange={(v) => set({ hotelMapsUrl: v })}
+              placeholder="https://maps.app.goo.gl/…"
+            />
             <Inline
               label="Address"
               value={payload.address ?? ""}

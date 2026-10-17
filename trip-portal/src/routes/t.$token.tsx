@@ -478,12 +478,19 @@ function Portal() {
                   <h3 className="mt-1.5 font-display text-3xl leading-tight text-navy">
                     {day.title}
                   </h3>
-                  {day.summary ? (
-                    <p className="mt-3 text-[15px] leading-relaxed whitespace-pre-line text-muted">
-                      {day.summary}
-                    </p>
-                  ) : null}
+                  {/* Bookings first (flight, pickup, hotel, guide), then the
+                      consultant's overview of the day. */}
                   <DayAtAGlance day={day} drivers={drivers} />
+                  {day.summary ? (
+                    <div className="mt-6">
+                      <p className="text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
+                        Your day
+                      </p>
+                      <p className="mt-2 text-[15px] leading-relaxed whitespace-pre-line text-muted">
+                        {day.summary}
+                      </p>
+                    </div>
+                  ) : null}
 
                   {day.steps.length ? (
                     <nav

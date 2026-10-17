@@ -114,6 +114,15 @@ const NOISE = new Set([
   "page",
   "offers",
   "deals",
+  "hoteldetail",
+  "hoteldetails",
+  "hotelinfo",
+  "propertydetails",
+  "rates",
+  "stays",
+  "brands",
+  "brand",
+  "resorts",
 ]);
 
 const decode = (s: string) => {
