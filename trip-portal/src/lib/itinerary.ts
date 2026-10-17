@@ -82,7 +82,7 @@ export function dayEssentials(day: Day): DayEssentials {
     extras: [],
     photos: 0,
   };
-  for (const step of day.steps) {
+  for (const step of orderSteps(day.steps)) {
     let booking = false;
     for (const block of step.blocks) {
       if (block.kind === "gallery" || block.kind === "image") {
@@ -212,4 +212,37 @@ export function clockMinutes(time: string | null | undefined): number | null {
   if (h > 23 || min > 59) return null;
   if (m[3]) h = (h % 12) + (m[3].toLowerCase() === "pm" ? 12 : 0);
   return h * 60 + min;
+}
+
+/**
+ * Where an item sits in its day when it has no time of its own, in minutes
+ * after midnight. A flight opens the day, the pickup follows it, the hotel
+ * comes at check-in, and anything else goes after everything that is timed.
+ */
+function anchorMinutes(step: Step): number {
+  const kinds = new Set(step.blocks.map((b) => b.kind));
+  if (kinds.has("flight")) return -3;
+  if (kinds.has("driver")) return -2;
+  if (kinds.has("hotel")) return 14 * 60;
+  return Number.POSITIVE_INFINITY;
+}
+
+/**
+ * A day's items in the order they happen.
+ *
+ * Office staff add things as they arrive (the hotel voucher before the
+ * ticket, a notice last), so the stored order is the order of typing, not
+ * of travel. Items are shown by their time: the item's own time, or its
+ * flight departure or pickup time; an item without one takes its anchor
+ * above. Equal times keep the office's own order, so the "Sort order" field
+ * still decides between them.
+ */
+export function orderSteps<T extends Step>(steps: T[]): T[] {
+  return steps
+    .map((step, index) => {
+      const own = clockMinutes(activityTime(step));
+      return { step, index, at: own ?? anchorMinutes(step) };
+    })
+    .sort((a, b) => a.at - b.at || a.index - b.index)
+    .map((x) => x.step);
 }

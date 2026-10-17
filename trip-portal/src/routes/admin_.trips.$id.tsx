@@ -17,7 +17,13 @@ import { DayPhotos } from "@/components/DayPhotos";
 import { QuickActivity } from "@/components/QuickActivity";
 import { SendTripDetails } from "@/components/SendTripDetails";
 import type { QuickActivityKind } from "@/lib/quick-activity";
-import { activitySteps, activityTime, dayEssentials, stepSummary } from "@/lib/itinerary";
+import {
+  activitySteps,
+  activityTime,
+  dayEssentials,
+  orderSteps,
+  stepSummary,
+} from "@/lib/itinerary";
 import { Icon, type IconName } from "@/components/Icon";
 import { LocationPicker, type PickedLocation } from "@/components/LocationPicker";
 import {
@@ -1302,7 +1308,7 @@ function DayCard({
   }, [day.id, pending, onPendingChange]);
 
   const e = dayEssentials(day);
-  const steps = activitySteps(day);
+  const steps = orderSteps(activitySteps(day));
 
   /** A checklist chip was clicked: open the day on the form for that item. */
   const add = (kind: QuickActivityKind) => {
@@ -1561,19 +1567,21 @@ function DayCard({
         <details ref={photosRef} className="group rounded-2xl border border-hair bg-white">
           <summary className="flex cursor-pointer items-center gap-2 p-4 text-sm font-bold text-navy">
             <Icon name="images" className="size-4 text-gold-deep" />
-            Day photos and cover
+            Day banner slideshow
             <span className="font-normal text-muted">
               · {e.photos ? `${e.photos} photo${e.photos === 1 ? "" : "s"}` : "none yet"}
             </span>
           </summary>
           <div className="px-4 pb-4">
-            <DayCover tripId={trip.id} day={day} onChange={onChange} />
             <DayPhotos
               day={day}
               tripId={trip.id}
               onSaved={onChange}
               onPendingChange={setPhotoPending}
             />
+            {/* The older single cover photo: shown only where a day still has
+                one, so it can be replaced or removed. It leads the slideshow. */}
+            {day.cover_image ? <DayCover tripId={trip.id} day={day} onChange={onChange} /> : null}
           </div>
         </details>
 

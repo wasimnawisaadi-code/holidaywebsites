@@ -51,10 +51,11 @@ export function DayPhotos({
       aria-label={`Day ${day.day_number} photos`}
       className="mb-5 rounded-2xl border border-gold/30 bg-sand/40 p-4"
     >
-      <h3 className="font-display text-xl text-navy">Day {day.day_number} · Photo gallery</h3>
+      <h3 className="font-display text-xl text-navy">Day {day.day_number} · Banner slideshow</h3>
       <p className="mt-1 mb-3 text-xs text-muted">
-        Select up to 20 photos together. Put them in travel order, choose the gallery cover, then
-        save. Customers can tap any photo to view the full gallery.
+        Select up to 20 photos at once. They play as a slideshow at the top of day {day.day_number}:
+        customers swipe through them, or tap one to see it full-screen. The first photo is the
+        cover. Put them in order, then save.
       </p>
       <PhotoManager
         paths={paths}
