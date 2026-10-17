@@ -122,8 +122,13 @@ export function tripMessage(
         const time = activityTime(step);
         out.push(`• ${time ? `${time} ` : ""}${step.title}`);
       }
+      for (const step of e.extras) {
+        const time = activityTime(step);
+        const urgent = step.blocks.some((b) => b.kind === "notice" || b.kind === "emergency");
+        out.push(`${urgent ? "⚠️" : "ℹ️"} ${time ? `${time} ` : ""}${step.title}`);
+      }
       // A day written as an overview only: send its first lines.
-      if (!e.activities.length && !e.flights.length && !e.hotels.length) {
+      if (!e.activities.length && !e.extras.length && !e.flights.length && !e.hotels.length) {
         for (const line of overviewLines(day.summary, 6))
           out.push(`• ${line.replace(/^[•\-–]\s*/, "")}`);
       }

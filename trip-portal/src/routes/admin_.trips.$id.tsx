@@ -215,6 +215,35 @@ const saveStep = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+/**
+ * A new item at the end of a day, for the "More options" row: a notice, a
+ * checklist, a ticket… Returns its id so the content form can attach to it
+ * straight away. The number is the day's last plus one, read here rather
+ * than trusted from a page that may be out of date.
+ */
+const createItem = createServerFn({ method: "POST" })
+  .validator(
+    (input: { dayId: string; title: string; timeLabel: string; duration: string }) => input,
+  )
+  .handler(async ({ data }) => {
+    await requireSession();
+    if (!UUID.test(data.dayId)) throw new Error("Unknown day");
+    const { insert } = await import("@/lib/db");
+    const { makeRoomFor } = await import("@/lib/step-order");
+    // In time order: a 07:00 item lands before an 08:00 one already there.
+    const stepNumber = await makeRoomFor(data.dayId, data.timeLabel);
+    const rows = await insert<{ id: string }[]>("trip_steps", {
+      trip_day_id: data.dayId,
+      step_number: stepNumber,
+      title: data.title.trim().slice(0, 200) || `Item ${stepNumber}`,
+      time_label: data.timeLabel.trim().slice(0, 100) || null,
+      duration: data.duration.trim().slice(0, 100) || null,
+    });
+    const id = rows[0]?.id;
+    if (!id) throw new Error("The item could not be created");
+    return { id };
+  });
+
 const saveBlock = createServerFn({ method: "POST" })
   .validator(
     (input: {
@@ -1262,7 +1291,6 @@ function DayCard({
   onPendingChange: (dayId: string, pending: boolean) => void;
 }) {
   const [editing, setEditing] = useState(false);
-  const [addingStep, setAddingStep] = useState(false);
   const [photoPending, setPhotoPending] = useState(false);
   const [activityPending, setActivityPending] = useState(false);
   const [request, setRequest] = useState<{ kind: QuickActivityKind; nonce: number }>();
@@ -1350,6 +1378,18 @@ function DayCard({
       missing: "Photos",
       onClick: showPhotos,
     },
+    // Only once there are some: notices, checklists, tickets from "More options".
+    ...(e.extras.length
+      ? [
+          {
+            key: "extras",
+            icon: "list" as const,
+            done: `${e.extras.length} extra${e.extras.length === 1 ? "" : "s"}`,
+            missing: "Extras",
+            onClick: () => onToggle(true),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -1537,27 +1577,14 @@ function DayCard({
           </div>
         </details>
 
-        {addingStep ? (
-          <div className="rounded-xl border border-hair bg-paper p-4">
-            <StepForm
-              dayId={day.id}
-              stepNumber={Math.max(0, ...day.steps.map((s) => s.step_number)) + 1}
-              onDone={() => {
-                setAddingStep(false);
-                onChange();
-              }}
-              onCancel={() => setAddingStep(false)}
-            />
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setAddingStep(true)}
-            className="w-full rounded-xl border border-dashed border-hair py-3 text-xs font-semibold text-muted hover:border-gold hover:text-navy"
-          >
-            + Advanced editor (notices, documents, videos, photo guides…)
-          </button>
-        )}
+        <MoreOptions
+          day={day}
+          tripId={trip.id}
+          drivers={drivers}
+          documents={documents}
+          invoices={invoices}
+          onChange={onChange}
+        />
       </div>
     </section>
   );
@@ -1572,6 +1599,225 @@ function formatDayDate(date: string): string {
     month: "short",
     timeZone: "UTC",
   }).format(new Date(`${date}T12:00:00Z`));
+}
+
+/**
+ * Everything beyond the five main choices, one click each: a headline, a
+ * notice, the emergency panel, a checklist, a ticket… Each becomes its own
+ * item on the day, with its own time, so it sits in the right place in the
+ * plan the customer reads.
+ *
+ * Two short steps: what and when (title, time, duration), then the option's
+ * own fields. The item is created on "Next"; cancelling the second step
+ * removes it again, so an abandoned option leaves nothing behind.
+ */
+const MORE_OPTIONS: { kind: BlockKind; label: string; title: string }[] = [
+  { kind: "heading", label: "Headline", title: "Headline" },
+  { kind: "notice", label: "Notice", title: "Important notice" },
+  { kind: "emergency", label: "Emergency", title: "Emergency contacts" },
+  { kind: "checklist", label: "Checklist", title: "Checklist" },
+  { kind: "ticket", label: "Ticket", title: "Entry ticket" },
+  { kind: "document", label: "Document", title: "Travel document" },
+  { kind: "contact", label: "Contact", title: "Contact" },
+  { kind: "map", label: "Location", title: "Meeting point" },
+  { kind: "link", label: "Link", title: "Useful link" },
+  { kind: "video", label: "Video", title: "Video" },
+  { kind: "image", label: "Photo", title: "Photo" },
+  { kind: "gallery", label: "Gallery", title: "Photos" },
+  { kind: "guide", label: "Photo guide", title: "How to find your driver" },
+  { kind: "invoice", label: "Invoice", title: "Invoice" },
+  { kind: "text", label: "Note", title: "Note" },
+];
+
+function MoreOptions({
+  day,
+  tripId,
+  drivers,
+  documents,
+  invoices,
+  onChange,
+}: {
+  day: Day;
+  tripId: string;
+  drivers: Driver[];
+  documents: TripDocument[];
+  invoices: Invoice[];
+  onChange: () => void;
+}) {
+  const id = useId();
+  const [choice, setChoice] = useState<(typeof MORE_OPTIONS)[number] | "custom" | null>(null);
+  const [stepId, setStepId] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const close = () => {
+    setChoice(null);
+    setStepId(null);
+    setError("");
+  };
+
+  return (
+    <section
+      aria-label={`More options for day ${day.day_number}`}
+      className="rounded-2xl border border-hair bg-white p-4"
+    >
+      <p className="text-[11px] font-semibold tracking-[0.16em] text-navy uppercase">
+        More options
+      </p>
+      {!choice ? (
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          {MORE_OPTIONS.map((option) => (
+            <button
+              key={option.kind}
+              type="button"
+              title={BLOCK_LABELS[option.kind].hint}
+              onClick={() => setChoice(option)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-hair bg-white px-2.5 py-1.5 text-[11px] font-semibold text-navy transition hover:border-gold hover:bg-sand"
+            >
+              <Icon name={BLOCK_LABELS[option.kind].icon} className="size-3.5 text-gold-deep" />
+              {option.label}
+            </button>
+          ))}
+          <button
+            type="button"
+            title="A blank item with time, place, map pin and description"
+            onClick={() => setChoice("custom")}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-hair px-2.5 py-1.5 text-[11px] font-semibold text-muted hover:border-gold hover:text-navy"
+          >
+            <Icon name="plus" className="size-3.5" /> Custom item
+          </button>
+        </div>
+      ) : choice === "custom" ? (
+        <div className="mt-3 rounded-xl border border-gold/50 bg-paper p-4">
+          <StepForm
+            dayId={day.id}
+            stepNumber={Math.max(0, ...day.steps.map((s) => s.step_number)) + 1}
+            onDone={() => {
+              close();
+              onChange();
+            }}
+            onCancel={close}
+          />
+        </div>
+      ) : !stepId ? (
+        <form
+          className="mt-3 rounded-xl border border-gold/50 bg-paper p-4"
+          onSubmit={async (event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            setBusy(true);
+            setError("");
+            try {
+              const made = await createItem({
+                data: {
+                  dayId: day.id,
+                  title: String(form.get("title") ?? ""),
+                  timeLabel: String(form.get("time") ?? ""),
+                  duration: String(form.get("duration") ?? ""),
+                },
+              });
+              setStepId(made.id);
+            } catch {
+              setError("The item could not be created. Try again.");
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          <p className="flex items-center gap-2 text-sm font-bold text-navy">
+            <Icon name={BLOCK_LABELS[choice.kind].icon} className="size-4 text-gold-deep" />
+            New {choice.label.toLowerCase()} · Day {day.day_number}
+            {day.date ? ` · ${formatDayDate(day.date)}` : ""}
+          </p>
+          <p className="mt-0.5 text-[11px] text-muted">{BLOCK_LABELS[choice.kind].hint}</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
+            <label className="block text-xs font-semibold text-navy" htmlFor={`${id}-title`}>
+              Title
+              <input
+                id={`${id}-title`}
+                name="title"
+                defaultValue={choice.title}
+                maxLength={200}
+                autoFocus
+                className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
+              />
+            </label>
+            <label className="block text-xs font-semibold text-navy" htmlFor={`${id}-time`}>
+              Time <span className="font-normal text-muted">(optional)</span>
+              <input
+                id={`${id}-time`}
+                name="time"
+                maxLength={100}
+                placeholder="09:00"
+                className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
+              />
+            </label>
+            <label className="block text-xs font-semibold text-navy" htmlFor={`${id}-duration`}>
+              Duration <span className="font-normal text-muted">(optional)</span>
+              <input
+                id={`${id}-duration`}
+                name="duration"
+                maxLength={100}
+                placeholder="2 hours"
+                className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
+              />
+            </label>
+          </div>
+          <p className="mt-2 text-[11px] text-muted">
+            The date is the day&apos;s date. To put this on another day, add it from that day.
+          </p>
+          {error ? (
+            <p role="alert" className="mt-2 text-xs text-alert">
+              {error}
+            </p>
+          ) : null}
+          <div className="mt-3 flex gap-2">
+            <button
+              type="submit"
+              disabled={busy}
+              className="rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {busy ? "Creating…" : "Next: add the details"}
+            </button>
+            <button
+              type="button"
+              onClick={close}
+              className="rounded-xl border border-hair bg-white px-4 py-2.5 text-sm font-semibold text-navy"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="mt-3 rounded-xl border border-gold/50 bg-white p-4">
+          <BlockForm
+            stepId={stepId}
+            tripId={tripId}
+            kind={choice.kind}
+            position={0}
+            drivers={drivers}
+            documents={documents}
+            invoices={invoices}
+            onDone={() => {
+              close();
+              onChange();
+            }}
+            onCancel={async () => {
+              // The item was created on "Next"; without its content it is an
+              // empty line in the customer's plan, so it goes too.
+              const empty = stepId;
+              close();
+              try {
+                await deleteRow({ data: { table: "trip_steps", id: empty } });
+              } finally {
+                onChange();
+              }
+            }}
+          />
+        </div>
+      )}
+    </section>
+  );
 }
 
 /**
@@ -3097,7 +3343,7 @@ function BlockForm({
           }}
           className="rounded-lg bg-navy px-5 py-2 text-xs font-bold text-white disabled:opacity-60"
         >
-          {busy ? "Saving…" : "Save block"}
+          {busy ? "Saving…" : "Save to itinerary"}
         </button>
         <button
           type="button"

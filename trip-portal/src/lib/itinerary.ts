@@ -1,5 +1,5 @@
 import type { IconName } from "@/components/Icon";
-import type { Block, Day, Step } from "./types";
+import { BLOCK_LABELS, type Block, type Day, type Step } from "./types";
 
 /** A gallery is day content, never a timed activity or a stop on the route. */
 export const isDayGalleryStep = (step: Step): boolean =>
@@ -31,6 +31,24 @@ export const TOUR_GUIDE_ROLE = "Tour guide";
 export const isTourGuide = (block: Block): boolean =>
   block.kind === "contact" && block.payload.role === TOUR_GUIDE_ROLE;
 
+/** Content kinds that inform rather than plan: the "More options" row in the editor. */
+const INFO_KINDS = new Set<Block["kind"]>([
+  "heading",
+  "text",
+  "notice",
+  "emergency",
+  "checklist",
+  "link",
+  "document",
+  "invoice",
+  "contact",
+  "ticket",
+  "video",
+  "map",
+  "guide",
+  "image",
+]);
+
 /** One booking on a day, with the stop it belongs to, so a summary can link to it. */
 export type DayItem = { block: Block; step: Step };
 
@@ -49,6 +67,8 @@ export type DayEssentials = {
   guides: DayItem[];
   /** Stops that are not just a booking: sightseeing, meals, free time. */
   activities: Step[];
+  /** Notices, checklists, tickets, documents, links: information, not plans. */
+  extras: Step[];
   photos: number;
 };
 
@@ -59,6 +79,7 @@ export function dayEssentials(day: Day): DayEssentials {
     hotels: [],
     guides: [],
     activities: [],
+    extras: [],
     photos: 0,
   };
   for (const step of day.steps) {
@@ -83,7 +104,11 @@ export function dayEssentials(day: Day): DayEssentials {
         booking = true;
       }
     }
-    if (!booking && !isDayGalleryStep(step)) out.activities.push(step);
+    if (booking || isDayGalleryStep(step)) continue;
+    // A stop whose content is only information (a notice, a checklist…) is not
+    // something to do; it is listed apart so "3 activities" means three plans.
+    const info = step.blocks.some((b) => INFO_KINDS.has(b.kind) && !isTourGuide(b));
+    (info ? out.extras : out.activities).push(step);
   }
   return out;
 }
@@ -152,10 +177,39 @@ export function stepSummary(step: Step): { icon: IconName; line: string; photos:
       photos,
     };
   }
+  // Information items from "More options": say what they hold.
+  const info = step.blocks.find((b) => INFO_KINDS.has(b.kind));
+  if (info) {
+    const p = info.payload;
+    const firstLine = (p.text ?? "")
+      .split(/\r?\n/)
+      .find((l) => l.trim())
+      ?.trim();
+    const count = p.items?.length ?? 0;
+    const line =
+      info.kind === "checklist"
+        ? `Checklist · ${count} item${count === 1 ? "" : "s"}`
+        : [p.heading, p.name, p.label, p.reference, p.locationName, firstLine]
+            .filter(Boolean)
+            .slice(0, 2)
+            .join(" · ") || BLOCK_LABELS[info.kind].label;
+    return { icon: BLOCK_LABELS[info.kind].icon, line, photos };
+  }
   const first = (step.description ?? "").split(/\r?\n/).find((l) => l.trim());
   return {
     icon: "pin",
     line: [step.duration, step.location_name, first?.trim()].filter(Boolean).join(" · "),
     photos,
   };
+}
+
+/** "08:15", "8.15" or "8:15 pm" as minutes after midnight; null when there is no clock time. */
+export function clockMinutes(time: string | null | undefined): number | null {
+  const m = /(\d{1,2})[:.](\d{2})\s*(am|pm)?/i.exec(time ?? "");
+  if (!m) return null;
+  let h = Number(m[1]);
+  const min = Number(m[2]);
+  if (h > 23 || min > 59) return null;
+  if (m[3]) h = (h % 12) + (m[3].toLowerCase() === "pm" ? 12 : 0);
+  return h * 60 + min;
 }
