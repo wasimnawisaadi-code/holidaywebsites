@@ -2063,12 +2063,15 @@ function StepCard({
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState<BlockKind | null>(null);
   const [moreContent, setMoreContent] = useState(false);
+  // The content options on their own, without the item's title/time form.
+  const [contentOpen, setContentOpen] = useState(false);
+  const open = editing || contentOpen;
   const summary = stepSummary(step);
   const time = activityTime(step);
 
   return (
     <li
-      className={`rounded-xl border bg-white transition ${editing ? "border-gold/60 shadow-sm" : "border-hair"}`}
+      className={`rounded-xl border bg-white transition ${open ? "border-gold/60 shadow-sm" : "border-hair"}`}
     >
       {/* One line per item: what it is, when, and the detail that matters. */}
       <div className="flex flex-wrap items-center gap-3 p-3">
@@ -2104,12 +2107,31 @@ function StepCard({
             <Icon name="pin" className="size-3" /> Map
           </span>
         ) : null}
+        {/* An item with nothing in it yet (a custom item, a plain activity)
+            offers its content options directly, not two clicks deep. */}
+        {!step.blocks.length && !open ? (
+          <button
+            type="button"
+            onClick={() => {
+              setContentOpen(true);
+              setMoreContent(true);
+            }}
+            className="shrink-0 rounded-lg bg-navy px-3 py-1.5 text-xs font-semibold text-white"
+          >
+            + Add content
+          </button>
+        ) : null}
         <button
           type="button"
-          onClick={() => setEditing((v) => !v)}
+          onClick={() => {
+            if (open) {
+              setEditing(false);
+              setContentOpen(false);
+            } else setEditing(true);
+          }}
           className="shrink-0 rounded-lg border border-hair bg-white px-3 py-1.5 text-xs font-semibold text-navy"
         >
-          {editing ? "Done" : "Edit"}
+          {open ? "Done" : "Edit"}
         </button>
       </div>
 
@@ -2125,7 +2147,7 @@ function StepCard({
             }}
             onCancel={() => setEditing(false)}
             onDelete={async () => {
-              if (!window.confirm(`Delete step "${step.title}" and its content?`)) return;
+              if (!window.confirm(`Delete "${step.title}" and its content?`)) return;
               await deleteRow({ data: { table: "trip_steps", id: step.id } });
               onChange();
             }}
@@ -2134,7 +2156,7 @@ function StepCard({
       ) : null}
 
       {/* ---- blocks: only while editing, so the day reads as a plan ---- */}
-      <div hidden={!editing} className="border-t border-hair p-3.5">
+      <div hidden={!open} className="border-t border-hair p-3.5">
         <p className="mb-2 text-[10px] font-semibold tracking-[0.12em] text-muted uppercase">
           Content of this item
         </p>
@@ -2340,7 +2362,7 @@ function StepForm({
           disabled={busy}
           className="rounded-lg bg-navy px-5 py-2 text-xs font-bold text-white disabled:opacity-60"
         >
-          {busy ? "Saving…" : "Save step"}
+          {busy ? "Saving…" : "Save item"}
         </button>
         <button
           type="button"
@@ -2355,7 +2377,7 @@ function StepForm({
             onClick={onDelete}
             className="ml-auto rounded-lg border border-alert/40 px-4 py-2 text-xs font-semibold text-alert"
           >
-            Delete step
+            Delete item
           </button>
         ) : null}
       </div>
