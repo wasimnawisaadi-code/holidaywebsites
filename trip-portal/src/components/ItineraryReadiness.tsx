@@ -1,17 +1,16 @@
 import type { Day } from "@/lib/types";
 import { Icon } from "./Icon";
+import { activitySteps, activityTime, dayEssentials } from "@/lib/itinerary";
 
 export function ItineraryReadiness({ days }: { days: Day[] }) {
-  const blocks = days.flatMap((d) => d.steps.flatMap((s) => s.blocks));
-  const flights = blocks.filter((b) => b.kind === "flight");
-  const hotels = blocks.filter((b) => b.kind === "hotel");
-  const photos = blocks.reduce(
-    (n, b) => n + (b.payload.paths?.length ?? 0) + (b.payload.path ? 1 : 0),
-    0,
-  );
+  const all = days.map(dayEssentials);
+  const total = (pick: (e: (typeof all)[number]) => number) => all.reduce((n, e) => n + pick(e), 0);
   const reminders = days.flatMap((day) => {
     const notes: string[] = [];
-    if (!day.steps.length) notes.push("Add the day's activities");
+    if (!activitySteps(day).length) notes.push("Add flight, hotel, transfer or activity details");
+    if (!day.date) notes.push("Set the day's date");
+    for (const step of activitySteps(day))
+      if (!activityTime(step)) notes.push(`Add a time for ${step.title}`);
     for (const step of day.steps)
       for (const b of step.blocks) {
         const p = b.payload;
@@ -22,6 +21,8 @@ export function ItineraryReadiness({ days }: { days: Day[] }) {
           notes.push(`Complete flight details in ${step.title}`);
         if (b.kind === "hotel" && (!p.name || !p.checkIn || !p.checkOut))
           notes.push(`Complete hotel name and dates in ${step.title}`);
+        if (b.kind === "driver" && (!p.pickupTime || !p.pickupLocation || !p.dropoffLocation))
+          notes.push(`Complete pickup time and route in ${step.title}`);
       }
     return notes.map((note) => ({ day, note }));
   });
@@ -43,12 +44,14 @@ export function ItineraryReadiness({ days }: { days: Day[] }) {
           {reminders.length} detail reminders
         </span>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-6">
         {[
           ["Days", days.length],
-          ["Flights", flights.length],
-          ["Hotels", hotels.length],
-          ["Photos", photos],
+          ["Flights", total((e) => e.flights.length)],
+          ["Transfers", total((e) => e.transfers.length)],
+          ["Hotels", total((e) => e.hotels.length)],
+          ["Tour guides", total((e) => e.guides.length)],
+          ["Photos", total((e) => e.photos)],
         ].map(([label, count]) => (
           <div key={label} className="rounded-xl bg-paper px-4 py-3">
             <p className="text-xl font-semibold text-navy">{count}</p>
@@ -56,10 +59,27 @@ export function ItineraryReadiness({ days }: { days: Day[] }) {
           </div>
         ))}
       </div>
-      <p className="mt-4 text-xs leading-relaxed text-muted">
-        Open a day, add a step, then choose Flight, Hotel or Photo gallery. Read a booking image or
-        PDF inside the flight or hotel form, review the extracted values, and save.
-      </p>
+      <ol className="mt-4 grid gap-2 text-xs leading-relaxed text-navy sm:grid-cols-3">
+        {[
+          ["1", "Open a day", "Grey chips show what is missing. Tap one to add it."],
+          [
+            "2",
+            "Let it fill itself",
+            "Paste a hotel link or upload the e-ticket or voucher. Check, then save.",
+          ],
+          ["3", "Send it", "Use “Send trip details” to WhatsApp the whole trip to the customer."],
+        ].map(([n, title, text]) => (
+          <li key={n} className="flex gap-2.5 rounded-xl bg-paper p-3">
+            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-navy text-[11px] font-bold text-white">
+              {n}
+            </span>
+            <span>
+              <strong className="block">{title}</strong>
+              <span className="text-muted">{text}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
       {reminders.length ? (
         <details className="mt-4 rounded-xl border border-gold/30 bg-sand p-3">
           <summary className="cursor-pointer text-xs font-semibold text-gold-deep">

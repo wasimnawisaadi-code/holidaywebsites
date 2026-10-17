@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { BlockList, type BlockCtx } from "./Blocks";
+import { DayChips } from "./DayAtAGlance";
 import { Icon } from "./Icon";
 import type { Day } from "@/lib/types";
+import { activityTime } from "@/lib/itinerary";
 
 export function JourneyOverview({
   days,
   ctx,
   onSelect,
+  activeDay = 0,
 }: {
   days: Day[];
   ctx: BlockCtx;
   onSelect: (index: number) => void;
+  activeDay?: number;
 }) {
   const [view, setView] = useState<"journey" | "flight" | "hotel" | "driver" | "schedule">(
     "journey",
@@ -26,20 +30,23 @@ export function JourneyOverview({
   );
   const flights = bookings.filter((b) => b.block.kind === "flight").length;
   const stays = bookings.filter((b) => b.block.kind === "hotel").length;
+  const transfers = bookings.filter((b) => b.block.kind === "driver").length;
   return (
     <section
-      className="mt-6 overflow-hidden rounded-3xl border border-hair bg-sand/50"
+      className="mt-6 overflow-hidden rounded-3xl border border-hair bg-sand/50 shadow-sm"
       aria-label="Trip at a glance"
     >
       <div className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6">
         <div>
           <p className="text-[10px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
-            The whole journey
+            Every day. Every detail.
           </p>
-          <h3 className="mt-1 font-display text-2xl text-navy">Your trip at a glance</h3>
+          <h3 className="mt-1 font-display text-3xl text-navy">Your travel roadmap</h3>
           <p className="mt-2 text-xs text-muted">
-            {days.length} days · {days.reduce((n, d) => n + d.steps.length, 0)} experiences ·{" "}
-            {flights} flights · {stays} stays
+            {days.length} {days.length === 1 ? "day" : "days"}
+            {flights ? ` · ${flights} ${flights === 1 ? "flight" : "flights"}` : ""}
+            {stays ? ` · ${stays} ${stays === 1 ? "stay" : "stays"}` : ""}
+            {transfers ? ` · ${transfers} ${transfers === 1 ? "transfer" : "transfers"}` : ""}
           </p>
         </div>
         <div
@@ -48,7 +55,7 @@ export function JourneyOverview({
         >
           {(
             [
-              ["journey", "route", "Journey"],
+              ["journey", "route", "Roadmap"],
               ["flight", "plane", "Flights"],
               ["hotel", "hotel", "Stays"],
               ["driver", "car", "Transfers"],
@@ -95,7 +102,7 @@ export function JourneyOverview({
                     className="grid gap-2 border-b border-hair p-4 last:border-0 sm:grid-cols-[110px_1fr]"
                   >
                     <p className="text-sm font-semibold text-gold-deep">
-                      {step.time_label || "Time to confirm"}
+                      {activityTime(step) || "Time to confirm"}
                     </p>
                     <div>
                       <p className="font-semibold text-navy">{step.title}</p>
@@ -124,41 +131,93 @@ export function JourneyOverview({
           ))}
         </div>
       ) : view === "journey" ? (
-        <div className="grid gap-3 px-5 pb-5 sm:grid-cols-2 sm:px-6 sm:pb-6 lg:grid-cols-3">
+        <ol className="px-4 pb-6 sm:px-6">
           {days.map((day, index) => (
-            <button
-              key={day.id}
-              type="button"
-              onClick={() => onSelect(index)}
-              className="group flex items-start gap-3 rounded-2xl border border-hair bg-white p-4 text-left transition hover:border-gold hover:shadow-sm"
-            >
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-sand text-sm font-bold text-gold-deep">
+            <li key={day.id} className="relative pb-4 pl-10 last:pb-0 sm:pl-14">
+              {index < days.length - 1 ? (
+                <span
+                  aria-hidden="true"
+                  className="absolute top-8 bottom-0 left-4 w-px bg-gold/50 sm:left-5"
+                />
+              ) : null}
+              <span
+                aria-hidden="true"
+                className={`absolute top-4 left-0 grid size-8 place-items-center rounded-full text-xs font-bold ring-4 ring-sand sm:size-10 ${index === activeDay ? "bg-navy text-white" : "border border-gold/50 bg-white text-gold-deep"}`}
+              >
                 {String(day.day_number).padStart(2, "0")}
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-[10px] tracking-wide text-muted uppercase">
-                  Day {day.day_number}
-                  {day.date
-                    ? ` · ${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${day.date}T12:00:00Z`))}`
-                    : ""}
+              <button
+                type="button"
+                onClick={() => onSelect(index)}
+                aria-current={index === activeDay ? "step" : undefined}
+                className={`group grid w-full overflow-hidden rounded-2xl border bg-white text-left transition hover:border-gold hover:shadow-md ${day.coverUrl ? "sm:grid-cols-[1fr_150px]" : ""} ${index === activeDay ? "border-gold shadow-sm" : "border-hair"}`}
+              >
+                <span className="min-w-0 p-4 sm:p-5">
+                  <span className="block text-[10px] tracking-wide text-muted uppercase">
+                    Day {day.day_number}
+                    {day.date
+                      ? ` · ${new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${day.date}T12:00:00Z`))}`
+                      : ""}
+                  </span>
+                  <span className="mt-1 block font-display text-xl text-navy">{day.title}</span>
+                  <DayChips day={day} />
+                  {day.steps.length ? (
+                    <span className="mt-3 block space-y-2">
+                      {day.steps.slice(0, 3).map((step) => {
+                        const kind = step.blocks.find((b) =>
+                          ["flight", "hotel", "driver"].includes(b.kind),
+                        )?.kind;
+                        return (
+                          <span key={step.id} className="flex items-start gap-2 text-xs text-muted">
+                            <Icon
+                              name={
+                                kind === "flight"
+                                  ? "plane"
+                                  : kind === "hotel"
+                                    ? "hotel"
+                                    : kind === "driver"
+                                      ? "car"
+                                      : "pin"
+                              }
+                              className="mt-0.5 size-3.5 shrink-0 text-gold-deep"
+                            />
+                            <span>
+                              {activityTime(step) ? (
+                                <strong className="mr-1.5 text-navy">{activityTime(step)}</strong>
+                              ) : null}
+                              {step.title}
+                            </span>
+                          </span>
+                        );
+                      })}
+                      {day.steps.length > 3 ? (
+                        <span className="block text-xs text-muted">
+                          + {day.steps.length - 3} more activities
+                        </span>
+                      ) : null}
+                    </span>
+                  ) : (
+                    <span className="mt-2 block line-clamp-3 text-xs leading-relaxed whitespace-pre-line text-muted">
+                      {day.summary || "Details coming soon"}
+                    </span>
+                  )}
+                  <span className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-gold-deep">
+                    Explore this day <Icon name="arrowRight" className="size-3.5" />
+                  </span>
                 </span>
-                <span className="mt-1 block text-sm font-semibold text-navy">{day.title}</span>
-                <span className="mt-2 block text-xs leading-relaxed text-muted">
-                  {day.steps.length
-                    ? day.steps
-                        .map((s) => s.title)
-                        .slice(0, 3)
-                        .join(" · ")
-                    : day.summary
-                      ? "View your day’s highlights"
-                      : "Details coming soon"}
-                  {day.steps.length > 3 ? ` · +${day.steps.length - 3} more` : ""}
-                </span>
-              </span>
-              <Icon name="arrowRight" className="mt-3 size-3.5 shrink-0 text-gold-deep" />
-            </button>
+                {day.coverUrl ? (
+                  <img
+                    src={day.coverUrl}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="order-first h-28 w-full object-cover sm:order-none sm:h-full sm:min-h-40"
+                  />
+                ) : null}
+              </button>
+            </li>
           ))}
-        </div>
+        </ol>
       ) : (
         <div className="grid items-start gap-4 px-5 pb-5 sm:px-6 sm:pb-6 lg:grid-cols-2">
           {bookings

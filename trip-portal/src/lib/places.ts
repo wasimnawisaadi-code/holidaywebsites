@@ -87,67 +87,74 @@ const followable = (u: URL) => u.protocol === "https:" && FOLLOWABLE.has(u.hostn
 const UNREADABLE =
   "Couldn't read a location from that link. Open it, tap Share → Copy link, and paste again.";
 
+export type MapsLinkResult =
+  { ok: true; lat: number; lng: number; name: string | null } | { ok: false; reason: string };
+
 export const resolveMapsLink = createServerFn({ method: "POST" })
   .validator((url: string) => url)
-  .handler(
-    async ({
-      data: raw,
-    }): Promise<
-      { ok: true; lat: number; lng: number; name: string | null } | { ok: false; reason: string }
-    > => {
-      await requireSession();
-      const text = raw.trim().slice(0, 2000);
+  .handler(async ({ data }): Promise<MapsLinkResult> => {
+    await requireSession();
+    return followMapsLink(data);
+  });
 
-      // A full link already carries the coordinates.
-      const direct = coordsFromMapsUrl(text);
-      if (direct) return { ok: true, lat: direct.lat, lng: direct.lng, name: direct.name ?? null };
+/**
+ * Follows a Google Maps link, short or full, to its coordinates and place name.
+ *
+ * A plain function so the hotel finder can reuse it. It does no session check
+ * of its own: every caller is a server function that has already done one.
+ */
+export async function followMapsLink(raw: string): Promise<MapsLinkResult> {
+  const text = raw.trim().slice(0, 2000);
 
-      let url: URL;
-      try {
-        url = new URL(text);
-      } catch {
-        return {
-          ok: false,
-          reason: "That doesn't look like a link. Paste the whole Google Maps link.",
-        };
-      }
-      if (!followable(url)) {
-        return { ok: false, reason: "Only Google Maps links can be read." };
-      }
+  // A full link already carries the coordinates.
+  const direct = coordsFromMapsUrl(text);
+  if (direct) return { ok: true, lat: direct.lat, lng: direct.lng, name: direct.name ?? null };
 
-      try {
-        // Redirects are followed by hand, a few hops at most, so each one can be
-        // checked against the list above before it is requested.
-        let current = url;
-        for (let hop = 0; hop < 6; hop++) {
-          // A hop's own address often carries the place already — the full maps
-          // link, or a consent page with that link in its `continue` parameter.
-          const here = coordsFromMapsUrl(current.toString());
-          if (here) return { ok: true, lat: here.lat, lng: here.lng, name: here.name ?? null };
+  let url: URL;
+  try {
+    url = new URL(text);
+  } catch {
+    return {
+      ok: false,
+      reason: "That doesn't look like a link. Paste the whole Google Maps link.",
+    };
+  }
+  if (!followable(url)) {
+    return { ok: false, reason: "Only Google Maps links can be read." };
+  }
 
-          const res = await fetch(current, {
-            redirect: "manual",
-            headers: { "User-Agent": USER_AGENT },
-          });
-          const next = res.headers.get("location");
-          if (res.status >= 300 && res.status < 400 && next) {
-            const to = new URL(next, current);
-            if (!followable(to)) {
-              return { ok: false, reason: "That link leads somewhere other than Google Maps." };
-            }
-            current = to;
-            continue;
-          }
-          // The end of the chain. Last resort: the page itself. The pin shows on
-          // the map straight away, so a wrong guess here is seen, not shipped.
-          const inPage = res.ok ? coordsFromMapsUrl((await res.text()).slice(0, 200_000)) : null;
-          return inPage
-            ? { ok: true, lat: inPage.lat, lng: inPage.lng, name: inPage.name ?? null }
-            : { ok: false, reason: UNREADABLE };
+  try {
+    // Redirects are followed by hand, a few hops at most, so each one can be
+    // checked against the list above before it is requested.
+    let current = url;
+    for (let hop = 0; hop < 6; hop++) {
+      // A hop's own address often carries the place already — the full maps
+      // link, or a consent page with that link in its `continue` parameter.
+      const here = coordsFromMapsUrl(current.toString());
+      if (here) return { ok: true, lat: here.lat, lng: here.lng, name: here.name ?? null };
+
+      const res = await fetch(current, {
+        redirect: "manual",
+        headers: { "User-Agent": USER_AGENT },
+      });
+      const next = res.headers.get("location");
+      if (res.status >= 300 && res.status < 400 && next) {
+        const to = new URL(next, current);
+        if (!followable(to)) {
+          return { ok: false, reason: "That link leads somewhere other than Google Maps." };
         }
-        return { ok: false, reason: UNREADABLE };
-      } catch {
-        return { ok: false, reason: "Couldn't open that link." };
+        current = to;
+        continue;
       }
-    },
-  );
+      // The end of the chain. Last resort: the page itself. The pin shows on
+      // the map straight away, so a wrong guess here is seen, not shipped.
+      const inPage = res.ok ? coordsFromMapsUrl((await res.text()).slice(0, 200_000)) : null;
+      return inPage
+        ? { ok: true, lat: inPage.lat, lng: inPage.lng, name: inPage.name ?? null }
+        : { ok: false, reason: UNREADABLE };
+    }
+    return { ok: false, reason: UNREADABLE };
+  } catch {
+    return { ok: false, reason: "Couldn't open that link." };
+  }
+}

@@ -126,6 +126,7 @@ export type BlockPayload = {
   /** Storage path inside trip-media — never a URL. Signed at render time. */
   path?: string | undefined;
   paths?: string[] | undefined;
+  dayGallery?: boolean | undefined;
   /** Resolved from `path` when the trip is read; never stored. */
   url?: string | null | undefined;
   urls?: (string | null)[] | undefined;
@@ -141,6 +142,10 @@ export type BlockPayload = {
   pickupLocation?: string | undefined;
   dropoffLocation?: string | undefined;
   transferNotes?: string | undefined;
+  /** A contact block's role, e.g. "Tour guide". Shown above the name on the customer's card. */
+  role?: string | undefined;
+  /** Languages a tour guide speaks, as typed: "English, Arabic". */
+  languages?: string | undefined;
   documentId?: string | undefined;
   invoiceId?: string | undefined;
   /**

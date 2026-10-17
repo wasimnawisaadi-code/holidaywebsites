@@ -63,14 +63,18 @@ export async function tripByToken(token: string): Promise<CustomerTrip | null> {
   const raw = rows?.[0];
   if (!raw) return null;
 
-  const trip = raw as unknown as Trip;
+  // Remove the raw relationship before returning trip metadata. A type cast
+  // does not remove runtime properties: retaining trip_days here would send
+  // unpublished days through trip.trip_days despite the filtered days below.
+  const { trip_days: rawDays, ...tripFields } = raw;
+  const trip = tripFields as unknown as Trip;
   if (!trip.published_at) return null;
   if (trip.status === "cancelled") return null;
 
   // Only published days reach the customer. An unpublished day is one the office
   // is still writing, and a half-written day is worse than no day at all — it
   // reads as though the trip has a hole in it.
-  const dayRows = shapeDays((raw["trip_days"] as Record<string, unknown>[]) ?? []).filter(
+  const dayRows = shapeDays((rawDays as Record<string, unknown>[]) ?? []).filter(
     (d) => d.published,
   );
 
@@ -139,11 +143,13 @@ export async function tripByToken(token: string): Promise<CustomerTrip | null> {
 function shapeDays(rawDays: Record<string, unknown>[]): Day[] {
   return rawDays
     .map((d) => {
-      const day = d as unknown as Day & { trip_steps?: Record<string, unknown>[] };
-      const steps = ((day.trip_steps ?? []) as unknown[])
+      const { trip_steps: rawSteps, ...dayFields } = d;
+      const day = dayFields as unknown as Day;
+      const steps = ((rawSteps ?? []) as Record<string, unknown>[])
         .map((s) => {
-          const step = s as unknown as Step & { trip_blocks?: Record<string, unknown>[] };
-          const blocks = ((step.trip_blocks ?? []) as unknown[])
+          const { trip_blocks: rawBlocks, ...stepFields } = s;
+          const step = stepFields as unknown as Step;
+          const blocks = ((rawBlocks ?? []) as unknown[])
             .map((b) => b as Block)
             .sort((a, b) => a.position - b.position);
           return { ...step, blocks };

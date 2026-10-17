@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 
+import { coordsFromMapsUrl, isLatLng } from "./geo";
+import { readHotelInput } from "./hotel-link";
+import { followMapsLink } from "./places";
 import type { BlockPayload } from "./types";
 import { UUID } from "./uploads";
 import { requireSession } from "./session";
@@ -294,41 +297,138 @@ function namesMatch(asked: string, found: string): boolean {
   return hits / want.length >= 0.6;
 }
 
+type PlacePhoto = { name: string; authorAttributions?: { displayName?: string }[] };
+type PlaceRecord = {
+  id?: string;
+  displayName?: { text?: string };
+  formattedAddress?: string;
+  internationalPhoneNumber?: string;
+  websiteUri?: string;
+  googleMapsUri?: string;
+  rating?: number;
+  userRatingCount?: number;
+  editorialSummary?: { text?: string };
+  location?: { latitude?: number; longitude?: number };
+  photos?: PlacePhoto[];
+};
+
+class PlacesError extends Error {
+  constructor(readonly status: number) {
+    super(`Places ${status}`);
+  }
+}
+
+const placesKey = () => env("GOOGLE_MAPS_API_KEY") ?? env("GEMINI_API_KEY");
+const NO_PLACES_KEY =
+  "Hotel search is not connected yet. Ask the administrator to add GOOGLE_MAPS_API_KEY. You can still type the details below.";
+
+/** How many photos a hotel gets. Six fills a card gallery without bloating storage. */
+const HOTEL_PHOTOS = 6;
+
+/** A short-lived Google photo URL. Places returns it when asked to skip the redirect. */
+async function placePhotoUri(apiKey: string, photoName: string, width: number) {
+  const meta = await fetch(
+    `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=${width}&skipHttpRedirect=true`,
+    { headers: { "X-Goog-Api-Key": apiKey }, signal: AbortSignal.timeout(15_000) },
+  );
+  if (!meta.ok) return null;
+  const { photoUri } = (await meta.json()) as { photoUri?: string };
+  return photoUri?.startsWith("https://") ? photoUri : null;
+}
+
+/**
+ * Copies a place's photos into this trip's private folder.
+ *
+ * Each photo is fetched and stored separately. One failing photo is skipped
+ * rather than failing the whole set: a card with three photos is still a good
+ * card. Order is kept, so Google's lead photo stays first.
+ */
+async function storePlacePhotos(
+  apiKey: string,
+  tripId: string,
+  photos: PlacePhoto[],
+): Promise<{ paths: string[]; credit: string }> {
+  const { uploadObject } = await import("./db");
+  const orderedPaths: (string | undefined)[] = [];
+  const authors = new Set<string>();
+  await Promise.allSettled(
+    photos.slice(0, HOTEL_PHOTOS).map(async (photo, index) => {
+      const uri = await placePhotoUri(apiKey, photo.name, 1200);
+      if (!uri) return;
+      const img = await fetch(uri, { signal: AbortSignal.timeout(20_000) });
+      if (!img.ok) return;
+      const type = (img.headers.get("content-type") ?? "image/jpeg").split(";")[0] ?? "";
+      if (!type.startsWith("image/")) return;
+      if (Number(img.headers.get("content-length")) > MAX_DOC_BYTES) return;
+      const bytes = await img.arrayBuffer();
+      if (bytes.byteLength > MAX_DOC_BYTES) return;
+      const path = `${tripId}/hotel-${Date.now()}-${index}.${type === "image/png" ? "png" : "jpg"}`;
+      if (!(await uploadObject("trip-media", path, bytes, type))) return;
+      orderedPaths[index] = path;
+      for (const a of photo.authorAttributions ?? []) {
+        if (a.displayName) authors.add(a.displayName);
+      }
+    }),
+  );
+  const paths = orderedPaths.filter((path): path is string => Boolean(path));
+  const credit = !paths.length
+    ? ""
+    : authors.size
+      ? `Photos: ${[...authors].join(", ")} / Google`
+      : "Photos: Google";
+  return { paths, credit };
+}
+
+const safeLink = (value?: string) => {
+  try {
+    const url = new URL(value ?? "");
+    return url.protocol === "https:" || url.protocol === "http:" ? url.href : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+/** The hotel facts a place carries, in block-payload shape. */
+function hotelDetails(place: PlaceRecord): BlockPayload {
+  return {
+    name: place.displayName?.text,
+    address: place.formattedAddress,
+    phone: place.internationalPhoneNumber,
+    hotelSummary: place.editorialSummary?.text,
+    hotelAddress: place.formattedAddress,
+    hotelRating: typeof place.rating === "number" ? String(place.rating) : undefined,
+    hotelReviewCount:
+      typeof place.userRatingCount === "number" ? String(place.userRatingCount) : undefined,
+    hotelWebsite: safeLink(place.websiteUri),
+    hotelMapsUrl: safeLink(place.googleMapsUri),
+    hotelSourceName: place.displayName?.text,
+    hotelFetchedAt: new Date().toISOString().slice(0, 10),
+  };
+}
+
 export type PhotoResult =
   | { ok: true; paths: string[]; urls: (string | null)[]; credit: string; details: BlockPayload }
   | { ok: false; reason: string };
-
-/** How many photos a hotel gets from one search. Six fills a card gallery without bloating storage. */
-const HOTEL_PHOTOS = 6;
 
 export const findHotelPhoto = createServerFn({ method: "POST" })
   .validator((input: { tripId: string; name: string; place: string }) => input)
   .handler(async ({ data }): Promise<PhotoResult> => {
     await requireSession();
 
-    const apiKey = env("GOOGLE_MAPS_API_KEY") ?? env("GEMINI_API_KEY");
-    if (!apiKey) {
-      return {
-        ok: false,
-        reason: "Finding photos is not set up yet: GOOGLE_MAPS_API_KEY is missing.",
-      };
-    }
+    const apiKey = placesKey();
+    if (!apiKey) return { ok: false, reason: NO_PLACES_KEY };
     if (!UUID.test(data.tripId)) return { ok: false, reason: "Unknown trip." };
 
     const name = data.name.trim().slice(0, 120);
     if (name.length < 3) return { ok: false, reason: "Type the hotel's name first." };
     const query = [name, data.place.trim()].filter(Boolean).join(" ").slice(0, 200);
 
-    const headers = {
-      "Content-Type": "application/json",
-      "X-Goog-Api-Key": apiKey,
-    };
-
     try {
       const search = await fetch("https://places.googleapis.com/v1/places:searchText", {
         method: "POST",
         headers: {
-          ...headers,
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
           "X-Goog-FieldMask":
             "places.id,places.displayName,places.photos,places.formattedAddress,places.internationalPhoneNumber,places.websiteUri,places.googleMapsUri,places.rating,places.userRatingCount,places.editorialSummary",
         },
@@ -341,22 +441,7 @@ export const findHotelPhoto = createServerFn({ method: "POST" })
           reason: `Google Places is not answering (${search.status}). Upload a photo instead.`,
         };
       }
-      const places =
-        (
-          (await search.json()) as {
-            places?: {
-              displayName?: { text?: string };
-              formattedAddress?: string;
-              internationalPhoneNumber?: string;
-              websiteUri?: string;
-              googleMapsUri?: string;
-              rating?: number;
-              userRatingCount?: number;
-              editorialSummary?: { text?: string };
-              photos?: { name: string; authorAttributions?: { displayName?: string }[] }[];
-            }[];
-          }
-        ).places ?? [];
+      const places = ((await search.json()) as { places?: PlaceRecord[] }).places ?? [];
 
       const matches = places.filter(
         (p) => p.photos?.length && namesMatch(name, p.displayName?.text ?? ""),
@@ -372,85 +457,212 @@ export const findHotelPhoto = createServerFn({ method: "POST" })
         return { ok: false, reason: `No confident photo for "${name}". Upload one instead.` };
       }
 
-      const { uploadObject, signedUrl } = await import("./db");
-      const orderedPaths: (string | undefined)[] = [];
-      const authors = new Set<string>();
-
-      // Each photo is fetched and stored separately. One failing photo is
-      // skipped rather than failing the whole set: a card with three photos
-      // is still a good card.
-      await Promise.allSettled(
-        match.photos.slice(0, HOTEL_PHOTOS).map(async (photo, index) => {
-          // Places returns a short-lived photo URI when asked to skip the
-          // redirect, which lets the server download the bytes itself.
-          const meta = await fetch(
-            `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=1200&skipHttpRedirect=true`,
-            { headers: { "X-Goog-Api-Key": apiKey }, signal: AbortSignal.timeout(15_000) },
-          );
-          if (!meta.ok) return;
-          const { photoUri } = (await meta.json()) as { photoUri?: string };
-          if (!photoUri || !photoUri.startsWith("https://")) return;
-
-          const img = await fetch(photoUri, { signal: AbortSignal.timeout(20_000) });
-          if (!img.ok) return;
-          const type = (img.headers.get("content-type") ?? "image/jpeg").split(";")[0] ?? "";
-          if (!type.startsWith("image/")) return;
-          if (Number(img.headers.get("content-length")) > MAX_DOC_BYTES) return;
-          const bytes = await img.arrayBuffer();
-          if (bytes.byteLength > MAX_DOC_BYTES) return;
-
-          const path = `${data.tripId}/hotel-${Date.now()}-${index}.${
-            type === "image/png" ? "png" : "jpg"
-          }`;
-          if (!(await uploadObject("trip-media", path, bytes, type))) return;
-          orderedPaths[index] = path;
-          for (const a of photo.authorAttributions ?? []) {
-            if (a.displayName) authors.add(a.displayName);
-          }
-        }),
-      );
-
-      const paths = orderedPaths.filter((path): path is string => Boolean(path));
+      const { paths, credit } = await storePlacePhotos(apiKey, data.tripId, match.photos);
       if (!paths.length) {
         return {
           ok: false,
           reason: "Google had photos but none could be saved. Upload one instead.",
         };
       }
-      const credit = authors.size
-        ? `Photos: ${[...authors].join(", ")} / Google`
-        : "Photos: Google";
-      const safeLink = (value?: string) => {
-        try {
-          const url = new URL(value ?? "");
-          return url.protocol === "https:" || url.protocol === "http:" ? url.href : undefined;
-        } catch {
-          return undefined;
-        }
-      };
-      const details: BlockPayload = {
-        name: match.displayName?.text,
-        address: match.formattedAddress,
-        phone: match.internationalPhoneNumber,
-        hotelSummary: match.editorialSummary?.text,
-        hotelAddress: match.formattedAddress,
-        hotelRating: typeof match.rating === "number" ? String(match.rating) : undefined,
-        hotelReviewCount:
-          typeof match.userRatingCount === "number" ? String(match.userRatingCount) : undefined,
-        hotelWebsite: safeLink(match.websiteUri),
-        hotelMapsUrl: safeLink(match.googleMapsUri),
-        hotelSourceName: match.displayName?.text,
-        hotelFetchedAt: new Date().toISOString().slice(0, 10),
-      };
+      const { signedUrl } = await import("./db");
       return {
         ok: true,
         paths,
         urls: await Promise.all(paths.map((path) => signedUrl("trip-media", path))),
         credit,
-        details,
+        details: hotelDetails(match),
       };
     } catch {
       return { ok: false, reason: "Google Places did not answer in time. Upload a photo instead." };
+    }
+  });
+
+/* -------------------------------------------------------------------------
+ * Hotel finder: paste a link or a name, pick the hotel, everything fills in
+ * ---------------------------------------------------------------------- */
+
+export type HotelCandidate = {
+  placeId: string;
+  name: string;
+  address: string;
+  rating: number | null;
+  reviews: number | null;
+  /** A short-lived Google photo URL, for the admin's choice list only. Never stored. */
+  photo: string | null;
+  /** The name matches what was asked for (or the pin of a Maps link). */
+  likely: boolean;
+};
+
+export type HotelSearchResult =
+  { ok: true; understood: string; candidates: HotelCandidate[] } | { ok: false; reason: string };
+
+/**
+ * Up to five hotels for whatever the office pasted: a Google Maps link, a
+ * booking-site link, the hotel's website, or a name.
+ *
+ * Returns choices rather than guessing. The office picks the right one by
+ * its photo and address, which is faster than reading why a guess was wrong.
+ */
+export const searchHotels = createServerFn({ method: "POST" })
+  .validator((input: string) => input)
+  .handler(async ({ data }): Promise<HotelSearchResult> => {
+    await requireSession();
+    const apiKey = placesKey();
+    if (!apiKey) return { ok: false, reason: NO_PLACES_KEY };
+
+    const raw = String(data ?? "").slice(0, 2000);
+    const input = readHotelInput(raw);
+    if (input.kind === "unreadable") return { ok: false, reason: input.reason };
+
+    let text: string;
+    let near: { lat: number; lng: number } | null = null;
+    if (input.kind === "maps") {
+      const direct = coordsFromMapsUrl(raw);
+      if (direct) {
+        near = { lat: direct.lat, lng: direct.lng };
+        text = input.name ?? direct.name ?? "hotel";
+      } else if (input.name) {
+        text = input.name;
+      } else {
+        // A short share link: follow it to the place.
+        const hit = await followMapsLink(raw);
+        if (!hit.ok) return { ok: false, reason: hit.reason };
+        near = { lat: hit.lat, lng: hit.lng };
+        text = hit.name ?? "hotel";
+      }
+    } else text = input.text;
+    text = text.slice(0, 160);
+
+    const search = async (lodgingOnly: boolean) => {
+      const res = await fetch("https://places.googleapis.com/v1/places:searchText", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask":
+            "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.photos",
+        },
+        body: JSON.stringify({
+          textQuery: text,
+          maxResultCount: 5,
+          ...(lodgingOnly ? { includedType: "lodging" } : {}),
+          ...(near
+            ? {
+                locationBias: {
+                  circle: { center: { latitude: near.lat, longitude: near.lng }, radius: 300 },
+                },
+              }
+            : {}),
+        }),
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (!res.ok) throw new PlacesError(res.status);
+      return ((await res.json()) as { places?: PlaceRecord[] }).places ?? [];
+    };
+
+    try {
+      // Hotels first; anything at all if no hotel matches (a resort listed
+      // under another type, or a serviced apartment).
+      let places = await search(true);
+      if (!places.length) places = await search(false);
+      if (!places.length) {
+        return {
+          ok: false,
+          reason: `Google found nothing for "${text}". Add the city, or type the name as it appears on the booking.`,
+        };
+      }
+      const candidates = await Promise.all(
+        places
+          .filter((p) => p.id)
+          .slice(0, 5)
+          .map(async (p, index): Promise<HotelCandidate> => {
+            const first = p.photos?.[0];
+            const photo = first
+              ? await placePhotoUri(apiKey, first.name, 320).catch(() => null)
+              : null;
+            const name = p.displayName?.text ?? "Unnamed place";
+            return {
+              placeId: p.id!,
+              name,
+              address: p.formattedAddress ?? "",
+              rating: typeof p.rating === "number" ? p.rating : null,
+              reviews: typeof p.userRatingCount === "number" ? p.userRatingCount : null,
+              photo,
+              likely: namesMatch(text, name) || (near !== null && index === 0),
+            };
+          }),
+      );
+      return { ok: true, understood: text, candidates };
+    } catch (error) {
+      // A refused key is a setup problem, not a busy server: say which.
+      if (error instanceof PlacesError && [400, 401, 403].includes(error.status)) {
+        return {
+          ok: false,
+          reason: `Google refused the hotel search (${error.status}). Check GOOGLE_MAPS_API_KEY and that "Places API (New)" is enabled for it.`,
+        };
+      }
+      return { ok: false, reason: "Google Places did not answer. Try again in a moment." };
+    }
+  });
+
+export type HotelImport =
+  | {
+      ok: true;
+      details: BlockPayload;
+      paths: string[];
+      urls: (string | null)[];
+      credit: string;
+      lat: number | null;
+      lng: number | null;
+    }
+  | { ok: false; reason: string };
+
+/**
+ * Everything about the chosen hotel: name, address, phone, pin, rating,
+ * summary, website and up to six photos copied into the trip's own storage.
+ */
+export const importHotel = createServerFn({ method: "POST" })
+  .validator((input: { tripId: string; placeId: string }) => input)
+  .handler(async ({ data }): Promise<HotelImport> => {
+    await requireSession();
+    const apiKey = placesKey();
+    if (!apiKey) return { ok: false, reason: NO_PLACES_KEY };
+    if (!UUID.test(data.tripId)) return { ok: false, reason: "Unknown trip." };
+    // Place ids are URL-safe. Anything else must not reach the URL path.
+    if (!/^[A-Za-z0-9_-]{8,400}$/.test(data.placeId)) {
+      return { ok: false, reason: "That hotel could not be opened. Search again." };
+    }
+
+    try {
+      const res = await fetch(`https://places.googleapis.com/v1/places/${data.placeId}`, {
+        headers: {
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask":
+            "id,displayName,formattedAddress,internationalPhoneNumber,websiteUri,googleMapsUri,rating,userRatingCount,editorialSummary,location,photos",
+        },
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (!res.ok) return { ok: false, reason: "Google would not open that hotel. Search again." };
+      const place = (await res.json()) as PlaceRecord;
+
+      const { paths, credit } = place.photos?.length
+        ? await storePlacePhotos(apiKey, data.tripId, place.photos)
+        : { paths: [], credit: "" };
+      const { signedUrl } = await import("./db");
+      const lat = place.location?.latitude;
+      const lng = place.location?.longitude;
+      const pinned = isLatLng(lat, lng);
+      return {
+        ok: true,
+        details: { ...hotelDetails(place), ...(credit ? { credit } : {}) },
+        paths,
+        urls: await Promise.all(paths.map((path) => signedUrl("trip-media", path))),
+        credit,
+        lat: pinned ? lat! : null,
+        lng: pinned ? lng! : null,
+      };
+    } catch {
+      return { ok: false, reason: "Google Places did not answer. Try again in a moment." };
     }
   });
 

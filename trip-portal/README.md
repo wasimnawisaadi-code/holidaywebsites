@@ -146,6 +146,29 @@ reordering and cover selection. Collections accept up to 20 photos, each up to
 12 MB. Removing a photo detaches it from the block; it does not delete the
 underlying storage object. Existing photographer credits are preserved.
 
+Each day now has a **Build day** panel: choose Activity, Flight, Hotel stay or
+Transfer, then enter its time, location, booking details and instructions in
+one form. Optional activity photos stay with that stop. The **Day photo gallery**
+below it accepts a separate collection for the whole day; save the gallery after
+uploading or rearranging it. Its first photo becomes the customer's day thumbnail.
+The advanced editor remains available for OCR and other content blocks.
+
+Failed files can be retried individually without losing successful uploads.
+Collapsing a day or switching editor tabs preserves unfinished work; leaving the
+trip warns about unsaved gallery/composer changes. A failed activity save can be
+retried using the same request ID, so it completes the same stop. Saves use several
+REST writes, so an interrupted save can temporarily contain only some details.
+
+The customer roadmap connects each day with its timed activities and includes
+Flights, Stays, Transfers and Schedule views. Gallery-only steps do not count as
+activities or appear in printed summaries. Unpublished days are excluded from the
+entire customer response, including nested database relationships.
+
+`node scripts/verify-photo-upload.mjs` checks bulk selection, failed-file retry,
+ordering, cover choice, file limits and draft/save refresh behavior using mock
+storage in an isolated browser fixture. It does not write to customer trips or
+verify production storage permissions.
+
 Booking OCR now presents editable suggestions before applying them to empty
 fields. It never overwrites existing manual entries. Multi-leg tickets currently
 extract the first flight only; add remaining flights as separate blocks.
