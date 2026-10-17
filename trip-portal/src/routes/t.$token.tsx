@@ -6,7 +6,9 @@ import { BlockList, DriverCard, DocumentLink } from "@/components/Blocks";
 import { Directions } from "@/components/Directions";
 import { Icon, type IconName } from "@/components/Icon";
 import { PrintableItinerary } from "@/components/PrintableItinerary";
+import { DayAtAGlance } from "@/components/DayAtAGlance";
 import { JourneyOverview } from "@/components/JourneyOverview";
+import { TripInsights } from "@/components/TripInsights";
 import { InvoiceCard } from "@/components/InvoiceCard";
 import { MapView, type MapPoint } from "@/components/MapView";
 import { destinationPhoto } from "@/lib/destinations";
@@ -270,6 +272,21 @@ function Portal() {
             ) : null}
           </div>
 
+          <TripInsights
+            days={days}
+            onOpen={(index, stepId) => {
+              selectDay(index);
+              // After the chosen day has rendered, bring the item into view.
+              window.setTimeout(
+                () =>
+                  document
+                    .getElementById(`stop-${stepId}`)
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                80,
+              );
+            }}
+          />
+
           <div className="mt-5 grid grid-cols-3 gap-2 border-t border-hair pt-4">
             {(
               [
@@ -456,6 +473,7 @@ function Portal() {
                       {day.summary}
                     </p>
                   ) : null}
+                  <DayAtAGlance day={day} drivers={drivers} />
                   {dayPhotos.length ? (
                     <div className="mt-6">
                       <BlockList blocks={dayPhotos} ctx={{ drivers, documents }} />

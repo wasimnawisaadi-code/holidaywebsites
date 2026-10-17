@@ -3,9 +3,10 @@ import { requireSession } from "./session";
 import { UUID } from "./uploads";
 import { nightsBetween } from "./booking-fill";
 import { isLatLng } from "./geo";
+import { TOUR_GUIDE_ROLE } from "./itinerary";
 import type { BlockKind, BlockPayload } from "./types";
 
-export type QuickActivityKind = "activity" | "flight" | "hotel" | "transfer";
+export type QuickActivityKind = "activity" | "flight" | "hotel" | "transfer" | "tourguide";
 export type QuickActivityDraft = {
   requestId: string;
   tripId: string;
@@ -37,7 +38,7 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
       !UUID.test(data.tripId) ||
       !UUID.test(data.dayId) ||
       !UUID.test(data.requestId) ||
-      !["activity", "flight", "hotel", "transfer"].includes(data.kind) ||
+      !["activity", "flight", "hotel", "transfer", "tourguide"].includes(data.kind) ||
       !data.fields ||
       typeof data.fields !== "object" ||
       Array.isArray(data.fields) ||
@@ -99,9 +100,14 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
             ]
           : data.kind === "transfer"
             ? ["driverId", "pickupTime", "pickupLocation", "dropoffLocation", "transferNotes"]
-            : [];
+            : data.kind === "tourguide"
+              ? ["name", "phone", "whatsapp", "languages", "text"]
+              : [];
     for (const key of allowed) {
-      const value = text(data.fields[key] ?? "", key === "transferNotes" ? 2000 : 500);
+      const value = text(
+        data.fields[key] ?? "",
+        key === "transferNotes" || key === "text" ? 2000 : 500,
+      );
       if (value) Object.assign(payload, { [key]: value });
     }
     if (data.kind === "hotel") {
@@ -117,6 +123,13 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
       // A hotel's photos belong on its own card, beside the credit Google
       // requires, rather than in a separate gallery underneath.
       if (data.paths.length) payload.paths = [...new Set(data.paths)];
+    }
+    if (data.kind === "tourguide") {
+      // A guide is a contact the customer can call, marked so every summary
+      // of the day lists them as the tour guide.
+      payload.role = TOUR_GUIDE_ROLE;
+      if (!payload.name) throw new Error("Add the guide's name");
+      payload.whatsapp ||= payload.phone;
     }
     if (data.kind === "transfer") {
       payload.pickupTime ||= time;
@@ -215,7 +228,12 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
       }
     };
     if (data.kind !== "activity")
-      await saveBlock("booking", data.kind === "transfer" ? "driver" : data.kind, payload, 0);
+      await saveBlock(
+        "booking",
+        data.kind === "transfer" ? "driver" : data.kind === "tourguide" ? "contact" : data.kind,
+        payload,
+        0,
+      );
     // Hotel photos are already on the hotel card above.
     const galleryPaths = data.kind === "hotel" ? [] : data.paths;
     const oldPhotos = galleryPaths.length

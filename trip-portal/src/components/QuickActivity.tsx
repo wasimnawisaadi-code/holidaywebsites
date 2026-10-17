@@ -15,17 +15,30 @@ import {
 import { uploadDirect } from "@/lib/uploads";
 import type { Driver } from "@/lib/types";
 
-const choices: { kind: QuickActivityKind; label: string; hint: string; icon: IconName }[] = [
-  { kind: "activity", label: "Activity", hint: "Sightseeing, meals or free time", icon: "pin" },
+/** In the order a day happens: arrive, get picked up, check in, go out with the guide. */
+export const QUICK_CHOICES: {
+  kind: QuickActivityKind;
+  label: string;
+  hint: string;
+  icon: IconName;
+}[] = [
   { kind: "flight", label: "Flight", hint: "Upload the e-ticket, we fill the rest", icon: "plane" },
+  { kind: "transfer", label: "Transfer", hint: "Pickup, drop-off and driver", icon: "car" },
   {
     kind: "hotel",
     label: "Hotel stay",
     hint: "Paste a hotel link, we add photos and details",
     icon: "hotel",
   },
-  { kind: "transfer", label: "Transfer", hint: "Pickup, drop-off and driver", icon: "car" },
+  {
+    kind: "tourguide",
+    label: "Tour guide",
+    hint: "Guide's name, phone, languages and meeting point",
+    icon: "users",
+  },
+  { kind: "activity", label: "Activity", hint: "Sightseeing, meals or free time", icon: "pin" },
 ];
+const choices = QUICK_CHOICES;
 
 /** Form inputs that are dates; a voucher's printed date is converted before it lands in one. */
 const DATE_FIELDS = new Set(["date", "checkIn", "checkOut"]);
@@ -51,6 +64,7 @@ export function QuickActivity({
   drivers,
   onSaved,
   onPendingChange,
+  request,
 }: {
   dayId: string;
   dayNumber: number;
@@ -59,18 +73,29 @@ export function QuickActivity({
   drivers: Driver[];
   onSaved: () => void | Promise<void>;
   onPendingChange?: ((pending: boolean) => void) | undefined;
+  /** Open a form from outside, e.g. the day's "Hotel missing" chip. `nonce` makes repeats count. */
+  request?: { kind: QuickActivityKind; nonce: number } | undefined;
 }) {
   const [kind, setKind] = useState<QuickActivityKind | null>(null);
   const [message, setMessage] = useState("");
+  const box = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!request) return;
+    // Never replace a form that is already open; its details may be unsaved.
+    setKind((current) => current ?? request.kind);
+    setMessage("");
+    box.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [request]);
   return (
     <section
+      ref={box}
       aria-label={`Add to day ${dayNumber}`}
-      className="mb-5 rounded-2xl border border-navy/15 bg-sand/40 p-4"
+      className="scroll-mt-24 rounded-2xl border border-navy/15 bg-sand/40 p-4"
     >
       <div className="mb-3">
-        <h3 className="font-display text-xl text-navy">Build day {dayNumber}</h3>
+        <h3 className="font-display text-xl text-navy">Add to day {dayNumber}</h3>
         <p className="mt-1 text-xs text-muted">
-          Choose what happens next. Add the time, details and photos in one place.
+          Pick what to add. Links, tickets and vouchers fill the details for you.
         </p>
       </div>
       {kind ? (
@@ -104,7 +129,7 @@ export function QuickActivity({
           }}
         />
       ) : (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
           {choices.map((choice) => (
             <button
               key={choice.kind}
@@ -326,7 +351,9 @@ function QuickActivityForm({
           tripId,
           dayId,
           kind,
-          title: value("title"),
+          title:
+            value("title") ||
+            (kind === "tourguide" && value("name") ? `Tour with ${value("name")}` : ""),
           time: value("time"),
           duration: value("duration"),
           location: place.name,
@@ -389,10 +416,13 @@ function QuickActivityForm({
         ) : null}
 
         <label className="block text-xs font-semibold text-navy">
-          Title <span className="text-muted">(required)</span>
+          Title{" "}
+          <span className="text-muted">
+            {kind === "tourguide" ? "(optional: “Tour with <guide>” if empty)" : "(required)"}
+          </span>
           <input
             name="title"
-            required
+            required={kind !== "tourguide"}
             maxLength={200}
             autoFocus={kind !== "hotel" && kind !== "flight"}
             value={values["title"] ?? ""}
@@ -404,7 +434,9 @@ function QuickActivityForm({
                   ? "Flight to Dubai"
                   : kind === "transfer"
                     ? "Airport pickup"
-                    : "Explore the old town"
+                    : kind === "tourguide"
+                      ? "Old city walking tour"
+                      : "Explore the old town"
             }
             className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
           />
@@ -448,6 +480,36 @@ function QuickActivityForm({
                   {field("guests", "Guests", "2 adults")}
                   {field("reference", "Booking reference")}
                   {field("phone", "Hotel phone", "+971…", "tel")}
+                </>
+              ) : kind === "tourguide" ? (
+                <>
+                  <label className="block text-xs font-semibold text-navy">
+                    Guide’s name <span className="text-muted">(required)</span>
+                    <input
+                      name="name"
+                      required
+                      maxLength={500}
+                      value={values["name"] ?? ""}
+                      onChange={(e) => setValue("name", e.target.value)}
+                      placeholder="Mr Ahmed Karimi"
+                      className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
+                    />
+                  </label>
+                  {field("languages", "Languages", "English, Arabic, Urdu")}
+                  {field("phone", "Phone", "+971…", "tel")}
+                  {field("whatsapp", "WhatsApp (if different)", "+971…", "tel")}
+                  <label className="block text-xs font-semibold text-navy sm:col-span-2">
+                    Meeting instructions
+                    <textarea
+                      name="text"
+                      rows={2}
+                      maxLength={2000}
+                      value={values["text"] ?? ""}
+                      onChange={(e) => setValue("text", e.target.value)}
+                      placeholder="Your guide waits in the hotel lobby at 09:00 holding a Nawi Saadi sign."
+                      className="mt-1.5 w-full rounded-lg border border-hair bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-gold"
+                    />
+                  </label>
                 </>
               ) : (
                 <>
@@ -517,7 +579,11 @@ function QuickActivityForm({
         open={kind === "hotel" && paths.length > 0 ? true : undefined}
       >
         <summary className="cursor-pointer text-xs font-semibold text-navy">
-          {kind === "hotel" ? "Hotel photos" : "Photos for this activity"}{" "}
+          {kind === "hotel"
+            ? "Hotel photos"
+            : kind === "tourguide"
+              ? "Photos of the tour or the guide"
+              : "Photos for this activity"}{" "}
           {paths.length ? `· ${paths.length}` : "(optional)"}
         </summary>
         <div className="mt-3">

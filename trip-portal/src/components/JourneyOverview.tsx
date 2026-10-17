@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BlockList, type BlockCtx } from "./Blocks";
+import { DayChips } from "./DayAtAGlance";
 import { Icon } from "./Icon";
 import type { Day } from "@/lib/types";
 import { activityTime } from "@/lib/itinerary";
@@ -159,6 +160,7 @@ export function JourneyOverview({
                       : ""}
                   </span>
                   <span className="mt-1 block font-display text-xl text-navy">{day.title}</span>
+                  <DayChips day={day} />
                   {day.steps.length ? (
                     <span className="mt-3 block space-y-2">
                       {day.steps.slice(0, 3).map((step) => {

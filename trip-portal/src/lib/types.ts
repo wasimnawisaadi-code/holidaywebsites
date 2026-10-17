@@ -142,6 +142,10 @@ export type BlockPayload = {
   pickupLocation?: string | undefined;
   dropoffLocation?: string | undefined;
   transferNotes?: string | undefined;
+  /** A contact block's role, e.g. "Tour guide". Shown above the name on the customer's card. */
+  role?: string | undefined;
+  /** Languages a tour guide speaks, as typed: "English, Arabic". */
+  languages?: string | undefined;
   documentId?: string | undefined;
   invoiceId?: string | undefined;
   /**

@@ -15,7 +15,9 @@ import { HotelFinder } from "@/components/HotelFinder";
 import { PhotoManager } from "@/components/PhotoManager";
 import { DayPhotos } from "@/components/DayPhotos";
 import { QuickActivity } from "@/components/QuickActivity";
-import { activitySteps } from "@/lib/itinerary";
+import { SendTripDetails } from "@/components/SendTripDetails";
+import type { QuickActivityKind } from "@/lib/quick-activity";
+import { activitySteps, activityTime, dayEssentials, stepSummary } from "@/lib/itinerary";
 import { Icon, type IconName } from "@/components/Icon";
 import { LocationPicker, type PickedLocation } from "@/components/LocationPicker";
 import {
@@ -774,6 +776,7 @@ function Editor() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
+              <SendTripDetails trip={trip} days={days} drivers={drivers} link={url} />
               <button
                 type="button"
                 onClick={() => void navigator.clipboard?.writeText(url)}
@@ -1153,6 +1156,12 @@ function ItineraryTab({
 }) {
   const [addingDay, setAddingDay] = useState(false);
   const [showing, setShowing] = useState(false);
+  // One day open at a time. The first day starts open, so there is always a
+  // place to begin; the rest show their checklist only.
+  // `undefined` means nobody has chosen yet, which opens the first day, even
+  // on a trip whose first day was only just added.
+  const [chosenDay, setOpenDay] = useState<string | null | undefined>(undefined);
+  const openDay = chosenDay === undefined ? (days[0]?.id ?? null) : chosenDay;
   const hidden = days.filter((d) => !d.published).length;
 
   return (
@@ -1200,6 +1209,8 @@ function ItineraryTab({
           drivers={drivers}
           documents={documents}
           invoices={invoices}
+          open={openDay === day.id}
+          onToggle={(next) => setOpenDay(next ? day.id : null)}
           onChange={onChange}
           onPendingChange={onPendingChange}
         />
@@ -1234,6 +1245,8 @@ function DayCard({
   drivers,
   documents,
   invoices,
+  open,
+  onToggle,
   onChange,
   onPendingChange,
 }: {
@@ -1242,64 +1255,199 @@ function DayCard({
   drivers: Driver[];
   documents: TripDocument[];
   invoices: Invoice[];
+  /** One day is open at a time; the rest show only their checklist. */
+  open: boolean;
+  onToggle: (open: boolean) => void;
   onChange: () => void;
   onPendingChange: (dayId: string, pending: boolean) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [addingStep, setAddingStep] = useState(false);
-  const [open, setOpen] = useState(true);
   const [photoPending, setPhotoPending] = useState(false);
   const [activityPending, setActivityPending] = useState(false);
+  const [request, setRequest] = useState<{ kind: QuickActivityKind; nonce: number }>();
+  const photosRef = useRef<HTMLDetailsElement>(null);
   const pending = photoPending || activityPending;
   useEffect(() => {
     onPendingChange(day.id, pending);
     return () => onPendingChange(day.id, false);
   }, [day.id, pending, onPendingChange]);
 
+  const e = dayEssentials(day);
+  const steps = activitySteps(day);
+
+  /** A checklist chip was clicked: open the day on the form for that item. */
+  const add = (kind: QuickActivityKind) => {
+    onToggle(true);
+    setRequest({ kind, nonce: Date.now() });
+  };
+  const showPhotos = () => {
+    onToggle(true);
+    requestAnimationFrame(() => {
+      if (photosRef.current) {
+        photosRef.current.open = true;
+        photosRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  };
+
+  const chips: {
+    key: string;
+    icon: IconName;
+    done: string | null;
+    missing: string;
+    onClick: () => void;
+  }[] = [
+    {
+      key: "flight",
+      icon: "plane",
+      done: e.flights.length
+        ? e.flights.map((f) => f.block.payload.flightNumber || "Flight").join(", ")
+        : null,
+      missing: "Flight",
+      onClick: () => add("flight"),
+    },
+    {
+      key: "transfer",
+      icon: "car",
+      done: e.transfers.length
+        ? `${e.transfers.length} transfer${e.transfers.length === 1 ? "" : "s"}`
+        : null,
+      missing: "Transfer",
+      onClick: () => add("transfer"),
+    },
+    {
+      key: "hotel",
+      icon: "hotel",
+      done: e.hotels.length
+        ? e.hotels.map((h) => h.block.payload.name || "Hotel").join(", ")
+        : null,
+      missing: "Hotel",
+      onClick: () => add("hotel"),
+    },
+    {
+      key: "guide",
+      icon: "users",
+      done: e.guides.length
+        ? e.guides.map((g) => g.block.payload.name || "Guide").join(", ")
+        : null,
+      missing: "Tour guide",
+      onClick: () => add("tourguide"),
+    },
+    {
+      key: "activity",
+      icon: "pin",
+      done: e.activities.length
+        ? `${e.activities.length} activit${e.activities.length === 1 ? "y" : "ies"}`
+        : null,
+      missing: "Activity",
+      onClick: () => add("activity"),
+    },
+    {
+      key: "photos",
+      icon: "images",
+      done: e.photos ? `${e.photos} photo${e.photos === 1 ? "" : "s"}` : null,
+      missing: "Photos",
+      onClick: showPhotos,
+    },
+  ];
+
   return (
     <section
       id={`editor-day-${day.id}`}
       data-anchor
-      className="overflow-hidden rounded-2xl border border-hair bg-white"
+      className={`overflow-hidden rounded-2xl border bg-white transition ${
+        open ? "border-gold/60 shadow-md" : "border-hair"
+      }`}
     >
-      <header className="flex flex-wrap items-center gap-3 border-b border-hair bg-paper p-4">
+      <header className="flex flex-wrap items-start gap-3 bg-paper p-4">
         <button
           type="button"
-          onClick={() => setOpen((v) => !v)}
+          onClick={() => onToggle(!open)}
           aria-expanded={open}
-          className="min-w-0 flex-1 text-left"
+          className="flex min-w-0 flex-1 items-start gap-3 text-left"
         >
-          <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-gold-deep uppercase">
-            Day {day.day_number}
-            {day.date ? ` · ${day.date}` : ""}
+          <span
+            aria-hidden="true"
+            className={`grid size-10 shrink-0 place-items-center rounded-full font-mono text-sm font-bold ${
+              open ? "bg-navy text-white" : "border border-gold/50 bg-white text-gold-deep"
+            }`}
+          >
+            {String(day.day_number).padStart(2, "0")}
           </span>
-          <span className="mt-0.5 block truncate font-display text-lg text-navy">{day.title}</span>
+          <span className="min-w-0">
+            <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-gold-deep uppercase">
+              Day {day.day_number}
+              {day.date ? ` · ${formatDayDate(day.date)}` : ""}
+            </span>
+            <span className="mt-0.5 block font-display text-lg leading-snug text-navy">
+              {day.title}
+            </span>
+          </span>
         </button>
 
-        {pending ? (
-          <span className="rounded-md bg-gold/15 px-2 py-1 text-xs font-semibold text-gold-deep">
-            Unsaved changes
+        <div className="flex items-center gap-2">
+          {pending ? (
+            <span className="rounded-md bg-gold/15 px-2 py-1 text-xs font-semibold text-gold-deep">
+              Unsaved changes
+            </span>
+          ) : null}
+          <span
+            className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase ${
+              day.published ? "bg-live/12 text-live" : "bg-gold/18 text-gold-deep"
+            }`}
+          >
+            {day.published ? "Live" : "Draft"}
           </span>
-        ) : null}
-        <span
-          className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase ${
-            day.published ? "bg-live/12 text-live" : "bg-gold/18 text-gold-deep"
-          }`}
-        >
-          {day.published ? "Live" : "Draft"}
-        </span>
+          <button
+            type="button"
+            onClick={() => {
+              onToggle(true);
+              setEditing((v) => !v);
+            }}
+            className="rounded-lg border border-hair bg-white px-3 py-1.5 text-xs font-semibold text-navy"
+          >
+            {editing ? "Close" : "Edit day"}
+          </button>
+          <button
+            type="button"
+            onClick={() => onToggle(!open)}
+            aria-label={open ? `Close day ${day.day_number}` : `Open day ${day.day_number}`}
+            className="grid size-8 place-items-center rounded-lg border border-hair bg-white text-navy"
+          >
+            <Icon name={open ? "chevronLeft" : "chevronRight"} className="size-4 rotate-90" />
+          </button>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setEditing((v) => !v)}
-          className="rounded-lg border border-hair bg-white px-3 py-1.5 text-xs font-semibold text-navy"
+        {/* The day's checklist: what is in it, and one click to add what is not. */}
+        <ul
+          className="flex w-full flex-wrap gap-1.5 sm:pl-13"
+          aria-label={`Day ${day.day_number} checklist`}
         >
-          {editing ? "Close" : "Edit day"}
-        </button>
+          {chips.map((chip) => (
+            <li key={chip.key}>
+              <button
+                type="button"
+                onClick={chip.onClick}
+                title={
+                  chip.done ? `${chip.missing}: ${chip.done}` : `Add ${chip.missing.toLowerCase()}`
+                }
+                className={`inline-flex max-w-64 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
+                  chip.done
+                    ? "bg-live/10 text-live hover:bg-live/15"
+                    : "border border-dashed border-hair bg-white text-muted hover:border-gold hover:text-navy"
+                }`}
+              >
+                <Icon name={chip.done ? "check" : chip.icon} className="size-3 shrink-0" />
+                <span className="truncate">{chip.done ?? `+ ${chip.missing}`}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
       </header>
 
       {editing ? (
-        <div className="border-b border-hair p-4">
+        <div className="border-t border-hair p-4">
           <DayForm
             tripId={trip.id}
             day={day}
@@ -1318,8 +1466,47 @@ function DayCard({
         </div>
       ) : null}
 
-      <div hidden={!open} className="p-4">
-        <DayCover tripId={trip.id} day={day} onChange={onChange} />
+      {/* Kept mounted while closed, so a half-filled form survives opening another day. */}
+      <div hidden={!open} className="flex flex-col gap-5 border-t border-hair p-4">
+        {day.summary ? (
+          <div className="rounded-xl bg-paper p-4">
+            <p className="text-[10px] font-semibold tracking-[0.16em] text-gold-deep uppercase">
+              Day overview · shown to the customer
+            </p>
+            <p className="mt-2 text-sm leading-relaxed whitespace-pre-line text-muted">
+              {day.summary}
+            </p>
+          </div>
+        ) : null}
+
+        <div>
+          <p className="mb-2 text-[11px] font-semibold tracking-[0.16em] text-navy uppercase">
+            Plan for day {day.day_number}
+            {steps.length ? ` · ${steps.length} item${steps.length === 1 ? "" : "s"}` : ""}
+          </p>
+          {steps.length ? (
+            <ol className="flex flex-col gap-3">
+              {steps.map((step, index) => (
+                <StepCard
+                  key={step.id}
+                  step={step}
+                  displayNumber={index + 1}
+                  dayId={day.id}
+                  drivers={drivers}
+                  documents={documents}
+                  invoices={invoices}
+                  tripId={trip.id}
+                  onChange={onChange}
+                />
+              ))}
+            </ol>
+          ) : (
+            <p className="rounded-xl border border-dashed border-hair p-4 text-xs text-muted">
+              Nothing added to this day yet. Start with the flight or hotel below.
+            </p>
+          )}
+        </div>
+
         <QuickActivity
           dayId={day.id}
           dayNumber={day.day_number}
@@ -1328,38 +1515,30 @@ function DayCard({
           drivers={drivers}
           onSaved={onChange}
           onPendingChange={setActivityPending}
-        />
-        <DayPhotos
-          day={day}
-          tripId={trip.id}
-          onSaved={onChange}
-          onPendingChange={setPhotoPending}
+          request={request}
         />
 
-        {day.summary ? (
-          <p className="mb-4 text-sm leading-relaxed whitespace-pre-line text-muted">
-            {day.summary}
-          </p>
-        ) : null}
-
-        <ol className="flex flex-col gap-3">
-          {activitySteps(day).map((step, index) => (
-            <StepCard
-              key={step.id}
-              step={step}
-              displayNumber={index + 1}
-              dayId={day.id}
-              drivers={drivers}
-              documents={documents}
-              invoices={invoices}
+        <details ref={photosRef} className="group rounded-2xl border border-hair bg-white">
+          <summary className="flex cursor-pointer items-center gap-2 p-4 text-sm font-bold text-navy">
+            <Icon name="images" className="size-4 text-gold-deep" />
+            Day photos and cover
+            <span className="font-normal text-muted">
+              · {e.photos ? `${e.photos} photo${e.photos === 1 ? "" : "s"}` : "none yet"}
+            </span>
+          </summary>
+          <div className="px-4 pb-4">
+            <DayCover tripId={trip.id} day={day} onChange={onChange} />
+            <DayPhotos
+              day={day}
               tripId={trip.id}
-              onChange={onChange}
+              onSaved={onChange}
+              onPendingChange={setPhotoPending}
             />
-          ))}
-        </ol>
+          </div>
+        </details>
 
         {addingStep ? (
-          <div className="mt-3 rounded-xl border border-hair bg-paper p-4">
+          <div className="rounded-xl border border-hair bg-paper p-4">
             <StepForm
               dayId={day.id}
               stepNumber={Math.max(0, ...day.steps.map((s) => s.step_number)) + 1}
@@ -1374,14 +1553,25 @@ function DayCard({
           <button
             type="button"
             onClick={() => setAddingStep(true)}
-            className="mt-3 w-full rounded-xl border border-dashed border-hair py-3 text-xs font-bold text-navy hover:border-gold"
+            className="w-full rounded-xl border border-dashed border-hair py-3 text-xs font-semibold text-muted hover:border-gold hover:text-navy"
           >
-            + Advanced activity editor
+            + Advanced editor (notices, documents, videos, photo guides…)
           </button>
         )}
       </div>
     </section>
   );
+}
+
+/** "Thu 15 Oct", from YYYY-MM-DD. */
+function formatDayDate(date: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+  return new Intl.DateTimeFormat("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  }).format(new Date(`${date}T12:00:00Z`));
 }
 
 /**
@@ -1626,37 +1816,54 @@ function StepCard({
 }) {
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState<BlockKind | null>(null);
+  const [moreContent, setMoreContent] = useState(false);
+  const summary = stepSummary(step);
+  const time = activityTime(step);
 
   return (
-    <li className="rounded-xl border border-hair bg-paper">
-      <div className="flex flex-wrap items-center gap-3 p-3.5">
+    <li
+      className={`rounded-xl border bg-white transition ${editing ? "border-gold/60 shadow-sm" : "border-hair"}`}
+    >
+      {/* One line per item: what it is, when, and the detail that matters. */}
+      <div className="flex flex-wrap items-center gap-3 p-3">
         <span
           aria-hidden="true"
-          className="grid size-7 shrink-0 place-items-center rounded-full bg-navy font-mono text-[11px] font-bold text-white"
+          className="grid size-9 shrink-0 place-items-center rounded-full bg-sand text-gold-deep"
         >
-          {displayNumber}
+          <Icon name={summary.icon} className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-navy">{step.title}</p>
-          <p className="truncate text-[11px] text-muted">
-            {[step.time_label, step.duration, step.location_name].filter(Boolean).join(" · ") ||
-              "No time or location set"}
+          <p className="flex flex-wrap items-center gap-x-2 text-sm font-bold text-navy">
+            <span className="font-mono text-[10px] font-semibold text-muted">
+              {String(displayNumber).padStart(2, "0")}
+            </span>
+            {time ? (
+              <span className="rounded-md bg-gold/15 px-1.5 py-0.5 text-[11px] text-gold-deep tabular-nums">
+                {time}
+              </span>
+            ) : null}
+            <span className="min-w-0 truncate">{step.title}</span>
+          </p>
+          <p className="mt-0.5 truncate text-xs text-muted">
+            {summary.line || step.location_name || "Add a time, place or details with Edit"}
           </p>
         </div>
-        {isLatLng(step.latitude, step.longitude) ? (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-live/10 px-2 py-0.5 text-[10px] font-bold text-live">
-            <Icon name="pin" className="size-3" /> On the map
+        {summary.photos ? (
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-paper px-2 py-0.5 text-[10px] font-bold text-navy">
+            <Icon name="images" className="size-3" /> {summary.photos}
           </span>
         ) : null}
-        <span className="shrink-0 text-[11px] text-muted">
-          {step.blocks.length} {step.blocks.length === 1 ? "block" : "blocks"}
-        </span>
+        {isLatLng(step.latitude, step.longitude) ? (
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-live/10 px-2 py-0.5 text-[10px] font-bold text-live">
+            <Icon name="pin" className="size-3" /> Map
+          </span>
+        ) : null}
         <button
           type="button"
           onClick={() => setEditing((v) => !v)}
           className="shrink-0 rounded-lg border border-hair bg-white px-3 py-1.5 text-xs font-semibold text-navy"
         >
-          {editing ? "Close" : "Edit"}
+          {editing ? "Done" : "Edit"}
         </button>
       </div>
 
@@ -1680,8 +1887,11 @@ function StepCard({
         </div>
       ) : null}
 
-      {/* ---- blocks ---- */}
-      <div className="border-t border-hair p-3.5">
+      {/* ---- blocks: only while editing, so the day reads as a plan ---- */}
+      <div hidden={!editing} className="border-t border-hair p-3.5">
+        <p className="mb-2 text-[10px] font-semibold tracking-[0.12em] text-muted uppercase">
+          Content of this item
+        </p>
         <div className="flex flex-col gap-2">
           {step.blocks.map((block) => (
             <BlockRow
@@ -1714,6 +1924,14 @@ function StepCard({
               onCancel={() => setAdding(null)}
             />
           </div>
+        ) : !moreContent ? (
+          <button
+            type="button"
+            onClick={() => setMoreContent(true)}
+            className="mt-3 w-full rounded-lg border border-dashed border-hair py-2.5 text-xs font-semibold text-navy hover:border-gold"
+          >
+            + Add content to this item (photos, booking, notice, document…)
+          </button>
         ) : (
           <div className="mt-3">
             <div className="mb-4 grid gap-2 sm:grid-cols-3">

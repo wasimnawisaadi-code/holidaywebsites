@@ -265,10 +265,22 @@ function BlockView({
       return (
         <div className="rounded-2xl border border-hair bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <IconBadge name="phone" />
-            <p className="text-sm font-semibold text-navy">{p.name ?? "Contact"}</p>
+            <IconBadge name={p.role ? "users" : "phone"} />
+            <div className="min-w-0">
+              {p.role ? (
+                <p className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+                  {p.role}
+                </p>
+              ) : null}
+              <p className="text-sm font-semibold text-navy">{p.name ?? "Contact"}</p>
+              {p.languages ? <p className="text-[11px] text-muted">Speaks {p.languages}</p> : null}
+            </div>
           </div>
-          {p.text ? <p className="mt-2.5 text-sm leading-relaxed text-muted">{p.text}</p> : null}
+          {p.text ? (
+            <p className="mt-2.5 text-sm leading-relaxed whitespace-pre-line text-muted">
+              {p.text}
+            </p>
+          ) : null}
           <div className="mt-3 flex flex-wrap gap-2">
             {p.phone ? <ActionLink href={`tel:${p.phone}`} icon="phone" label="Call" /> : null}
             {p.whatsapp ? (
