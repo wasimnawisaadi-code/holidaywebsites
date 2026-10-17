@@ -7,6 +7,7 @@ import { Directions } from "@/components/Directions";
 import { Icon, type IconName } from "@/components/Icon";
 import { PrintableItinerary } from "@/components/PrintableItinerary";
 import { DayAtAGlance } from "@/components/DayAtAGlance";
+import { DayBanner } from "@/components/DayBanner";
 import { JourneyOverview } from "@/components/JourneyOverview";
 import { TripInsights } from "@/components/TripInsights";
 import { InvoiceCard } from "@/components/InvoiceCard";
@@ -14,7 +15,13 @@ import { MapView, type MapPoint } from "@/components/MapView";
 import { destinationPhoto } from "@/lib/destinations";
 import { isLatLng } from "@/lib/geo";
 import { tripTiming, type CustomerTrip } from "@/lib/types";
-import { activitySteps, activityTime, dayGalleryBlocks, galleryCover } from "@/lib/itinerary";
+import {
+  activitySteps,
+  activityTime,
+  dayGalleryBlocks,
+  galleryCover,
+  orderSteps,
+} from "@/lib/itinerary";
 
 /**
  * The customer portal. One route, one link, no login.
@@ -64,7 +71,7 @@ function Portal() {
       data.days.map((d) => ({
         ...d,
         coverUrl: galleryCover(d) || d.coverUrl || null,
-        steps: activitySteps(d),
+        steps: orderSteps(activitySteps(d)),
       })),
     [data.days],
   );
@@ -90,7 +97,17 @@ function Portal() {
 
   const [activeDay, setActiveDay] = useState(todayIndex);
   const day = days[activeDay];
-  const dayPhotos = data.days[activeDay] ? dayGalleryBlocks(data.days[activeDay]) : [];
+  // The day's banner: its cover first, then every photo in the day's gallery,
+  // each once. One photo shows as a picture; more become a slideshow.
+  const bannerPhotos = useMemo(() => {
+    const raw = data.days[activeDay];
+    if (!raw) return [];
+    const urls = [
+      raw.coverUrl,
+      ...dayGalleryBlocks(raw).flatMap((b) => b.payload.urls ?? []),
+    ].filter((url): url is string => Boolean(url));
+    return [...new Set(urls)].map((url) => ({ url }));
+  }, [data.days, activeDay]);
   const heroPhoto = trip.heroUrl ?? destinationPhoto(trip.destination);
   const timing = tripTiming(trip.start_date, trip.end_date);
   const pdfHref = (invoiceId: string) => `/t/${token}/invoice/${invoiceId}.pdf`;
@@ -450,17 +467,10 @@ function Portal() {
                   aria-label={`Day ${day.day_number}`}
                   className="ns-fade-in mt-7"
                 >
-                  {day.coverUrl ? (
-                    <img
-                      src={day.coverUrl}
-                      alt=""
-                      className="w-full rounded-3xl object-cover shadow-md"
-                      style={{ aspectRatio: "16 / 9" }}
-                    />
-                  ) : null}
+                  <DayBanner photos={bannerPhotos} label={`Day ${day.day_number} photos`} />
 
                   <p
-                    className={`${day.coverUrl ? "mt-5" : ""} text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase`}
+                    className={`${bannerPhotos.length ? "mt-5" : ""} text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase`}
                   >
                     Day {day.day_number}
                     {day.date ? ` · ${formatLongDate(day.date)}` : ""}
@@ -474,11 +484,6 @@ function Portal() {
                     </p>
                   ) : null}
                   <DayAtAGlance day={day} drivers={drivers} />
-                  {dayPhotos.length ? (
-                    <div className="mt-6">
-                      <BlockList blocks={dayPhotos} ctx={{ drivers, documents }} />
-                    </div>
-                  ) : null}
 
                   {day.steps.length ? (
                     <nav

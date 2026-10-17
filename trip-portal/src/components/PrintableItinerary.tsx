@@ -1,6 +1,6 @@
 import type { CustomerTrip } from "@/lib/types";
 import { BlockList } from "./Blocks";
-import { activitySteps } from "@/lib/itinerary";
+import { activitySteps, orderSteps } from "@/lib/itinerary";
 
 /** Complete published plan: independent of the day selected on screen. */
 export function PrintableItinerary({ data }: { data: CustomerTrip }) {
@@ -24,7 +24,7 @@ export function PrintableItinerary({ data }: { data: CustomerTrip }) {
           </h2>
           {day.date ? <p>{day.date}</p> : null}
           {day.summary ? <p style={{ whiteSpace: "pre-line" }}>{day.summary}</p> : null}
-          {activitySteps(day).map((step) => (
+          {orderSteps(activitySteps(day)).map((step) => (
             <section key={step.id} className="trip-print-step">
               <h3>
                 {step.time_label ? `${step.time_label} · ` : ""}
