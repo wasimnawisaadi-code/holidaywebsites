@@ -148,27 +148,86 @@ export async function remove(table: string, filter: string): Promise<void> {
  *
  * Returns null rather than throwing. One missing photograph must not take down
  * a whole itinerary — the block simply renders without its image.
+ *
+ * Batched. A trip page asks for one URL per photo — forty photos was forty
+ * separate requests to storage, each a full round trip to the database's
+ * region. Calls made in the same tick (every Promise.all on a page is) are
+ * collected and signed in one request per bucket, through storage's
+ * multi-path endpoint. Callers are unchanged: each still awaits its own URL.
  */
-export async function signedUrl(
+export function signedUrl(
   bucket: "trip-media" | "trip-docs",
   path: string,
   expiresIn = 60 * 60 * 6,
 ): Promise<string | null> {
-  if (!path) return null;
+  if (!path) return Promise.resolve(null);
+  const key = `${bucket}|${expiresIn}`;
+  return new Promise((resolve) => {
+    let batch = signing.get(key);
+    if (!batch) {
+      batch = [];
+      signing.set(key, batch);
+      // After the current tick's microtasks, so every call a Promise.all
+      // tree makes synchronously lands in the same batch.
+      setTimeout(() => void flushSigning(bucket, expiresIn, key), 0);
+    }
+    batch.push({ path, resolve });
+  });
+}
+
+type PendingSign = { path: string; resolve: (url: string | null) => void };
+const signing = new Map<string, PendingSign[]>();
+/** Storage accepts many paths per request; stay well inside any limit. */
+const SIGN_CHUNK = 200;
+
+async function flushSigning(
+  bucket: "trip-media" | "trip-docs",
+  expiresIn: number,
+  key: string,
+): Promise<void> {
+  const batch = signing.get(key) ?? [];
+  signing.delete(key);
+  const found = new Map<string, string | null>();
   try {
-    const { url, key } = creds();
-    const res = await fetch(`${url}/storage/v1/object/sign/${bucket}/${path}`, {
-      method: "POST",
-      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ expiresIn }),
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { signedURL?: string; signedUrl?: string };
-    const rel = data.signedURL ?? data.signedUrl;
-    return rel ? `${url}/storage/v1${rel.startsWith("/") ? "" : "/"}${rel}` : null;
+    const { url, key: apiKey } = creds();
+    const unique = [...new Set(batch.map((b) => b.path))];
+    const chunks: string[][] = [];
+    for (let i = 0; i < unique.length; i += SIGN_CHUNK)
+      chunks.push(unique.slice(i, i + SIGN_CHUNK));
+    await Promise.all(
+      chunks.map(async (paths) => {
+        const res = await fetch(`${url}/storage/v1/object/sign/${bucket}`, {
+          method: "POST",
+          headers: {
+            apikey: apiKey,
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ expiresIn, paths }),
+        });
+        if (!res.ok) return;
+        const rows = (await res.json()) as {
+          path?: string;
+          signedURL?: string | null;
+          signedUrl?: string | null;
+          error?: string | null;
+        }[];
+        rows.forEach((row, i) => {
+          const rel = row.signedURL ?? row.signedUrl;
+          const path = row.path ?? paths[i];
+          if (path) {
+            found.set(
+              path,
+              rel ? `${url}/storage/v1${rel.startsWith("/") ? "" : "/"}${rel}` : null,
+            );
+          }
+        });
+      }),
+    );
   } catch {
-    return null;
+    /* every caller falls back to null below: the page renders without that photo */
   }
+  for (const b of batch) b.resolve(found.get(b.path) ?? null);
 }
 
 /**
