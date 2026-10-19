@@ -50,7 +50,7 @@ export function TrustMetricsBar() {
   // up through it as a white wash over the "Anywhere" and "Flexible" fields.
   return (
     <div className="relative z-20 mx-auto mt-6 max-w-[1400px] px-5 sm:px-8">
-      <div className="grid grid-cols-2 gap-3 rounded-3xl border border-slate-200/80 bg-white/95 p-4 shadow-xl backdrop-blur-md sm:p-6 lg:grid-cols-4 lg:gap-6">
+      <div className="grid grid-cols-2 gap-3 rounded-3xl border border-slate-200/80 bg-white/95 p-4 shadow-xl sm:p-6 lg:grid-cols-4 lg:gap-6">
         {METRICS.map((m, i) => {
           const Icon = m.icon;
           return (

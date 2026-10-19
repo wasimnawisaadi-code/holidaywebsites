@@ -357,7 +357,7 @@ function UaeRail() {
                   loading="lazy"
                   className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
-                <span className="absolute right-3 top-3 rounded-full bg-white/92 px-2.5 py-0.5 font-sans text-[10px] font-bold uppercase tracking-wider text-[#00365F] backdrop-blur-sm">
+                <span className="absolute right-3 top-3 rounded-full bg-white/92 px-2.5 py-0.5 font-sans text-[10px] font-bold uppercase tracking-wider text-[#00365F]">
                   {a.emirate}
                 </span>
               </div>

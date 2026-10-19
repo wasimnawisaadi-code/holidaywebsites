@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
  */
 export function ScrollRevealText({ text, className }: { text: string; className?: string }) {
   const ref = useRef<HTMLParagraphElement>(null);
-  const [progress, setProgress] = useState(0);
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -31,7 +30,13 @@ export function ScrollRevealText({ text, className }: { text: string; className?
 
     let raf = 0;
     let visible = false;
+    const spans = Array.from(el.querySelectorAll<HTMLSpanElement>("span[data-word]"));
+    const shown: number[] = spans.map(() => -1);
 
+    // Written straight to each word's style. This runs on every scroll
+    // frame; setting React state here re-rendered every word of the
+    // paragraph each frame, which on a phone took longer than the frame
+    // itself and made the page stutter while scrolling past it.
     const update = () => {
       raf = 0;
       const r = el.getBoundingClientRect();
@@ -41,7 +46,16 @@ export function ScrollRevealText({ text, className }: { text: string; className?
       const start = vh * 0.8;
       const end = vh * 0.2;
       const raw = (start - r.top) / Math.max(start - end + r.height, 1);
-      setProgress(Math.min(Math.max(raw, 0), 1));
+      const progress = Math.min(Math.max(raw, 0), 1);
+      spans.forEach((span, i) => {
+        const at = i / Math.max(spans.length - 1, 1);
+        const lit = Math.min(Math.max((progress - at) * 6 + 0.35, 0), 1);
+        const opacity = Math.round((0.18 + lit * 0.82) * 100) / 100;
+        if (shown[i] !== opacity) {
+          shown[i] = opacity;
+          span.style.opacity = String(opacity);
+        }
+      });
     };
 
     const schedule = () => {
@@ -84,15 +98,14 @@ export function ScrollRevealText({ text, className }: { text: string; className?
       {words.map((word, i) => {
         // Each word owns a slice of the timeline, with the window widened a
         // little so neighbours overlap and the brightening travels as a wave
-        // instead of snapping one word at a time.
-        const at = i / Math.max(words.length - 1, 1);
-        const lit = enabled ? Math.min(Math.max((progress - at) * 6 + 0.35, 0), 1) : 1;
+        // instead of snapping one word at a time. The opacity itself is set
+        // by the scroll effect above; fully lit until it runs.
         return (
           <span
             key={`${word}-${i}`}
+            data-word=""
             aria-hidden="true"
             className={cn("transition-opacity duration-200 ease-out")}
-            style={{ opacity: 0.18 + lit * 0.82 }}
           >
             {word}
             {i < words.length - 1 ? " " : ""}

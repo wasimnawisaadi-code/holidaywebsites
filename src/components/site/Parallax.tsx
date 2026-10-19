@@ -50,14 +50,41 @@ export function Depth({
   z?: number;
   className?: string;
 }) {
-  const { ref, progress } = useViewportProgress<HTMLDivElement>();
-  const y = (0.5 - progress) * speed * 2;
+  const ref = useRef<HTMLDivElement>(null);
+
+  // The drift is written straight to the node on each scroll frame, not
+  // through React state, which re-rendered everything inside the layer.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const p = Math.min(Math.max((vh - rect.top) / (vh + rect.height), 0), 1);
+      el.style.transform = `translate3d(0, ${((0.5 - p) * speed * 2).toFixed(2)}px, ${z}px)`;
+    };
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [speed, z]);
 
   return (
     <div
       ref={ref}
       className={cn("will-change-transform", className)}
-      style={{ transform: `translate3d(0, ${y.toFixed(2)}px, ${z}px)` }}
+      style={{ transform: `translate3d(0, 0, ${z}px)` }}
     >
       {children}
     </div>

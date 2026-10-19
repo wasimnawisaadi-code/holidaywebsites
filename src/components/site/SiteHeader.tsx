@@ -104,7 +104,7 @@ export function SiteHeader() {
             // top to hold contrast now that nothing else is helping. Below the
             // hero the header lands on paper and takes a real border again.
             "bg-gradient-to-b from-black/70 via-black/25 to-transparent"
-          : "border-b border-[#E5E5E5] bg-[#FFFFFF]/95 backdrop-blur-md",
+          : "border-b border-[#E5E5E5] bg-[#FFFFFF]",
       )}
       onMouseLeave={scheduleClose}
     >
