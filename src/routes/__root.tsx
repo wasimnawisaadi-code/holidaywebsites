@@ -233,7 +233,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             {
               children:
                 `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':` +
-                `new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],` +
+                `new Date().getTime(),event:'gtm.js'});var go=function(){var f=d.getElementsByTagName(s)[0],` +
                 `j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;` +
                 // Low priority, not deferred. The container still starts
                 // loading immediately and dataLayer still queues, but the
@@ -243,7 +243,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
                 // with gtm.js and gtag.js occupying the link either side of
                 // it. Nothing about what is tracked changes.
                 `j.fetchPriority='low';j.src=` +
-                `'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);` +
+                `'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);};` +
+                // After the page has loaded. The dataLayer push above already
+                // recorded the visit's start time, and anything pushed before
+                // the container arrives is queued and replayed by it, so
+                // nothing is lost; the page simply gets the connection to
+                // itself while it is being drawn. Measured on a throttled phone
+                // before this: 540KB of Google scripts, "DOM ready" at 5.9s.
+                `if(d.readyState==='complete'){setTimeout(go,0)}else{w.addEventListener('load',function(){setTimeout(go,0)})}` +
                 `})(window,document,'script','dataLayer','${gtmId()}');`,
             },
           ]
@@ -259,12 +266,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       ...(gaId() || adsId()
         ? [
             {
-              src: `https://www.googletagmanager.com/gtag/js?id=${gaId() ?? adsId()}`,
-              async: true,
-              // See the note on the GTM snippet above: async already keeps
-              // this off the parser, but it was still competing for bandwidth
-              // with the image the visitor is actually waiting to see.
-              fetchPriority: "low" as const,
+              // Injected after the page has loaded, for the reason given on
+              // the GTM snippet above. gtag() calls made earlier (the config
+              // below, any conversion) queue in dataLayer and are sent when
+              // the library arrives.
+              children:
+                `(function(w,d){var go=function(){var j=d.createElement('script');j.async=true;` +
+                `j.src='https://www.googletagmanager.com/gtag/js?id=${gaId() ?? adsId()}';` +
+                `d.head.appendChild(j);};` +
+                `if(d.readyState==='complete'){setTimeout(go,0)}else{w.addEventListener('load',function(){setTimeout(go,0)})}` +
+                `})(window,document);`,
             },
             {
               children:

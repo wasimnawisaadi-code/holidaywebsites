@@ -18,22 +18,30 @@ import fs from "node:fs";
 import path from "node:path";
 
 const WIDTH = 720; // 360px slot at devicePixelRatio 2
-const DIR = "public/images/destinations";
+// Keep in step with THUMB_DIRS in src/lib/img.ts: a folder listed there must
+// have its thumbnails generated here, or its cards point at missing files.
+const DIRS = ["public/images/destinations", "public/images/afghanistan"];
 
-const files = fs
-  .readdirSync(DIR)
-  .filter((f) => /\.(webp|jpe?g|png)$/i.test(f) && !f.includes("-sm."));
+const files = DIRS.flatMap((dir) =>
+  fs
+    .readdirSync(dir)
+    .filter((f) => /\.(webp|jpe?g|png)$/i.test(f) && !f.includes("-sm."))
+    .map((f) => [dir, f]),
+);
 let before = 0,
   after = 0,
   made = 0;
 
-for (const f of files) {
+for (const [DIR, f] of files) {
   const src = path.join(DIR, f);
   const dest = path.join(DIR, f.replace(/\.(webp|jpe?g|png)$/i, "-sm.webp"));
   try {
+    if (fs.existsSync(dest)) continue; // made on an earlier run
     const meta = await sharp(src).metadata();
-    if ((meta.width ?? 0) <= WIDTH) continue; // already small enough
-    await sharp(src).resize({ width: WIDTH }).webp({ quality: 78, effort: 5 }).toFile(dest);
+    // Every file gets a -sm twin, even one already narrower than WIDTH:
+    // srcset names it unconditionally, and a missing file is a broken card.
+    const pipeline = (meta.width ?? 0) > WIDTH ? sharp(src).resize({ width: WIDTH }) : sharp(src);
+    await pipeline.webp({ quality: 78, effort: 5 }).toFile(dest);
     before += fs.statSync(src).size;
     after += fs.statSync(dest).size;
     made++;

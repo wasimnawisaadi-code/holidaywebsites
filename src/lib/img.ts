@@ -13,8 +13,11 @@
  */
 
 /** The 720px variant, if the path is one the thumbnail script covers. */
+/** Folders scripts/generate-thumbnails.mjs covers. Keep the two lists in step. */
+const THUMB_DIRS = ["/images/destinations/", "/images/afghanistan/"];
+
 export function thumbOf(src: string): string | null {
-  if (!src.startsWith("/images/destinations/")) return null;
+  if (!THUMB_DIRS.some((dir) => src.startsWith(dir))) return null;
   if (src.includes("-sm.")) return null;
   return src.replace(/\.(webp|jpe?g|png)$/i, "-sm.webp");
 }
