@@ -122,9 +122,12 @@ export const createUploadTicket = createServerFn({ method: "POST" })
  * without one. People close the tab during that minute.
  */
 export async function uploadDirect(
-  file: File,
+  original: File,
   opts: { folder: string; bucket: Bucket; onProgress?: (pct: number) => void },
 ): Promise<{ ok: true; path: string } | { ok: false; reason: string }> {
+  // Photos for the itinerary are shrunk first; documents never are, because
+  // the booking reader needs every pixel of a voucher.
+  const file = opts.bucket === "trip-media" ? await shrinkPhoto(original) : original;
   const ticket = await createUploadTicket({
     data: {
       folder: opts.folder,
@@ -169,4 +172,50 @@ function guessType(name: string): string {
     pdf: "application/pdf",
   };
   return map[ext] ?? "application/octet-stream";
+}
+
+/** Longest side of a stored photo. Sharp on a 3x phone screen and a desktop banner. */
+const MAX_SIDE = 2000;
+/** Below this, a photo is already small enough to send as it is. */
+const SMALL_ENOUGH = 350 * 1024;
+
+/**
+ * Resizes a photo in the browser before it is uploaded.
+ *
+ * Office staff upload straight from phones and stock libraries: a 986KB
+ * WebP and a 599KB stock JPEG were on one customer's first screen, sent at
+ * full size from storage in Seoul to a phone in Dubai. This caps the longest
+ * side at 2000px and re-encodes as WebP, which typically lands between 150KB
+ * and 400KB with no visible loss at the sizes the portal shows.
+ *
+ * Anything it cannot decode (HEIC on most browsers, video) or that would not
+ * get smaller is uploaded untouched, so this can only ever save bytes.
+ */
+async function shrinkPhoto(file: File): Promise<File> {
+  const type = (file.type || guessType(file.name)).toLowerCase();
+  if (!/^image\/(jpeg|png|webp|avif)$/.test(type)) return file;
+  if (typeof createImageBitmap !== "function" || typeof document === "undefined") return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
+    if (scale === 1 && file.size <= SMALL_ENOUGH) {
+      bitmap.close();
+      return file;
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/webp", 0.82),
+    );
+    if (!blob || blob.type !== "image/webp" || blob.size >= file.size) return file;
+    const name = file.name.replace(/\.[^.]+$/, "") + ".webp";
+    return new File([blob], name, { type: "image/webp", lastModified: file.lastModified });
+  } catch {
+    return file;
+  }
 }
