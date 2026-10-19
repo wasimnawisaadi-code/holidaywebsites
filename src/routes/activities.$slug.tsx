@@ -602,7 +602,7 @@ function ActivityPage() {
       ) : null}
 
       {/* Mobile Sticky Bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-5 py-3.5 backdrop-blur-md lg:hidden shadow-2xl">
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-5 py-3.5 lg:hidden shadow-2xl">
         <div className="min-w-0">
           <p className="truncate text-xs font-bold text-[#00365F]">{a.title}</p>
           <p className="text-sm font-extrabold text-[#7A641B]">

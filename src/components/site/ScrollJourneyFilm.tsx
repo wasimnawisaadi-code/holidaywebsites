@@ -97,23 +97,39 @@ export function ScrollJourneyFilm() {
       // devices.
       const useMobile = window.matchMedia("(max-width: 768px)").matches;
       const src = useMobile ? m.mobile : m.desktop;
+      // A phone takes every second frame. 120 decoded 1080px frames are
+      // roughly 300MB of bitmap; a phone that runs short throws decoded
+      // frames away and decodes them again mid-scroll, which is the stutter
+      // people describe as the page hanging. Sixty frames still scrub
+      // smoothly through the damping below.
+      const step = useMobile ? 2 : 1;
+      const count = Math.ceil(m.count / step);
 
-      setTotal(m.count);
-      const imgs: HTMLImageElement[] = new Array(m.count);
+      setTotal(count);
+      const imgs: HTMLImageElement[] = new Array(count);
       let done = 0;
 
       const fetchFrame = (i: number) =>
         new Promise<void>((resolve) => {
           const img = new Image();
           img.decoding = "async";
-          img.src = `${src.dir}/f_${String(i + 1).padStart(m.pad, "0")}.webp`;
+          img.src = `${src.dir}/f_${String(i * step + 1).padStart(m.pad, "0")}.webp`;
           const finish = () => {
             imgs[i] = img;
             done++;
-            if (done % 8 === 0 || done === m.count) setLoaded(done);
+            if (done % 8 === 0 || done === count) setLoaded(done);
             resolve();
           };
-          img.onload = finish;
+          // Decoded off the main thread before it can be drawn, so the
+          // canvas never stalls a scroll frame decoding a still.
+          img.onload = () => {
+            if (typeof img.decode === "function")
+              img
+                .decode()
+                .catch(() => {})
+                .finally(finish);
+            else finish();
+          };
           // A missing frame must not stall the sequence.
           img.onerror = finish;
         });
@@ -132,7 +148,7 @@ export function ScrollJourneyFilm() {
         );
       };
 
-      const all = Array.from({ length: m.count }, (_, i) => i);
+      const all = Array.from({ length: count }, (_, i) => i);
       const sparse = all.filter((i) => i % 4 === 0);
       const rest = all.filter((i) => i % 4 !== 0);
 

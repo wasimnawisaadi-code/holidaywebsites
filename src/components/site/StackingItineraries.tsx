@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Clock, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,6 @@ export type StackCard = {
 
 export function StackingItineraries({ cards }: { cards: StackCard[] }) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const [scales, setScales] = useState<number[]>(() => cards.map(() => 1));
 
   useEffect(() => {
     const host = hostRef.current;
@@ -41,19 +40,28 @@ export function StackingItineraries({ cards }: { cards: StackCard[] }) {
     let raf = 0;
     let visible = false;
     const items = Array.from(host.children) as HTMLElement[];
+    const shown: number[] = items.map(() => 1);
 
+    // Scales are written straight to each card. Setting React state here
+    // re-rendered every card (images, prices, links) on every scroll frame.
     const update = () => {
       raf = 0;
       const vh = window.innerHeight || 1;
-      const next = items.map((item, i) => {
-        if (i === items.length - 1) return 1;
-        const r = item.getBoundingClientRect();
-        // How far this card has been pushed past its resting position, as a
-        // fraction of a viewport. 0 while it is still the front card.
-        const passed = Math.min(Math.max((vh * 0.35 - r.top) / vh, 0), 1);
-        return 1 - passed * 0.06;
+      items.forEach((item, i) => {
+        let scale = 1;
+        if (i < items.length - 1) {
+          const r = item.getBoundingClientRect();
+          // How far this card has been pushed past its resting position, as a
+          // fraction of a viewport. 0 while it is still the front card.
+          const passed = Math.min(Math.max((vh * 0.35 - r.top) / vh, 0), 1);
+          scale = Math.round((1 - passed * 0.06) * 1000) / 1000;
+        }
+        const inner = item.firstElementChild as HTMLElement | null;
+        if (inner && shown[i] !== scale) {
+          shown[i] = scale;
+          inner.style.transform = `scale(${scale})`;
+        }
       });
-      setScales(next);
     };
 
     const schedule = () => {
@@ -93,7 +101,7 @@ export function StackingItineraries({ cards }: { cards: StackCard[] }) {
         >
           <div
             className="pb-6 transition-transform duration-200 ease-out will-change-transform"
-            style={{ transform: `scale(${scales[i] ?? 1})`, transformOrigin: "center top" }}
+            style={{ transformOrigin: "center top" }}
           >
             <article
               className={cn(
@@ -114,7 +122,7 @@ export function StackingItineraries({ cards }: { cards: StackCard[] }) {
                   loading={i === 0 ? "eager" : "lazy"}
                   className="absolute inset-0 size-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
                 />
-                <span className="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-1 font-sans text-[10px] font-bold uppercase tracking-[0.16em] text-[#00365F] backdrop-blur-sm">
+                <span className="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-1 font-sans text-[10px] font-bold uppercase tracking-[0.16em] text-[#00365F]">
                   {c.country}
                 </span>
               </Link>

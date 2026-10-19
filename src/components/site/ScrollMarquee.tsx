@@ -69,6 +69,21 @@ export function ScrollMarquee({
 
     let raf = 0;
     let visible = false;
+    // One copy's width, measured on load and resize rather than on every
+    // scroll frame: reading scrollWidth there forced a layout pass per frame.
+    let loopA = 1;
+    let loopB = 1;
+    const measure = () => {
+      loopA = a.scrollWidth / 2 || 1;
+      loopB = b.scrollWidth / 2 || 1;
+    };
+    measure();
+    const ro = new ResizeObserver(() => {
+      measure();
+      schedule();
+    });
+    ro.observe(a);
+    ro.observe(b);
 
     const update = () => {
       raf = 0;
@@ -78,11 +93,8 @@ export function ScrollMarquee({
       const travelled = vh - r.top;
       const offset = travelled * 0.28;
 
-      // One copy's width. The lists are rendered twice, so half the scroll
-      // width is exactly the point where the strip repeats itself.
-      const loopA = a.scrollWidth / 2 || 1;
-      const loopB = b.scrollWidth / 2 || 1;
-
+      // loopA / loopB: one copy's width. The lists are rendered twice, so half
+      // the scroll width is exactly the point where the strip repeats itself.
       // `% loop` keeps the translate small no matter how far the page scrolls;
       // without it the transform grows unbounded and eventually loses precision.
       a.style.transform = `translate3d(${-(offset % loopA)}px, 0, 0)`;
@@ -107,6 +119,7 @@ export function ScrollMarquee({
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
     return () => {
+      ro.disconnect();
       io.disconnect();
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("scroll", schedule);

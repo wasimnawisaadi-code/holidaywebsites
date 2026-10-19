@@ -51,7 +51,10 @@ function sourceFor(src: string): string {
 
 export function CinematicHero({ clips }: { clips: HeroClip[] }) {
   const [index, setIndex] = useState(0);
-  const [scrolled, setScrolled] = useState(0);
+  // The copy that lifts and fades as the hero scrolls away. Written straight
+  // to the node: a state update here re-rendered the whole hero (both videos,
+  // buttons, headline) on every frame of the first screen of scrolling.
+  const copyRef = useRef<HTMLDivElement>(null);
   const frame = useRef(0);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
@@ -105,7 +108,12 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
       if (frame.current) return;
       frame.current = requestAnimationFrame(() => {
         frame.current = 0;
-        setScrolled(clamp(window.scrollY / Math.max(window.innerHeight, 1)));
+        const scrolled = clamp(window.scrollY / Math.max(window.innerHeight, 1));
+        const el = copyRef.current;
+        if (el) {
+          el.style.transform = `translate3d(0, ${scrolled * -60}px, 0)`;
+          el.style.opacity = String(1 - scrolled * 0.85);
+        }
       });
     };
     onScroll();
@@ -181,12 +189,9 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
         // while the header simultaneously turns opaque, so 116px of padding put
         // the eyebrow at 56px — underneath an 85px bar — and "WORLDWIDE
         // HOLIDAYS SINCE 2009" was sliced in half. 85 + 60 + a little air.
+        ref={copyRef}
         className="relative flex h-full flex-col justify-end pt-[152px] sm:pt-[168px]"
-        style={{
-          transform: `translate3d(0, ${scrolled * -60}px, 0)`,
-          opacity: 1 - scrolled * 0.85,
-          willChange: "transform, opacity",
-        }}
+        style={{ willChange: "transform, opacity" }}
       >
         <div className="mx-auto w-full max-w-[1400px] px-5 pb-10 sm:px-8 sm:pb-20">
           <p
