@@ -53,7 +53,9 @@ const CHAPTERS = [
 export function ScrollJourneyFilm() {
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const framesRef = useRef<HTMLImageElement[]>([]);
+  // Compressed frames as fetched. Decoding happens only around the
+  // playhead, in the render loop below.
+  const framesRef = useRef<(Blob | undefined)[]>([]);
   const progressRef = useRef(0);
   const barRef = useRef<HTMLDivElement>(null);
 
@@ -106,33 +108,20 @@ export function ScrollJourneyFilm() {
       const count = Math.ceil(m.count / step);
 
       setTotal(count);
-      const imgs: HTMLImageElement[] = new Array(count);
+      // Kept compressed (about 160KB a frame). Holding all 120 frames as
+      // decoded pictures was close to 1GB of memory on a desktop, enough to
+      // make an ordinary laptop stutter and hang while scrolling the film.
+      const imgs: (Blob | undefined)[] = new Array(count);
       let done = 0;
 
-      const fetchFrame = (i: number) =>
-        new Promise<void>((resolve) => {
-          const img = new Image();
-          img.decoding = "async";
-          img.src = `${src.dir}/f_${String(i * step + 1).padStart(m.pad, "0")}.webp`;
-          const finish = () => {
-            imgs[i] = img;
-            done++;
-            if (done % 8 === 0 || done === count) setLoaded(done);
-            resolve();
-          };
-          // Decoded off the main thread before it can be drawn, so the
-          // canvas never stalls a scroll frame decoding a still.
-          img.onload = () => {
-            if (typeof img.decode === "function")
-              img
-                .decode()
-                .catch(() => {})
-                .finally(finish);
-            else finish();
-          };
-          // A missing frame must not stall the sequence.
-          img.onerror = finish;
-        });
+      const fetchFrame = async (i: number) => {
+        const url = `${src.dir}/f_${String(i * step + 1).padStart(m.pad, "0")}.webp`;
+        // A missing frame must not stall the sequence.
+        const res = await fetch(url).catch(() => null);
+        if (res && res.ok) imgs[i] = await res.blob().catch(() => undefined);
+        done++;
+        if (done % 8 === 0 || done === count) setLoaded(done);
+      };
 
       /** Runs the queue a few at a time so the network is not saturated. */
       const run = async (indices: number[], concurrency = 6) => {
@@ -227,6 +216,39 @@ export function ScrollJourneyFilm() {
     let lastDrawn = -1;
     let last = performance.now();
     let running = true;
+    let disposed = false;
+
+    // Decoded frames, only within WINDOW of the playhead. createImageBitmap
+    // decodes off the main thread, so a frame is ready before it is drawn,
+    // and frames far behind are released. About 25 decoded frames are held
+    // at a time instead of all 120.
+    const WINDOW = 12;
+    const bitmaps = new Map<number, ImageBitmap>();
+    const pending = new Set<number>();
+    const prepare = (centre: number) => {
+      for (let d = 0; d <= WINDOW; d++) {
+        for (const i of d === 0 ? [centre] : [centre + d, centre - d]) {
+          if (i < 0 || i >= frames.length || bitmaps.has(i) || pending.has(i)) continue;
+          const blob = frames[i];
+          if (!blob || pending.size >= 4) continue;
+          pending.add(i);
+          createImageBitmap(blob)
+            .then((bitmap) => {
+              pending.delete(i);
+              if (disposed) return bitmap.close();
+              bitmaps.set(i, bitmap);
+              lastDrawn = -1;
+            })
+            .catch(() => pending.delete(i));
+        }
+      }
+      for (const [i, bitmap] of bitmaps) {
+        if (Math.abs(i - centre) > WINDOW + 4) {
+          bitmap.close();
+          bitmaps.delete(i);
+        }
+      }
+    };
 
     const size = () => {
       // The frames are 1920px wide now, so a 2x canvas on a 1440px viewport is
@@ -266,17 +288,18 @@ export function ScrollJourneyFilm() {
       }
 
       const idx = Math.round(clamp(shownFrame, 0, frames.length - 1));
+      prepare(idx);
       // Every fourth frame arrives first so the film is scrubbable early; the
-      // gaps fill in behind. Until one arrives, show the nearest frame that
-      // has — a held frame reads as a slightly lower frame rate, whereas
+      // gaps fill in behind. Until one is ready, show the nearest frame that
+      // is — a held frame reads as a slightly lower frame rate, whereas
       // skipping the draw reads as the film being broken.
-      let img = frames[idx];
-      if (!img) {
-        for (let d = 1; d <= 4 && !img; d++) {
-          img = frames[idx - d] ?? frames[idx + d];
-        }
+      let drawn = idx;
+      let img = bitmaps.get(idx);
+      for (let d = 1; d <= 8 && !img; d++) {
+        img = bitmaps.get(idx - d) ?? bitmaps.get(idx + d);
+        drawn = bitmaps.has(idx - d) ? idx - d : idx + d;
       }
-      if (!img || !img.complete || img.naturalWidth === 0) return;
+      if (!img) return;
 
       // A gentle push-in that peaks at the middle of the journey. This was
       // held near 1 because magnifying a 1280px frame across a full-screen
@@ -284,7 +307,7 @@ export function ScrollJourneyFilm() {
       // move to read again.
       const p = progressRef.current;
       const scale = 1 + Math.sin(p * Math.PI) * 0.04;
-      const key = idx * 1000 + Math.round(scale * 1000);
+      const key = drawn * 1000 + Math.round(scale * 1000);
       if (key === lastDrawn) return;
       lastDrawn = key;
 
@@ -309,9 +332,12 @@ export function ScrollJourneyFilm() {
     if (sectionRef.current) io.observe(sectionRef.current);
 
     return () => {
+      disposed = true;
       cancelAnimationFrame(raf);
       ro.disconnect();
       io.disconnect();
+      for (const bitmap of bitmaps.values()) bitmap.close();
+      bitmaps.clear();
     };
   }, [ready]);
 
