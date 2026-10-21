@@ -269,13 +269,6 @@ export function SiteFooter() {
             <Link to="/terms" className="transition-colors hover:text-[#7A641B]">
               Terms &amp; booking
             </Link>
-            <Link
-              to="/afghanistan"
-              hash="photo-credits"
-              className="transition-colors hover:text-[#7A641B]"
-            >
-              Afghanistan photo credits
-            </Link>
             <span>IATA accredited · flydubai GSA · DTCM approved</span>
           </div>
         </div>
