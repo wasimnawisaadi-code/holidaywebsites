@@ -289,32 +289,40 @@ function AfghanistanPage() {
           </ul>
         </div>
       </section>
+      {/* Kept small but kept: the CC BY and CC BY-SA licences on these photos
+          require naming the photographer and licence. Public-domain and CC0
+          photos need no credit and are left out. */}
       <div
         id="photo-credits"
-        className="mx-auto max-w-[1400px] scroll-mt-28 px-5 pb-12 text-xs text-slate-500 sm:px-8"
+        className="mx-auto max-w-[1400px] scroll-mt-28 px-5 pb-8 text-[10px] leading-relaxed text-slate-400 sm:px-8"
       >
         <details>
-          <summary className="cursor-pointer font-semibold">
-            Destination photography & credits
-          </summary>
-          <ul className="mt-4 space-y-2">
-            {afghanistanImageCredits.map((c) => (
-              <li key={c.image}>
-                <a className="underline" href={c.source} target="_blank" rel="noopener noreferrer">
-                  {c.alt}
-                </a>{" "}
-                — {c.author};{" "}
-                <a
-                  className="underline"
-                  href={c.licenseUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {c.license}
-                </a>
-                . {c.changes}
-              </li>
-            ))}
+          <summary className="cursor-pointer">Photo credits</summary>
+          <ul className="mt-2 space-y-1">
+            {afghanistanImageCredits
+              .filter((c) => c.license.startsWith("CC BY"))
+              .map((c) => (
+                <li key={c.image}>
+                  <a
+                    className="underline"
+                    href={c.source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {c.author}
+                  </a>{" "}
+                  ·{" "}
+                  <a
+                    className="underline"
+                    href={c.licenseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {c.license}
+                  </a>{" "}
+                  · resized and cropped
+                </li>
+              ))}
           </ul>
         </details>
       </div>
