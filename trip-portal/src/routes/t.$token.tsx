@@ -19,6 +19,7 @@ import {
   activitySteps,
   activityTime,
   dayGalleryBlocks,
+  dayEssentials,
   galleryCover,
   orderSteps,
 } from "@/lib/itinerary";
@@ -76,6 +77,10 @@ function Portal() {
     [data.days],
   );
   const token = Route.useParams().token;
+  const bookings = days.flatMap((day) => {
+    const { flights, hotels } = dayEssentials(day);
+    return [...flights, ...hotels].map(({ block }) => ({ day, block }));
+  });
 
   /**
    * Which day to open on.
@@ -113,6 +118,7 @@ function Portal() {
   const pdfHref = (invoiceId: string) => `/t/${token}/invoice/${invoiceId}.pdf`;
 
   const sections: { id: string; label: string; show: boolean }[] = [
+    { id: "bookings", label: "Flights & hotels", show: bookings.length > 0 },
     { id: "itinerary", label: "Itinerary", show: true },
     { id: "payment", label: "Payment", show: invoices.length > 0 },
     { id: "documents", label: "Documents", show: documents.length > 0 },
@@ -372,6 +378,45 @@ function Portal() {
       </nav>
 
       <main className="mx-auto max-w-5xl px-4 sm:px-5">
+        {bookings.length > 0 ? (
+          <section
+            id="bookings"
+            data-anchor
+            aria-label="Flight and hotel details"
+            className="pt-10"
+          >
+            <SectionOpener eyebrow="Your travel details" title="Flights &" accent="hotels" />
+            <p className="mt-3 text-sm text-muted">
+              Your flights and hotel stays, together in one place.
+            </p>
+            <div className="mt-6 space-y-6">
+              {bookings.map(({ day, block }) => (
+                <div key={block.id} className="min-w-0">
+                  <p className="mb-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-navy">
+                    <span className="rounded-full bg-sand px-3 py-1">Day {day.day_number}</span>
+                    {day.date ? (
+                      <span>
+                        {new Intl.DateTimeFormat("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                          timeZone: "UTC",
+                        }).format(new Date(day.date))}
+                      </span>
+                    ) : null}
+                    <span className="text-muted">
+                      {block.kind === "flight" ? "Flight" : "Hotel stay"}
+                    </span>
+                  </p>
+                  <BlockList
+                    blocks={[block]}
+                    ctx={{ drivers, documents, invoices, invoicePdfHref: pdfHref }}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
         {/* ================================================================
             Itinerary
             ============================================================== */}
