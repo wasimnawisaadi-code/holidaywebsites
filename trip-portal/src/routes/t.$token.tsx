@@ -6,8 +6,6 @@ import { BlockList, DriverCard, DocumentLink } from "@/components/Blocks";
 import { Directions } from "@/components/Directions";
 import { Icon, type IconName } from "@/components/Icon";
 import { PrintableItinerary } from "@/components/PrintableItinerary";
-import { BookingsList } from "@/components/BookingsList";
-import { DayAtAGlance } from "@/components/DayAtAGlance";
 import { DayBanner } from "@/components/DayBanner";
 import { JourneyOverview } from "@/components/JourneyOverview";
 import { TripInsights } from "@/components/TripInsights";
@@ -78,10 +76,6 @@ function Portal() {
     [data.days],
   );
   const token = Route.useParams().token;
-  const bookings = days.flatMap((day) => {
-    const { flights, hotels } = dayEssentials(day);
-    return [...flights, ...hotels].map(({ block }) => ({ day, block }));
-  });
 
   /**
    * Which day to open on.
@@ -103,6 +97,48 @@ function Portal() {
 
   const [activeDay, setActiveDay] = useState(todayIndex);
   const day = days[activeDay];
+  // The open day's flights, transfers and hotels, in travel order, shown in
+  // full at the top of the day and not repeated in its timeline.
+  const dayBookings = useMemo(() => {
+    if (!day) return [];
+    const e = dayEssentials(day);
+    return [...e.flights, ...e.transfers, ...e.hotels]
+      .map(({ block }) => block)
+      .sort(
+        (a, b) =>
+          day.steps.findIndex((s) => s.blocks.includes(a)) -
+          day.steps.findIndex((s) => s.blocks.includes(b)),
+      );
+  }, [day]);
+  const shownAtTop = useMemo(() => new Set(dayBookings.map((b) => b.id)), [dayBookings]);
+  // "Flight", "Flights & hotel", "Flight, transfer & hotel": what is really there.
+  const bookingsLabel = (() => {
+    const n = (kind: string) => dayBookings.filter((b) => b.kind === kind).length;
+    const parts = [
+      n("flight") ? (n("flight") > 1 ? "Flights" : "Flight") : "",
+      n("driver") ? (n("driver") > 1 ? "transfers" : "transfer") : "",
+      n("hotel") ? (n("hotel") > 1 ? "hotels" : "hotel") : "",
+    ].filter(Boolean);
+    const text =
+      parts.length > 1
+        ? `${parts.slice(0, -1).join(", ")} & ${parts[parts.length - 1]}`
+        : (parts[0] ?? "");
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  })();
+  // The day's plan without stops that are only a booking already shown in
+  // full at the top, so nothing appears twice.
+  const planSteps = useMemo(
+    () =>
+      (day?.steps ?? []).filter(
+        (s) =>
+          !(
+            s.blocks.length > 0 &&
+            s.blocks.every((b) => shownAtTop.has(b.id)) &&
+            !s.description?.trim()
+          ),
+      ),
+    [day, shownAtTop],
+  );
   // The day's banner: its cover first, then every photo in the day's gallery,
   // each once. One photo shows as a picture; more become a slideshow.
   const bannerPhotos = useMemo(() => {
@@ -119,7 +155,6 @@ function Portal() {
   const pdfHref = (invoiceId: string) => `/t/${token}/invoice/${invoiceId}.pdf`;
 
   const sections: { id: string; label: string; show: boolean }[] = [
-    { id: "bookings", label: "Flights & hotels", show: bookings.length > 0 },
     { id: "itinerary", label: "Itinerary", show: true },
     { id: "payment", label: "Payment", show: invoices.length > 0 },
     { id: "documents", label: "Documents", show: documents.length > 0 },
@@ -394,13 +429,6 @@ function Portal() {
             </button>
           </div>
 
-          {/* Flights and hotels first, one row each, so "Itinerary" opens on
-              them and the day-by-day plan follows straight after. */}
-          <BookingsList
-            bookings={bookings}
-            ctx={{ drivers, documents, invoices, invoicePdfHref: pdfHref }}
-          />
-
           {days.length ? (
             <JourneyOverview
               days={days}
@@ -492,9 +520,20 @@ function Portal() {
                   <h3 className="mt-1.5 font-display text-3xl leading-tight text-navy">
                     {day.title}
                   </h3>
-                  {/* Bookings first (flight, pickup, hotel, guide), then the
-                      consultant's overview of the day. */}
-                  <DayAtAGlance day={day} drivers={drivers} />
+                  {/* The day's own flight, pickup and hotel, in full, right under
+                      its title; the plan and its activities follow. Each day
+                      shows only its own bookings, never the whole trip's. */}
+                  {dayBookings.length ? (
+                    <div className="mt-6">
+                      <p className="mb-3 text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
+                        {bookingsLabel} for day {day.day_number}
+                      </p>
+                      <BlockList
+                        blocks={dayBookings}
+                        ctx={{ drivers, documents, invoices, invoicePdfHref: pdfHref }}
+                      />
+                    </div>
+                  ) : null}
                   {day.summary ? (
                     <div className="mt-6">
                       <p className="text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
@@ -506,12 +545,12 @@ function Portal() {
                     </div>
                   ) : null}
 
-                  {day.steps.length ? (
+                  {planSteps.length ? (
                     <nav
                       aria-label="Today's schedule"
                       className="mt-5 flex gap-2 overflow-x-auto pb-2"
                     >
-                      {day.steps.map((step, index) => (
+                      {planSteps.map((step, index) => (
                         <a
                           key={step.id}
                           href={`#stop-${step.id}`}
@@ -551,16 +590,16 @@ function Portal() {
                     </div>
                   ) : null}
 
-                  {day.steps.length ? (
+                  {planSteps.length ? (
                     <ol className="mt-8 flex flex-col">
-                      {day.steps.map((step, n) => (
+                      {planSteps.map((step, n) => (
                         <li
                           key={step.id}
                           id={`stop-${step.id}`}
                           data-anchor
                           className="ns-reveal relative pb-10 pl-12 last:pb-2"
                         >
-                          {n < day.steps.length - 1 ? (
+                          {n < planSteps.length - 1 ? (
                             <span
                               aria-hidden="true"
                               className="ns-draw absolute top-10 bottom-0 left-[1.1875rem] w-px bg-gradient-to-b from-gold/60 to-hair"
@@ -611,10 +650,10 @@ function Portal() {
                             </p>
                           ) : null}
 
-                          {step.blocks.length ? (
+                          {step.blocks.some((b) => !shownAtTop.has(b.id)) ? (
                             <div className="mt-4">
                               <BlockList
-                                blocks={step.blocks}
+                                blocks={step.blocks.filter((b) => !shownAtTop.has(b.id))}
                                 ctx={{
                                   drivers,
                                   documents,
@@ -627,7 +666,7 @@ function Portal() {
                         </li>
                       ))}
                     </ol>
-                  ) : !day.summary ? (
+                  ) : !day.summary && !dayBookings.length ? (
                     <p className="mt-6 rounded-2xl bg-paper p-5 text-sm leading-relaxed text-muted">
                       Your consultant is still finalising this day. It will appear here as soon as
                       it is ready — on this same link.
