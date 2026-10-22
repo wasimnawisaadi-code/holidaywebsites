@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 import { BlockList, DriverCard, DocumentLink } from "@/components/Blocks";
 import { Directions } from "@/components/Directions";
@@ -96,16 +96,20 @@ function Portal() {
 
   const [activeDay, setActiveDay] = useState(todayIndex);
   const day = days[activeDay];
-  // Keep the chosen day's card in view in the day row. Only the row scrolls
-  // sideways; the page itself never moves, so opening the link stays at the top.
+  // When a different day is opened, bring its row to the top of the screen,
+  // since the previously open day above it has just closed. Not on first load:
+  // opening the link stays at the top of the page.
+  const firstDayRender = useRef(true);
   useEffect(() => {
-    const strip = document.getElementById("day-strip");
-    const card = strip?.querySelector<HTMLElement>(`[data-day-tab="${activeDay}"]`);
-    if (!strip || !card) return;
-    strip.scrollTo({
-      left: card.offsetLeft - strip.offsetLeft - (strip.clientWidth - card.clientWidth) / 2,
-      behavior: "smooth",
-    });
+    if (firstDayRender.current) {
+      firstDayRender.current = false;
+      return;
+    }
+    requestAnimationFrame(() =>
+      document
+        .getElementById(`day-row-${activeDay}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
   }, [activeDay]);
   // The open day's flights, transfers and hotels, in travel order, shown in
   // full at the top of the day and not repeated in its timeline.
@@ -441,290 +445,275 @@ function Portal() {
 
           {days.length ? (
             <>
-              {/* One row of day cards; the chosen day opens right below it.
-                  An earlier full roadmap of every day sat above this and sent
-                  a tap far down the page, which customers found confusing. */}
-              <p className="mt-6 text-xs text-muted">Tap a day to see its plan.</p>
-              <div
-                id="day-strip"
-                role="tablist"
-                aria-label="Days"
-                className="no-scrollbar -mx-4 mt-3 flex scroll-mt-20 snap-x gap-3 overflow-x-auto px-4 pb-2 sm:-mx-5 sm:px-5"
-              >
+              {/* The days one under another. Tapping a day opens its plan
+                  right under its own row, so nothing jumps far down the page. */}
+              <p className="mt-6 text-xs text-muted">Tap a day to open its plan.</p>
+              <ol className="mt-3 flex flex-col gap-3">
                 {days.map((d, i) => {
                   const active = i === activeDay;
+                  const isToday =
+                    d.date ===
+                    new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(new Date());
                   return (
-                    <button
-                      key={d.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={active}
-                      data-day-tab={i}
-                      onClick={() => selectDay(i)}
-                      className={`group w-40 shrink-0 snap-start overflow-hidden rounded-2xl border bg-white text-left transition ${
-                        active
-                          ? "border-gold shadow-lg ring-2 ring-gold/40"
-                          : "border-hair shadow-sm hover:border-gold/60"
-                      }`}
-                    >
-                      <span className="relative block h-24 overflow-hidden bg-paper">
+                    <li key={d.id} id={`day-row-${i}`} className="scroll-mt-20">
+                      <button
+                        type="button"
+                        aria-expanded={active}
+                        onClick={() => selectDay(i)}
+                        className={`flex w-full items-center gap-3 rounded-2xl border bg-white p-2.5 text-left transition ${
+                          active
+                            ? "border-gold shadow-md ring-2 ring-gold/30"
+                            : "border-hair shadow-sm hover:border-gold/60"
+                        }`}
+                      >
                         <img
                           src={d.coverUrl ?? destinationPhoto(trip.destination, true)}
                           alt=""
                           loading="lazy"
-                          className="size-full object-cover transition duration-500 group-hover:scale-105"
+                          className="h-16 w-20 shrink-0 rounded-xl object-cover"
                         />
-                        <span className="absolute inset-0 bg-gradient-to-t from-navy-deep/70 to-transparent" />
-                        <span className="absolute bottom-2 left-2.5 text-[11px] font-bold tracking-[0.16em] text-white uppercase">
-                          Day {d.day_number}
-                        </span>
-                        {d.date ===
-                        new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(
-                          new Date(),
-                        ) ? (
-                          <span className="absolute top-2 right-2 rounded-full bg-gold px-2 py-0.5 text-[9px] font-bold tracking-wider text-navy uppercase">
-                            Today
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-[11px] font-bold tracking-[0.14em] text-gold-deep uppercase">
+                            Day {d.day_number}
+                            {d.date ? ` · ${shortDate(d.date)}` : ""}
+                            {isToday ? " · Today" : ""}
                           </span>
-                        ) : null}
-                      </span>
-                      <span className="block px-3 py-2.5">
-                        <span className="line-clamp-2 block text-sm leading-snug font-semibold text-navy">
-                          {d.title}
+                          <span className="mt-0.5 line-clamp-2 block text-sm leading-snug font-semibold text-navy">
+                            {d.title}
+                          </span>
                         </span>
-                        {d.date ? (
-                          <span className="block text-[11px] text-muted">{shortDate(d.date)}</span>
-                        ) : null}
-                      </span>
-                    </button>
+                        <Icon
+                          name="chevronRight"
+                          className={`size-5 shrink-0 text-gold-deep transition ${active ? "rotate-90" : ""}`}
+                        />
+                      </button>
+                      {active && day ? (
+                        <article
+                          key={day.id}
+                          id="active-day"
+                          data-anchor
+                          role="region"
+                          aria-label={`Day ${day.day_number}`}
+                          className="ns-fade-in mt-4 rounded-3xl border border-hair bg-white p-4 sm:p-6"
+                        >
+                          <DayBanner photos={bannerPhotos} label={`Day ${day.day_number} photos`} />
+
+                          {/* The day's own flight, pickup and hotel, in full, right under
+                            its title; the plan and its activities follow. Each day
+                            shows only its own bookings, never the whole trip's. */}
+                          {dayBookings.length ? (
+                            <div className="mt-6">
+                              <p className="mb-3 text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
+                                {bookingsLabel} for day {day.day_number}
+                              </p>
+                              <BlockList
+                                blocks={dayBookings}
+                                ctx={{ drivers, documents, invoices, invoicePdfHref: pdfHref }}
+                              />
+                            </div>
+                          ) : null}
+                          {day.summary ? (
+                            <div className="mt-6">
+                              <p className="text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
+                                Your day
+                              </p>
+                              <p className="mt-2 text-[15px] leading-relaxed whitespace-pre-line text-muted">
+                                {day.summary}
+                              </p>
+                            </div>
+                          ) : null}
+
+                          {planSteps.length ? (
+                            <nav
+                              aria-label="Today's schedule"
+                              className="mt-5 flex gap-2 overflow-x-auto pb-2"
+                            >
+                              {planSteps.map((step, index) => (
+                                <a
+                                  key={step.id}
+                                  href={`#stop-${step.id}`}
+                                  className="min-w-36 shrink-0 rounded-xl border border-hair bg-paper px-3 py-3 transition hover:border-gold"
+                                >
+                                  <span className="block text-[11px] font-semibold tracking-wide text-gold-deep uppercase">
+                                    {activityTime(step) || `Stop ${index + 1}`}
+                                  </span>
+                                  <span className="mt-1 block max-w-52 truncate text-xs font-semibold text-navy">
+                                    {step.title}
+                                  </span>
+                                  {step.duration ? (
+                                    <span className="mt-1 block text-[11px] text-muted">
+                                      {step.duration}
+                                    </span>
+                                  ) : null}
+                                </a>
+                              ))}
+                            </nav>
+                          ) : null}
+                          {route.length ? (
+                            <div className="ns-reveal mt-6">
+                              <div className="flex items-center justify-between gap-3">
+                                <p className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+                                  <Icon name="route" className="size-4" /> Day {day.day_number} on
+                                  the map
+                                </p>
+                                <span className="text-xs text-muted">
+                                  {route.length} {route.length === 1 ? "stop" : "stops"}
+                                </span>
+                              </div>
+                              <MapView
+                                className="mt-3 h-64 shadow-sm sm:h-72"
+                                label={`Map of day ${day.day_number}`}
+                                points={route}
+                                route
+                              />
+                            </div>
+                          ) : null}
+
+                          {planSteps.length ? (
+                            <ol className="mt-8 flex flex-col">
+                              {planSteps.map((step, n) => (
+                                <li
+                                  key={step.id}
+                                  id={`stop-${step.id}`}
+                                  data-anchor
+                                  className="ns-reveal relative pb-10 pl-12 last:pb-2"
+                                >
+                                  {n < planSteps.length - 1 ? (
+                                    <span
+                                      aria-hidden="true"
+                                      className="ns-draw absolute top-10 bottom-0 left-[1.1875rem] w-px bg-gradient-to-b from-gold/60 to-hair"
+                                    />
+                                  ) : null}
+                                  <span
+                                    aria-hidden="true"
+                                    className="absolute top-0 left-0 grid size-10 place-items-center rounded-full bg-navy font-sans text-base font-bold text-white shadow-md ring-4 ring-white"
+                                  >
+                                    {n + 1}
+                                  </span>
+
+                                  <div className="flex flex-wrap items-center gap-2 pt-1.5">
+                                    {activityTime(step) ? (
+                                      <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold-deep tabular-nums">
+                                        <Icon name="clock" className="size-3" />{" "}
+                                        {activityTime(step)}
+                                      </span>
+                                    ) : null}
+                                    {step.duration ? (
+                                      <span className="text-[11px] text-muted">
+                                        {step.duration}
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                  <h4 className="mt-2 text-lg leading-snug font-semibold text-navy">
+                                    {step.title}
+                                  </h4>
+
+                                  {step.location_name ? (
+                                    <p className="mt-1 flex items-start gap-1.5 text-sm text-muted">
+                                      <Icon
+                                        name="pin"
+                                        className="mt-0.5 size-4 shrink-0 text-gold-deep"
+                                      />
+                                      <span>{step.location_name}</span>
+                                    </p>
+                                  ) : null}
+                                  {isLatLng(step.latitude, step.longitude) ? (
+                                    <div className="mt-3 max-w-sm">
+                                      <Directions
+                                        lat={step.latitude!}
+                                        lng={step.longitude!}
+                                        label={step.location_name ?? step.title}
+
+                                        compact
+                                      />
+                                    </div>
+                                  ) : null}
+
+                                  {step.description ? (
+                                    <p className="mt-2.5 text-[15px] leading-relaxed whitespace-pre-line text-ink">
+                                      {step.description}
+                                    </p>
+                                  ) : null}
+
+                                  {step.blocks.some((b) => !shownAtTop.has(b.id)) ? (
+                                    <div className="mt-4">
+                                      <BlockList
+                                        blocks={step.blocks.filter((b) => !shownAtTop.has(b.id))}
+                                        ctx={{
+                                          drivers,
+                                          documents,
+                                          invoices,
+                                          invoicePdfHref: pdfHref,
+                                        }}
+                                      />
+                                    </div>
+                                  ) : null}
+                                </li>
+                              ))}
+                            </ol>
+                          ) : !day.summary && !dayBookings.length ? (
+                            <p className="mt-6 rounded-2xl bg-paper p-5 text-sm leading-relaxed text-muted">
+                              Your consultant is still finalising this day. It will appear here as
+                              soon as it is ready — on this same link.
+                            </p>
+                          ) : null}
+
+                          {days.length > 1 ? (
+                            <div className="mt-6 grid grid-cols-2 gap-3 border-t border-hair pt-6">
+                              {activeDay > 0 ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    selectDay(activeDay - 1);
+                                  }}
+                                  className="flex items-center gap-2 rounded-2xl border border-hair p-3.5 text-left text-sm transition hover:border-gold"
+                                >
+                                  <Icon
+                                    name="chevronLeft"
+                                    className="size-4 shrink-0 text-gold-deep"
+                                  />
+                                  <span className="min-w-0">
+                                    <span className="block text-[11px] tracking-wider text-muted uppercase">
+                                      Day {days[activeDay - 1]?.day_number}
+                                    </span>
+                                    <span className="block truncate font-semibold text-navy">
+                                      {days[activeDay - 1]?.title}
+                                    </span>
+                                  </span>
+                                </button>
+                              ) : (
+                                <span />
+                              )}
+                              {activeDay < days.length - 1 ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    selectDay(activeDay + 1);
+                                  }}
+                                  className="flex items-center justify-end gap-2 rounded-2xl border border-hair p-3.5 text-right text-sm transition hover:border-gold"
+                                >
+                                  <span className="min-w-0">
+                                    <span className="block text-[11px] tracking-wider text-muted uppercase">
+                                      Day {days[activeDay + 1]?.day_number}
+                                    </span>
+                                    <span className="block truncate font-semibold text-navy">
+                                      {days[activeDay + 1]?.title}
+                                    </span>
+                                  </span>
+                                  <Icon
+                                    name="chevronRight"
+                                    className="size-4 shrink-0 text-gold-deep"
+                                  />
+                                </button>
+                              ) : null}
+                            </div>
+                          ) : null}
+                        </article>
+                      ) : null}
+                    </li>
                   );
                 })}
-              </div>
-
-              {day ? (
-                <article
-                  key={day.id}
-                  id="active-day"
-                  data-anchor
-                  role="tabpanel"
-                  aria-label={`Day ${day.day_number}`}
-                  className="ns-fade-in mt-7"
-                >
-                  <DayBanner photos={bannerPhotos} label={`Day ${day.day_number} photos`} />
-
-                  <p
-                    className={`${bannerPhotos.length ? "mt-5" : ""} text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase`}
-                  >
-                    Day {day.day_number}
-                    {day.date ? ` · ${formatLongDate(day.date)}` : ""}
-                  </p>
-                  <h3 className="mt-1.5 font-display text-3xl leading-tight text-navy">
-                    {day.title}
-                  </h3>
-                  {/* The day's own flight, pickup and hotel, in full, right under
-                      its title; the plan and its activities follow. Each day
-                      shows only its own bookings, never the whole trip's. */}
-                  {dayBookings.length ? (
-                    <div className="mt-6">
-                      <p className="mb-3 text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
-                        {bookingsLabel} for day {day.day_number}
-                      </p>
-                      <BlockList
-                        blocks={dayBookings}
-                        ctx={{ drivers, documents, invoices, invoicePdfHref: pdfHref }}
-                      />
-                    </div>
-                  ) : null}
-                  {day.summary ? (
-                    <div className="mt-6">
-                      <p className="text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
-                        Your day
-                      </p>
-                      <p className="mt-2 text-[15px] leading-relaxed whitespace-pre-line text-muted">
-                        {day.summary}
-                      </p>
-                    </div>
-                  ) : null}
-
-                  {planSteps.length ? (
-                    <nav
-                      aria-label="Today's schedule"
-                      className="mt-5 flex gap-2 overflow-x-auto pb-2"
-                    >
-                      {planSteps.map((step, index) => (
-                        <a
-                          key={step.id}
-                          href={`#stop-${step.id}`}
-                          className="min-w-36 shrink-0 rounded-xl border border-hair bg-paper px-3 py-3 transition hover:border-gold"
-                        >
-                          <span className="block text-[11px] font-semibold tracking-wide text-gold-deep uppercase">
-                            {activityTime(step) || `Stop ${index + 1}`}
-                          </span>
-                          <span className="mt-1 block max-w-52 truncate text-xs font-semibold text-navy">
-                            {step.title}
-                          </span>
-                          {step.duration ? (
-                            <span className="mt-1 block text-[11px] text-muted">
-                              {step.duration}
-                            </span>
-                          ) : null}
-                        </a>
-                      ))}
-                    </nav>
-                  ) : null}
-                  {route.length ? (
-                    <div className="ns-reveal mt-6">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
-                          <Icon name="route" className="size-4" /> Day {day.day_number} on the map
-                        </p>
-                        <span className="text-xs text-muted">
-                          {route.length} {route.length === 1 ? "stop" : "stops"}
-                        </span>
-                      </div>
-                      <MapView
-                        className="mt-3 h-64 shadow-sm sm:h-72"
-                        label={`Map of day ${day.day_number}`}
-                        points={route}
-                        route
-                      />
-                    </div>
-                  ) : null}
-
-                  {planSteps.length ? (
-                    <ol className="mt-8 flex flex-col">
-                      {planSteps.map((step, n) => (
-                        <li
-                          key={step.id}
-                          id={`stop-${step.id}`}
-                          data-anchor
-                          className="ns-reveal relative pb-10 pl-12 last:pb-2"
-                        >
-                          {n < planSteps.length - 1 ? (
-                            <span
-                              aria-hidden="true"
-                              className="ns-draw absolute top-10 bottom-0 left-[1.1875rem] w-px bg-gradient-to-b from-gold/60 to-hair"
-                            />
-                          ) : null}
-                          <span
-                            aria-hidden="true"
-                            className="absolute top-0 left-0 grid size-10 place-items-center rounded-full bg-navy font-sans text-base font-bold text-white shadow-md ring-4 ring-white"
-                          >
-                            {n + 1}
-                          </span>
-
-                          <div className="flex flex-wrap items-center gap-2 pt-1.5">
-                            {activityTime(step) ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold-deep tabular-nums">
-                                <Icon name="clock" className="size-3" /> {activityTime(step)}
-                              </span>
-                            ) : null}
-                            {step.duration ? (
-                              <span className="text-[11px] text-muted">{step.duration}</span>
-                            ) : null}
-                          </div>
-                          <h4 className="mt-2 text-lg leading-snug font-semibold text-navy">
-                            {step.title}
-                          </h4>
-
-                          {step.location_name ? (
-                            <p className="mt-1 flex items-start gap-1.5 text-sm text-muted">
-                              <Icon name="pin" className="mt-0.5 size-4 shrink-0 text-gold-deep" />
-                              <span>{step.location_name}</span>
-                            </p>
-                          ) : null}
-                          {isLatLng(step.latitude, step.longitude) ? (
-                            <div className="mt-3 max-w-sm">
-                              <Directions
-                                lat={step.latitude!}
-                                lng={step.longitude!}
-                                label={step.location_name ?? step.title}
-
-                                compact
-                              />
-                            </div>
-                          ) : null}
-
-                          {step.description ? (
-                            <p className="mt-2.5 text-[15px] leading-relaxed whitespace-pre-line text-ink">
-                              {step.description}
-                            </p>
-                          ) : null}
-
-                          {step.blocks.some((b) => !shownAtTop.has(b.id)) ? (
-                            <div className="mt-4">
-                              <BlockList
-                                blocks={step.blocks.filter((b) => !shownAtTop.has(b.id))}
-                                ctx={{
-                                  drivers,
-                                  documents,
-                                  invoices,
-                                  invoicePdfHref: pdfHref,
-                                }}
-                              />
-                            </div>
-                          ) : null}
-                        </li>
-                      ))}
-                    </ol>
-                  ) : !day.summary && !dayBookings.length ? (
-                    <p className="mt-6 rounded-2xl bg-paper p-5 text-sm leading-relaxed text-muted">
-                      Your consultant is still finalising this day. It will appear here as soon as
-                      it is ready — on this same link.
-                    </p>
-                  ) : null}
-
-                  {days.length > 1 ? (
-                    <div className="mt-6 grid grid-cols-2 gap-3 border-t border-hair pt-6">
-                      {activeDay > 0 ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            selectDay(activeDay - 1);
-                            document
-                              .getElementById("day-strip")
-                              ?.scrollIntoView({ behavior: "smooth", block: "start" });
-                          }}
-                          className="flex items-center gap-2 rounded-2xl border border-hair p-3.5 text-left text-sm transition hover:border-gold"
-                        >
-                          <Icon name="chevronLeft" className="size-4 shrink-0 text-gold-deep" />
-                          <span className="min-w-0">
-                            <span className="block text-[11px] tracking-wider text-muted uppercase">
-                              Day {days[activeDay - 1]?.day_number}
-                            </span>
-                            <span className="block truncate font-semibold text-navy">
-                              {days[activeDay - 1]?.title}
-                            </span>
-                          </span>
-                        </button>
-                      ) : (
-                        <span />
-                      )}
-                      {activeDay < days.length - 1 ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            selectDay(activeDay + 1);
-                            document
-                              .getElementById("day-strip")
-                              ?.scrollIntoView({ behavior: "smooth", block: "start" });
-                          }}
-                          className="flex items-center justify-end gap-2 rounded-2xl border border-hair p-3.5 text-right text-sm transition hover:border-gold"
-                        >
-                          <span className="min-w-0">
-                            <span className="block text-[11px] tracking-wider text-muted uppercase">
-                              Day {days[activeDay + 1]?.day_number}
-                            </span>
-                            <span className="block truncate font-semibold text-navy">
-                              {days[activeDay + 1]?.title}
-                            </span>
-                          </span>
-                          <Icon name="chevronRight" className="size-4 shrink-0 text-gold-deep" />
-                        </button>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </article>
-              ) : null}
+              </ol>
             </>
           ) : (
             <div className="mt-6 rounded-3xl bg-sand p-6">
@@ -940,11 +929,6 @@ function formatRange(start: string, end: string): string {
   const mon = (d: Date) => MONTHS[d.getUTCMonth()]?.slice(0, 3) ?? "";
   if (sameMonth) return `${a.getUTCDate()}–${b.getUTCDate()} ${mon(b)} ${b.getUTCFullYear()}`;
   return `${a.getUTCDate()} ${mon(a)} – ${b.getUTCDate()} ${mon(b)} ${b.getUTCFullYear()}`;
-}
-
-function formatLongDate(date: string): string {
-  const d = new Date(date);
-  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()] ?? ""} ${d.getUTCFullYear()}`;
 }
 
 function shortDate(date: string): string {
