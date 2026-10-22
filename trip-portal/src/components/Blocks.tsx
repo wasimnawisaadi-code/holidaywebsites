@@ -217,8 +217,8 @@ function BlockView({
           openPhotos={openPhotos}
           rows={[
             ["Address", p.address],
-            ["Check in", p.checkIn],
-            ["Check out", p.checkOut],
+            ["Check in", readableDate(p.checkIn)],
+            ["Check out", readableDate(p.checkOut)],
             ["Nights", p.nights],
             ["Room", p.roomType],
             ["Guests", p.guests],
@@ -268,7 +268,7 @@ function BlockView({
             <IconBadge name={p.role ? "users" : "phone"} />
             <div className="min-w-0">
               {p.role ? (
-                <p className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+                <p className="text-[11px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
                   {p.role}
                 </p>
               ) : null}
@@ -593,7 +593,7 @@ function PhotoGuide({
     >
       <header className="px-4 pt-4">
         <div className="flex items-center justify-between gap-3">
-          <p className="flex min-w-0 items-center gap-2 text-[10px] font-bold tracking-[0.16em] whitespace-nowrap text-gold-deep uppercase">
+          <p className="flex min-w-0 items-center gap-2 text-[11px] font-bold tracking-[0.16em] whitespace-nowrap text-gold-deep uppercase">
             <Icon name="images" className="size-3.5 shrink-0" /> Photo guide · {steps.length}{" "}
             {steps.length === 1 ? "step" : "steps"}
           </p>
@@ -656,7 +656,7 @@ function PhotoGuide({
                 <span className="absolute top-3 left-3 grid size-10 place-items-center rounded-full bg-white font-sans text-base font-bold text-navy shadow-lg">
                   {i + 1}
                 </span>
-                <span className="absolute top-3.5 right-3 rounded-full bg-navy-deep/55 px-2.5 py-1 text-[10px] font-semibold tracking-wider text-white uppercase backdrop-blur">
+                <span className="absolute top-3.5 right-3 rounded-full bg-navy-deep/55 px-2.5 py-1 text-[11px] font-semibold tracking-wider text-white uppercase backdrop-blur">
                   Step {i + 1} of {steps.length}
                 </span>
               </button>
@@ -686,7 +686,7 @@ function PhotoGuide({
             className="flex w-[84%] shrink-0 snap-start flex-col gap-3 sm:w-[68%]"
           >
             <div className="rounded-2xl bg-sand p-4">
-              <p className="flex items-center gap-2 text-[10px] font-bold tracking-[0.18em] text-live uppercase">
+              <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] text-live uppercase">
                 <Icon name="flag" className="size-3.5" /> You have arrived
               </p>
               <p className="mt-1.5 font-display text-lg leading-snug text-navy">
@@ -790,7 +790,7 @@ function FlightCard({ p }: { p: BlockPayload }) {
         <div className="flex items-center gap-3">
           <IconBadge name="plane" />
           <div>
-            <p className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+            <p className="text-[11px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
               Your flight
             </p>
             <p className="font-semibold text-navy">
@@ -800,13 +800,13 @@ function FlightCard({ p }: { p: BlockPayload }) {
         </div>
         {p.date ? (
           <span className="rounded-full border border-hair bg-white px-3 py-1.5 text-xs font-semibold text-navy">
-            {p.date}
+            {readableDate(p.date)}
           </span>
         ) : null}
       </div>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 py-6">
         <div>
-          <p className="text-[10px] tracking-widest text-muted uppercase">Departure</p>
+          <p className="text-[11px] tracking-widest text-muted uppercase">Departure</p>
           <p className="mt-2 text-3xl font-semibold break-words text-navy">
             {p.fromAirport || "—"}
           </p>
@@ -820,7 +820,7 @@ function FlightCard({ p }: { p: BlockPayload }) {
           <span className="w-5 border-t border-dashed border-gold sm:w-10" />
         </div>
         <div className="text-right">
-          <p className="text-[10px] tracking-widest text-muted uppercase">Arrival</p>
+          <p className="text-[11px] tracking-widest text-muted uppercase">Arrival</p>
           <p className="mt-2 text-3xl font-semibold break-words text-navy">{p.toAirport || "—"}</p>
           <p className="mt-1 text-lg font-semibold text-ink">
             {p.arriveTime || p.arrival || "To be advised"}
@@ -837,7 +837,7 @@ function FlightCard({ p }: { p: BlockPayload }) {
           .filter(([, value]) => value)
           .map(([label, value]) => (
             <div key={label}>
-              <dt className="text-[10px] tracking-wide text-muted uppercase">{label}</dt>
+              <dt className="text-[11px] tracking-wide text-muted uppercase">{label}</dt>
               <dd className="mt-1 text-sm font-semibold break-words text-navy">{value}</dd>
             </div>
           ))}
@@ -894,7 +894,7 @@ function DetailCard({
             />
           )}
           {credit ? (
-            <figcaption className="px-4 pt-2 text-[10px] text-muted">{credit}</figcaption>
+            <figcaption className="px-4 pt-2 text-[11px] text-muted">{credit}</figcaption>
           ) : null}
         </figure>
       ) : null}
@@ -902,7 +902,7 @@ function DetailCard({
         <div className="flex items-center gap-3">
           <IconBadge name={icon} />
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+            <p className="text-[11px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
               {eyebrow}
             </p>
             <p className="truncate text-base font-semibold text-navy">{title}</p>
@@ -926,7 +926,7 @@ function DetailCard({
             target="_blank"
             rel="noopener noreferrer"
             onClick={action.onClick}
-            className="mt-3.5 flex items-center justify-center gap-2 rounded-xl border border-hair py-2.5 text-xs font-semibold text-navy transition hover:border-gold"
+            className="mt-3.5 flex min-h-11 items-center justify-center gap-2 rounded-xl border border-hair py-2.5 text-xs font-semibold text-navy transition hover:border-gold"
           >
             <Icon name="navigation" className="size-3.5 text-gold-deep" /> {action.label}
           </a>
@@ -968,7 +968,7 @@ export function DriverCard({
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
+          <p className="text-[11px] font-semibold tracking-[0.18em] text-gold-deep uppercase">
             Your driver
           </p>
           <p className="mt-0.5 truncate font-display text-xl text-navy">{driver.full_name}</p>
@@ -981,7 +981,7 @@ export function DriverCard({
 
       {driver.plate_number ? (
         <div className="mx-4 flex items-center justify-between rounded-xl border-2 border-ink/80 bg-white px-4 py-2">
-          <span className="text-[10px] font-semibold tracking-[0.18em] text-muted uppercase">
+          <span className="text-[11px] font-semibold tracking-[0.18em] text-muted uppercase">
             Plate
           </span>
           <span className="font-mono text-2xl font-bold tracking-wider text-ink tabular-nums">
@@ -1040,4 +1040,15 @@ export function DocumentLink({
       <Icon name="download" className="size-4 shrink-0 text-gold-deep" />
     </a>
   );
+}
+
+/** "2026-11-12" → "12 Nov 2026" for a customer; anything else stays as typed. */
+function readableDate(value?: string): string | undefined {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T12:00:00Z`));
 }
