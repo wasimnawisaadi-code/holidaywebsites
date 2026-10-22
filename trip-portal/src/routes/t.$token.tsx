@@ -7,7 +7,6 @@ import { Directions } from "@/components/Directions";
 import { Icon, type IconName } from "@/components/Icon";
 import { PrintableItinerary } from "@/components/PrintableItinerary";
 import { DayBanner } from "@/components/DayBanner";
-import { JourneyOverview } from "@/components/JourneyOverview";
 import { TripInsights } from "@/components/TripInsights";
 import { InvoiceCard } from "@/components/InvoiceCard";
 import { MapView, type MapPoint } from "@/components/MapView";
@@ -97,6 +96,17 @@ function Portal() {
 
   const [activeDay, setActiveDay] = useState(todayIndex);
   const day = days[activeDay];
+  // Keep the chosen day's card in view in the day row. Only the row scrolls
+  // sideways; the page itself never moves, so opening the link stays at the top.
+  useEffect(() => {
+    const strip = document.getElementById("day-strip");
+    const card = strip?.querySelector<HTMLElement>(`[data-day-tab="${activeDay}"]`);
+    if (!strip || !card) return;
+    strip.scrollTo({
+      left: card.offsetLeft - strip.offsetLeft - (strip.clientWidth - card.clientWidth) / 2,
+      behavior: "smooth",
+    });
+  }, [activeDay]);
   // The open day's flights, transfers and hotels, in travel order, shown in
   // full at the top of the day and not repeated in its timeline.
   const dayBookings = useMemo(() => {
@@ -430,27 +440,16 @@ function Portal() {
           </div>
 
           {days.length ? (
-            <JourneyOverview
-              days={days}
-              activeDay={activeDay}
-              ctx={{ drivers, documents, invoices, invoicePdfHref: pdfHref }}
-              onSelect={(index) => {
-                selectDay(index);
-                requestAnimationFrame(() =>
-                  document
-                    .getElementById("active-day")
-                    ?.scrollIntoView({ behavior: "smooth", block: "start" }),
-                );
-              }}
-            />
-          ) : null}
-
-          {days.length ? (
             <>
+              {/* One row of day cards; the chosen day opens right below it.
+                  An earlier full roadmap of every day sat above this and sent
+                  a tap far down the page, which customers found confusing. */}
+              <p className="mt-6 text-xs text-muted">Tap a day to see its plan.</p>
               <div
+                id="day-strip"
                 role="tablist"
                 aria-label="Days"
-                className="no-scrollbar -mx-4 mt-6 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:-mx-5 sm:px-5"
+                className="no-scrollbar -mx-4 mt-3 flex scroll-mt-20 snap-x gap-3 overflow-x-auto px-4 pb-2 sm:-mx-5 sm:px-5"
               >
                 {days.map((d, i) => {
                   const active = i === activeDay;
@@ -460,6 +459,7 @@ function Portal() {
                       type="button"
                       role="tab"
                       aria-selected={active}
+                      data-day-tab={i}
                       onClick={() => selectDay(i)}
                       className={`group w-40 shrink-0 snap-start overflow-hidden rounded-2xl border bg-white text-left transition ${
                         active
@@ -680,7 +680,9 @@ function Portal() {
                           type="button"
                           onClick={() => {
                             selectDay(activeDay - 1);
-                            document.getElementById("itinerary")?.scrollIntoView();
+                            document
+                              .getElementById("day-strip")
+                              ?.scrollIntoView({ behavior: "smooth", block: "start" });
                           }}
                           className="flex items-center gap-2 rounded-2xl border border-hair p-3.5 text-left text-sm transition hover:border-gold"
                         >
@@ -702,7 +704,9 @@ function Portal() {
                           type="button"
                           onClick={() => {
                             selectDay(activeDay + 1);
-                            document.getElementById("itinerary")?.scrollIntoView();
+                            document
+                              .getElementById("day-strip")
+                              ?.scrollIntoView({ behavior: "smooth", block: "start" });
                           }}
                           className="flex items-center justify-end gap-2 rounded-2xl border border-hair p-3.5 text-right text-sm transition hover:border-gold"
                         >
