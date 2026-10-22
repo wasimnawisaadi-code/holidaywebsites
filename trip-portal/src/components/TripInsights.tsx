@@ -113,7 +113,7 @@ export function TripInsights({
             <Icon name={next.icon} className="size-5" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[10px] font-semibold tracking-[0.18em] text-gold-light uppercase">
+            <span className="block text-[11px] font-semibold tracking-[0.18em] text-gold-light uppercase">
               Coming up next · {next.when}
             </span>
             <span className="block truncate text-sm font-semibold">{next.title}</span>
@@ -126,7 +126,7 @@ export function TripInsights({
       ) : null}
       {facts.length ? (
         <div className="mt-3">
-          <p className="text-[10px] font-semibold tracking-[0.18em] text-muted uppercase">
+          <p className="text-[11px] font-semibold tracking-[0.18em] text-muted uppercase">
             Your trip includes
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5">

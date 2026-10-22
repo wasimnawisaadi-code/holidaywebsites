@@ -297,7 +297,7 @@ function Portal() {
         >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
+              <p className="text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
                 {timing.phase === "upcoming"
                   ? "Booking confirmed"
                   : timing.phase === "travelling"
@@ -330,7 +330,7 @@ function Portal() {
                     }
                   />
                 </p>
-                <p className="mt-1 text-[10px] tracking-wider text-muted uppercase">
+                <p className="mt-1 text-[11px] tracking-wider text-muted uppercase">
                   {timing.phase === "upcoming"
                     ? timing.daysToGo === 1
                       ? "day to go"
@@ -370,7 +370,7 @@ function Portal() {
                   <span className="mt-1.5 block text-sm font-semibold text-navy">
                     {count ? `${count} ${noun}${count === 1 ? "" : "s"}` : "None yet"}
                   </span>
-                  <span className="block text-[10px] tracking-wider text-muted uppercase">
+                  <span className="block text-[11px] tracking-wider text-muted uppercase">
                     {label}
                   </span>
                 </>
@@ -433,7 +433,7 @@ function Portal() {
             <button
               type="button"
               onClick={() => window.print()}
-              className="rounded-xl border border-hair bg-white px-4 py-2.5 text-xs font-semibold text-navy"
+              className="min-h-11 rounded-xl border border-hair bg-white px-4 py-2.5 text-xs font-semibold text-navy"
             >
               Print / Save PDF
             </button>
@@ -475,7 +475,7 @@ function Portal() {
                           className="size-full object-cover transition duration-500 group-hover:scale-105"
                         />
                         <span className="absolute inset-0 bg-gradient-to-t from-navy-deep/70 to-transparent" />
-                        <span className="absolute bottom-2 left-2.5 text-[10px] font-bold tracking-[0.16em] text-white uppercase">
+                        <span className="absolute bottom-2 left-2.5 text-[11px] font-bold tracking-[0.16em] text-white uppercase">
                           Day {d.day_number}
                         </span>
                         {d.date ===
@@ -488,7 +488,7 @@ function Portal() {
                         ) : null}
                       </span>
                       <span className="block px-3 py-2.5">
-                        <span className="block truncate text-sm font-semibold text-navy">
+                        <span className="line-clamp-2 block text-sm leading-snug font-semibold text-navy">
                           {d.title}
                         </span>
                         {d.date ? (
@@ -556,14 +556,14 @@ function Portal() {
                           href={`#stop-${step.id}`}
                           className="min-w-36 shrink-0 rounded-xl border border-hair bg-paper px-3 py-3 transition hover:border-gold"
                         >
-                          <span className="block text-[10px] font-semibold tracking-wide text-gold-deep uppercase">
+                          <span className="block text-[11px] font-semibold tracking-wide text-gold-deep uppercase">
                             {activityTime(step) || `Stop ${index + 1}`}
                           </span>
                           <span className="mt-1 block max-w-52 truncate text-xs font-semibold text-navy">
                             {step.title}
                           </span>
                           {step.duration ? (
-                            <span className="mt-1 block text-[10px] text-muted">
+                            <span className="mt-1 block text-[11px] text-muted">
                               {step.duration}
                             </span>
                           ) : null}
@@ -688,7 +688,7 @@ function Portal() {
                         >
                           <Icon name="chevronLeft" className="size-4 shrink-0 text-gold-deep" />
                           <span className="min-w-0">
-                            <span className="block text-[10px] tracking-wider text-muted uppercase">
+                            <span className="block text-[11px] tracking-wider text-muted uppercase">
                               Day {days[activeDay - 1]?.day_number}
                             </span>
                             <span className="block truncate font-semibold text-navy">
@@ -711,7 +711,7 @@ function Portal() {
                           className="flex items-center justify-end gap-2 rounded-2xl border border-hair p-3.5 text-right text-sm transition hover:border-gold"
                         >
                           <span className="min-w-0">
-                            <span className="block text-[10px] tracking-wider text-muted uppercase">
+                            <span className="block text-[11px] tracking-wider text-muted uppercase">
                               Day {days[activeDay + 1]?.day_number}
                             </span>
                             <span className="block truncate font-semibold text-navy">
