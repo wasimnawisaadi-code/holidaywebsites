@@ -6,6 +6,7 @@ import {
   stayLine,
   transferLine,
 } from "./itinerary";
+import { plainText } from "./text-format";
 import type { Day, Driver, Trip } from "./types";
 
 /**
@@ -52,7 +53,7 @@ function travellers(adults: number, children: number): string {
 
 /** A day overview's lines, trimmed of blanks, at most `max` of them. */
 function overviewLines(summary: string | null, max: number): string[] {
-  return (summary ?? "")
+  return plainText(summary)
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean)

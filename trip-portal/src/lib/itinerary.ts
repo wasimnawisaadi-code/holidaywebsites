@@ -1,4 +1,5 @@
 import type { IconName } from "@/components/Icon";
+import { plainText } from "./text-format";
 import { BLOCK_LABELS, type Block, type Day, type Step } from "./types";
 
 /** A gallery is day content, never a timed activity or a stop on the route. */
@@ -183,7 +184,7 @@ export function stepSummary(step: Step): { icon: IconName; line: string; photos:
   const info = step.blocks.find((b) => INFO_KINDS.has(b.kind));
   if (info) {
     const p = info.payload;
-    const firstLine = (p.text ?? "")
+    const firstLine = plainText(p.text)
       .split(/\r?\n/)
       .find((l) => l.trim())
       ?.trim();
@@ -197,7 +198,9 @@ export function stepSummary(step: Step): { icon: IconName; line: string; photos:
             .join(" · ") || BLOCK_LABELS[info.kind].label;
     return { icon: BLOCK_LABELS[info.kind].icon, line, photos };
   }
-  const first = (step.description ?? "").split(/\r?\n/).find((l) => l.trim());
+  const first = plainText(step.description)
+    .split(/\r?\n/)
+    .find((l) => l.trim());
   return {
     icon: "pin",
     line: [step.duration, step.location_name, first?.trim()].filter(Boolean).join(" · "),
