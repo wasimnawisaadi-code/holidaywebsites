@@ -1,3 +1,4 @@
+import { plainText } from "@/lib/text-format";
 import type { CustomerTrip } from "@/lib/types";
 import { BlockList } from "./Blocks";
 import { activitySteps, orderSteps } from "@/lib/itinerary";
@@ -23,7 +24,7 @@ export function PrintableItinerary({ data }: { data: CustomerTrip }) {
             Day {day.day_number} · {day.title}
           </h2>
           {day.date ? <p>{day.date}</p> : null}
-          {day.summary ? <p style={{ whiteSpace: "pre-line" }}>{day.summary}</p> : null}
+          {day.summary ? <p style={{ whiteSpace: "pre-line" }}>{plainText(day.summary)}</p> : null}
           {orderSteps(activitySteps(day)).map((step) => (
             <section key={step.id} className="trip-print-step">
               <h3>
@@ -33,7 +34,7 @@ export function PrintableItinerary({ data }: { data: CustomerTrip }) {
               {step.duration ? <p>Duration: {step.duration}</p> : null}
               {step.location_name ? <p>{step.location_name}</p> : null}
               {step.description ? (
-                <p style={{ whiteSpace: "pre-line" }}>{step.description}</p>
+                <p style={{ whiteSpace: "pre-line" }}>{plainText(step.description)}</p>
               ) : null}
               <BlockList
                 blocks={step.blocks}

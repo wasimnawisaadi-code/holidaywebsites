@@ -14,6 +14,7 @@ import { ItineraryReadiness } from "@/components/ItineraryReadiness";
 import { HotelFinder } from "@/components/HotelFinder";
 import { PhotoManager } from "@/components/PhotoManager";
 import { DayPhotos } from "@/components/DayPhotos";
+import { FormatTextarea } from "@/components/FormatTextarea";
 import { TransferDriverFields } from "@/components/TransferDriverFields";
 import { QuickActivity } from "@/components/QuickActivity";
 import { SendTripDetails } from "@/components/SendTripDetails";
@@ -2041,7 +2042,7 @@ function DayForm({
       <label className="mt-3 block text-xs font-semibold text-navy" htmlFor={summaryId}>
         Summary shown under the day title
       </label>
-      <textarea
+      <FormatTextarea
         id={summaryId}
         name="summary"
         rows={6}
@@ -2381,7 +2382,7 @@ function StepForm({
       <label className="mt-3 block text-xs font-semibold text-navy" htmlFor={descriptionId}>
         Description
       </label>
-      <textarea
+      <FormatTextarea
         id={descriptionId}
         name="description"
         rows={3}
@@ -2840,7 +2841,7 @@ function BlockForm({
             <label htmlFor={`${uid}-text`} className="block text-xs font-semibold text-navy">
               {kind === "guide" ? "Introduction (optional)" : "Text"}
             </label>
-            <textarea
+            <FormatTextarea
               id={`${uid}-text`}
               rows={3}
               value={payload.text ?? ""}

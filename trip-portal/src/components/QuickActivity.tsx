@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { BookingAutofill } from "./BookingAutofill";
+import { FormatTextarea } from "./FormatTextarea";
 import { HotelFinder, type PickedHotel } from "./HotelFinder";
 import { Icon, type IconName } from "./Icon";
 import { LocationPicker, type PickedLocation } from "./LocationPicker";
@@ -562,7 +563,7 @@ function QuickActivityForm({
                   {field("whatsapp", "WhatsApp (if different)", "+971…", "tel")}
                   <label className="block text-xs font-semibold text-navy sm:col-span-2">
                     Meeting instructions
-                    <textarea
+                    <FormatTextarea
                       name="text"
                       rows={2}
                       maxLength={2000}
@@ -634,7 +635,7 @@ function QuickActivityForm({
         >
           Plan and instructions · one point per line
         </label>
-        <textarea
+        <FormatTextarea
           id={`${id}-instructions`}
           name="description"
           rows={4}
