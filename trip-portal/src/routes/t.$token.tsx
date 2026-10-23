@@ -778,14 +778,28 @@ function Portal() {
             alt="Nawi Saadi Travel & Tourism"
             className="mx-auto h-12 w-auto"
           />
-          <p className="mt-4 text-xs tracking-wide text-muted">
-            IATA accredited · DTCM approved · Arranging travel since 2009
+          <p className="mt-4 font-display text-lg text-navy">
+            Thank you for travelling with Nawi Saadi
           </p>
-          <p className="mt-1 text-xs text-muted">Millenium Building, Naif Road, Deira, Dubai</p>
-          <p className="mx-auto mt-5 max-w-md text-[11px] leading-relaxed text-muted">
-            This is your private trip link — please don&apos;t share it, as it carries your
-            documents. Anything your consultant adds or changes appears here automatically.
+          <p className="mt-2 text-xs tracking-wide text-gold-deep">
+            IATA accredited · DTCM approved · Since 2009
           </p>
+          <p className="mt-3 text-xs leading-relaxed text-muted">
+            Millenium Building, Naif Road, Deira, Dubai
+            <br />
+            <a href={`tel:${OFFICE_PHONE}`} className="font-semibold text-navy">
+              +971 56 122 8069
+            </a>
+            {" · "}
+            <a href="mailto:nawisaadiholidays@gmail.com" className="font-semibold text-navy">
+              nawisaadiholidays@gmail.com
+            </a>
+          </p>
+          <p className="mx-auto mt-5 max-w-sm text-[11px] leading-relaxed text-muted">
+            Your private trip link — please keep it to yourself. Every update from your consultant
+            appears here automatically.
+          </p>
+          <p className="mt-4 text-[11px] text-muted">© Nawi Saadi Travel &amp; Tourism</p>
         </footer>
       </main>
 
