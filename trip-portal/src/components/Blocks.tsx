@@ -265,8 +265,7 @@ function BlockView({
           hotel={p}
           openPhotos={openPhotos}
           rows={[
-            ["Hotel confirmation number", p.confirmationNumber],
-            ["Booking ref.", p.reference],
+            ["Hotel confirmation number", p.confirmationNumber || p.reference],
             ["Address", p.address],
             ["Check in", withTime(readableDate(p.checkIn), p.checkInTime)],
             ["Check out", withTime(readableDate(p.checkOut), p.checkOutTime)],
