@@ -732,10 +732,10 @@ function Portal() {
           <div className="ns-reveal mt-6 overflow-hidden rounded-3xl border border-hair bg-sand">
             <div className="p-5">
               <p className="text-sm leading-relaxed text-ink">
-                Someone from the office is reachable at any hour of your trip. Mention your trip
+                Need help or a change to your plans? WhatsApp or call our team and share your trip
                 reference{" "}
-                <span className="font-mono font-semibold text-navy">{trip.trip_code}</span> and we
-                will have everything in front of us.
+                <span className="font-mono font-semibold text-navy">{trip.trip_code}</span> — we
+                will take care of it for you.
               </p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <a
