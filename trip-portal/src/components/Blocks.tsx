@@ -844,7 +844,7 @@ function FlightCard({ p }: { p: BlockPayload }) {
             </div>
           ))}
       </dl>
-      {p.flightNumber ? <FlightRadar flightNumber={p.flightNumber} /> : null}
+      {p.flightNumber ? <FlightRadar flightNumber={p.flightNumber} date={p.date} /> : null}
       {p.flightNumber ? (
         <div className="border-t border-dashed border-hair px-5 py-4">
           <a
