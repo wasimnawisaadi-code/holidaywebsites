@@ -2941,7 +2941,7 @@ function BlockForm({
         ) : null}
         {needs.includes("reference") ? (
           <Inline
-            label={kind === "hotel" ? "Hotel confirmation number" : "Reference / booking number"}
+            label={kind === "hotel" ? "Booking reference" : "Reference / booking number"}
             value={payload.reference ?? ""}
             onChange={(v) => set({ reference: v })}
           />
@@ -3176,6 +3176,12 @@ function BlockForm({
               value={payload.roomType ?? ""}
               onChange={(v) => set({ roomType: v })}
               placeholder="Deluxe sea view, king bed"
+            />
+            <Inline
+              label="Hotel confirmation number"
+              value={payload.confirmationNumber ?? ""}
+              onChange={(v) => set({ confirmationNumber: v })}
+              placeholder="From the hotel"
             />
             <Inline
               label="Number of rooms"
