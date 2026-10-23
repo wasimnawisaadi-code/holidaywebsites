@@ -5,7 +5,9 @@ import { Directions } from "./Directions";
 import { Icon, type IconName } from "./Icon";
 import { InvoiceCard } from "./InvoiceCard";
 import { Lightbox, type LightboxPhoto } from "./Lightbox";
+import { FlightRadar } from "./FlightRadar";
 import { MapView } from "./MapView";
+import { icaoIdent } from "@/lib/airline-codes";
 import { isLatLng, searchLink } from "@/lib/geo";
 import type { Block, BlockPayload, Driver, Invoice, TripDocument } from "@/lib/types";
 
@@ -842,6 +844,7 @@ function FlightCard({ p }: { p: BlockPayload }) {
             </div>
           ))}
       </dl>
+      {p.flightNumber ? <FlightRadar flightNumber={p.flightNumber} /> : null}
       {p.flightNumber ? (
         <div className="border-t border-dashed border-hair px-5 py-4">
           <a
@@ -850,11 +853,8 @@ function FlightCard({ p }: { p: BlockPayload }) {
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 rounded-xl border border-hair py-2.5 text-xs font-semibold text-navy transition hover:border-gold"
           >
-            <Icon name="locate" className="size-3.5 text-gold-deep" /> Track this flight live
+            <Icon name="locate" className="size-3.5 text-gold-deep" /> Open full tracker
           </a>
-          <p className="mt-2 text-center text-[10px] text-muted">
-            Opens FlightAware — live radar position once the flight is in the air.
-          </p>
         </div>
       ) : null}
       <p className="px-5 pb-4 text-[11px] text-muted">
@@ -870,64 +870,16 @@ function FlightCard({ p }: { p: BlockPayload }) {
 }
 
 /**
- * Airline IATA code -> ICAO code, for the carriers this agency actually
- * books. FlightAware's URL takes the ICAO-style ident ("UAE394"); the plain
- * IATA one ("EK394") shows its "couldn't find that flight" page instead of
- * resolving, because IATA codes are ambiguous with tail numbers. Their own
- * search box resolves it client-side (confirmed by typing "EK394" into it,
- * which lands on /live/flight/UAE394) — this table gets a visitor straight
- * there without an extra click, for the airlines likely to appear here.
- * An airline not listed still gets a real FlightAware search, just one step
- * short of the exact flight — never a page we built ourselves.
- */
-const AIRLINE_ICAO: Record<string, string> = {
-  EK: "UAE", // Emirates
-  FZ: "FDB", // flydubai
-  EY: "ETD", // Etihad Airways
-  QR: "QTR", // Qatar Airways
-  SV: "SVA", // Saudia
-  TK: "THY", // Turkish Airlines
-  G9: "ABY", // Air Arabia
-  PC: "PGT", // Pegasus Airlines
-  RJ: "RJA", // Royal Jordanian
-  KU: "KAC", // Kuwait Airways
-  GF: "GFA", // Gulf Air
-  WY: "OMA", // Oman Air
-  UL: "ALK", // SriLankan Airlines
-  PK: "PIA", // Pakistan International Airlines
-  "6E": "IGO", // IndiGo
-  AI: "AIC", // Air India
-  VJ: "VJC", // VietJet Air
-  VN: "HVN", // Vietnam Airlines
-  TG: "THA", // Thai Airways
-  MH: "MAS", // Malaysia Airlines
-  SQ: "SIA", // Singapore Airlines
-  CX: "CPA", // Cathay Pacific
-  MS: "MSR", // EgyptAir
-  BA: "BAW", // British Airways
-  LH: "DLH", // Lufthansa
-  AF: "AFR", // Air France
-  KL: "KLM", // KLM
-};
-
-/**
- * A real, live flight tracker — never a position we drew ourselves.
- *
- * FlightAware needs no API key, no sign-in and did not challenge or block
- * this app's requests the way Flightradar24 and a plain Google search did
- * when tested. Known airlines link straight to the live flight page; an
- * unlisted one still opens FlightAware's own flight finder pre-filled with
- * the flight number, a real search rather than a guess.
+ * A real, live flight tracker page to open in full — never a position we
+ * drew ourselves. FlightAware needs no API key, no sign-in, and did not
+ * challenge or block this app's requests the way Flightradar24 and a plain
+ * Google search did when tested. See src/lib/airline-codes.ts for how the
+ * ICAO ident is built.
  */
 function flightTrackerUrl(flightNumber: string): string {
+  const ident = icaoIdent(flightNumber);
+  if (ident) return `https://www.flightaware.com/live/flight/${ident}`;
   const clean = flightNumber.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-  // The IATA airline code is 2 letters, or 1 letter + 1 digit (e.g. "6E"
-  // IndiGo) — check both lengths against the table before giving up.
-  for (const len of [2, 3]) {
-    const code = clean.slice(0, len);
-    const icao = AIRLINE_ICAO[code];
-    if (icao) return `https://www.flightaware.com/live/flight/${icao}${clean.slice(len)}`;
-  }
   return `https://www.flightaware.com/live/findflight?ident=${encodeURIComponent(clean)}`;
 }
 
