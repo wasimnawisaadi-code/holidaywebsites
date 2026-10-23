@@ -512,7 +512,8 @@ function QuickActivityForm({
                   {field("roomType", "Room / meal plan", "Deluxe room · breakfast included")}
                   {field("rooms", "Number of rooms", "2")}
                   {field("guests", "Guests", "2 adults")}
-                  {field("reference", "Hotel confirmation number", "Shown to the customer as Ref.")}
+                  {field("confirmationNumber", "Hotel confirmation number", "From the hotel")}
+                  {field("reference", "Booking reference", "Your booking / voucher number")}
                   {field("phone", "Hotel phone", "+971…", "tel")}
                   <label className="block text-xs font-semibold text-navy">
                     Hotel website

@@ -107,7 +107,11 @@ export function tripMessage(
     for (const h of e.hotels) {
       const p = h.block.payload;
       const stay = stayLine(p);
-      out.push(`🏨 ${p.name || h.step.title}${stay ? ` · ${stay}` : ""}${ref(p.reference)}`);
+      const confirmation =
+        options.references && p.confirmationNumber ? ` · Confirmation ${p.confirmationNumber}` : "";
+      out.push(
+        `🏨 ${p.name || h.step.title}${stay ? ` · ${stay}` : ""}${confirmation}${ref(p.reference)}`,
+      );
       if (p.address) out.push(`    ${p.address}`);
     }
     for (const g of e.guides) {

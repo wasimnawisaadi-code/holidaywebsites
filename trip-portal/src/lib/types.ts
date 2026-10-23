@@ -177,6 +177,8 @@ export type BlockPayload = {
   /** Hotel check-in and check-out times, as on the voucher: "14:00". */
   checkInTime?: string | undefined;
   checkOutTime?: string | undefined;
+  /** The hotel's own confirmation number, separate from the booking reference. */
+  confirmationNumber?: string | undefined;
   /** Number of rooms booked, as typed: "2". */
   rooms?: string | undefined;
   flightNumber?: string | undefined;

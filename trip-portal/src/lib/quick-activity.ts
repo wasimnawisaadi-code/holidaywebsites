@@ -87,6 +87,7 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
               "checkOutTime",
               "nights",
               "rooms",
+              "confirmationNumber",
               "roomType",
               "guests",
               "reference",
