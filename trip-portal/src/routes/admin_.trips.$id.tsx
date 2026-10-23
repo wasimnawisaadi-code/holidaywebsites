@@ -14,6 +14,7 @@ import { ItineraryReadiness } from "@/components/ItineraryReadiness";
 import { HotelFinder } from "@/components/HotelFinder";
 import { PhotoManager } from "@/components/PhotoManager";
 import { DayPhotos } from "@/components/DayPhotos";
+import { TransferDriverFields } from "@/components/TransferDriverFields";
 import { QuickActivity } from "@/components/QuickActivity";
 import { SendTripDetails } from "@/components/SendTripDetails";
 import type { QuickActivityKind } from "@/lib/quick-activity";
@@ -271,6 +272,8 @@ const saveBlock = createServerFn({ method: "POST" })
     delete clean["url"];
     delete clean["urls"];
     delete clean["posterUrl"];
+    delete clean["driverPhotoUrl"];
+    delete clean["vehiclePhotoUrl"];
     // The same for each guide step, whose `url` is a signed link or, straight
     // after an upload, a blob: preview that only exists in this browser tab.
     if (Array.isArray(clean["steps"])) {
@@ -329,7 +332,14 @@ const deleteRow = createServerFn({ method: "POST" })
       for (const r of rows) {
         const p = r.payload ?? {};
         const guide = (p.steps ?? []).map((st) => st.path);
-        for (const path of [p.path, p.poster, ...(p.paths ?? []), ...guide]) {
+        for (const path of [
+          p.path,
+          p.poster,
+          p.driverPhoto,
+          p.vehiclePhoto,
+          ...(p.paths ?? []),
+          ...guide,
+        ]) {
           if (path) files.push({ bucket: "trip-media", path });
         }
       }
@@ -2930,7 +2940,7 @@ function BlockForm({
         ) : null}
         {needs.includes("reference") ? (
           <Inline
-            label="Reference / booking number"
+            label={kind === "hotel" ? "Hotel confirmation number" : "Reference / booking number"}
             value={payload.reference ?? ""}
             onChange={(v) => set({ reference: v })}
           />
@@ -2944,10 +2954,22 @@ function BlockForm({
               placeholder="28 Sep, 15:00"
             />
             <Inline
+              label="Check-in time"
+              value={payload.checkInTime ?? ""}
+              onChange={(v) => set({ checkInTime: v })}
+              placeholder="14:00"
+            />
+            <Inline
               label="Check out"
               value={payload.checkOut ?? ""}
               onChange={(v) => set({ checkOut: v })}
               placeholder="3 Oct, 12:00"
+            />
+            <Inline
+              label="Check-out time"
+              value={payload.checkOutTime ?? ""}
+              onChange={(v) => set({ checkOutTime: v })}
+              placeholder="12:00"
             />
           </div>
         ) : null}
@@ -3015,6 +3037,7 @@ function BlockForm({
         ) : null}
         {needs.includes("gallery") || needs.includes("hotelPhoto") ? (
           <PhotoManager
+            linkFolder={tripId}
             paths={payload.paths ?? []}
             urls={{
               ...Object.fromEntries(
@@ -3152,6 +3175,12 @@ function BlockForm({
               value={payload.roomType ?? ""}
               onChange={(v) => set({ roomType: v })}
               placeholder="Deluxe sea view, king bed"
+            />
+            <Inline
+              label="Number of rooms"
+              value={payload.rooms ?? ""}
+              onChange={(v) => set({ rooms: v })}
+              placeholder="2"
             />
             <Inline
               label="Guests"
@@ -3301,6 +3330,14 @@ function BlockForm({
               </p>
             ) : null}
           </div>
+        ) : null}
+        {kind === "driver" ? (
+          <TransferDriverFields
+            tripId={tripId}
+            values={payload}
+            set={set}
+            onBusy={setGalleryBusy}
+          />
         ) : null}
         {needs.includes("document") ? (
           <div>

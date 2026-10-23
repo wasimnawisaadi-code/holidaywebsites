@@ -7,6 +7,7 @@ import { InvoiceCard } from "./InvoiceCard";
 import { Lightbox, type LightboxPhoto } from "./Lightbox";
 import { FlightRadar } from "./FlightRadar";
 import { MapView } from "./MapView";
+import { RichText } from "./RichText";
 import { icaoIdent } from "@/lib/airline-codes";
 import { isLatLng, searchLink } from "@/lib/geo";
 import type { Block, BlockPayload, Driver, Invoice, TripDocument } from "@/lib/types";
@@ -78,7 +79,7 @@ function BlockView({
 
     case "text":
       return p.text ? (
-        <p className="text-[15px] leading-relaxed whitespace-pre-line text-ink">{p.text}</p>
+        <RichText text={p.text} className="text-[15px] leading-relaxed text-ink" />
       ) : null;
 
     case "image":
@@ -168,7 +169,23 @@ function BlockView({
       return <PhotoGuide p={p} ctx={ctx} openPhotos={openPhotos} />;
 
     case "driver": {
-      const driver = ctx.drivers.find((d) => d.id === p.driverId);
+      const listed = ctx.drivers.find((d) => d.id === p.driverId);
+      // What the office typed into this transfer wins over the Drivers list.
+      const name = p.driverName?.trim() || listed?.full_name;
+      const driver: Driver | undefined =
+        name || p.driverPhone || p.vehicle || p.plate || p.driverPhotoUrl
+          ? {
+              id: listed?.id ?? block.id,
+              full_name: name || "Your driver",
+              photo: null,
+              photoUrl: p.driverPhotoUrl || listed?.photoUrl || null,
+              phone: p.driverPhone?.trim() || listed?.phone || null,
+              whatsapp: p.driverPhone?.trim() || listed?.whatsapp || null,
+              vehicle: p.vehicle?.trim() || listed?.vehicle || null,
+              plate_number: p.plate?.trim() || listed?.plate_number || null,
+              languages: listed?.languages ?? null,
+            }
+          : listed;
       return (
         <div className="overflow-hidden rounded-2xl border border-hair bg-white">
           <div className="bg-navy p-5 text-white">
@@ -191,13 +208,43 @@ function BlockView({
               </div>
             </div>
             {p.transferNotes ? (
-              <p className="mt-4 border-t border-white/20 pt-3 text-sm whitespace-pre-line text-white/80">
-                {p.transferNotes}
-              </p>
+              <RichText
+                text={p.transferNotes}
+                className="mt-4 border-t border-white/20 pt-3 text-sm text-white/80"
+              />
             ) : null}
           </div>
+          {p.vehiclePhotoUrl ? (
+            <figure className="m-0">
+              <PhotoButton
+                url={p.vehiclePhotoUrl}
+                alt={driver?.vehicle ? `Your vehicle: ${driver.vehicle}` : "Your vehicle"}
+                ratio="16 / 9"
+                onOpen={() =>
+                  openPhotos(
+                    [{ url: p.vehiclePhotoUrl!, caption: driver?.vehicle ?? "Your vehicle" }],
+                    0,
+                    "vehicle",
+                  )
+                }
+              />
+            </figure>
+          ) : null}
           {driver ? (
-            <DriverCard driver={driver} onEngage={ctx.onEngage} />
+            <DriverCard
+              driver={driver}
+              onEngage={ctx.onEngage}
+              onOpenPhoto={
+                driver.photoUrl
+                  ? () =>
+                      openPhotos(
+                        [{ url: driver.photoUrl!, caption: driver.full_name }],
+                        0,
+                        "driver",
+                      )
+                  : undefined
+              }
+            />
           ) : (
             <p className="p-4 text-sm text-muted">
               Your consultant will share driver details when assigned.
@@ -218,25 +265,51 @@ function BlockView({
           hotel={p}
           openPhotos={openPhotos}
           rows={[
+            ["Ref.", p.reference],
             ["Address", p.address],
-            ["Check in", readableDate(p.checkIn)],
-            ["Check out", readableDate(p.checkOut)],
+            ["Check in", withTime(readableDate(p.checkIn), p.checkInTime)],
+            ["Check out", withTime(readableDate(p.checkOut), p.checkOutTime)],
             ["Nights", p.nights],
+            ["Rooms", p.rooms],
             ["Room", p.roomType],
             ["Guests", p.guests],
-            ["Booking ref.", p.reference],
-            ["Phone", p.phone],
+            ["Hotel phone", p.phone],
           ]}
           note={p.text}
-          action={
-            p.name
-              ? {
-                  href: searchLink([p.name, p.address].filter(Boolean).join(", ")),
-                  label: "Directions to the hotel",
-                  onClick: () => ctx.onEngage?.("directions", `Hotel: ${p.name}`),
-                }
-              : undefined
-          }
+          actions={[
+            ...(webLink(p.hotelWebsite)
+              ? [
+                  {
+                    href: webLink(p.hotelWebsite)!,
+                    label: "Hotel website",
+                    icon: "globe" as const,
+                    onClick: () => ctx.onEngage?.("link", `Hotel website: ${p.name}`),
+                  },
+                ]
+              : []),
+            ...(p.phone
+              ? [
+                  {
+                    href: `tel:${p.phone.replace(/[^\d+]/g, "")}`,
+                    label: "Call the hotel",
+                    icon: "phone" as const,
+                    onClick: () => ctx.onEngage?.("call", `Hotel: ${p.name}`),
+                  },
+                ]
+              : []),
+            ...(p.name
+              ? [
+                  {
+                    href:
+                      webLink(p.hotelMapsUrl) ??
+                      searchLink([p.name, p.address].filter(Boolean).join(", ")),
+                    label: "Directions",
+                    icon: "navigation" as const,
+                    onClick: () => ctx.onEngage?.("directions", `Hotel: ${p.name}`),
+                  },
+                ]
+              : []),
+          ]}
         />
       );
 
@@ -279,9 +352,7 @@ function BlockView({
             </div>
           </div>
           {p.text ? (
-            <p className="mt-2.5 text-sm leading-relaxed whitespace-pre-line text-muted">
-              {p.text}
-            </p>
+            <RichText text={p.text} className="mt-2.5 text-sm leading-relaxed text-muted" />
           ) : null}
           <div className="mt-3 flex flex-wrap gap-2">
             {p.phone ? <ActionLink href={`tel:${p.phone}`} icon="phone" label="Call" /> : null}
@@ -314,9 +385,7 @@ function BlockView({
             <div className="min-w-0">
               {p.heading ? <p className="text-sm font-bold">{p.heading}</p> : null}
               {p.text ? (
-                <p className="mt-0.5 text-sm leading-relaxed whitespace-pre-line text-ink">
-                  {p.text}
-                </p>
+                <RichText text={p.text} className="mt-0.5 text-sm leading-relaxed text-ink" />
               ) : null}
             </div>
           </div>
@@ -331,7 +400,9 @@ function BlockView({
             <Icon name="alert" className="size-4 text-alert" />
             <p className="text-sm font-bold text-alert">{p.heading ?? "In an emergency"}</p>
           </div>
-          {p.text ? <p className="mt-2 text-sm leading-relaxed text-ink">{p.text}</p> : null}
+          {p.text ? (
+            <RichText text={p.text} className="mt-2 text-sm leading-relaxed text-ink" />
+          ) : null}
           {p.phone ? (
             <div className="mt-3">
               <ActionLink
@@ -611,7 +682,7 @@ function PhotoGuide({
         </div>
         <h4 className="mt-2 font-display text-xl leading-snug text-navy">{title}</h4>
         {p.text ? (
-          <p className="mt-1.5 text-sm leading-relaxed whitespace-pre-line text-muted">{p.text}</p>
+          <RichText text={p.text} className="mt-1.5 text-sm leading-relaxed text-muted" />
         ) : null}
 
         {/* Story-style segments: how far through the walk, at a glance. */}
@@ -861,9 +932,10 @@ function FlightCard({ p }: { p: BlockPayload }) {
         Times shown as supplied in your booking. Check your airline for schedule changes.
       </p>
       {p.text ? (
-        <p className="border-t border-hair bg-paper px-5 py-4 text-sm leading-relaxed whitespace-pre-line text-ink">
-          {p.text}
-        </p>
+        <RichText
+          text={p.text}
+          className="border-t border-hair bg-paper px-5 py-4 text-sm leading-relaxed text-ink"
+        />
       ) : null}
     </section>
   );
@@ -889,7 +961,7 @@ function DetailCard({
   title,
   rows,
   note,
-  action,
+  actions,
   images,
   credit,
   openPhotos,
@@ -900,7 +972,7 @@ function DetailCard({
   title: string;
   rows: [string, string | undefined][];
   note?: string | undefined;
-  action?: { href: string; label: string; onClick: () => void } | undefined;
+  actions?: { href: string; label: string; icon: IconName; onClick: () => void }[] | undefined;
   images?: string[] | undefined;
   credit?: string | undefined;
   openPhotos?: OpenPhotos;
@@ -948,17 +1020,25 @@ function DetailCard({
           </dl>
         ) : null}
         {hotel ? <HotelHighlights hotel={hotel} /> : null}
-        {note ? <p className="mt-3 text-sm leading-relaxed text-muted">{note}</p> : null}
-        {action ? (
-          <a
-            href={action.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={action.onClick}
-            className="mt-3.5 flex min-h-11 items-center justify-center gap-2 rounded-xl border border-hair py-2.5 text-xs font-semibold text-navy transition hover:border-gold"
+        {note ? <RichText text={note} className="mt-3 text-sm leading-relaxed text-muted" /> : null}
+        {actions?.length ? (
+          <div
+            className={`mt-3.5 grid gap-2 ${actions.length === 1 ? "grid-cols-1" : actions.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}
           >
-            <Icon name="navigation" className="size-3.5 text-gold-deep" /> {action.label}
-          </a>
+            {actions.map((action) => (
+              <a
+                key={action.label}
+                href={action.href}
+                target={action.href.startsWith("http") ? "_blank" : undefined}
+                rel={action.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                onClick={action.onClick}
+                className="flex min-h-11 flex-col items-center justify-center gap-1 rounded-xl border border-hair px-1 py-2 text-center text-[11px] leading-tight font-semibold text-navy transition hover:border-gold sm:flex-row sm:gap-2 sm:text-xs"
+              >
+                <Icon name={action.icon} className="size-4 shrink-0 text-gold-deep" />
+                {action.label}
+              </a>
+            ))}
+          </div>
         ) : null}
       </div>
     </div>
@@ -976,21 +1056,31 @@ function DetailCard({
 export function DriverCard({
   driver,
   onEngage,
+  onOpenPhoto,
 }: {
   driver: Driver;
   onEngage?: ((event: string, detail: string) => void) | undefined;
+  onOpenPhoto?: (() => void) | undefined;
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-hair bg-white shadow-sm">
       <div className="flex items-center gap-4 p-4">
         {driver.photoUrl ? (
-          <img
-            src={driver.photoUrl}
-            alt={driver.full_name}
-            loading="lazy"
-            decoding="async"
-            className="size-16 shrink-0 rounded-2xl object-cover ring-2 ring-gold/40"
-          />
+          <button
+            type="button"
+            onClick={onOpenPhoto}
+            disabled={!onOpenPhoto}
+            aria-label={`View photo of ${driver.full_name}`}
+            className="shrink-0 rounded-2xl"
+          >
+            <img
+              src={driver.photoUrl}
+              alt={driver.full_name}
+              loading="lazy"
+              decoding="async"
+              className="size-16 rounded-2xl object-cover ring-2 ring-gold/40"
+            />
+          </button>
         ) : (
           <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-sand text-gold-deep">
             <Icon name="car" className="size-7" />
@@ -1004,6 +1094,14 @@ export function DriverCard({
           {driver.vehicle ? <p className="truncate text-sm text-muted">{driver.vehicle}</p> : null}
           {driver.languages ? (
             <p className="truncate text-xs text-muted">Speaks {driver.languages}</p>
+          ) : null}
+          {driver.phone ? (
+            <a
+              href={`tel:${driver.phone.replace(/[^\d+]/g, "")}`}
+              className="mt-0.5 block truncate text-sm font-semibold text-navy tabular-nums"
+            >
+              {driver.phone}
+            </a>
           ) : null}
         </div>
       </div>
@@ -1022,7 +1120,7 @@ export function DriverCard({
       <div className="grid grid-cols-2 gap-2 p-4">
         {driver.phone ? (
           <a
-            href={`tel:${driver.phone}`}
+            href={`tel:${driver.phone.replace(/[^\d+]/g, "")}`}
             onClick={() => onEngage?.("driver_call", driver.full_name)}
             className="flex items-center justify-center gap-2 rounded-xl bg-navy py-3 text-sm font-semibold text-white hover:bg-navy-deep"
           >
@@ -1069,6 +1167,23 @@ export function DocumentLink({
       <Icon name="download" className="size-4 shrink-0 text-gold-deep" />
     </a>
   );
+}
+
+/** "13 Nov 2026" + "14:00" → "13 Nov 2026 · 14:00". */
+function withTime(date: string | undefined, time: string | undefined): string | undefined {
+  return [date, time?.trim()].filter(Boolean).join(" · ") || undefined;
+}
+
+/** A web address as typed, "www.hotel.com" included, or null when it is not one. */
+function webLink(value?: string): string | null {
+  const text = value?.trim();
+  if (!text) return null;
+  try {
+    const url = new URL(/^https?:\/\//i.test(text) ? text : `https://${text}`);
+    return url.hostname.includes(".") ? url.href : null;
+  } catch {
+    return null;
+  }
 }
 
 /** "2026-11-12" → "12 Nov 2026" for a customer; anything else stays as typed. */

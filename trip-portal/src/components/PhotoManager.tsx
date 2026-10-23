@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ClipboardEvent } from "react";
+
+import { importPhotoFromLink } from "@/lib/uploads";
 
 export function PhotoManager({
   paths,
@@ -7,6 +9,7 @@ export function PhotoManager({
   onChange,
   onUpload,
   onBusy,
+  linkFolder,
 }: {
   paths: string[];
   urls: Record<string, string>;
@@ -14,6 +17,8 @@ export function PhotoManager({
   onChange: (paths: string[]) => void;
   onUpload: (file: File, onProgress?: (percent: number) => void) => Promise<string | null>;
   onBusy: (busy: boolean) => void;
+  /** The trip folder a pasted photo link is copied into; omit to hide the link box. */
+  linkFolder?: string | undefined;
 }) {
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
@@ -21,6 +26,9 @@ export function PhotoManager({
   const [progress, setProgress] = useState({ done: 0, total: 0, percent: 0, name: "" });
   const [failed, setFailed] = useState<{ file: File; reason: string }[]>([]);
   const [notice, setNotice] = useState("");
+  const [link, setLink] = useState("");
+  const [dragging, setDragging] = useState(false);
+  const linkId = useId();
   const owned = useRef<string[]>([]);
   const mounted = useRef(true);
   const uploading = useRef(false);
@@ -99,6 +107,71 @@ export function PhotoManager({
       }
     }
   };
+  /** Photos from web addresses, one after another, each kept as soon as it lands. */
+  const importLinks = async (links: string[]) => {
+    if (!linkFolder || !links.length || uploading.current || disabled) return;
+    setError("");
+    setNotice("");
+    if (paths.length + links.length > 20) {
+      setError(`There is room for ${20 - paths.length} more photos. Remove a photo first.`);
+      return;
+    }
+    uploading.current = true;
+    setBusy(true);
+    onBusy(true);
+    const next = [...paths];
+    const problems: string[] = [];
+    try {
+      for (const [index, address] of links.entries()) {
+        if (!mounted.current) break;
+        setProgress({ done: index, total: links.length, percent: 0, name: address });
+        try {
+          const result = await importPhotoFromLink({ data: { folder: linkFolder, url: address } });
+          if (!result.ok) {
+            problems.push(result.reason);
+            continue;
+          }
+          if (!mounted.current) break;
+          next.push(result.path);
+          if (result.url) setPreviews((current) => ({ ...current, [result.path]: result.url! }));
+          onChange([...next]);
+        } catch {
+          problems.push("That link could not be added. Try again.");
+        }
+      }
+    } finally {
+      uploading.current = false;
+      if (mounted.current) {
+        const added = next.length - paths.length;
+        setNotice(added ? `${added} photo${added === 1 ? "" : "s"} added from the link.` : "");
+        if (problems.length) setError(problems[0]!);
+        else setLink("");
+        setBusy(false);
+        onBusy(false);
+      }
+    }
+  };
+  const linksIn = (text: string) =>
+    text
+      .split(/\s+/)
+      .map((part) => part.trim())
+      .filter((part) => /^https?:\/\/\S+$/i.test(part));
+  /** Ctrl+V anywhere in the box: a copied photo uploads, a copied link is fetched. */
+  const onPaste = (event: ClipboardEvent) => {
+    const files = Array.from(event.clipboardData.files);
+    if (files.length) {
+      event.preventDefault();
+      void upload(files);
+      return;
+    }
+    const links = linksIn(event.clipboardData.getData("text"));
+    if (links.length && linkFolder) {
+      event.preventDefault();
+      setLink(links.join(" "));
+      void importLinks(links);
+    }
+  };
+
   const move = (index: number, to: number) => {
     const next = [...paths];
     const [path] = next.splice(index, 1);
@@ -120,11 +193,27 @@ export function PhotoManager({
     onChange(paths.filter((_, i) => i !== index));
   };
   return (
-    <div className="rounded-xl border border-hair bg-paper p-3" aria-busy={busy}>
+    <div
+      className={`rounded-xl border bg-paper p-3 transition ${dragging ? "border-gold ring-2 ring-gold/40" : "border-hair"}`}
+      aria-busy={busy}
+      onPaste={onPaste}
+      onDragOver={(e) => {
+        if (!Array.from(e.dataTransfer.types).includes("Files")) return;
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => {
+        if (!e.dataTransfer.files.length) return;
+        e.preventDefault();
+        setDragging(false);
+        void upload(Array.from(e.dataTransfer.files));
+      }}
+    >
       <p className="text-xs font-semibold text-navy">Photo collection · {paths.length} / 20</p>
       <p className="mt-1 text-xs text-muted">
-        The first photo leads this gallery. Select several photos together, then put them in the
-        order your customer should see them.
+        The first photo leads this gallery. Select several photos together, drag them in, or paste a
+        copied photo or link — then put them in the order your customer should see them.
       </p>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {paths.map((path, i) => (
@@ -208,6 +297,40 @@ export function PhotoManager({
           }}
         />
       </label>
+      {linkFolder ? (
+        <div className="mt-3">
+          <label className="block text-xs font-semibold text-navy" htmlFor={linkId}>
+            Or paste a photo or a photo link
+          </label>
+          <div className="mt-1.5 flex gap-2">
+            <input
+              id={linkId}
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                e.preventDefault();
+                void importLinks(linksIn(link));
+              }}
+              disabled={disabled || busy || paths.length >= 20}
+              placeholder="Click here, then Ctrl+V · or type https://…"
+              className="min-h-11 min-w-0 flex-1 rounded-lg border border-hair bg-white px-3 text-sm outline-none focus:border-gold disabled:opacity-50"
+            />
+            <button
+              type="button"
+              disabled={disabled || busy || !linksIn(link).length}
+              onClick={() => void importLinks(linksIn(link))}
+              className="min-h-11 shrink-0 rounded-lg bg-navy px-4 text-xs font-semibold text-white disabled:opacity-40"
+            >
+              Add
+            </button>
+          </div>
+          <p className="mt-1 text-[11px] text-muted">
+            Copy a photo (right-click → Copy image) or its address (right-click → Copy image
+            address), then paste. Several links at once work too.
+          </p>
+        </div>
+      ) : null}
       {busy ? (
         <div className="mt-3">
           <progress

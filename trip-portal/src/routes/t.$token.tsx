@@ -6,6 +6,7 @@ import { BlockList, DriverCard, DocumentLink } from "@/components/Blocks";
 import { Directions } from "@/components/Directions";
 import { Icon, type IconName } from "@/components/Icon";
 import { PrintableItinerary } from "@/components/PrintableItinerary";
+import { RichText } from "@/components/RichText";
 import { DayBanner } from "@/components/DayBanner";
 import { TripInsights } from "@/components/TripInsights";
 import { InvoiceCard } from "@/components/InvoiceCard";
@@ -517,9 +518,10 @@ function Portal() {
                               <p className="text-[11px] font-semibold tracking-[0.2em] text-gold-deep uppercase">
                                 Your day
                               </p>
-                              <p className="mt-2 text-[15px] leading-relaxed whitespace-pre-line text-muted">
-                                {day.summary}
-                              </p>
+                              <RichText
+                                text={day.summary}
+                                className="mt-2 text-[15px] leading-relaxed text-ink"
+                              />
                             </div>
                           ) : null}
 
@@ -630,9 +632,10 @@ function Portal() {
                                   ) : null}
 
                                   {step.description ? (
-                                    <p className="mt-2.5 text-[15px] leading-relaxed whitespace-pre-line text-ink">
-                                      {step.description}
-                                    </p>
+                                    <RichText
+                                      text={step.description}
+                                      className="mt-2.5 text-[15px] leading-relaxed text-ink"
+                                    />
                                   ) : null}
 
                                   {step.blocks.some((b) => !shownAtTop.has(b.id)) ? (
@@ -656,57 +659,6 @@ function Portal() {
                               Your consultant is still finalising this day. It will appear here as
                               soon as it is ready — on this same link.
                             </p>
-                          ) : null}
-
-                          {days.length > 1 ? (
-                            <div className="mt-6 grid grid-cols-2 gap-3 border-t border-hair pt-6">
-                              {activeDay > 0 ? (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    selectDay(activeDay - 1);
-                                  }}
-                                  className="flex items-center gap-2 rounded-2xl border border-hair p-3.5 text-left text-sm transition hover:border-gold"
-                                >
-                                  <Icon
-                                    name="chevronLeft"
-                                    className="size-4 shrink-0 text-gold-deep"
-                                  />
-                                  <span className="min-w-0">
-                                    <span className="block text-[11px] tracking-wider text-muted uppercase">
-                                      Day {days[activeDay - 1]?.day_number}
-                                    </span>
-                                    <span className="block truncate font-semibold text-navy">
-                                      {days[activeDay - 1]?.title}
-                                    </span>
-                                  </span>
-                                </button>
-                              ) : (
-                                <span />
-                              )}
-                              {activeDay < days.length - 1 ? (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    selectDay(activeDay + 1);
-                                  }}
-                                  className="flex items-center justify-end gap-2 rounded-2xl border border-hair p-3.5 text-right text-sm transition hover:border-gold"
-                                >
-                                  <span className="min-w-0">
-                                    <span className="block text-[11px] tracking-wider text-muted uppercase">
-                                      Day {days[activeDay + 1]?.day_number}
-                                    </span>
-                                    <span className="block truncate font-semibold text-navy">
-                                      {days[activeDay + 1]?.title}
-                                    </span>
-                                  </span>
-                                  <Icon
-                                    name="chevronRight"
-                                    className="size-4 shrink-0 text-gold-deep"
-                                  />
-                                </button>
-                              ) : null}
-                            </div>
                           ) : null}
                         </article>
                       ) : null}

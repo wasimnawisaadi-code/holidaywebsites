@@ -1,19 +1,8 @@
 import type { BlockPayload } from "@/lib/types";
 
-function webLink(value?: string) {
-  try {
-    const url = new URL(value ?? "");
-    return ["https:", "http:"].includes(url.protocol) ? url.href : null;
-  } catch {
-    return null;
-  }
-}
-
 export function HotelHighlights({ hotel }: { hotel: BlockPayload }) {
-  const website = webLink(hotel.hotelWebsite);
-  const maps = webLink(hotel.hotelMapsUrl);
-  if (!hotel.hotelSummary && !hotel.hotelRating && !hotel.hotelAddress && !website && !maps)
-    return null;
+  // The website and map links are buttons on the hotel card itself.
+  if (!hotel.hotelSummary && !hotel.hotelRating && !hotel.hotelAddress) return null;
   // Facts read from Google carry their source; links the office typed do not.
   const fromGoogle = Boolean(hotel.hotelSourceName || hotel.hotelRating || hotel.hotelFetchedAt);
   return (
@@ -35,28 +24,6 @@ export function HotelHighlights({ hotel }: { hotel: BlockPayload }) {
       {hotel.hotelSummary ? (
         <p className="mt-3 text-sm leading-relaxed text-ink">{hotel.hotelSummary}</p>
       ) : null}
-      <div className="mt-3 flex flex-wrap gap-3 text-xs font-semibold text-navy">
-        {website ? (
-          <a
-            href={website}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg border border-hair bg-white px-3 py-2"
-          >
-            Hotel website ↗
-          </a>
-        ) : null}
-        {maps ? (
-          <a
-            href={maps}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg border border-hair bg-white px-3 py-2"
-          >
-            Hotel location on the map ↗
-          </a>
-        ) : null}
-      </div>
       {fromGoogle ? (
         <p className="mt-3 text-[10px] leading-relaxed text-muted">
           Source: Google Maps{hotel.hotelSourceName ? ` · ${hotel.hotelSourceName}` : ""}

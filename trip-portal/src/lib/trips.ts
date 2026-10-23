@@ -176,9 +176,11 @@ function sortInvoiceItems(invoices: Invoice[]): void {
 export async function signBlock(block: Block): Promise<Block> {
   const p = block.payload ?? {};
   // A video block carries both a clip and a poster; sign them together.
-  const [url, posterUrl, urls, steps] = await Promise.all([
+  const [url, posterUrl, driverPhotoUrl, vehiclePhotoUrl, urls, steps] = await Promise.all([
     p.path ? signedUrl("trip-media", p.path) : Promise.resolve(undefined),
     p.poster ? signedUrl("trip-media", p.poster) : Promise.resolve(undefined),
+    p.driverPhoto ? signedUrl("trip-media", p.driverPhoto) : Promise.resolve(undefined),
+    p.vehiclePhoto ? signedUrl("trip-media", p.vehiclePhoto) : Promise.resolve(undefined),
     p.paths?.length
       ? Promise.all(p.paths.map((path) => signedUrl("trip-media", path)))
       : Promise.resolve(undefined),
@@ -196,6 +198,8 @@ export async function signBlock(block: Block): Promise<Block> {
   const payload = { ...p };
   if (url !== undefined) payload.url = url;
   if (posterUrl !== undefined) payload.posterUrl = posterUrl;
+  if (driverPhotoUrl !== undefined) payload.driverPhotoUrl = driverPhotoUrl;
+  if (vehiclePhotoUrl !== undefined) payload.vehiclePhotoUrl = vehiclePhotoUrl;
   if (urls !== undefined) payload.urls = urls;
   if (steps !== undefined) payload.steps = steps;
   return { ...block, payload };

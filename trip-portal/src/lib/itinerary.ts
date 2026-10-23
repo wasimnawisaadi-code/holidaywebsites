@@ -141,8 +141,10 @@ export function shortDay(value?: string): string {
 /** "Check-in 15 Oct · Check-out 17 Oct · 2 nights". */
 export function stayLine(p: Block["payload"]): string {
   return [
-    p.checkIn ? `Check-in ${shortDay(p.checkIn)}` : "",
-    p.checkOut ? `Check-out ${shortDay(p.checkOut)}` : "",
+    p.checkIn ? `Check-in ${[shortDay(p.checkIn), p.checkInTime].filter(Boolean).join(" ")}` : "",
+    p.checkOut
+      ? `Check-out ${[shortDay(p.checkOut), p.checkOutTime].filter(Boolean).join(" ")}`
+      : "",
     p.nights ? `${p.nights} night${p.nights === "1" ? "" : "s"}` : "",
   ]
     .filter(Boolean)
