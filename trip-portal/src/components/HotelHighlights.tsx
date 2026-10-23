@@ -1,3 +1,4 @@
+import { RichText } from "./RichText";
 import type { BlockPayload } from "@/lib/types";
 
 export function HotelHighlights({ hotel }: { hotel: BlockPayload }) {
@@ -22,7 +23,7 @@ export function HotelHighlights({ hotel }: { hotel: BlockPayload }) {
         <p className="mt-3 text-xs leading-relaxed text-muted">{hotel.hotelAddress}</p>
       ) : null}
       {hotel.hotelSummary ? (
-        <p className="mt-3 text-sm leading-relaxed text-ink">{hotel.hotelSummary}</p>
+        <RichText text={hotel.hotelSummary} className="mt-3 text-sm leading-relaxed text-ink" />
       ) : null}
       {fromGoogle ? (
         <p className="mt-3 text-[10px] leading-relaxed text-muted">

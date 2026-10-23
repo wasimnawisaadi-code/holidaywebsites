@@ -36,10 +36,26 @@ export type StyledNode =
   | { type: "text"; text: string }
   | { type: "tag"; tag: StyleTag; value: string | undefined; children: StyledNode[] };
 
-const TAG = /\[(\/?)(b|i|u|size|font|color)(?:=([a-z]+))?\]/g;
+const TAG = /\[(\/?)(b|i|u|size|font|color)(?:=([a-z]+))?\]/gi;
 
-/** Text and tags as a tree; a stray closing tag is kept as text, an unclosed one ends with the text. */
+
+/** Accept common pasted formatting without interpreting arbitrary HTML. */
+function normalizeFormatting(input: string): string {
+  return input
+    .replace(/&lt;(\/?(?:b|strong|i|em|u|br|p)\s*\/?)&gt;/gi, "<$1>")
+    .replace(/<br\s*\/?\s*>/gi, "\n")
+    .replace(/<\/p>\s*<p>/gi, "\n\n")
+    .replace(/<\/?p>/gi, "")
+    .replace(/<(\/?)(b|strong|i|em|u)>/gi, (_, slash, tag) => {
+      const name = tag.toLowerCase();
+      return '[' + slash + (name === 'strong' ? 'b' : name === 'em' ? 'i' : name) + ']';
+    })
+    .replace(/\*\*([^*]+)\*\*|__([^_]+)__/g, (_, stars, underscores) => '[b]' + (stars ?? underscores) + '[/b]');
+}
+
+/** Parse known formatting; discard orphan closing tags left by editing. */
 export function parseStyled(input: string): StyledNode[] {
+  input = normalizeFormatting(input);
   const root: StyledNode[] = [];
   const stack: { tag: StyleTag; value: string | undefined; children: StyledNode[] }[] = [];
   const current = () => (stack.length ? stack[stack.length - 1]!.children : root);
@@ -48,14 +64,15 @@ export function parseStyled(input: string): StyledNode[] {
     const index = match.index ?? 0;
     if (index > at) current().push({ type: "text", text: input.slice(at, index) });
     at = index + match[0].length;
-    const [, closing, tag, value] = match as unknown as [string, string, StyleTag, string?];
+    const closing = match[1];
+    const tag = match[2]!.toLowerCase() as StyleTag;
+    const value = match[3]?.toLowerCase();
     if (!closing) {
       stack.push({ tag, value, children: [] });
       continue;
     }
     const open = stack.map((s) => s.tag).lastIndexOf(tag);
     if (open < 0) {
-      current().push({ type: "text", text: match[0] });
       continue;
     }
     while (stack.length > open) {
@@ -73,7 +90,7 @@ export function parseStyled(input: string): StyledNode[] {
 
 /** The words alone, for WhatsApp messages and one-line summaries. */
 export function plainText(input: string | null | undefined): string {
-  return (input ?? "").replace(TAG, "");
+  return normalizeFormatting(input ?? "").replace(TAG, "");
 }
 
 export const usesHandwriting = (input: string) => input.includes("[font=handwritten]");
