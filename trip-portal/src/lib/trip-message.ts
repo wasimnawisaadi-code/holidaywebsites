@@ -108,7 +108,7 @@ export function tripMessage(
       const p = h.block.payload;
       const stay = stayLine(p);
       const confirmation =
-        options.references && p.confirmationNumber ? ` · Confirmation ${p.confirmationNumber}` : "";
+        options.references && p.confirmationNumber ? ` · Hotel confirmation number ${p.confirmationNumber}` : "";
       out.push(
         `🏨 ${p.name || h.step.title}${stay ? ` · ${stay}` : ""}${confirmation}${ref(p.reference)}`,
       );
