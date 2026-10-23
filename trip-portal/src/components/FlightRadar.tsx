@@ -8,23 +8,47 @@ import { flightPosition, type FlightPosition } from "@/lib/flight-radar";
  * flight number already on the booking, not a link the customer has to
  * follow elsewhere.
  *
- * Checked every 20 seconds while the card is on screen. The plane appears
- * only once OpenSky's real ADS-B data confirms it is airborne; before
- * departure, after landing, or if the data source does not answer, this
- * says so plainly and points at the scheduled times already on the card
- * instead of showing nothing or guessing a position.
+ * Checked every 20 seconds, only around the day of the flight and only while
+ * the card is actually on screen (the hidden print copy of the itinerary
+ * never asks). The plane appears only once real ADS-B data confirms it is
+ * airborne; before departure or after landing this says so plainly. If the
+ * data source does not answer, the radar steps aside and the "Open full
+ * tracker" link below remains.
  */
-export function FlightRadar({ flightNumber }: { flightNumber: string }) {
+export function FlightRadar({
+  flightNumber,
+  date,
+}: {
+  flightNumber: string;
+  date?: string | undefined;
+}) {
   const [state, setState] = useState<FlightPosition | null>(null);
+  const [visible, setVisible] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  // Worked out after mount: the server's clock and the customer's can sit on
+  // different days, and the page must hydrate the same either way.
+  const [onDay, setOnDay] = useState<boolean | null>(null);
+  useEffect(() => setOnDay(nearFlightDay(date)), [date]);
 
   useEffect(() => {
+    const el = box.current;
+    if (!el || !onDay) return;
+    const observer = new IntersectionObserver(([entry]) =>
+      setVisible(Boolean(entry?.isIntersecting)),
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [onDay]);
+
+  useEffect(() => {
+    if (!visible) return;
     let cancelled = false;
     const check = async () => {
       try {
         const result = await flightPosition({ data: flightNumber });
         if (!cancelled) setState(result);
       } catch {
-        if (!cancelled) setState({ ok: false, reason: "Live radar is not answering right now." });
+        if (!cancelled) setState({ ok: false });
       }
     };
     void check();
@@ -33,8 +57,26 @@ export function FlightRadar({ flightNumber }: { flightNumber: string }) {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [flightNumber]);
+  }, [flightNumber, visible]);
 
+  if (onDay === null) return null;
+  if (!onDay) {
+    return (
+      <p className="px-5 py-3 text-center text-[11px] text-muted">
+        The live radar switches on here on the day of your flight.
+      </p>
+    );
+  }
+  // One wrapper for every state, so the visibility observer keeps watching the
+  // same element as the content inside it changes.
+  return (
+    <div ref={box} className="min-h-px">
+      <RadarState state={state} />
+    </div>
+  );
+}
+
+function RadarState({ state }: { state: FlightPosition | null }) {
   if (!state) {
     return (
       <div className="flex items-center gap-2 px-5 py-4 text-xs text-muted">
@@ -43,9 +85,7 @@ export function FlightRadar({ flightNumber }: { flightNumber: string }) {
       </div>
     );
   }
-  if (!state.ok) {
-    return <p className="px-5 py-3 text-center text-[11px] text-muted">{state.reason}</p>;
-  }
+  if (!state.ok) return null;
   if (!state.airborne) {
     return (
       <p className="px-5 py-3 text-center text-[11px] text-muted">
@@ -56,10 +96,33 @@ export function FlightRadar({ flightNumber }: { flightNumber: string }) {
   return <LiveMap {...state} />;
 }
 
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
+/**
+ * True from the day before the flight to the day after (a long-haul flight
+ * lands the next day), or when the date cannot be read — then the radar is
+ * simply tried. Dates arrive as typed: "13 Nov 2026" or "2026-11-13".
+ */
+function nearFlightDay(date?: string): boolean {
+  if (!date) return true;
+  let at = NaN;
+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(date);
+  const typed = /(\d{1,2})\s+([A-Za-z]{3})[A-Za-z]*\.?,?\s+(\d{4})/.exec(date);
+  if (iso) at = Date.UTC(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+  else if (typed) {
+    const month = MONTHS.indexOf(typed[2]!.toLowerCase());
+    if (month >= 0) at = Date.UTC(Number(typed[3]), month, Number(typed[1]));
+  }
+  if (Number.isNaN(at)) return true;
+  const now = new Date();
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.abs(at - today) <= 86_400_000;
+}
+
 function LiveMap({
   lat,
   lon,
-  altitudeM,
+  altitudeFt,
   speedKmh,
   headingDeg,
   ageSeconds,
@@ -145,7 +208,7 @@ function LiveMap({
       </div>
       <dl className="grid grid-cols-3 gap-3 px-5 py-4">
         {[
-          ["Altitude", `${Math.round(altitudeM).toLocaleString("en")} m`],
+          ["Altitude", `${altitudeFt.toLocaleString("en")} ft`],
           ["Speed", `${speedKmh.toLocaleString("en")} km/h`],
           ["Heading", `${headingDeg}°`],
         ].map(([label, value]) => (
@@ -156,7 +219,7 @@ function LiveMap({
         ))}
       </dl>
       <p className="px-5 pb-4 text-[10px] text-muted">
-        Live position from real aircraft transponder data (OpenSky Network). Refreshes
+        Live position from real aircraft transponder data (adsb.lol / adsb.fi, ODbL). Refreshes
         automatically.
       </p>
     </div>

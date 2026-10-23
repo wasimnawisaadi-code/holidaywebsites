@@ -41,7 +41,7 @@ export const AIRLINE_ICAO: Record<string, string> = {
 };
 
 /**
- * "EK 394" -> "UAE394": the ICAO ident OpenSky and FlightAware use, built
+ * "EK 394" -> "UAE394": the ICAO ident ADS-B networks and FlightAware use, built
  * from a printed flight number. Null when the airline is not in the table
  * above — callers fall back to a real search rather than a wrong guess.
  */
