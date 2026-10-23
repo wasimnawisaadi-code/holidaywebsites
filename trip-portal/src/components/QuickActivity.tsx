@@ -4,6 +4,7 @@ import { HotelFinder, type PickedHotel } from "./HotelFinder";
 import { Icon, type IconName } from "./Icon";
 import { LocationPicker, type PickedLocation } from "./LocationPicker";
 import { PhotoManager } from "./PhotoManager";
+import { TransferDriverFields } from "./TransferDriverFields";
 import { bookingCapabilities } from "@/lib/booking-ai";
 import { nightsBetween, toIsoDate } from "@/lib/booking-fill";
 import { isLatLng } from "@/lib/geo";
@@ -496,18 +497,21 @@ function QuickActivityForm({
                 <>
                   {field("name", "Hotel name", "Full property name")}
                   {field("address", "Hotel address", "Street and city")}
-                  {field("checkIn", "Check-in", "", "date")}
+                  {field("checkIn", "Check-in date", "", "date")}
+                  {field("checkInTime", "Check-in time", "14:00")}
                   <div>
-                    {field("checkOut", "Check-out", "", "date")}
+                    {field("checkOut", "Check-out date", "", "date")}
                     {nights ? (
                       <p className="mt-1 text-[11px] font-semibold text-live">
                         {nights} night{nights === 1 ? "" : "s"}
                       </p>
                     ) : null}
                   </div>
+                  {field("checkOutTime", "Check-out time", "12:00")}
                   {field("roomType", "Room / meal plan", "Deluxe room · breakfast included")}
+                  {field("rooms", "Number of rooms", "2")}
                   {field("guests", "Guests", "2 adults")}
-                  {field("reference", "Booking reference")}
+                  {field("reference", "Hotel confirmation number", "Shown to the customer as Ref.")}
                   {field("phone", "Hotel phone", "+971…", "tel")}
                   <label className="block text-xs font-semibold text-navy">
                     Hotel website
@@ -590,6 +594,19 @@ function QuickActivityForm({
                     </select>
                   </label>
                   {field("transferNotes", "Meeting instructions", "Look for your name on the sign")}
+                  <TransferDriverFields
+                    tripId={tripId}
+                    values={values}
+                    set={(patch) => {
+                      setValues((current) => {
+                        const next = { ...current };
+                        for (const [key, value] of Object.entries(patch)) next[key] = value ?? "";
+                        return next;
+                      });
+                      setDirty(true);
+                    }}
+                    onBusy={setUploading}
+                  />
                 </>
               )}
             </div>
@@ -646,6 +663,7 @@ function QuickActivityForm({
         </summary>
         <div className="mt-3">
           <PhotoManager
+            linkFolder={tripId}
             paths={paths}
             urls={photoUrls}
             disabled={busy}

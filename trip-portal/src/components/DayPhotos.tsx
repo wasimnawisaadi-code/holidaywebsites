@@ -87,11 +87,12 @@ export function DayPhotos({
     >
       <h3 className="font-display text-xl text-navy">Day {day.day_number} · Banner photos</h3>
       <p className="mt-1 mb-3 text-xs text-muted">
-        Click <strong>Choose Files</strong> and select several photos at once (up to 20). They play
-        as a slideshow at the top of day {day.day_number}; the first is the cover. Saved
-        automatically.
+        Add up to 20 photos: <strong>Choose Files</strong> (select several at once), drag them in,
+        or paste a copied photo or photo link. They play as a slideshow at the top of day{" "}
+        {day.day_number}; the first is the cover. Saved automatically.
       </p>
       <PhotoManager
+        linkFolder={tripId}
         paths={paths}
         urls={Object.fromEntries(
           (existing?.paths ?? []).map((path, i) => [path, existing?.urls?.[i] ?? ""]),

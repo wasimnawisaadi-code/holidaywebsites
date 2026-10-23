@@ -142,6 +142,20 @@ export type BlockPayload = {
   pickupLocation?: string | undefined;
   dropoffLocation?: string | undefined;
   transferNotes?: string | undefined;
+  /**
+   * A transfer's own driver and vehicle, typed straight into the transfer.
+   * Each one, when filled, is shown instead of the matching detail of the
+   * driver chosen from the Drivers list. Photos are storage paths; the
+   * `…Url` twins are signed on read, never stored.
+   */
+  driverName?: string | undefined;
+  driverPhone?: string | undefined;
+  driverPhoto?: string | undefined;
+  driverPhotoUrl?: string | null | undefined;
+  vehicle?: string | undefined;
+  plate?: string | undefined;
+  vehiclePhoto?: string | undefined;
+  vehiclePhotoUrl?: string | null | undefined;
   /** A contact block's role, e.g. "Tour guide". Shown above the name on the customer's card. */
   role?: string | undefined;
   /** Languages a tour guide speaks, as typed: "English, Arabic". */
@@ -160,6 +174,11 @@ export type BlockPayload = {
   reference?: string | undefined;
   checkIn?: string | undefined;
   checkOut?: string | undefined;
+  /** Hotel check-in and check-out times, as on the voucher: "14:00". */
+  checkInTime?: string | undefined;
+  checkOutTime?: string | undefined;
+  /** Number of rooms booked, as typed: "2". */
+  rooms?: string | undefined;
   flightNumber?: string | undefined;
   /** Legacy single-line times ("KBL 08:15"). Newer flight blocks use the point-by-point fields below. */
   departure?: string | undefined;

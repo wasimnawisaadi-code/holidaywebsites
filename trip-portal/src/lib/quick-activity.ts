@@ -82,8 +82,11 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
               "name",
               "address",
               "checkIn",
+              "checkInTime",
               "checkOut",
+              "checkOutTime",
               "nights",
+              "rooms",
               "roomType",
               "guests",
               "reference",
@@ -100,7 +103,19 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
               "credit",
             ]
           : data.kind === "transfer"
-            ? ["driverId", "pickupTime", "pickupLocation", "dropoffLocation", "transferNotes"]
+            ? [
+                "driverId",
+                "pickupTime",
+                "pickupLocation",
+                "dropoffLocation",
+                "transferNotes",
+                "driverName",
+                "driverPhone",
+                "vehicle",
+                "plate",
+                "driverPhoto",
+                "vehiclePhoto",
+              ]
             : data.kind === "tourguide"
               ? ["name", "phone", "whatsapp", "languages", "text"]
               : [];
@@ -113,9 +128,14 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
     }
     if (data.kind === "hotel") {
       payload.name ||= title;
-      // Links are rendered as buttons on the customer's page: web addresses only.
+      // Links are rendered as buttons on the customer's page: web addresses
+      // only. "www.hotel.com" typed without the https:// is completed, not lost.
       for (const key of ["hotelWebsite", "hotelMapsUrl"] as const) {
-        if (payload[key] && !/^https?:\/\//i.test(payload[key]!)) delete payload[key];
+        const link = payload[key];
+        if (!link) continue;
+        if (!/^https?:\/\//i.test(link)) payload[key] = `https://${link.replace(/^\/+/, "")}`;
+        if (/\s/.test(payload[key]!) || !/^https?:\/\/[^/]+\.[^/]+/i.test(payload[key]!))
+          delete payload[key];
       }
       if (!payload.nights) {
         const nights = nightsBetween(payload.checkIn, payload.checkOut);
@@ -135,6 +155,12 @@ export const saveQuickActivity = createServerFn({ method: "POST" })
     if (data.kind === "transfer") {
       payload.pickupTime ||= time;
       payload.pickupLocation ||= location;
+      // Photos must be files this trip uploaded, like the gallery paths above.
+      for (const key of ["driverPhoto", "vehiclePhoto"] as const) {
+        const path = payload[key];
+        if (path && (!path.startsWith(`${data.tripId}/`) || path.includes("..")))
+          throw new Error("Invalid activity");
+      }
     }
 
     const { select, insert, update } = await import("./db");

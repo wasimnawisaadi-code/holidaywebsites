@@ -114,6 +114,123 @@ export const createUploadTicket = createServerFn({ method: "POST" })
     return { ok: true as const, uploadUrl, path };
   });
 
+const LINK_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+const LINK_PHOTO_MAX = 12 * 1024 * 1024;
+
+/** Public web addresses only: no localhost, no private or link-local network. */
+function publicWebUrl(raw: string): URL | null {
+  let url: URL;
+  try {
+    url = new URL(raw.trim());
+  } catch {
+    return null;
+  }
+  if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+  if (url.username || url.password) return null;
+  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".internal"))
+    return null;
+  if (/^(0|10|127)\./.test(host) || /^169\.254\./.test(host) || /^192\.168\./.test(host))
+    return null;
+  if (
+    /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
+    /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./.test(host)
+  )
+    return null;
+  if (host.includes(":") && (host === "::1" || /^(fc|fd|fe80|::ffff)/.test(host))) return null;
+  return url;
+}
+
+/** Fetches a public URL, following at most three redirects, each one re-checked. */
+async function fetchPublic(raw: string): Promise<Response | null> {
+  let url = publicWebUrl(raw);
+  for (let hop = 0; url && hop < 4; hop++) {
+    const res = await fetch(url, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(15_000),
+      headers: { Accept: "image/avif,image/webp,image/*,text/html;q=0.5" },
+    });
+    if (res.status >= 300 && res.status < 400) {
+      const next = res.headers.get("location");
+      url = next ? publicWebUrl(new URL(next, url).href) : null;
+      continue;
+    }
+    return res;
+  }
+  return null;
+}
+
+/**
+ * Copies a photo from a web address into this trip's folder.
+ *
+ * Works with an image address ("Copy image address" in any browser) and with a
+ * web page that names its share photo (og:image), such as a hotel's own page.
+ * The server fetches it because the browser cannot: almost no site allows
+ * another site's script to read its images.
+ */
+export const importPhotoFromLink = createServerFn({ method: "POST" })
+  .validator((input: { folder: string; url: string }) => input)
+  .handler(
+    async ({
+      data,
+    }): Promise<{ ok: true; path: string; url: string | null } | { ok: false; reason: string }> => {
+      await requireSession();
+      if (data.folder !== DRIVERS_FOLDER && !UUID.test(data.folder))
+        return { ok: false, reason: "Unknown upload location." };
+      if (!publicWebUrl(data.url))
+        return { ok: false, reason: "Paste a full web address starting with https://" };
+      try {
+        let res = await fetchPublic(data.url);
+        let type = (res?.headers.get("content-type") ?? "").split(";")[0]!.trim().toLowerCase();
+        if (res?.ok && type === "text/html") {
+          const html = (await res.text()).slice(0, 400_000);
+          const meta =
+            /<meta[^>]+(?:property|name)=["'](?:og:image(?::secure_url)?|twitter:image)["'][^>]*content=["']([^"']+)["']/i.exec(
+              html,
+            ) ??
+            /<meta[^>]+content=["']([^"']+)["'][^>]*(?:property|name)=["'](?:og:image|twitter:image)["']/i.exec(
+              html,
+            );
+          const image = meta?.[1]?.replace(/&amp;/g, "&");
+          if (!image)
+            return {
+              ok: false,
+              reason:
+                "That page has no main photo to take. Right-click the photo itself and choose “Copy image address”, then paste that.",
+            };
+          res = await fetchPublic(new URL(image, data.url).href);
+          type = (res?.headers.get("content-type") ?? "").split(";")[0]!.trim().toLowerCase();
+        }
+        if (!res?.ok)
+          return {
+            ok: false,
+            reason: `That address did not give a photo${res ? ` (${res.status})` : ""}. Try another link, or download the photo and upload it.`,
+          };
+        if (!LINK_PHOTO_TYPES.includes(type))
+          return {
+            ok: false,
+            reason: "That link is not a JPEG, PNG, WebP or AVIF photo. Try “Copy image address”.",
+          };
+        if (Number(res.headers.get("content-length")) > LINK_PHOTO_MAX)
+          return { ok: false, reason: "That photo is over 12 MB." };
+        const bytes = await res.arrayBuffer();
+        if (!bytes.byteLength || bytes.byteLength > LINK_PHOTO_MAX)
+          return { ok: false, reason: "That photo is empty or over 12 MB." };
+        const ext = type.split("/")[1] === "jpeg" ? "jpg" : type.split("/")[1];
+        const path = `${data.folder}/${Date.now()}-link-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+        const { uploadObject, signedUrl } = await import("./db");
+        if (!(await uploadObject("trip-media", path, bytes, type)))
+          return { ok: false, reason: "Storage did not accept the photo. Try again." };
+        return { ok: true, path, url: await signedUrl("trip-media", path) };
+      } catch {
+        return {
+          ok: false,
+          reason: "That site did not answer in time. Try another link, or upload the photo.",
+        };
+      }
+    },
+  );
+
 /**
  * Sends a file straight to storage, reporting progress.
  *
