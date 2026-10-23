@@ -731,13 +731,7 @@ function Portal() {
           <SectionOpener eyebrow="We are with you" title="Need" accent="help?" />
           <div className="ns-reveal mt-6 overflow-hidden rounded-3xl border border-hair bg-sand">
             <div className="p-5">
-              <p className="text-sm leading-relaxed text-ink">
-                Need help or a change to your plans? WhatsApp or call our team and share your trip
-                reference{" "}
-                <span className="font-mono font-semibold text-navy">{trip.trip_code}</span> — we
-                will take care of it for you.
-              </p>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <div className="grid gap-2 sm:grid-cols-2">
                 <a
                   href={`https://wa.me/${OFFICE_WHATSAPP}?text=${encodeURIComponent(
                     `Hello Nawi Saadi, this is about trip ${trip.trip_code}.`,
