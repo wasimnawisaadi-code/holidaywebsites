@@ -1,4 +1,6 @@
 import { Outlet, createRootRoute, HeadContent, Scripts, useRouter } from "@tanstack/react-router";
+
+import { UpdateNotice } from "@/components/UpdateNotice";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
@@ -72,6 +74,7 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <UpdateNotice />
         <Scripts />
       </body>
     </html>
