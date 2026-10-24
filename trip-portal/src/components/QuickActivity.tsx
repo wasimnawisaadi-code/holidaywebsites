@@ -183,7 +183,10 @@ function QuickActivityForm({
   const id = useId();
   const requestId = useRef("");
   const [busy, setBusy] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [activeUploads, setActiveUploads] = useState(0);
+  const uploading = activeUploads > 0;
+  const setUploading = (active: boolean) =>
+    setActiveUploads((count) => Math.max(0, count + (active ? 1 : -1)));
   const [error, setError] = useState("");
   const [paths, setPaths] = useState<string[]>([]);
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
@@ -402,7 +405,12 @@ function QuickActivityForm({
         setBusy(true);
         setError("");
         try {
-          await saveQuickActivity({ data: draft });
+          const result = await saveQuickActivity({ data: draft });
+          if (!result.ok) {
+            setError(result.reason);
+            setBusy(false);
+            return;
+          }
         } catch {
           setError(
             "We couldn’t finish saving. Your details are still here. Retry to finish this same activity without adding a duplicate; if it keeps failing, copy your text and reload the page.",
@@ -695,6 +703,11 @@ function QuickActivityForm({
           className="mt-3 rounded-lg bg-alert/8 p-3 text-xs leading-relaxed text-alert"
         >
           {error}
+          {error.includes("sign-in expired") ? (
+            <a href="/admin" target="_blank" rel="noopener noreferrer" className="ml-2 underline">
+              Sign in in a new tab
+            </a>
+          ) : null}
         </p>
       ) : null}
       <div className="mt-4 flex flex-wrap items-center gap-3">

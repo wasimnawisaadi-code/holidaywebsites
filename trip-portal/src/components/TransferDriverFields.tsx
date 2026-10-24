@@ -1,4 +1,5 @@
 import { SinglePhoto } from "./SinglePhoto";
+import { useRef } from "react";
 
 type DriverValues = {
   driverName?: string | undefined;
@@ -34,6 +35,12 @@ export function TransferDriverFields({
   set: (patch: Partial<Record<keyof DriverValues, string | undefined>>) => void;
   onBusy?: ((busy: boolean) => void) | undefined;
 }) {
+  const activeUploads = useRef(0);
+  const photoBusy = (busy: boolean) => {
+    const previous = activeUploads.current;
+    activeUploads.current = Math.max(0, previous + (busy ? 1 : -1));
+    if (Boolean(previous) !== Boolean(activeUploads.current)) onBusy?.(activeUploads.current > 0);
+  };
   return (
     <fieldset className="rounded-xl border border-hair bg-paper p-3 sm:col-span-2">
       <legend className="px-1 text-xs font-bold text-navy">
@@ -64,7 +71,7 @@ export function TransferDriverFields({
           path={values.driverPhoto}
           url={values.driverPhotoUrl}
           onChange={(path) => set({ driverPhoto: path })}
-          onBusy={onBusy}
+          onBusy={photoBusy}
         />
         <SinglePhoto
           label="Vehicle photo"
@@ -72,7 +79,7 @@ export function TransferDriverFields({
           path={values.vehiclePhoto}
           url={values.vehiclePhotoUrl}
           onChange={(path) => set({ vehiclePhoto: path })}
-          onBusy={onBusy}
+          onBusy={photoBusy}
         />
         <input type="hidden" name="driverPhoto" value={values.driverPhoto ?? ""} />
         <input type="hidden" name="vehiclePhoto" value={values.vehiclePhoto ?? ""} />

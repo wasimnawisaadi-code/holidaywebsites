@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSession } from "./session";
+import { mutationError } from "./mutation-error";
 
 /**
  * Uploads, shared by the itinerary editor and the drivers page.
@@ -50,68 +51,79 @@ export const createUploadTicket = createServerFn({ method: "POST" })
     }) => input,
   )
   .handler(async ({ data }) => {
-    await requireSession();
+    try {
+      await requireSession();
 
-    // The folder becomes the first segment of the storage path, so it is held
-    // to exactly a trip's UUID or the drivers folder. Anything else — "../", a
-    // slash, an empty string — could steer the upload somewhere it should not go.
-    const isDrivers = data.folder === DRIVERS_FOLDER;
-    if (!isDrivers && !UUID.test(data.folder)) {
-      return { ok: false as const, reason: "Unknown upload location." };
-    }
+      // The folder becomes the first segment of the storage path, so it is held
+      // to exactly a trip's UUID or the drivers folder. Anything else — "../", a
+      // slash, an empty string — could steer the upload somewhere it should not go.
+      const isDrivers = data.folder === DRIVERS_FOLDER;
+      if (!isDrivers && !UUID.test(data.folder)) {
+        return { ok: false as const, reason: "Unknown upload location." };
+      }
 
-    const bucket = data.bucket as Bucket;
-    const rules = BUCKETS[bucket];
-    if (!rules) return { ok: false as const, reason: "Unknown upload type." };
+      const bucket = data.bucket as Bucket;
+      const rules = BUCKETS[bucket];
+      if (!rules) return { ok: false as const, reason: "Unknown upload type." };
 
-    // Checked here as well as by storage, because storage refuses only after the
-    // whole file has been sent. A 180 MB video rejected after two minutes of
-    // uploading is two wasted minutes; this says no before a byte moves.
-    const type = data.contentType.toLowerCase();
-    if (isDrivers && (bucket !== "trip-media" || !type.startsWith("image/"))) {
+      // Checked here as well as by storage, because storage refuses only after the
+      // whole file has been sent. A 180 MB video rejected after two minutes of
+      // uploading is two wasted minutes; this says no before a byte moves.
+      const type = data.contentType.toLowerCase();
+      if (isDrivers && (bucket !== "trip-media" || !type.startsWith("image/"))) {
+        return {
+          ok: false as const,
+          reason: "A driver photo must be an image (JPEG, PNG, WebP, HEIC).",
+        };
+      }
+      if (!(rules.types as readonly string[]).includes(type)) {
+        return {
+          ok: false as const,
+          reason:
+            bucket === "trip-docs"
+              ? "Documents must be a PDF or an image (JPEG, PNG, WebP)."
+              : "Use a photo (JPEG, PNG, WebP, HEIC) or a video (MP4, MOV, WebM).",
+        };
+      }
+      if (!Number.isFinite(data.size) || data.size <= 0) {
+        return { ok: false as const, reason: "That file is empty." };
+      }
+      if (data.size > rules.maxBytes) {
+        return {
+          ok: false as const,
+          reason: `That file is ${Math.ceil(data.size / 1048576)} MB. The limit is ${
+            rules.maxBytes / 1048576
+          } MB — try trimming the clip or exporting at a lower resolution.`,
+        };
+      }
+
+      // The server chooses the name; the browser only suggests one. A filename
+      // carrying a slash would write outside the folder, and one carrying spaces
+      // or Arabic script breaks the signed-URL path.
+      const safe =
+        data.fileName
+          .toLowerCase()
+          .replace(/[^a-z0-9.\-_]+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^[-.]+/, "")
+          .slice(-80) || "file";
+      const path = `${data.folder}/${crypto.randomUUID()}-${safe}`;
+
+      const { signedUploadUrl } = await import("./db");
+      const uploadUrl = await signedUploadUrl(bucket, path);
+      if (!uploadUrl)
+        return { ok: false as const, reason: "Storage did not issue an upload ticket." };
+      return { ok: true as const, uploadUrl, path };
+    } catch (error) {
+      console.error("Photo upload ticket failed", error);
       return {
         ok: false as const,
-        reason: "A driver photo must be an image (JPEG, PNG, WebP, HEIC).",
+        reason: mutationError(
+          error,
+          "Could not start the upload. Check your connection and retry.",
+        ),
       };
     }
-    if (!(rules.types as readonly string[]).includes(type)) {
-      return {
-        ok: false as const,
-        reason:
-          bucket === "trip-docs"
-            ? "Documents must be a PDF or an image (JPEG, PNG, WebP)."
-            : "Use a photo (JPEG, PNG, WebP, HEIC) or a video (MP4, MOV, WebM).",
-      };
-    }
-    if (!Number.isFinite(data.size) || data.size <= 0) {
-      return { ok: false as const, reason: "That file is empty." };
-    }
-    if (data.size > rules.maxBytes) {
-      return {
-        ok: false as const,
-        reason: `That file is ${Math.ceil(data.size / 1048576)} MB. The limit is ${
-          rules.maxBytes / 1048576
-        } MB — try trimming the clip or exporting at a lower resolution.`,
-      };
-    }
-
-    // The server chooses the name; the browser only suggests one. A filename
-    // carrying a slash would write outside the folder, and one carrying spaces
-    // or Arabic script breaks the signed-URL path.
-    const safe =
-      data.fileName
-        .toLowerCase()
-        .replace(/[^a-z0-9.\-_]+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^[-.]+/, "")
-        .slice(-80) || "file";
-    const path = `${data.folder}/${Date.now()}-${safe}`;
-
-    const { signedUploadUrl } = await import("./db");
-    const uploadUrl = await signedUploadUrl(bucket, path);
-    if (!uploadUrl)
-      return { ok: false as const, reason: "Storage did not issue an upload ticket." };
-    return { ok: true as const, uploadUrl, path };
   });
 
 const LINK_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
@@ -174,7 +186,14 @@ export const importPhotoFromLink = createServerFn({ method: "POST" })
     async ({
       data,
     }): Promise<{ ok: true; path: string; url: string | null } | { ok: false; reason: string }> => {
-      await requireSession();
+      try {
+        await requireSession();
+      } catch (error) {
+        return {
+          ok: false,
+          reason: mutationError(error, "Could not start the photo import. Please retry."),
+        };
+      }
       if (data.folder !== DRIVERS_FOLDER && !UUID.test(data.folder))
         return { ok: false, reason: "Unknown upload location." };
       if (!publicWebUrl(data.url))
@@ -261,6 +280,7 @@ export async function uploadDirect(
   return new Promise((resolve) => {
     const xhr = new XMLHttpRequest();
     xhr.open("PUT", ticket.uploadUrl);
+    xhr.timeout = 5 * 60 * 1000;
     xhr.setRequestHeader("Content-Type", file.type || guessType(file.name));
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) opts.onProgress?.(Math.round((e.loaded / e.total) * 100));
@@ -270,11 +290,13 @@ export async function uploadDirect(
       else resolve({ ok: false, reason: `Upload refused by storage (${xhr.status}).` });
     };
     xhr.onerror = () => resolve({ ok: false, reason: "The connection dropped during upload." });
+    xhr.ontimeout = () => resolve({ ok: false, reason: "The upload timed out. Please retry." });
+    xhr.onabort = () => resolve({ ok: false, reason: "The upload was interrupted. Please retry." });
     xhr.send(file);
   });
 }
 
-function guessType(name: string): string {
+export function guessType(name: string): string {
   const ext = name.toLowerCase().split(".").pop() ?? "";
   const map: Record<string, string> = {
     jpg: "image/jpeg",
