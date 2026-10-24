@@ -224,10 +224,10 @@ function SignIn() {
   const [busy, setBusy] = useState(false);
 
   return (
-    <main className="grid min-h-screen bg-white lg:grid-cols-[1.1fr_1fr]">
+    <main className="portal-login grid min-h-screen lg:grid-cols-[1.1fr_1fr]">
       {/* The photograph half. On a phone it becomes a banner above the form, so
           the page is never a dark block — the brand is light-first. */}
-      <div className="relative isolate h-56 overflow-hidden lg:h-auto">
+      <div className="portal-login-photo relative isolate h-56 overflow-hidden lg:h-auto">
         <img
           src="/destinations/hero-dubai.webp"
           alt=""
@@ -266,11 +266,13 @@ function SignIn() {
             if (result.ok) router.invalidate();
             else setError(result.reason);
           }}
-          className="w-full max-w-sm"
+          className="portal-login-form w-full max-w-md"
         >
           <img src="/brand/logo-ink.webp" alt="" className="h-12 w-auto" />
-          <h1 className="mt-8 font-display text-3xl text-navy">Welcome back</h1>
-          <p className="mt-1.5 text-sm text-muted">Staff sign-in for Nawi Saadi trip operations.</p>
+          <h1 className="mt-8 font-display text-3xl text-navy">Your next great journey.</h1>
+          <p className="mt-1.5 text-sm text-muted">
+            Welcome back. Sign in to your travel workspace.
+          </p>
 
           <label className="mt-8 block text-xs font-semibold text-navy" htmlFor="admin-email">
             Email

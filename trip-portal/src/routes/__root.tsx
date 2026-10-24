@@ -36,7 +36,7 @@ export const Route = createRootRoute({
       },
       { title: "Your Trip · Nawi Saadi Travel & Tourism" },
       { name: "robots", content: "noindex, nofollow, noarchive, nosnippet" },
-      { name: "theme-color", content: "#00365F" },
+      { name: "theme-color", content: "#123E35" },
       // Opening a trip link in WhatsApp generates a preview card. Without this
       // the card shows the raw URL, which looks like a phishing link — exactly
       // the impression to avoid when the office sends the link by WhatsApp.
