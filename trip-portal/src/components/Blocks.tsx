@@ -5,7 +5,6 @@ import { Directions } from "./Directions";
 import { Icon, type IconName } from "./Icon";
 import { InvoiceCard } from "./InvoiceCard";
 import { Lightbox, type LightboxPhoto } from "./Lightbox";
-import { createPortal } from "react-dom";
 import { FlightRadar } from "./FlightRadar";
 import { MapView } from "./MapView";
 import { RichText } from "./RichText";
@@ -1066,16 +1065,13 @@ export function DriverCard({
   const [photoOpen, setPhotoOpen] = useState(false);
   return (
     <div className="overflow-hidden rounded-2xl border border-hair bg-white shadow-sm">
-      {photoOpen && driver.photoUrl
-        ? createPortal(
-            <Lightbox
-              photos={[{ url: driver.photoUrl, caption: driver.full_name || "Your driver" }]}
-              start={0}
-              onClose={() => setPhotoOpen(false)}
-            />,
-            document.body,
-          )
-        : null}
+      {photoOpen && driver.photoUrl ? (
+        <Lightbox
+          photos={[{ url: driver.photoUrl, caption: driver.full_name || "Your driver" }]}
+          start={0}
+          onClose={() => setPhotoOpen(false)}
+        />
+      ) : null}
       <div className="flex items-center gap-4 p-4">
         {driver.photoUrl ? (
           <button
