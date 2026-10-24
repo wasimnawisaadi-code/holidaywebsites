@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { Icon } from "./Icon";
 
@@ -58,14 +59,16 @@ export function Lightbox({
   }, []);
 
   const photo = photos[index];
-  if (!photo) return null;
+  if (!photo || typeof document === "undefined") return null;
 
-  return (
+  // Animated cards create containing blocks for fixed descendants. Mount the
+  // shared viewer outside every card so all galleries cover the viewport.
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-label={photo.caption ? `Photo: ${photo.caption}` : "Photo"}
-      className="fixed inset-0 z-50 flex flex-col bg-black/95"
+      className="fixed inset-0 z-[200] flex flex-col bg-black/95"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -100,7 +103,7 @@ export function Lightbox({
         <img
           src={photo.url}
           alt={photo.caption ?? ""}
-          className="max-h-full max-w-full object-contain select-none"
+          className="h-full w-full min-h-0 min-w-0 object-contain select-none"
           draggable={false}
         />
         {count > 1 ? (
@@ -126,12 +129,13 @@ export function Lightbox({
       </div>
 
       {photo.caption ? (
-        <p className="px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-center text-sm leading-relaxed text-white/85">
+        <p className="max-h-[20dvh] shrink-0 overflow-auto px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-center text-sm leading-relaxed text-white/85">
           {photo.caption}
         </p>
       ) : (
         <div className="pb-[max(1.25rem,env(safe-area-inset-bottom))]" />
       )}
-    </div>
+    </div>,
+    document.body,
   );
 }
