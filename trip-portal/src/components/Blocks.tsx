@@ -5,6 +5,7 @@ import { Directions } from "./Directions";
 import { Icon, type IconName } from "./Icon";
 import { InvoiceCard } from "./InvoiceCard";
 import { Lightbox, type LightboxPhoto } from "./Lightbox";
+import { createPortal } from "react-dom";
 import { FlightRadar } from "./FlightRadar";
 import { MapView } from "./MapView";
 import { RichText } from "./RichText";
@@ -1062,16 +1063,29 @@ export function DriverCard({
   onEngage?: ((event: string, detail: string) => void) | undefined;
   onOpenPhoto?: (() => void) | undefined;
 }) {
+  const [photoOpen, setPhotoOpen] = useState(false);
   return (
     <div className="overflow-hidden rounded-2xl border border-hair bg-white shadow-sm">
+      {photoOpen && driver.photoUrl
+        ? createPortal(
+            <Lightbox
+              photos={[{ url: driver.photoUrl, caption: driver.full_name || "Your driver" }]}
+              start={0}
+              onClose={() => setPhotoOpen(false)}
+            />,
+            document.body,
+          )
+        : null}
       <div className="flex items-center gap-4 p-4">
         {driver.photoUrl ? (
           <button
             type="button"
-            onClick={onOpenPhoto}
-            disabled={!onOpenPhoto}
+            onClick={() => {
+              if (onOpenPhoto) onOpenPhoto();
+              else setPhotoOpen(true);
+            }}
             aria-label={`View photo of ${driver.full_name}`}
-            className="shrink-0 rounded-2xl"
+            className="shrink-0 cursor-zoom-in rounded-2xl"
           >
             <img
               src={driver.photoUrl}
