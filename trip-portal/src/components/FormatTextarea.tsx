@@ -15,11 +15,19 @@ import { COLORS, FONTS, SIZES, plainText, type StyleTag } from "@/lib/text-forma
 export function FormatTextarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   const box = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState(String(props.value ?? props.defaultValue ?? ""));
+  const [error, setError] = useState("");
   const shown = props.value !== undefined ? String(props.value) : text;
 
   const write = (next: string, selectFrom: number, selectTo: number) => {
     const el = box.current;
     if (!el) return;
+    if (props.maxLength !== undefined && next.length > props.maxLength) {
+      setError(
+        `This formatting exceeds the ${props.maxLength}-character limit. Shorten the text first.`,
+      );
+      return;
+    }
+    setError("");
     const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
     setter?.call(el, next);
     el.dispatchEvent(new Event("input", { bubbles: true }));
@@ -158,11 +166,17 @@ export function FormatTextarea(props: TextareaHTMLAttributes<HTMLTextAreaElement
         {...props}
         ref={box}
         onInput={(e) => {
+          setError("");
           setText(e.currentTarget.value);
           props.onInput?.(e);
         }}
         className={`${props.className ?? ""} !mt-0 rounded-t-none`}
       />
+      {error ? (
+        <p role="alert" className="mt-1 text-xs text-alert">
+          {error}
+        </p>
+      ) : null}
       <p className="mt-1 text-[11px] text-muted">
         Select words, then pick a font, size, style or colour. Nothing selected styles the whole
         text.

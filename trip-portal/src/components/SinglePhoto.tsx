@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 
-import { importPhotoFromLink, uploadDirect } from "@/lib/uploads";
+import { guessType, importPhotoFromLink, uploadDirect } from "@/lib/uploads";
 
 /**
  * One photo, such as the driver's face or the car: choose a file, or paste a
@@ -27,6 +27,8 @@ export function SinglePhoto({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const owned = useRef<string | null>(null);
+  const inFlight = useRef(false);
+  const previewPath = useRef<string | undefined>(undefined);
   useEffect(
     () => () => {
       if (owned.current) URL.revokeObjectURL(owned.current);
@@ -35,6 +37,8 @@ export function SinglePhoto({
   );
 
   const run = async (task: () => Promise<{ path: string; preview: string | null } | string>) => {
+    if (inFlight.current) return;
+    inFlight.current = true;
     setBusy(true);
     onBusy?.(true);
     setError("");
@@ -45,11 +49,13 @@ export function SinglePhoto({
         if (owned.current) URL.revokeObjectURL(owned.current);
         owned.current = result.preview?.startsWith("blob:") ? result.preview : null;
         setPreview(result.preview);
+        previewPath.current = result.path;
         onChange(result.path);
       }
     } catch {
       setError("The photo could not be added. Try again; if it keeps failing, reload the page.");
     } finally {
+      inFlight.current = false;
       setBusy(false);
       onBusy?.(false);
     }
@@ -57,7 +63,8 @@ export function SinglePhoto({
 
   const fromFile = (file: File) =>
     run(async () => {
-      if (!file.type.startsWith("image/")) return "Choose a photo (JPEG, PNG, WebP).";
+      if (!(file.type || guessType(file.name)).startsWith("image/"))
+        return "Choose a photo (JPEG, PNG, WebP).";
       const result = await uploadDirect(file, { folder, bucket: "trip-media" });
       return result.ok ? { path: result.path, preview: URL.createObjectURL(file) } : result.reason;
     });
@@ -67,11 +74,15 @@ export function SinglePhoto({
       return result.ok ? { path: result.path, preview: result.url } : result.reason;
     });
 
-  const shown = path ? preview || url : null;
+  const shown = path ? (previewPath.current === path ? preview || url : url) : null;
   return (
     <div
       className="rounded-xl border border-hair bg-white p-3"
       onPaste={(e) => {
+        if (inFlight.current) {
+          e.preventDefault();
+          return;
+        }
         const file = e.clipboardData.files[0];
         const text = e.clipboardData.getData("text").trim();
         if (file) {
@@ -116,6 +127,9 @@ export function SinglePhoto({
               type="button"
               disabled={busy}
               onClick={() => {
+                if (owned.current) URL.revokeObjectURL(owned.current);
+                owned.current = null;
+                previewPath.current = undefined;
                 setPreview(null);
                 onChange(undefined);
               }}
@@ -143,6 +157,11 @@ export function SinglePhoto({
       {error ? (
         <p role="alert" className="mt-2 text-[11px] text-alert">
           {error}
+          {error.includes("sign-in expired") ? (
+            <a href="/admin" target="_blank" rel="noopener noreferrer" className="ml-2 underline">
+              Sign in in a new tab
+            </a>
+          ) : null}
         </p>
       ) : null}
     </div>
