@@ -48,7 +48,7 @@ export function SinglePhoto({
         onChange(result.path);
       }
     } catch {
-      setError("The photo could not be added. Try again.");
+      setError("The photo could not be added. Try again; if it keeps failing, reload the page.");
     } finally {
       setBusy(false);
       onBusy?.(false);

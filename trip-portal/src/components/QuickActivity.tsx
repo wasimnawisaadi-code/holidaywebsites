@@ -405,7 +405,7 @@ function QuickActivityForm({
           await saveQuickActivity({ data: draft });
         } catch {
           setError(
-            "We couldn’t finish saving. Your details are still here. Retry to finish this same activity without adding a duplicate.",
+            "We couldn’t finish saving. Your details are still here. Retry to finish this same activity without adding a duplicate; if it keeps failing, copy your text and reload the page.",
           );
           setBusy(false);
           return;
