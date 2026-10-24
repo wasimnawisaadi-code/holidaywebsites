@@ -216,7 +216,7 @@ function Portal() {
   );
 
   return (
-    <div className="trip-page min-h-screen bg-white pb-24">
+    <div className="trip-page min-h-screen bg-paper pb-24">
       <div
         aria-hidden="true"
         className="ns-read fixed inset-x-0 top-0 z-50 h-[3px] bg-gradient-to-r from-gold to-gold-light"
@@ -297,7 +297,7 @@ function Portal() {
             ============================================================== */}
         <section
           aria-label="Your trip"
-          className="ns-rise relative -mt-14 rounded-3xl border border-hair bg-white p-5 shadow-[0_24px_60px_-28px_rgba(0,35,64,0.45)] sm:p-6"
+          className="trip-summary ns-rise relative -mt-14 rounded-3xl border border-hair bg-white p-5 shadow-[0_24px_60px_-28px_rgba(0,35,64,0.45)] sm:p-6"
           style={delay(380)}
         >
           <div className="flex items-start justify-between gap-4">

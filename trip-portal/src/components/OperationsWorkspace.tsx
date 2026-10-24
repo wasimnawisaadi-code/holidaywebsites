@@ -125,7 +125,7 @@ export function OperationsWorkspace({
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
   return (
-    <div className="ops-workspace min-h-screen bg-[#f3f5f8] text-ink">
+    <div className="ops-workspace min-h-screen bg-paper text-ink">
       <aside className="ops-sidebar fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-hair bg-white xl:flex">
         <a href="/admin" className="flex items-center gap-3 px-7 py-7">
           <img src="/brand/logo-ink.webp" alt="Nawi Saadi" className="h-12 w-auto" />
@@ -203,7 +203,7 @@ export function OperationsWorkspace({
           </div>
         </header>
         <main className="mx-auto max-w-[1600px] p-4 sm:p-6 lg:p-8" aria-busy={refreshing}>
-          <section className="relative isolate overflow-hidden rounded-[28px] bg-navy px-6 py-8 text-white sm:px-9 sm:py-10">
+          <section className="ops-hero relative isolate overflow-hidden rounded-[28px] bg-navy px-6 py-8 text-white sm:px-9 sm:py-10">
             <img
               src={destinationPhoto("Dubai")}
               alt=""
@@ -214,9 +214,9 @@ export function OperationsWorkspace({
               Nawi Saadi · Travel operations
             </p>
             <h1 className="mt-4 max-w-lg font-display text-3xl leading-tight sm:text-5xl">
-              Extraordinary journeys.
+              A world of journeys.
               <br />
-              <span className="text-gold-light italic">Effortlessly managed.</span>
+              <span className="text-gold-light italic">A personal touch.</span>
             </h1>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-white/75">
               Your travellers, their next adventure, and every detail that makes it unforgettable.
@@ -254,7 +254,7 @@ export function OperationsWorkspace({
                 type="button"
                 onClick={() => select(key)}
                 aria-pressed={filter === key}
-                className={`rounded-2xl border bg-white p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md sm:p-5 ${filter === key ? "border-gold ring-2 ring-gold/15" : "border-hair"}`}
+                className={`ops-stat rounded-2xl border bg-white p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md sm:p-5 ${filter === key ? "border-gold ring-2 ring-gold/15" : "border-hair"}`}
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold text-muted">{label}</span>

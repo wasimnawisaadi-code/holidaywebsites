@@ -1,33 +1,20 @@
 @import "tailwindcss";
 
-/**
- * Trip portal theme — the live nawisaadiholidays.com palette, exactly.
- *
- * A customer who booked on the website and then opens a link on another domain
- * has to recognise it instantly or they will assume the link is a scam, so this
- * recognition is doing a security job as much as a visual one. The values are
- * the ones scraped from the live site (see the website's live-palette notes),
- * not approximations: an earlier version of this file used a near-miss navy,
- * gold and grey set that looked "nearly right" and disagreed with every page of
- * the website.
- *
- * Light-first, as the owner decided for the whole brand: navy is an accent for
- * buttons and small strips, never a page or section background. The one dark
- * area is the photograph at the top of a trip, where the image is the point.
- */
+/** Emerald and ivory portal palette. Existing semantic token names are retained
+ * so booking controls, customer cards and maps share one consistent theme. */
 @theme {
-  --color-navy: #00365f;
-  --color-navy-deep: #002340;
-  --color-gold: #caa42d;
+  --color-navy: #123e35;
+  --color-navy-deep: #082c25;
+  --color-gold: #b58a43;
   /* Gold that is legible as text on white; #CAA42D itself fails contrast. */
-  --color-gold-deep: #8f7420;
+  --color-gold-deep: #806024;
   /* Gold that is legible as text on navy or on a darkened photograph. */
-  --color-gold-light: #ddbe5e;
-  --color-ink: #353844;
-  --color-muted: #666666;
-  --color-hair: #e5e5e5;
-  --color-paper: #f8f8f8;
-  --color-sand: #f7f5f1;
+  --color-gold-light: #e6ca92;
+  --color-ink: #263c35;
+  --color-muted: #62716a;
+  --color-hair: #dce3db;
+  --color-paper: #f7f4ec;
+  --color-sand: #edf2e9;
   --color-live: #1b7a53;
   --color-alert: #a3381f;
 
@@ -41,7 +28,7 @@ html {
 }
 
 body {
-  background: #ffffff;
+  background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
   margin: 0;
@@ -52,6 +39,71 @@ body {
    template; the brand settled on 500 across the website. */
 .font-display {
   font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+/* Emerald travel journal: warm surfaces, clear actions and quiet depth. */
+.portal-login {
+  background: var(--color-paper);
+}
+.portal-login-photo {
+  border-radius: 0 0 2rem 2rem;
+}
+.portal-login-form {
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid var(--color-hair);
+  border-radius: 2rem;
+  background: #fffefa;
+  box-shadow: 0 24px 80px -45px #123e3540;
+}
+.portal-login-form input {
+  background: white;
+}
+.ops-workspace {
+  background: var(--color-paper);
+}
+.ops-sidebar {
+  background: #fffefa;
+}
+.ops-sidebar nav button[aria-pressed="true"] {
+  box-shadow: 0 8px 20px -10px #123e3580;
+}
+.ops-hero {
+  border: 1px solid #ffffff24;
+  box-shadow: 0 20px 40px -28px #082c2580;
+}
+.ops-stat {
+  border-top: 3px solid var(--color-gold);
+  box-shadow: 0 6px 22px -16px #123e3540;
+}
+.ops-stat:nth-child(2) {
+  border-top-color: #407f70;
+}
+.ops-stat:nth-child(3) {
+  border-top-color: #a49175;
+}
+.ops-stat:nth-child(4) {
+  border-top-color: #bf795c;
+}
+.ops-trip-card {
+  box-shadow: 0 12px 35px -26px #123e3566;
+}
+.trip-page {
+  background: var(--color-paper);
+}
+.trip-summary {
+  border-top: 4px solid var(--color-gold);
+  background: #fffefa;
+}
+::selection {
+  background: #dce9da;
+  color: #082c25;
+}
+@media (min-width: 1024px) {
+  .portal-login-photo {
+    margin: 1.25rem;
+    border-radius: 2rem;
+  }
 }
 
 /* A focus ring that survives on white, on sand, and on a darkened photograph. */
