@@ -4,6 +4,7 @@ import { Clock, MapPin, MessageCircle, ArrowRight, Sparkles } from "lucide-react
 import { waLink, BRAND } from "@/data/catalogue-brand";
 import { packagesLite as packages } from "@/data/generated/packages-lite";
 import { cn } from "@/lib/utils";
+import { tileImage } from "@/lib/img";
 
 // Labels carry no emoji. A row of pills prefixed with a sparkle, a mountain,
 // a beach umbrella and a lightning bolt is the single most recognisable
@@ -139,6 +140,10 @@ export function InteractivePackageExplorer() {
               <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                 <img
                   src={p.image}
+                  {...tileImage(
+                    p.image,
+                    "(min-width: 1400px) 428px, (min-width: 1024px) calc((100vw - 118px) / 3), (min-width: 640px) calc((100vw - 92px) / 2), calc(100vw - 42px)",
+                  )}
                   alt={p.title}
                   decoding="async"
                   loading="lazy"

@@ -80,8 +80,19 @@ export function ScrollJourneyFilm() {
   // about a quarter of the bytes instead of all of them.
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
+    const connection = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
 
-    if (prefersReducedMotion()) {
+    if (
+      prefersReducedMotion() ||
+      connection?.saveData ||
+      ["slow-2g", "2g", "3g"].includes(connection?.effectiveType ?? "") ||
+      typeof createImageBitmap !== "function"
+    ) {
       setReduced(true);
       return;
     }
@@ -90,21 +101,31 @@ export function ScrollJourneyFilm() {
     if (!el) return;
 
     const load = async () => {
-      const res = await fetch("/frames/journey/manifest.json").catch(() => null);
-      if (!res || !res.ok || cancelled) return;
-      const m: Manifest = await res.json();
+      const res = await fetch("/frames/journey/manifest.json", { signal: controller.signal }).catch(
+        () => null,
+      );
+      if (cancelled) return;
+      if (!res?.ok) {
+        setReduced(true);
+        return;
+      }
+      const m: Manifest | null = await res.json().catch(() => null);
+      if (cancelled) return;
+      if (!m || !Number.isInteger(m.count) || m.count < 1) {
+        setReduced(true);
+        return;
+      }
 
       // A phone gets the smaller set: fewer bytes, and less decoded bitmap
       // held in memory, which is the part that actually crashes low-end
       // devices.
       const useMobile = window.matchMedia("(max-width: 768px)").matches;
-      const src = useMobile ? m.mobile : m.desktop;
-      // A phone takes every second frame. 120 decoded 1080px frames are
-      // roughly 300MB of bitmap; a phone that runs short throws decoded
-      // frames away and decodes them again mid-scroll, which is the stutter
-      // people describe as the page hanging. Sixty frames still scrub
-      // smoothly through the damping below.
-      const step = useMobile ? 2 : 1;
+      // The source footage is 1280px wide; downloading upscaled 1920px
+      // stills adds bytes without recovering detail.
+      const src = m.mobile;
+      // Sample every second frame on desktop and every fourth on phones.
+      // Damping interpolates the playhead without downloading all 120 stills.
+      const step = useMobile ? 4 : 2;
       const count = Math.ceil(m.count / step);
 
       setTotal(count);
@@ -117,14 +138,16 @@ export function ScrollJourneyFilm() {
       const fetchFrame = async (i: number) => {
         const url = `${src.dir}/f_${String(i * step + 1).padStart(m.pad, "0")}.webp`;
         // A missing frame must not stall the sequence.
-        const res = await fetch(url).catch(() => null);
+        const res = await fetch(url, { signal: controller.signal }).catch(() => null);
+        if (cancelled) return;
         if (res && res.ok) imgs[i] = await res.blob().catch(() => undefined);
+        if (cancelled) return;
         done++;
         if (done % 8 === 0 || done === count) setLoaded(done);
       };
 
       /** Runs the queue a few at a time so the network is not saturated. */
-      const run = async (indices: number[], concurrency = 6) => {
+      const run = async (indices: number[], concurrency = 3) => {
         let next = 0;
         await Promise.all(
           Array.from({ length: Math.min(concurrency, indices.length) }, async () => {
@@ -143,6 +166,10 @@ export function ScrollJourneyFilm() {
 
       await run(sparse);
       if (cancelled) return;
+      if (!imgs.some(Boolean)) {
+        setReduced(true);
+        return;
+      }
 
       // Playable now. Gaps fall back to the nearest loaded frame while the
       // remainder streams in behind.
@@ -158,7 +185,9 @@ export function ScrollJourneyFilm() {
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
           io.disconnect();
-          void load();
+          void load().catch(() => {
+            if (!cancelled) setReduced(true);
+          });
         }
       },
       // Half a viewport of lead-in. 150% reached far enough up the page that
@@ -170,6 +199,7 @@ export function ScrollJourneyFilm() {
 
     return () => {
       cancelled = true;
+      controller.abort();
       io.disconnect();
     };
   }, []);
@@ -185,6 +215,11 @@ export function ScrollJourneyFilm() {
       const r = el.getBoundingClientRect();
       const scrubbable = r.height - window.innerHeight;
       progressRef.current = scrubbable <= 0 ? 0 : clamp(-r.top / scrubbable);
+      let next = 0;
+      for (let i = 0; i < CHAPTERS.length; i++) {
+        if (progressRef.current >= (CHAPTERS[i]?.at ?? 1)) next = i;
+      }
+      setChapter((current) => (current === next ? current : next));
     };
     const schedule = () => {
       if (raf) return;
@@ -215,14 +250,14 @@ export function ScrollJourneyFilm() {
     let shownFrame = 0;
     let lastDrawn = -1;
     let last = performance.now();
-    let running = true;
+    let running = false;
     let disposed = false;
 
     // Decoded frames, only within WINDOW of the playhead. createImageBitmap
     // decodes off the main thread, so a frame is ready before it is drawn,
-    // and frames far behind are released. About 25 decoded frames are held
+    // and frames far behind are released. About 9 nearby frames are prepared
     // at a time instead of all 120.
-    const WINDOW = 12;
+    const WINDOW = 4;
     const bitmaps = new Map<number, ImageBitmap>();
     const pending = new Set<number>();
     const prepare = (centre: number) => {
@@ -251,12 +286,10 @@ export function ScrollJourneyFilm() {
     };
 
     const size = () => {
-      // The frames are 1920px wide now, so a 2x canvas on a 1440px viewport is
-      // asking for 2880px of a 1920px source and buys nothing. Capping by the
-      // frame width rather than a fixed number keeps the canvas at or below
-      // the resolution that actually exists.
+      // Cap the backing canvas at the 1080px source resolution, including
+      // on large displays, to avoid rasterizing pixels absent from the source.
       const w0 = canvas.clientWidth || 1;
-      const maxDpr = Math.max(1, 1920 / w0);
+      const maxDpr = 1080 / w0;
       const dpr = Math.min(window.devicePixelRatio || 1, 2, maxDpr);
       const w = w0;
       const h = canvas.clientHeight || 1;
@@ -270,8 +303,9 @@ export function ScrollJourneyFilm() {
     ro.observe(canvas);
 
     const tick = (now: number) => {
-      raf = requestAnimationFrame(tick);
+      raf = 0;
       if (!running) return;
+      raf = requestAnimationFrame(tick);
 
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
@@ -320,12 +354,17 @@ export function ScrollJourneyFilm() {
       const dh = img.height * s;
       ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
     };
-    raf = requestAnimationFrame(tick);
-
     // Only burn frames while the section is anywhere near the viewport.
     const io = new IntersectionObserver(
       ([e]) => {
         running = e?.isIntersecting ?? false;
+        if (running && !raf) {
+          last = performance.now();
+          raf = requestAnimationFrame(tick);
+        } else if (!running && raf) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
       },
       { rootMargin: "150px 0px" },
     );
@@ -341,32 +380,15 @@ export function ScrollJourneyFilm() {
     };
   }, [ready]);
 
-  // ---- chapter label -------------------------------------------------------
-  useEffect(() => {
-    if (!ready) return;
-    let raf = 0;
-    const loop = () => {
-      raf = requestAnimationFrame(loop);
-      const p = progressRef.current;
-      let next = 0;
-      for (let i = 0; i < CHAPTERS.length; i++) {
-        if (p >= (CHAPTERS[i]?.at ?? 1)) next = i;
-      }
-      setChapter((c) => (c === next ? c : next));
-    };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-  }, [ready]);
-
   // ---- reduced motion: one still, no scrubbing ----------------------------
   if (reduced) {
     return (
       <section className="bg-[#00365F]">
         <div className="relative mx-auto max-w-[1400px] px-5 py-20 sm:px-8">
           <img
-            src="/frames/journey/desktop/f_0001.webp"
+            src="/frames/journey/mobile/f_0001.webp"
             alt="Aerial view of a beach resort on a Nawi Saadi holiday"
-            loading="eager"
+            loading="lazy"
             decoding="async"
             className="w-full rounded-3xl object-cover"
           />
