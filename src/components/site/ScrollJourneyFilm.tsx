@@ -6,10 +6,10 @@ export function ScrollJourneyFilm() {
   return (
     <section className="relative h-[65svh] min-h-[420px] max-h-[800px] overflow-hidden bg-[#00365F]">
       <img
-        src="/frames/journey/mobile/f_0001.webp"
-        alt="Aerial view of a beach resort on a Nawi Saadi holiday"
-        width={1080}
-        height={608}
+        src="/images/journey-resort-5e3fb49374.webp"
+        alt="Illustrative tropical beach resort with palm-lined villas and turquoise water"
+        width={1600}
+        height={900}
         loading="lazy"
         decoding="async"
         className="absolute inset-0 size-full object-cover"

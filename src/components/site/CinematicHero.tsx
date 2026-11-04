@@ -18,7 +18,7 @@ import { clamp, prefersReducedMotion } from "@/lib/scroll";
  * what makes it feel like a travel brand rather than a brochure template.
  */
 
-export type HeroClip = { src: string; poster: string; place: string };
+export type HeroClip = { src: string; poster: string; posterSmall: string; place: string };
 
 /**
  * Whether this visitor should be sent 2.5MB of decorative footage at all.
@@ -171,6 +171,20 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
     >
       {/* Footage */}
       <div className="absolute inset-0">
+        {/* A responsive image lets phones avoid the full-size video poster. */}
+        {current ? (
+          <picture className="absolute inset-0">
+            <source media="(max-width: 767px)" srcSet={current.posterSmall} />
+            <img
+              src={current.poster}
+              alt=""
+              aria-hidden="true"
+              fetchPriority="high"
+              decoding="async"
+              className="size-full object-cover"
+            />
+          </picture>
+        ) : null}
         {clips.map((clip, i) => (
           <video
             key={clip.src}
@@ -178,16 +192,6 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
               videoRefs.current[i] = el;
             }}
             {...(videoSrcs[i] ? { src: videoSrcs[i] } : {})}
-            // Only the clip on screen gets a poster.
-            //
-            // A <video poster> is fetched immediately regardless of `preload`,
-            // so both posters were downloading on first paint — 337KB, of
-            // which one is behind an opacity-0 layer nobody can see. On a
-            // throttled phone that half was competing for bandwidth with the
-            // half the LCP actually measures. The second clip gets its poster
-            // once the footage has been allowed to load, which is well after
-            // anything that matters to first paint.
-            {...(i === index || videoSrcs.length ? { poster: clip.poster } : {})}
             muted
             loop={single}
             playsInline
