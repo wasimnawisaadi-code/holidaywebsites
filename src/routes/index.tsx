@@ -161,11 +161,13 @@ function Hero() {
     {
       src: "/videos/girl-travel-2.mp4",
       poster: "/images/dst/view-at-the-top-burj-khalifa-at-the-top-1.webp",
+      posterSmall: "/images/hero-dubai-poster-720.webp",
       place: "Departing Dubai",
     },
     {
       src: "/videos/girl-travel-1.mp4",
       poster: "/images/destinations/hero-switzerland.webp",
+      posterSmall: "/images/destinations/hero-switzerland-sm.webp",
       place: "Arriving Worldwide",
     },
   ];

@@ -1,0 +1,6 @@
+Generated using the built-in image generation tool on 2026-11-04.
+This is an illustrative fictional resort scene, not a photograph of a named hotel.
+Website asset: public/images/journey-resort-5e3fb49374.webp (1600x900, WebP quality 78).
+
+Final generation prompt:
+Use case: photorealistic-natural. Asset type: premium travel website wide photographic banner, landscape 16:9, very high image quality. Create an original, crisp, photorealistic elevated coastal view of a beautiful tropical beach resort: curved ivory sand, translucent turquoise shallows becoming deep blue ocean, lush palms, discreet elegant low-rise resort villas nestled in greenery, a verdant mountainous headland fading into the distance. Warm natural late-afternoon sunlight, realistic sea textures and fine architectural details, refined editorial travel photography, balanced natural colors, no excessive saturation or fake HDR. Composition must work as a wide desktop banner and a center-cropped portrait mobile banner: the central area contains the beach, water and palms; keep the lower quarter visually calm for existing website white caption and gold button overlays. No people, text, typography, logos, watermarks, borders, collage, or UI. A fictional destination scene rather than a depiction of a named real hotel. Render the actual image only.

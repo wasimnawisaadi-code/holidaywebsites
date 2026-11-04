@@ -8,7 +8,7 @@ assert.ok(
   ["localhost", "127.0.0.1", "[::1]"].includes(new URL(base).hostname),
   "Run media regressions against a local server only",
 );
-const stillPath = "/frames/journey/mobile/f_0001.webp";
+const stillPath = "/images/journey-resort-5e3fb49374.webp";
 const caption = "Book once. We arrange every step of it.";
 const browser = await chromium.launch();
 
@@ -56,6 +56,24 @@ async function openCase({
   page.on("pageerror", (error) => errors.push(error.message));
   const response = await page.goto(base, { waitUntil: "load" });
   assert.equal(response?.status(), 200, "Homepage should load successfully");
+  const poster = page.locator("section picture img").first();
+  await poster.evaluate((image) => image.decode());
+  assert.ok(
+    (await poster.evaluate((image) => image.currentSrc)).endsWith(
+      mobile
+        ? "/images/hero-dubai-poster-720.webp"
+        : "/images/dst/view-at-the-top-burj-khalifa-at-the-top-1.webp",
+    ),
+    "Opening picture must select the correct responsive source",
+  );
+  assert.ok(
+    !requests.includes(
+      mobile
+        ? "/images/dst/view-at-the-top-burj-khalifa-at-the-top-1.webp"
+        : "/images/hero-dubai-poster-720.webp",
+    ),
+    "Opening picture must not download both sizes",
+  );
   return { context, page, requests, errors };
 }
 
@@ -81,7 +99,7 @@ async function assertStaticJourney({ page, requests }, { failedImage = false } =
   assert.equal(await page.locator("canvas").count(), 0, "The homepage should not contain a canvas");
   assert.equal(await page.getByText("Loading the journey", { exact: true }).count(), 0);
   assert.deepEqual(
-    requests.filter((path) => path.startsWith("/frames/journey/")),
+    requests.filter((path) => path === stillPath || path.startsWith("/frames/journey/")),
     [stillPath],
     "Only one still image should be requested, with no manifest or frame sequence",
   );
@@ -154,7 +172,7 @@ try {
         "Only the visible hero clip should play",
       );
       assert.deepEqual(
-        requests.filter((path) => path.startsWith("/frames/journey/")),
+        requests.filter((path) => path === stillPath || path.startsWith("/frames/journey/")),
         [stillPath],
       );
       assert.deepEqual(errors, [], "No uncaught browser errors");
@@ -179,7 +197,7 @@ try {
       await page.waitForTimeout(2800);
       assert.ok(!requests.some((path) => /\.mp4$/.test(path)), `${label} must skip video`);
       assert.deepEqual(
-        requests.filter((path) => path.startsWith("/frames/journey/")),
+        requests.filter((path) => path === stillPath || path.startsWith("/frames/journey/")),
         [stillPath],
       );
       assert.ok(

@@ -54,7 +54,7 @@ export function ScrollMarquee({
           io.disconnect();
         }
       },
-      { rootMargin: "120% 0px" },
+      { rootMargin: "200px 0px" },
     );
     io.observe(host);
     return () => io.disconnect();
