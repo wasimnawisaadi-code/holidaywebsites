@@ -30,9 +30,20 @@ for (const [label, viewport] of [
 ]) {
   console.log(`\n===== ${label} =====`);
   const page = await browser.newPage({ viewport });
+  await page.route("**/*", (requestRoute) => {
+    const request = requestRoute.request();
+    if (
+      new URL(request.url()).origin !== new URL(BASE).origin ||
+      !["GET", "HEAD"].includes(request.method())
+    ) {
+      return requestRoute.abort("blockedbyclient");
+    }
+    return requestRoute.continue();
+  });
 
   for (const route of ROUTES) {
     const problems = [];
+    const abortedImages = [];
     // Analytics posts to a Supabase endpoint on another origin. Whether that
     // call succeeds says nothing about whether this page renders, and before
     // the migration has run it is expected to fail — so third-party origins
@@ -63,6 +74,10 @@ for (const [label, viewport] of [
       // is swapped or paused off-screen; that is not a broken asset.
       const aborted = (r.failure()?.errorText ?? "").includes("ERR_ABORTED");
       if (aborted && /\.(mp4|webm|mov)(\?|$)/i.test(r.url())) return;
+      if (aborted && r.resourceType() === "image") {
+        abortedImages.push(r.url());
+        return;
+      }
       problems.push(`REQ: ${r.url().slice(0, 120)}`);
     };
     page.on("console", onConsole);
@@ -76,10 +91,50 @@ for (const [label, viewport] of [
         timeout: 45000,
       });
       status = res?.status() ?? "?";
+      if (!res?.ok()) problems.push(`HTTP: ${status}`);
       await page.waitForTimeout(2200);
     } catch (e) {
       problems.push(`NAV: ${e.message.slice(0, 120)}`);
     }
+
+    // Responsive source selection can cancel the original src request. Only
+    // excuse it when every matching image has actually loaded another source.
+    const imageState = await page
+      .evaluate((aborted) => {
+        const images = [...document.images];
+        const references = (image, url) =>
+          image.src === url ||
+          image.srcset.split(",").some((candidate) => {
+            const source = candidate.trim().split(/\s+/)[0];
+            return source && new URL(source, document.baseURI).href === url;
+          });
+        return {
+          unresolved: aborted.filter((url) => {
+            const matching = images.filter((image) => references(image, url));
+            return (
+              !matching.length ||
+              !matching.every(
+                (image) =>
+                  image.complete &&
+                  image.naturalWidth > 0 &&
+                  image.currentSrc &&
+                  image.currentSrc !== url,
+              )
+            );
+          }),
+          broken: images
+            .filter(
+              (image) =>
+                image.complete &&
+                image.naturalWidth === 0 &&
+                (image.currentSrc || image.getAttribute("src")),
+            )
+            .map((image) => image.currentSrc || image.src),
+        };
+      }, abortedImages)
+      .catch(() => ({ unresolved: abortedImages, broken: [] }));
+    for (const url of imageState.unresolved) problems.push(`REQ: ${url.slice(0, 120)}`);
+    for (const url of imageState.broken) problems.push(`IMG: ${url.slice(0, 120)}`);
 
     // Horizontal overflow is the classic mobile regression.
     const overflow = await page

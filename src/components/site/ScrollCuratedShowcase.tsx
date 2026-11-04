@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { waLink, BRAND } from "@/data/catalogue-brand";
 import { packagesLite as packages } from "@/data/generated/packages-lite";
+import { tileImage } from "@/lib/img";
 
 const SHOWCASE_SLUGS = [
   "swiss-alpine-dream",
@@ -209,6 +210,7 @@ export function ScrollCuratedShowcase() {
                 <div className="relative aspect-[16/11] overflow-hidden rounded-2xl bg-slate-800">
                   <img
                     src={pkg.image}
+                    {...tileImage(pkg.image, "(min-width: 640px) 346px, 286px")}
                     alt={pkg.title}
                     decoding="async"
                     loading="lazy"

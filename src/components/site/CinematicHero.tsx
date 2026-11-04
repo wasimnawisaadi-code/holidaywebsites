@@ -39,7 +39,7 @@ function wantsVideo(): boolean {
     }
   ).connection;
   if (c?.saveData) return false;
-  if (c?.effectiveType === "2g" || c?.effectiveType === "slow-2g") return false;
+  if (["slow-2g", "2g", "3g"].includes(c?.effectiveType ?? "")) return false;
   return true;
 }
 
@@ -50,6 +50,7 @@ function sourceFor(src: string): string {
 }
 
 export function CinematicHero({ clips }: { clips: HeroClip[] }) {
+  const sectionRef = useRef<HTMLElement>(null);
   const [index, setIndex] = useState(0);
   // The copy that lifts and fades as the hero scrolls away. Written straight
   // to the node: a state update here re-rendered the whole hero (both videos,
@@ -69,7 +70,12 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
   const [videoSrcs, setVideoSrcs] = useState<string[]>([]);
   useEffect(() => {
     if (!wantsVideo()) return;
-    const start = () => setVideoSrcs(clips.map((c) => sourceFor(c.src)));
+    let cancelled = false;
+    let idleId: number | undefined;
+    let timerId: number | undefined;
+    const start = () => {
+      if (!cancelled) setVideoSrcs(clips.map((c) => sourceFor(c.src)));
+    };
     // `load` has already fired if we mounted late; requestIdleCallback then
     // waits for the main thread to be free rather than adding to the jam.
     const idle = (
@@ -77,10 +83,18 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
         requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
       }
     ).requestIdleCallback;
-    const kick = () => (idle ? idle(start, { timeout: 2500 }) : window.setTimeout(start, 900));
+    const kick = () => {
+      if (idle) idleId = idle(start, { timeout: 2500 });
+      else timerId = window.setTimeout(start, 900);
+    };
     if (document.readyState === "complete") kick();
     else window.addEventListener("load", kick, { once: true });
-    return () => window.removeEventListener("load", kick);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("load", kick);
+      if (idleId !== undefined) window.cancelIdleCallback(idleId);
+      if (timerId !== undefined) window.clearTimeout(timerId);
+    };
   }, [clips]);
 
   // Advance on the clip's own `ended` event rather than a fixed timer, so the
@@ -91,14 +105,31 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
   useEffect(() => {
     if (!clips.length || !videoSrcs.length) return;
     const el = videoRefs.current[index];
-    if (!el) return;
+    const section = sectionRef.current;
+    if (!el || !section) return;
     el.currentTime = 0;
-    const play = el.play();
-    if (play && typeof play.catch === "function") play.catch(() => {});
-    if (single) return;
+    let visible = false;
+    const syncPlayback = () => {
+      for (const video of videoRefs.current) {
+        if (video && video !== el) video.pause();
+      }
+      if (visible && !document.hidden) void el.play().catch(() => {});
+      else el.pause();
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry?.isIntersecting ?? false;
+      syncPlayback();
+    });
+    observer.observe(section);
+    document.addEventListener("visibilitychange", syncPlayback);
     const next = () => setIndex((i) => (i + 1) % clips.length);
-    el.addEventListener("ended", next);
-    return () => el.removeEventListener("ended", next);
+    if (!single) el.addEventListener("ended", next);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", syncPlayback);
+      el.removeEventListener("ended", next);
+      el.pause();
+    };
   }, [index, clips.length, single, videoSrcs.length]);
 
   // Gentle rise on the copy as the hero scrolls away.
@@ -134,7 +165,10 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
   // means the hero is simply taller than a short window and scrolls, which is
   // ordinary behaviour, instead of colliding.
   return (
-    <section className="relative h-[100svh] min-h-[760px] w-full overflow-hidden bg-[#04121f]">
+    <section
+      ref={sectionRef}
+      className="relative h-[100svh] min-h-[760px] w-full overflow-hidden bg-[#04121f]"
+    >
       {/* Footage */}
       <div className="absolute inset-0">
         {clips.map((clip, i) => (
@@ -155,6 +189,7 @@ export function CinematicHero({ clips }: { clips: HeroClip[] }) {
             // anything that matters to first paint.
             {...(i === index || videoSrcs.length ? { poster: clip.poster } : {})}
             muted
+            loop={single}
             playsInline
             // "none", not "auto". The first clip used to preload in full, which
             // on a throttled connection meant 2.6MB downloading in parallel
