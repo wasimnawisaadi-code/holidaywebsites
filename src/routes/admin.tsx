@@ -1396,16 +1396,28 @@ function WhatsAppIntentLog({
 }) {
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<number | null>(null);
+  // Plain <input type="date"> values ("YYYY-MM-DD" or ""), compared against
+  // created_at as calendar days rather than instants — a "To" date should
+  // include everything recorded on that day, not stop at its midnight.
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return log;
-    return log.filter((w) =>
-      [w.intent, w.slug, w.path, w.pageType, w.label, ...Object.values(w.fields)].some((v) =>
-        (v ?? "").toLowerCase().includes(q),
-      ),
-    );
-  }, [log, query]);
+    const from = dateFrom ? new Date(`${dateFrom}T00:00:00`) : null;
+    const to = dateTo ? new Date(`${dateTo}T23:59:59.999`) : null;
+    return log.filter((w) => {
+      if (from || to) {
+        const t = new Date(w.created_at);
+        if (from && t < from) return false;
+        if (to && t > to) return false;
+      }
+      if (!q) return true;
+      return [w.intent, w.slug, w.path, w.pageType, w.label, ...Object.values(w.fields)].some(
+        (v) => (v ?? "").toLowerCase().includes(q),
+      );
+    });
+  }, [log, query, dateFrom, dateTo]);
 
   return (
     <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -1444,15 +1456,54 @@ function WhatsAppIntentLog({
           </button>
         </div>
 
-        <label className="mt-6 flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5">
-          <Search className="size-4 shrink-0 text-[#94A3B8]" aria-hidden="true" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search messages, packages or pages"
-            className="w-full bg-transparent font-sans text-sm text-[#00365F] outline-none placeholder:text-[#94A3B8]"
-          />
-        </label>
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <label className="flex min-w-[240px] flex-1 items-center gap-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5">
+            <Search className="size-4 shrink-0 text-[#94A3B8]" aria-hidden="true" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search messages, packages or pages"
+              className="w-full bg-transparent font-sans text-sm text-[#00365F] outline-none placeholder:text-[#94A3B8]"
+            />
+          </label>
+
+          <label className="flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2.5">
+            <span className="font-sans text-[11px] font-bold uppercase tracking-wider text-[#94A3B8]">
+              From
+            </span>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              max={dateTo || undefined}
+              className="bg-transparent font-sans text-xs text-[#00365F] outline-none"
+            />
+          </label>
+          <label className="flex items-center gap-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2.5">
+            <span className="font-sans text-[11px] font-bold uppercase tracking-wider text-[#94A3B8]">
+              To
+            </span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              min={dateFrom || undefined}
+              className="bg-transparent font-sans text-xs text-[#00365F] outline-none"
+            />
+          </label>
+          {dateFrom || dateTo ? (
+            <button
+              type="button"
+              onClick={() => {
+                setDateFrom("");
+                setDateTo("");
+              }}
+              className="font-sans text-xs font-semibold text-[#64748B] hover:text-[#00365F]"
+            >
+              Clear dates
+            </button>
+          ) : null}
+        </div>
 
         {filtered.length ? (
           <ul className="mt-6 space-y-3">
