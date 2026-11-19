@@ -380,7 +380,10 @@ export async function loadDashboard(): Promise<Dashboard> {
       whatsapp: whatsapp.length,
       pageViews: rows.filter((r) => r.type === "page_view").length,
     },
-    recent: rows.slice(0, 150),
+    // At ~150-200 events a day, the old cap of 150 showed barely a day of
+    // history no matter how far back someone meant to look. 1500 covers
+    // roughly a week at the current pace, for the same single request.
+    recent: rows.slice(0, 1500),
     byType: tally(rows.map((r) => ({ k: r.type }))).map(([type, count]) => ({ type, count })),
     topPaths: tally(rows.filter((r) => r.type === "page_view").map((r) => ({ k: r.path ?? "—" })))
       .slice(0, 15)

@@ -1130,7 +1130,7 @@ function SessionsFeed({ recent }: { recent: Dashboard["recent"] }) {
   return (
     <div className="mt-8 rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-sm sm:p-8">
       <h2 className="font-display text-2xl font-bold text-[#00365F]">
-        Live Visitor Activity Feed (Last 150 Events)
+        Live Visitor Activity Feed (Last {recent.length} Events)
       </h2>
       <p className="mt-1 font-sans text-xs text-[#64748B]">
         Real-time audit log of page views, button taps, and trip explorations
