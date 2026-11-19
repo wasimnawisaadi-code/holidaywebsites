@@ -54,6 +54,12 @@ export async function submitLead(payload: LeadPayload): Promise<LeadResult> {
 
     const res = await fetch(`${URL_BASE}/rest/v1/leads`, {
       method: "POST",
+      // Several callers fire this from a WhatsApp link's onClick, which
+      // unloads or backgrounds the tab right after the click. A plain fetch
+      // gets cancelled when that happens — the enquiry silently vanished
+      // while the WhatsApp message still went out. `keepalive` is the
+      // browser's own mechanism for a request that must outlive the page.
+      keepalive: true,
       headers: {
         "Content-Type": "application/json",
         apikey: ANON_KEY,

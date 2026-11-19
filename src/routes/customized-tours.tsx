@@ -387,6 +387,10 @@ function CustomizedToursPage() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => {
+                // Opening WhatsApp unloads or backgrounds this tab on most
+                // phones before a plain fetch would finish, which silently
+                // dropped the enquiry while the WhatsApp message still sent
+                // fine — submitLead uses keepalive for exactly this click.
                 submitLead({
                   email: `custom-tour-${Date.now()}@lead.nawisaadiholidays.com`,
                   source: "custom_tour",
