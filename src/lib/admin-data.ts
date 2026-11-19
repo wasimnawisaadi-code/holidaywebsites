@@ -363,13 +363,19 @@ export async function loadDashboard(): Promise<Dashboard> {
 
   // One wide read rather than a query per panel: at this volume it is a single
   // round trip, and every panel below is a grouping of the same rows.
-  const [rows, leads] = await Promise.all([
+  //
+  // whatsapp_click gets its own read. `rows` is the 5000 most recent events
+  // of every type, and page_view alone outnumbers whatsapp_click 25 to 1 —
+  // so filtering whatsapp_click out of `rows` only ever surfaced the last few
+  // days of clicks while the panel's own label claimed "every one kept".
+  // Querying the type directly means that claim is actually true.
+  const [rows, leads, whatsapp] = await Promise.all([
     rest<EventRow>("events?select=*&order=created_at.desc&limit=5000"),
     rest<Lead>("leads?select=*&order=created_at.desc&limit=500"),
+    rest<EventRow>("events?type=eq.whatsapp_click&select=*&order=created_at.desc&limit=5000"),
   ]);
 
   const sessionIds = new Set(rows.map((r) => r.session_id).filter(Boolean));
-  const whatsapp = rows.filter((r) => r.type === "whatsapp_click");
   const { sessions, journeys } = buildSessions(rows);
 
   return {
